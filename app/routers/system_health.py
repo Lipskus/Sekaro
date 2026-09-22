@@ -19,7 +19,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.models import Inbox, GmailAccount, Office365Account, AppSetting, SmtpAccount
+from app.models import Inbox, AppSetting, SmtpAccount
 
 log = logging.getLogger("quickly.system_health")
 
@@ -200,17 +200,12 @@ def _beacon_registration_actual(data: dict | None, inbox_id: int) -> int:
 
 @router.get("")
 async def get_system_health(db: AsyncSession = Depends(get_db)):
-    """Return a single aggregated health snapshot covering:
-    - Google OAuth (credentials configured + per-account token status)
-    - Microsoft OAuth (credentials configured + per-account token status)
-    - Inboxes (list with paused flag)
-    - Unibox sync (push vs. polling, in-progress flag)
-    - AI features (enabled + whether key is set)
-    - Active flags (test mode)
+    """Return a single aggregated health snapshot for Sekaro.
+
+    The active product path is provider-agnostic SMTP/IMAP. Legacy Google and
+    Microsoft OAuth integrations are intentionally excluded from health checks.
     """
     from app.app_settings import (
-        get_google_oauth_credentials,
-        get_office365_oauth_credentials,
         get_gmail_sync_config,
         get_test_mode,
     )
@@ -223,45 +218,23 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
     # Gather non-DB calls concurrently; run DB queries sequentially.
     # AsyncSession does not support concurrent operations on the same session.
     # ------------------------------------------------------------------
-    google_creds, o365_creds, unibox_status = await asyncio.gather(
-        get_google_oauth_credentials(db),
-        get_office365_oauth_credentials(db),
-        get_unibox_sync_status(),
-    )
+    unibox_status = await get_unibox_sync_status()
 
+    # The sync interval currently shares the legacy settings key so existing
+    # installations keep their value. The UI no longer exposes Gmail-specific
+    # push configuration.
     gmail_sync_cfg = await get_gmail_sync_config(db)
     test_mode_val = await get_test_mode(db)
-    gmail_rows = await db.execute(
-        select(GmailAccount, Inbox).join(Inbox, GmailAccount.inbox_id == Inbox.id).order_by(GmailAccount.created_at.desc())
-    )
-    o365_rows = await db.execute(
-        select(Office365Account, Inbox).join(Inbox, Office365Account.inbox_id == Inbox.id).order_by(Office365Account.created_at.desc())
-    )
     smtp_rows = await db.execute(
         select(SmtpAccount, Inbox).join(Inbox, SmtpAccount.inbox_id == Inbox.id).order_by(SmtpAccount.created_at.desc())
     )
     inbox_rows = await db.execute(select(Inbox).order_by(Inbox.id))
     ai_settings_rows = await db.execute(select(AppSetting).where(AppSetting.key.like("ai_%")))
 
-    google_client_id, google_client_secret = google_creds
-    o365_client_id, o365_client_secret, o365_tenant_id = o365_creds
-
-    gmail_rows_list = gmail_rows.all()
-    o365_rows_list = o365_rows.all()
     smtp_rows_list = smtp_rows.all()
     inbox_list = list(inbox_rows.scalars().all())
 
-    gmail_probe_results = []
-    o365_probe_results = []
     domain_probe_map: dict[int, str] = {}
-    if gmail_rows_list:
-        gmail_probe_results = await asyncio.gather(
-            *[asyncio.to_thread(_probe_gmail, ga.access_token or "") for ga, _ in gmail_rows_list]
-        )
-    if o365_rows_list:
-        o365_probe_results = await asyncio.gather(
-            *[asyncio.to_thread(_probe_o365, oa.access_token or "") for oa, _ in o365_rows_list]
-        )
     inboxes_with_domains = [(inbox.id, inbox.tracking_domain) for inbox in inbox_list if inbox.tracking_domain]
     if inboxes_with_domains:
         raw_domain_probes = await asyncio.gather(
@@ -404,49 +377,6 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
             }
 
     # ------------------------------------------------------------------
-    # Google OAuth
-    # ------------------------------------------------------------------
-    google_configured = bool(google_client_id and google_client_secret)
-    google_accounts = []
-    for idx, (ga, inbox) in enumerate(gmail_rows_list):
-        probe = gmail_probe_results[idx] if idx < len(gmail_probe_results) else "unknown"
-        token_st = _gmail_token_status(ga.token_expiry)
-        missing = _gmail_missing_scopes(ga.scopes)
-        google_accounts.append({
-            "id": ga.id,
-            "inbox_id": ga.inbox_id,
-            "google_email": ga.google_email,
-            "inbox_display_name": inbox.display_name,
-            "token_status": token_st,
-            "token_valid": token_st == "valid",
-            "token_expiry": ga.token_expiry.isoformat() if ga.token_expiry else None,
-            "can_refresh": bool(ga.refresh_token),
-            "login_status": probe or "unknown",
-            "login_valid": probe == "valid",
-            "missing_scopes": [{"scope": s, "name": s.split("/")[-1]} for s in missing],
-        })
-
-    # ------------------------------------------------------------------
-    # Microsoft OAuth
-    # ------------------------------------------------------------------
-    o365_configured = bool(o365_client_id and o365_client_secret)
-    o365_accounts = []
-    for idx, (oa, inbox) in enumerate(o365_rows_list):
-        probe = o365_probe_results[idx] if idx < len(o365_probe_results) else "unknown"
-        token_st = _o365_token_status(oa.token_expiry)
-        o365_accounts.append({
-            "id": oa.id,
-            "inbox_id": oa.inbox_id,
-            "microsoft_email": oa.microsoft_email,
-            "inbox_display_name": inbox.display_name,
-            "token_status": token_st,
-            "token_valid": token_st == "valid",
-            "token_expiry": oa.token_expiry.isoformat() if oa.token_expiry else None,
-            "login_status": probe or "unknown",
-            "login_valid": probe == "valid",
-        })
-
-    # ------------------------------------------------------------------
     # Generic SMTP
     # ------------------------------------------------------------------
     smtp_accounts = []
@@ -533,7 +463,7 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
     ev_last_error_at = await _get_setting(db, EMAIL_VERIFICATION_LAST_ERROR_AT) or ""
 
     # ------------------------------------------------------------------
-    # Unibox / Gmail push sync
+    # Unibox / IMAP polling sync
     # ------------------------------------------------------------------
     push_topic = (gmail_sync_cfg or {}).get("push_topic", "")
     sync_interval = int((gmail_sync_cfg or {}).get("sync_interval_minutes", 5))
@@ -544,21 +474,13 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
     test_mode = bool(test_mode_val)
 
     return {
-        "google_oauth": {
-            "configured": google_configured,
-            "accounts": google_accounts,
-        },
-        "microsoft_oauth": {
-            "configured": o365_configured,
-            "accounts": o365_accounts,
-        },
         "smtp": {
             "accounts": smtp_accounts,
         },
         "inboxes": inboxes,
         "unibox_sync": {
-            "push_enabled": bool(push_topic),
-            "push_topic": push_topic,
+            "push_enabled": False,
+            "push_topic": "",
             "sync_interval_minutes": sync_interval,
             "initial_list_sync_in_progress": unibox_status.get("initial_list_sync_in_progress", False),
             "inflight_inbox_ids": unibox_status.get("inflight_inbox_ids", []),
