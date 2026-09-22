@@ -11,24 +11,24 @@ import { useLoading } from '../context/LoadingContext';
 import { cn } from '../utils/cn';
 
 const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'active', label: 'Enrollment: active' },
-  { value: 'contacted', label: 'Enrollment: contacted' },
-  { value: 'completed', label: 'Enrollment: completed' },
-  { value: 'bounced', label: 'Enrollment: bounced' },
-  { value: 'unsubscribed', label: 'Enrollment: unsubscribed' },
-  { value: 'wrong_person', label: 'Enrollment: wrong_person' },
-  { value: 'invalid', label: 'Verify: invalid' },
-  { value: 'replied', label: 'Has reply' },
+  { value: 'all', label: 'Wszystkie statusy' },
+  { value: 'active', label: 'Kampania: aktywny' },
+  { value: 'contacted', label: 'Kampania: skontaktowano' },
+  { value: 'completed', label: 'Kampania: zakończony' },
+  { value: 'bounced', label: 'Kampania: odbity' },
+  { value: 'unsubscribed', label: 'Kampania: wypisany' },
+  { value: 'wrong_person', label: 'Kampania: zły odbiorca' },
+  { value: 'invalid', label: 'Weryfikacja: niepoprawny' },
+  { value: 'replied', label: 'Ma odpowiedź' },
 ];
 
 const INTEREST_FILTER_OPTIONS = [
-  { value: 'all', label: 'All interest' },
-  { value: 'unset', label: 'No interest set' },
-  { value: 'interested', label: 'Interested' },
-  { value: 'not_interested', label: 'Not interested' },
-  { value: 'out_of_office', label: 'Out of office' },
-  { value: 'auto_reply', label: 'Auto-reply' },
+  { value: 'all', label: 'Wszystkie reakcje' },
+  { value: 'unset', label: 'Brak oceny' },
+  { value: 'interested', label: 'Zainteresowany' },
+  { value: 'not_interested', label: 'Niezainteresowany' },
+  { value: 'out_of_office', label: 'Poza biurem' },
+  { value: 'auto_reply', label: 'Automatyczna odpowiedź' },
 ];
 
 const TAB_ALL = 'all';
@@ -324,16 +324,16 @@ export default function Leads() {
     <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold mb-1">Leads</h1>
+          <h1 className="text-2xl font-semibold mb-1">Kontakty</h1>
           <p className="text-sm text-gray-500 max-w-2xl">
-            Search and manage contacts across campaigns. Use{' '}
-            <strong className="font-medium text-gray-700">Bounced &amp; Invalid</strong>{' '}
-            to fix addresses and put people back into the send flow (with verification when enabled).
+            Zarządzaj kontaktami ze wszystkich kampanii. W widoku{' '}
+            <strong className="font-medium text-gray-700">Odbite i niepoprawne</strong>{' '}
+            możesz poprawić adres i ponownie włączyć kontakt do wysyłki.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>
-            Export CSV
+            Eksport CSV
           </Button>
           <FileUploadArea
             size="sm"
@@ -344,7 +344,7 @@ export default function Leads() {
               if (f) importRecoverCsv(f);
             }}
           >
-            Import recovery CSV
+            Import CSV do naprawy
           </FileUploadArea>
         </div>
       </div>
@@ -360,7 +360,7 @@ export default function Leads() {
               : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50',
           )}
         >
-          All leads
+          Wszystkie kontakty
         </button>
         <button
           type="button"
@@ -372,7 +372,7 @@ export default function Leads() {
               : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50',
           )}
         >
-          Bounced &amp; Invalid
+          Odbite i niepoprawne
         </button>
       </div>
 
@@ -429,8 +429,8 @@ export default function Leads() {
       <div className="flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px] max-w-md">
           <Input
-            label="Search"
-            placeholder="Email or name…"
+            label="Szukaj"
+            placeholder="E-mail lub nazwa…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -439,9 +439,9 @@ export default function Leads() {
 
       {selected.size > 0 && (
         <Card className="p-4 flex flex-wrap gap-3 items-center">
-          <span className="text-sm font-medium text-gray-700">{selected.size} selected</span>
+          <span className="text-sm font-medium text-gray-700">{selected.size} zaznaczono</span>
           <Button type="button" variant="destructive" size="sm" onClick={handleBulkDelete}>
-            Delete
+            Usuń
           </Button>
           <div className="flex flex-wrap items-center gap-2">
             <select
@@ -485,21 +485,21 @@ export default function Leads() {
                   aria-label="Select all"
                 />
               </th>
-              <th className="p-2">Email</th>
-              <th className="p-2">Name</th>
-              <th className="p-2">Verify / enrollments</th>
-              <th className="p-2">Campaigns</th>
-              <th className="p-2">Sending inbox</th>
-              <th className="p-2">Enrolled</th>
-              {tab === TAB_BOUNCED && <th className="p-2 min-w-[200px]">New email</th>}
-              {tab === TAB_BOUNCED && <th className="p-2 w-44">Actions</th>}
+              <th className="p-2">E-mail</th>
+              <th className="p-2">Nazwa / imię</th>
+              <th className="p-2">Weryfikacja / kampanie</th>
+              <th className="p-2">Kampanie</th>
+              <th className="p-2">Skrzynka nadawcza</th>
+              <th className="p-2">Dodano</th>
+              {tab === TAB_BOUNCED && <th className="p-2 min-w-[200px]">Nowy e-mail</th>}
+              {tab === TAB_BOUNCED && <th className="p-2 w-44">Akcje</th>}
             </tr>
           </thead>
           <tbody>
             {leads.length === 0 ? (
               <tr>
                 <td colSpan={tab === TAB_BOUNCED ? 9 : 7} className="p-8 text-center text-gray-500">
-                  No leads match this view.
+                  Brak kontaktów pasujących do tego widoku.
                 </td>
               </tr>
             ) : (
@@ -598,10 +598,10 @@ export default function Leads() {
                   {tab === TAB_BOUNCED && (
                     <td className="p-2 align-top space-y-1">
                       <Button type="button" size="sm" variant="default" onClick={() => recoverOne(l)}>
-                        Save &amp; recover
+                        Zapisz i przywróć
                       </Button>
                       <Button type="button" size="sm" variant="outline" onClick={() => markActiveOne(l)}>
-                        Active only
+                        Tylko aktywny
                       </Button>
                     </td>
                   )}
