@@ -340,7 +340,7 @@ export default function Unibox() {
         await loadSyncStatus({ silent: true });
       }
     } catch (err) {
-      notify({ type: 'error', message: err.message || 'Failed to start sync.' });
+      notify({ type: 'error', message: err.message || 'Nie udało się uruchomić synchronizacji.' });
     } finally {
       setSyncing(false);
     }
@@ -359,12 +359,12 @@ export default function Unibox() {
         body: JSON.stringify(body),
       });
       if ((res?.queued || 0) <= 0) {
-        notify({ type: 'error', message: 'No inboxes available for backfill.' });
+        notify({ type: 'error', message: 'Brak skrzynek dostępnych do synchronizacji starszych wiadomości.' });
       } else {
         const scopeMsg = selectedThread?.inbox_id ? 'selected inbox' : 'all inboxes';
         notify({
           type: 'success',
-          message: `Loading older mail (${OLDER_WINDOW_DAYS} days) for ${scopeMsg}.`,
+          message: `Wczytywanie starszych wiadomości (${OLDER_WINDOW_DAYS} dni) dla ${scopeMsg}.`,
         });
       }
     } catch (err) {
@@ -542,9 +542,9 @@ export default function Unibox() {
                   <option key={s.value} value={s.value}>{s.label}</option>
                 ))}
               </select>
-              {/* <Button variant="outline" size="sm" onClick={triggerSync} disabled={syncing}>
-                {syncing ? 'Syncing...' : 'Sync now'}
-              </Button> */}
+              <Button variant="outline" size="sm" onClick={triggerSync} disabled={syncing}>
+                {syncing ? 'Synchronizacja…' : 'Synchronizuj'}
+              </Button>
             </div>
           </div>
 
