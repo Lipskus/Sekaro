@@ -1088,7 +1088,7 @@ export default function Settings() {
                     const blob = await res.blob();
                     const dispo = res.headers.get('Content-Disposition');
                     const m = dispo && dispo.match(/filename="([^"]+)"/);
-                    const name = m ? m[1] : 'quickly-backup.qbk';
+                    const name = m ? m[1] : 'sekaro-backup.qbk';
                     const a = document.createElement('a');
                     a.href = URL.createObjectURL(blob);
                     a.download = name;
@@ -1864,7 +1864,7 @@ export default function Settings() {
         <section id="settings-mcp" className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (AI agents)</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Quickly exposes a remote MCP endpoint over HTTPS. Create an API key under API keys, then point Cursor at it with
+            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Create an API key under API keys, then point Cursor at it with
             <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">npx mcp-remote</code>
             (Node 18+). No Python install on your machine.
           </p>
