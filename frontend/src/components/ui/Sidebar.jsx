@@ -32,7 +32,7 @@ const links = [
   { to: '/settings#general', key: 'settings', icon: <RiSettingsLine size={20} /> },
 ];
 
-const APP_VERSION = '0.1.1';
+const APP_VERSION = '0.2.0';
 
 function getOS() {
   const ua = navigator.userAgent;
