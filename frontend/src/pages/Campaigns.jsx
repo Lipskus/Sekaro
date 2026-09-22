@@ -74,23 +74,23 @@ export default function Campaigns() {
     }
   };
 
-  const togglePause = async (id, paused, name) => {
-    const ok = await confirm(`${paused ? 'Resume' : 'Pause'} campaign "${name}"?`);
+  const toggleWstrzymaj = async (id, paused, name) => {
+    const ok = await confirm(`${paused ? 'Wznowić' : 'Wstrzymać'} kampanię "${name}"?`);
     if (!ok) return;
     await api.patch(`/campaigns/${id}`, { paused: !paused });
     load();
   };
   const deleteCampaign = async (id, name) => {
-    const ok = await confirm(`Delete campaign "${name}"? This cannot be undone.`);
+    const ok = await confirm(`Usunąć kampanię "${name}"? Tej operacji nie można cofnąć.`);
     if (!ok) return;
     await api.del(`/campaigns/${id}`);
     load();
   };
   const duplicateCampaign = async (id, name) => {
-    const ok = await confirm(`Duplicate campaign "${name}"?`);
+    const ok = await confirm(`Zduplikować kampanię "${name}"?`);
     if (!ok) return;
     const c = await api.post(`/campaigns/${id}/duplicate`);
-    notify({ type: 'success', message: 'Campaign duplicated: ' + c.name });
+    notify({ type: 'success', message: 'Kampania zduplikowana: ' + c.name });
     load();
   };
 
@@ -101,27 +101,27 @@ export default function Campaigns() {
   const isPriority = strategy === 'priority';
   const banner = isPriority ? (
     <div className="mb-4 flex items-center gap-2 text-xs text-gray-500">
-      <span className="font-medium text-gray-700">Priority</span>
+      <span className="font-medium text-gray-700">Priorytet</span>
       <span>·</span>
-      <span>Drag rows to reorder</span>
+      <span>Przeciągnij wiersze, aby zmienić kolejność</span>
       <span>·</span>
-      <Link to="/settings#general" className="underline text-teal-500">Change strategy</Link>
+      <Link to="/settings#general" className="underline text-teal-500">Zmień strategię</Link>
     </div>
   ) : null;
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold mb-4">Campaigns</h1>
+        <h1 className="text-2xl font-semibold mb-4">Kampanie</h1>
         <Button as={Link} to="/analytics" variant="outline" size="sm">
-          Analytics
+          Analityka
         </Button>
       </div>
 
       {banner}
 
       {campaigns.length === 0 && (
-        <Card>No campaigns yet. <Link className="text-teal-500" to="/campaigns/add">Create campaign</Link>.</Card>
+        <Card>Brak kampanii. <Link className="text-teal-500" to="/campaigns/add">Utwórz kampanię</Link>.</Card>
       )}
 
       {campaigns.length > 0 && (
@@ -131,10 +131,10 @@ export default function Campaigns() {
             <thead>
               <tr>
                 {isPriority && <><th className="w-8"></th><th className="w-10 text-gray-500 text-xs">#</th></>}
-                <th>Name</th>
+                <th>Nazwa</th>
                 <th>Status</th>
-                <th className="text-center">Progress</th>
-                <th className="text-center">Replies</th>
+                <th className="text-center">Postęp</th>
+                <th className="text-center">Odpowiedzi</th>
                 <th></th>
               </tr>
             </thead>
@@ -160,45 +160,45 @@ export default function Campaigns() {
                 // When paused: scheduled slots were cleared, so denom == emailsSent
                 // which makes percent = 100%, but it's misleading.
                 const isCompleted = !c.paused && scheduled === 0 && emailsSent > 0;
-                const isPaused = !!c.paused;
+                const isWstrzymajd = !!c.paused;
 
                 // For paused campaigns, compute progress against total leads
                 // to give a better sense of how far we got
-                const pausedPercent = isPaused && totalLeads > 0
+                const pausedPercent = isWstrzymajd && totalLeads > 0
                   ? Math.round((emailsSent / totalLeads) * 100)
                   : 0;
 
                 // Build a short reason line for paused / completed
                 const reasonParts = [];
-                if (replies > 0) reasonParts.push(`${replies} replied`);
+                if (replies > 0) reasonParts.push(`${replies} odpowiedzi`);
                 const bounced = stats.bounced || 0;
-                if (bounced > 0) reasonParts.push(`${bounced} bounced`);
+                if (bounced > 0) reasonParts.push(`${bounced} odbitych`);
                 const unsubscribed = stats.unsubscribed || 0;
-                if (unsubscribed > 0) reasonParts.push(`${unsubscribed} unsub`);
+                if (unsubscribed > 0) reasonParts.push(`${unsubscribed} wypisanych`);
                 const needsCustom = stats.needs_custom_email || 0;
-                if (needsCustom > 0) reasonParts.push(`${needsCustom} needs custom`);
+                if (needsCustom > 0) reasonParts.push(`${needsCustom} wymaga treści`);
 
                 // Status display
                 let statusLabel, statusClass;
-                if (isPaused) {
-                  statusLabel = 'Paused';
+                if (isWstrzymajd) {
+                  statusLabel = 'Wstrzymana';
                   statusClass = 'text-amber-600 font-bold';
                 } else if (isCompleted) {
-                  statusLabel = 'Completed';
+                  statusLabel = 'Zakończona';
                   statusClass = 'text-blue-600 font-bold';
                 } else if (needsCustom > 0 && totalLeads === needsCustom) {
-                  statusLabel = 'Needs Writing';
+                  statusLabel = 'Wymaga treści';
                   statusClass = 'text-purple-600 font-bold';
                 } else if (totalLeads === 0) {
-                  statusLabel = 'Draft';
+                  statusLabel = 'Szkic';
                   statusClass = 'text-gray-400 font-bold';
                 } else {
-                  statusLabel = 'Active';
+                  statusLabel = 'Aktywna';
                   statusClass = 'text-green-600 font-bold';
                 }
 
                 // Progress bar colour
-                const barColor = isPaused ? 'bg-amber-400' : isCompleted ? 'bg-blue-500' : 'bg-teal-500';
+                const barColor = isWstrzymajd ? 'bg-amber-400' : isCompleted ? 'bg-blue-500' : 'bg-teal-500';
 
                 return (
                   <tr
@@ -219,15 +219,15 @@ export default function Campaigns() {
                       </>
                     )}
                     <td className="py-2">
-                      {isPaused ? (
+                      {isWstrzymajd ? (
                         <span className="text-gray-500">
                           {c.name}{' '}
-                          <span className="inline-block text-amber-700 bg-amber-100 px-1 py-0.5 text-xs font-bold rounded">PAUSED</span>
+                          <span className="inline-block text-amber-700 bg-amber-100 px-1 py-0.5 text-xs font-bold rounded">WSTRZYMANA</span>
                         </span>
                       ) : isCompleted ? (
                         <span>
                           <Link to={`/campaigns/${c.id}`} className="text-blue-500">{c.name}</Link>{' '}
-                          <span className="inline-block text-blue-600 bg-blue-100 px-1 py-0.5 text-xs font-bold rounded">DONE</span>
+                          <span className="inline-block text-blue-600 bg-blue-100 px-1 py-0.5 text-xs font-bold rounded">GOTOWA</span>
                         </span>
                       ) : (
                         <Link to={`/campaigns/${c.id}`} className="text-teal-500">
@@ -242,14 +242,14 @@ export default function Campaigns() {
                       <div className="w-32 inline-block bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
                           className={`${barColor} h-2`}
-                          style={{ width: `${isPaused ? pausedPercent : percent}%` }}
+                          style={{ width: `${isWstrzymajd ? pausedPercent : percent}%` }}
                         />
                       </div>
                       <div className="text-xs mt-1">
-                        {isPaused ? (
-                          <span className="text-amber-700">{emailsSent} sent of {totalLeads} lead{totalLeads !== 1 ? 's' : ''}</span>
+                        {isWstrzymajd ? (
+                          <span className="text-amber-700">{emailsSent} wysłano z {totalLeads} lead{totalLeads !== 1 ? 's' : ''}</span>
                         ) : isCompleted ? (
-                          <span className="text-blue-600">{emailsSent} sent — complete</span>
+                          <span className="text-blue-600">{emailsSent} wysłano — zakończono</span>
                         ) : (
                           <span>{emailsSent} / {denom} ({percent}%)</span>
                         )}
@@ -264,11 +264,11 @@ export default function Campaigns() {
                     <td className="py-2">
                       <div className="flex flex-wrap gap-2">
                         <Button as={Link} to={`/campaigns/${c.id}`} variant="outline" size="sm">View</Button>
-                        <Button variant="outline" size="sm" onClick={() => togglePause(c.id, c.paused, c.name)}>
-                          {c.paused ? 'Resume' : 'Pause'}
+                        <Button variant="outline" size="sm" onClick={() => toggleWstrzymaj(c.id, c.paused, c.name)}>
+                          {c.paused ? 'Wznów' : 'Wstrzymaj'}
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => duplicateCampaign(c.id, c.name)}>Duplicate</Button>
-                        <Button variant="danger" size="sm" onClick={() => deleteCampaign(c.id, c.name)}>Delete</Button>
+                        <Button variant="outline" size="sm" onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
+                        <Button variant="danger" size="sm" onClick={() => deleteCampaign(c.id, c.name)}>Usuń</Button>
                       </div>
                     </td>
                   </tr>
@@ -294,7 +294,7 @@ export default function Campaigns() {
       )}
 
       <div className="mt-4">
-        <Button as={Link} to="/campaigns/add" variant="default" className="no-underline hover:no-underline">Create campaign</Button>
+        <Button as={Link} to="/campaigns/add" variant="default" className="no-underline hover:no-underline">Utwórz kampanię</Button>
       </div>
     </div>
   );
