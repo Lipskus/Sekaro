@@ -10,8 +10,6 @@ import {
   RiQuestionLine,
   RiNotificationOffLine,
   RiNotificationLine,
-  RiGoogleLine,
-  RiWindowsLine,
   RiInboxLine,
   RiRobot2Line,
   RiSettings3Line,
@@ -35,10 +33,10 @@ function statusColor(status) {
 
 function statusLabel(status) {
   switch (status) {
-    case 'error':   return 'Error';
-    case 'warning': return 'Warning';
-    case 'ok':      return 'Healthy';
-    default:        return 'Unknown';
+    case 'error':   return 'Błąd';
+    case 'warning': return 'Ostrzeżenie';
+    case 'ok':      return 'OK';
+    default:        return 'Nieznany';
   }
 }
 
@@ -61,8 +59,6 @@ function IssueLevelIcon({ level }) {
 function CategoryIcon({ icon, size = 20 }) {
   const cls = 'flex-shrink-0';
   switch (icon) {
-    case 'google':       return <RiGoogleLine     size={size} className={cls} />;
-    case 'microsoft':   return <RiWindowsLine    size={size} className={cls} />;
     case 'inbox':       return <RiInboxLine      size={size} className={cls} />;
     case 'sync':        return <RiRefreshLine    size={size} className={cls} />;
     case 'ai':          return <RiRobot2Line     size={size} className={cls} />;
@@ -77,10 +73,10 @@ function RelativeTime({ date }) {
   if (!date) return null;
   const delta = Math.round((Date.now() - date) / 1000);
   let label;
-  if (delta < 10)  label = 'just now';
-  else if (delta < 60)  label = `${delta}s ago`;
-  else if (delta < 3600) label = `${Math.floor(delta / 60)}m ago`;
-  else label = `${Math.floor(delta / 3600)}h ago`;
+  if (delta < 10)  label = 'przed chwilą';
+  else if (delta < 60)  label = `${delta} s temu`;
+  else if (delta < 3600) label = `${Math.floor(delta / 60)} min temu`;
+  else label = `${Math.floor(delta / 3600)} godz. temu`;
   return <span className="text-gray-400 text-xs">{label}</span>;
 }
 
@@ -90,10 +86,10 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
   const col = statusColor(status);
 
   const heroMessages = {
-    error:   { headline: 'Action Required',       sub: 'One or more services need attention.' },
-    warning: { headline: 'Warnings Detected',     sub: 'Some things could be improved.' },
-    ok:      { headline: 'Everything looks good', sub: 'All monitored services are healthy.' },
-    unknown: { headline: 'Status unknown',        sub: 'Could not fetch health data.' },
+    error:   { headline: 'Wymagana reakcja',       sub: 'Co najmniej jeden element wymaga uwagi.' },
+    warning: { headline: 'Wykryto ostrzeżenia',    sub: 'Niektóre elementy wymagają sprawdzenia.' },
+    ok:      { headline: 'Wszystko wygląda dobrze', sub: 'Monitorowane elementy działają poprawnie.' },
+    unknown: { headline: 'Stan nieznany',          sub: 'Nie udało się pobrać danych diagnostycznych.' },
   };
   const msg = heroMessages[status] || heroMessages.unknown;
 
@@ -112,7 +108,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
           <p className="text-sm text-gray-500 mt-0.5">
             {status === 'ok'
               ? msg.sub
-              : `${issueCount} issue${issueCount !== 1 ? 's' : ''} found — ${msg.sub}`}
+              : `${issueCount} problem${issueCount !== 1 ? 'ów' : ''} — ${msg.sub}`}
           </p>
         </div>
       </div>
@@ -120,7 +116,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
         {lastChecked && (
           <div className="hidden sm:flex items-center gap-1.5 text-gray-400 text-xs">
             <RiTimeLine size={13} />
-            <span>Checked <RelativeTime date={lastChecked} /></span>
+            <span>Sprawdzono <RelativeTime date={lastChecked} /></span>
           </div>
         )}
         <button
@@ -129,7 +125,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
         >
           <RiRefreshLine size={15} className={loading ? 'animate-spin' : ''} />
-          {loading ? 'Checking…' : 'Refresh'}
+          {loading ? 'Sprawdzanie…' : 'Odśwież'}
         </button>
       </div>
     </div>
@@ -158,16 +154,16 @@ function CheckCard({ check, muted, onToggleMute }) {
           </div>
           <span className="font-semibold text-gray-800 text-sm">{check.label}</span>
           {isMuted && (
-            <span className="text-xs text-gray-400 italic">(muted)</span>
+            <span className="text-xs text-gray-400 italic">(wyciszone)</span>
           )}
         </div>
         <div className="flex items-center gap-2">
           <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${col.badge}`}>
-            {isMuted ? 'Muted' : statusLabel(check.status)}
+            {isMuted ? 'Wyciszone' : statusLabel(check.status)}
           </span>
           <button
             onClick={() => onToggleMute(check.id)}
-            title={isMuted ? 'Unmute this check' : 'Mute this check (won\'t affect overall health)'}
+            title={isMuted ? 'Włącz ostrzeżenia dla tej kategorii' : 'Wycisz tę kategorię'}
             className="text-gray-400 hover:text-gray-600 transition-colors p-0.5 rounded"
           >
             {isMuted
@@ -212,7 +208,7 @@ function CheckCard({ check, muted, onToggleMute }) {
         ) : isHealthy || isMuted ? (
           <div className="flex items-center gap-1.5 text-green-600 text-xs font-medium">
             <RiCheckboxCircleLine size={14} />
-            <span>{isMuted ? 'Warnings suppressed for this category' : 'No issues detected'}</span>
+            <span>{isMuted ? 'Ostrzeżenia dla tej kategorii są wyciszone' : 'Nie wykryto problemów'}</span>
           </div>
         ) : null}
 
@@ -225,52 +221,18 @@ function CheckCard({ check, muted, onToggleMute }) {
 
 /* ─── Per-check extra metadata ──────────────────────────────────────────── */
 
-function TokenStatusBadge({ status }) {
-  if (status === 'valid')         return <span className="text-xs bg-green-100  text-green-700  px-1.5 py-0.5 rounded-full font-medium">Valid</span>;
-  if (status === 'expiring_soon') return <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-medium">Expiring</span>;
-  return                                  <span className="text-xs bg-red-100    text-red-700    px-1.5 py-0.5 rounded-full font-medium">Expired</span>;
-}
-
 function CheckMeta({ check }) {
   const { isProduction } = useAppMode();
-  if (check.id === 'google_oauth' && check.meta.accounts?.length > 0) {
-    return (
-      <div className="mt-1 space-y-1.5 border-t border-gray-100 pt-2">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Connected accounts</p>
-        {check.meta.accounts.map(acc => (
-          <div key={acc.id} className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-gray-700 truncate">{acc.google_email}</span>
-            <TokenStatusBadge status={acc.token_status} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (check.id === 'microsoft_oauth' && check.meta.accounts?.length > 0) {
-    return (
-      <div className="mt-1 space-y-1.5 border-t border-gray-100 pt-2">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Connected accounts</p>
-        {check.meta.accounts.map(acc => (
-          <div key={acc.id} className="flex items-center justify-between gap-2 text-sm">
-            <span className="text-gray-700 truncate">{acc.microsoft_email}</span>
-            <TokenStatusBadge status={acc.token_status} />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
   if (check.id === 'inbox_status' && check.meta.inboxList?.length > 0) {
     return (
       <div className="mt-1 space-y-1.5 border-t border-gray-100 pt-2">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Inboxes</p>
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Skrzynki</p>
         {check.meta.inboxList.map(inbox => (
           <div key={inbox.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="text-gray-700 truncate">{inbox.display_name || inbox.email}</span>
             {inbox.paused
-              ? <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-medium">Paused</span>
-              : <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Active</span>
+              ? <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-medium">Wstrzymana</span>
+              : <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Aktywna</span>
             }
           </div>
         ))}
@@ -282,7 +244,7 @@ function CheckMeta({ check }) {
     return (
       <div className="mt-1 border-t border-gray-100 pt-2 space-y-1.5">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">Push notifications</span>
+          <span className="text-gray-500">Tryb synchronizacji</span>
           {check.meta.pushEnabled
             ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Enabled</span>
             : <span className="text-xs bg-gray-100  text-gray-600  px-1.5 py-0.5 rounded-full font-medium">Polling</span>
@@ -427,9 +389,9 @@ export default function SystemHealth() {
       {/* Page title */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">System Health</h1>
+          <h1 className="text-2xl font-bold text-gray-800">Stan systemu</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            Monitor connection status, OAuth tokens, and feature configuration.
+            Stan skrzynek SMTP/IMAP, synchronizacji, śledzenia i konfiguracji funkcji Sekaro.
           </p>
         </div>
         {mutedCount > 0 && (
@@ -437,7 +399,7 @@ export default function SystemHealth() {
             onClick={unmuteAll}
             className="text-xs text-teal-600 hover:text-teal-700 border border-teal-200 rounded-lg px-3 py-1.5 transition-colors"
           >
-            Unmute all ({mutedCount})
+            Włącz wszystkie ostrzeżenia ({mutedCount})
           </button>
         )}
       </div>
@@ -445,7 +407,7 @@ export default function SystemHealth() {
       {/* Error fetching */}
       {fetchError && (
         <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-          Failed to fetch health data: {fetchError}
+          Nie udało się pobrać diagnostyki: {fetchError}
         </div>
       )}
 
