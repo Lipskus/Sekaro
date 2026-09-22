@@ -500,6 +500,7 @@ export default function Inboxes() {
     provider: 'smtp',
     email: '',
     display_name: '',
+    reply_to: '',
     max_emails_per_day: 50,
     wait_minutes_between: 5,
     max_jitter_seconds: 180,
@@ -809,6 +810,7 @@ export default function Inboxes() {
     try {
       const body = {
         display_name: editing.display_name,
+        reply_to: (editing.reply_to || '').trim() || null,
         provider: editing.provider,
         max_emails_per_day: editing.max_emails_per_day,
         wait_minutes_between: editing.wait_minutes_between,
@@ -1153,6 +1155,17 @@ export default function Inboxes() {
                       <div>
                         <label className="block text-xs font-medium text-gray-700">Nazwa nadawcy</label>
                         <input type="text" name="display_name" value={editing.display_name || ''} onChange={e => { setEditing(prev => ({ ...prev, display_name: e.target.value })); setEditDirty(true); }} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700">Reply-To</label>
+                        <input
+                          type="email"
+                          value={editing.reply_to || ''}
+                          onChange={e => { setEditing(prev => ({ ...prev, reply_to: e.target.value })); setEditDirty(true); }}
+                          placeholder={editing.email || 'odpowiedzi@twojadomena.pl'}
+                          className="mt-1 block w-full border-gray-300 rounded-md text-sm"
+                        />
+                        <p className="mt-1 text-[11px] text-gray-400">Opcjonalny adres, na który mają trafiać odpowiedzi. Pozostaw puste, aby użyć adresu skrzynki.</p>
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-700">Typ skrzynki</label>
@@ -1516,6 +1529,18 @@ export default function Inboxes() {
                 <input type="text" name="display_name" value={form.display_name} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700">Reply-To</label>
+                <input
+                  type="email"
+                  name="reply_to"
+                  value={form.reply_to}
+                  onChange={handleChange}
+                  placeholder={form.email || 'odpowiedzi@twojadomena.pl'}
+                  className="mt-1 block w-full border-gray-300 rounded-md"
+                />
+                <p className="mt-1 text-xs text-gray-400">Opcjonalne. Jeśli puste, odpowiedzi trafią na adres nadawcy.</p>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700">Maks. wiadomości dziennie</label>
                 <input type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
@@ -1590,7 +1615,7 @@ export default function Inboxes() {
                       </div>
                       <label className="flex items-center gap-1.5 cursor-pointer text-sm text-gray-700">
                         <input type="checkbox" checked={!!smtpForm.imap_use_ssl} onChange={e => setSmtpForm(f => ({ ...f, imap_use_ssl: e.target.checked }))} />
-                        Użyj SSL (993)
+                        SSL/TLS (zwykle 993); odznaczone = STARTTLS
                       </label>
                     </>
                   )}
