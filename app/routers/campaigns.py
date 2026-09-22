@@ -29,6 +29,8 @@ from app.models import (
     Inbox,
     EmailLog,
     CampaignInbox,
+    ContactList,
+    ContactListMember,
     LeadReply,
     CustomEmailOverride,
 )
@@ -2219,6 +2221,84 @@ async def bulk_add_leads_to_campaign(
         "results": results,
         "verification_queued": verify_emails and bool(added_lead_ids),
     }
+
+
+class ContactListEnrollmentRequest(BaseModel):
+    list_id: int
+    skip_duplicates: bool = True
+    verify_emails: bool = False
+
+
+@router.post("/{campaign_id}/leads/from-list")
+async def add_contact_list_to_campaign(
+    campaign_id: int,
+    data: ContactListEnrollmentRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Enroll every contact from a named Sekaro contact list into a campaign.
+
+    The normal campaign enrollment path is reused so suppression, global
+    deduplication, email verification and scheduling behave exactly like
+    manual/bulk campaign additions.
+    """
+    list_row = await db.execute(
+        select(ContactList).where(ContactList.id == data.list_id)
+    )
+    contact_list = list_row.scalar_one_or_none()
+    if contact_list is None:
+        raise HTTPException(404, "Contact list not found")
+
+    lead_rows = await db.execute(
+        select(Lead)
+        .join(ContactListMember, ContactListMember.lead_id == Lead.id)
+        .where(ContactListMember.list_id == data.list_id)
+        .order_by(ContactListMember.id.asc())
+    )
+    contacts = lead_rows.scalars().all()
+    if not contacts:
+        return {
+            "ok": True,
+            "list_id": contact_list.id,
+            "list_name": contact_list.name,
+            "list_size": 0,
+            "added": 0,
+            "already_enrolled": 0,
+            "suppressed": 0,
+            "errors": 0,
+            "duplicate_leads": [],
+            "verification_queued": False,
+        }
+
+    payload = [
+        CampaignLeadAdd(
+            email=lead.email,
+            name=lead.name or "",
+            custom_data=lead.custom_data if isinstance(lead.custom_data, dict) else {},
+            email_verification_status=lead.email_verification_status,
+        )
+        for lead in contacts
+    ]
+
+    result = await bulk_add_leads_to_campaign(
+        campaign_id=campaign_id,
+        leads_data=payload,
+        skip_duplicates=data.skip_duplicates,
+        verify_emails=data.verify_emails,
+        confirm_only=False,
+        db=db,
+    )
+
+    # Avoid returning a potentially huge per-contact result array when the
+    # caller only needs list-level enrollment statistics.
+    summary = {k: v for k, v in result.items() if k != "results"}
+    summary.update(
+        {
+            "list_id": contact_list.id,
+            "list_name": contact_list.name,
+            "list_size": len(contacts),
+        }
+    )
+    return summary
 
 
 # ── Background email verification ────────────────────────────────────────────
