@@ -840,6 +840,35 @@ class Webhook(Base):
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
 
+class ContactList(Base):
+    """Named group of global contacts."""
+    __tablename__ = "contact_list"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, unique=True, index=True)
+    created_at = Column(DateTime, default=_utcnow)
+    members = relationship(
+        "ContactListMember",
+        back_populates="contact_list",
+        cascade="all, delete-orphan",
+    )
+
+
+class ContactListMember(Base):
+    """Many-to-many membership between a contact list and Lead."""
+    __tablename__ = "contact_list_member"
+    __table_args__ = (
+        UniqueConstraint("list_id", "lead_id", name="uq_contact_list_member"),
+        Index("ix_contact_list_member_lead", "lead_id"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    list_id = Column(Integer, ForeignKey("contact_list.id", ondelete="CASCADE"), nullable=False)
+    lead_id = Column(Integer, ForeignKey("lead.id", ondelete="CASCADE"), nullable=False)
+    added_at = Column(DateTime, default=_utcnow)
+    contact_list = relationship("ContactList", back_populates="members")
+
+
 class SuppressionEntry(Base):
     """Global do-not-contact entry.
 
