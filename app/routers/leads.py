@@ -18,6 +18,8 @@ from app.lead_inbox_resolution import from_inbox_email_by_lead_campaign
 from app.models import (
     Campaign,
     CampaignLead,
+    ContactList,
+    ContactListMember,
     EmailLog,
     GmailMessage,
     Lead,
@@ -36,6 +38,8 @@ from app.schemas import (
     LeadUpdate,
     LeadCampaignInfo,
     MarkReplied,
+    ContactListCreate,
+    ContactListResponse,
     SuppressionCreate,
     SuppressionResponse,
 )
@@ -517,6 +521,7 @@ async def _finalize_lead_recovery(
 
 @router.get("", response_model=list[LeadResponse])
 async def list_leads(
+    list_id: int | None = Query(None, ge=1),
     status: str | None = Query(None),
     bad_only: bool = Query(
         False,
@@ -531,6 +536,15 @@ async def list_leads(
 ):
     intr = _optional_interest_for_stmt(interest)
     stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr)
+    if list_id is not None:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(ContactListMember).where(
+                    ContactListMember.lead_id == Lead.id,
+                    ContactListMember.list_id == list_id,
+                )
+            )
+        )
     result = await db.execute(stmt)
     leads = result.scalars().all()
     ids = [x.id for x in leads]
@@ -926,6 +940,7 @@ async def preview_contacts_import(
         "preview": True,
         "filename": table.filename,
         "sheet_name": table.sheet_name,
+        "default_list_name": (table.filename.rsplit(".", 1)[0] or "Import").strip()[:255],
         "headers": table.headers,
         "suggested_mapping": mapping,
         "sample_rows": table.rows[:PREVIEW_ROWS],
@@ -945,6 +960,7 @@ async def import_contacts_file(
     file: UploadFile = File(...),
     mapping_json: str = Form(...),
     duplicate_mode: str = Form("merge"),
+    list_name: str = Form(""),
     db: AsyncSession = Depends(get_db),
 ):
     """Import global contacts from CSV/XLSX using explicit column mapping.
@@ -995,10 +1011,30 @@ async def import_contacts_file(
     existing = await _existing_contact_map(db, emails) if emails else {}
     suppressed = await _suppressed_email_set(db, emails) if emails else set()
 
+    contact_list = None
+    list_member_ids: set[int] = set()
+    clean_list_name = (list_name or "").strip()[:255]
+    if clean_list_name:
+        list_res = await db.execute(
+            select(ContactList).where(func.lower(ContactList.name) == clean_list_name.lower())
+        )
+        contact_list = list_res.scalar_one_or_none()
+        if contact_list is None:
+            contact_list = ContactList(name=clean_list_name)
+            db.add(contact_list)
+            await db.flush()
+        member_res = await db.execute(
+            select(ContactListMember.lead_id).where(
+                ContactListMember.list_id == contact_list.id
+            )
+        )
+        list_member_ids = {row[0] for row in member_res.all()}
+
     added = 0
     updated = 0
     skipped_existing = 0
     skipped_suppressed = 0
+    list_members_added = 0
     custom_fields: set[str] = set()
 
     for _row_num, email, name, custom in parsed_rows:
@@ -1008,6 +1044,10 @@ async def import_contacts_file(
 
         lead = existing.get(email)
         if lead is not None:
+            if contact_list is not None and lead.id not in list_member_ids:
+                db.add(ContactListMember(list_id=contact_list.id, lead_id=lead.id))
+                list_member_ids.add(lead.id)
+                list_members_added += 1
             if mode == "skip":
                 skipped_existing += 1
                 continue
@@ -1041,6 +1081,10 @@ async def import_contacts_file(
         db.add(lead)
         await db.flush()
         existing[email] = lead
+        if contact_list is not None and lead.id not in list_member_ids:
+            db.add(ContactListMember(list_id=contact_list.id, lead_id=lead.id))
+            list_member_ids.add(lead.id)
+            list_members_added += 1
         added += 1
 
     await db.commit()
@@ -1059,7 +1103,75 @@ async def import_contacts_file(
         "invalid_rows": invalid_rows[:50],
         "duplicate_rows": duplicate_rows[:50],
         "custom_fields": sorted(custom_fields),
+        "list": (
+            {"id": contact_list.id, "name": contact_list.name}
+            if contact_list is not None
+            else None
+        ),
+        "list_members_added": list_members_added,
     }
+
+
+@router.get("/lists", response_model=list[ContactListResponse])
+async def list_contact_lists(
+    db: AsyncSession = Depends(get_db),
+):
+    rows = await db.execute(
+        select(
+            ContactList.id,
+            ContactList.name,
+            ContactList.created_at,
+            func.count(ContactListMember.id).label("member_count"),
+        )
+        .outerjoin(ContactListMember, ContactListMember.list_id == ContactList.id)
+        .group_by(ContactList.id, ContactList.name, ContactList.created_at)
+        .order_by(ContactList.name.asc())
+    )
+    return [
+        ContactListResponse(
+            id=row.id,
+            name=row.name,
+            created_at=row.created_at,
+            member_count=int(row.member_count or 0),
+        )
+        for row in rows.all()
+    ]
+
+
+@router.post("/lists", response_model=ContactListResponse)
+async def create_contact_list(
+    data: ContactListCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    name = data.name.strip()
+    existing = await db.execute(
+        select(ContactList).where(func.lower(ContactList.name) == name.lower())
+    )
+    if existing.scalar_one_or_none() is not None:
+        raise HTTPException(409, "A contact list with this name already exists")
+    row = ContactList(name=name)
+    db.add(row)
+    await db.commit()
+    await db.refresh(row)
+    return ContactListResponse(
+        id=row.id,
+        name=row.name,
+        created_at=row.created_at,
+        member_count=0,
+    )
+
+
+@router.delete("/lists/{list_id}")
+async def delete_contact_list(
+    list_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    row = await db.get(ContactList, list_id)
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    await db.delete(row)
+    await db.commit()
+    return {"ok": True, "id": list_id}
 
 
 @router.get("/suppression", response_model=list[SuppressionResponse])
