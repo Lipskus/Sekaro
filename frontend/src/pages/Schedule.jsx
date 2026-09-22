@@ -54,10 +54,10 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
           <div>
             <h2 className="font-semibold text-gray-800">Email Preview</h2>
             <p className="text-xs text-gray-400 mt-0.5">
-              {item.type === 'sent' ? `Sent to ${item.lead_email}` : `Scheduled for ${item.lead_email}`}
+              {item.type === 'sent' ? `Wysłano do ${item.lead_email}` : `Zaplanowano dla ${item.lead_email}`}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-brak">×</button>
         </div>
 
         {/* Meta */}
@@ -75,7 +75,7 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
           )}
           {item.type === 'scheduled' && item.scheduled_at && (
             <span className="text-gray-500">
-              <span className="font-medium text-gray-700">Scheduled:</span> {new Date(item.scheduled_at).toLocaleString()}
+              <span className="font-medium text-gray-700">Zaplanowano:</span> {new Date(item.scheduled_at).toLocaleString()}
             </span>
           )}
         </div>
@@ -97,7 +97,7 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
             {body ? (
               isHtml ? (
                 <div
-                  className="border rounded-lg p-5 bg-white prose prose-sm max-w-none"
+                  className="border rounded-lg p-5 bg-white prose prose-sm max-w-brak"
                   dangerouslySetInnerHTML={{ __html: body }}
                 />
               ) : (
@@ -153,7 +153,7 @@ export default function Schedule() {
   const isLoadingMoreRef = useRef(false);
 
   // button states for recalc/validate so React can re-render correctly
-  const [recalcState, setRecalcState] = useState({ busy: false, text: '⚡ Recalculate All Campaigns' });
+  const [recalcState, setRecalcState] = useState({ busy: false, text: '⚡ Przelicz kampanie' });
   const [validateState, setValidateState] = useState({ busy: false, text: '🔍 Validate Queue' });
 
   const filterCampaignOptions = useRef([]);
@@ -226,7 +226,7 @@ export default function Schedule() {
           const rem = mins % 60;
           setTimeToNext(`${hrs}h ${rem}m`);
         } else {
-          setTimeToNext('none');
+          setTimeToNext('brak');
         }
       }
       [...s, ...sch].forEach(e => {
@@ -298,7 +298,7 @@ export default function Schedule() {
   const renderLastRun = iso => {
     if (!iso) return '—';
     const d = new Date(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
-    return diff < 1 ? 'Just now' : diff + 'm ago';
+    return diff < 1 ? 'Przed chwilą' : diff + 'm ago';
   };
   const recalculateAll = async () => {
     setRecalcState({ busy: true, text: '⚡ Recalculating...' });
@@ -334,14 +334,14 @@ export default function Schedule() {
       } else {
         const t = await res.text();
         notify({ type: 'error', message: 'Error recalculating: ' + t });
-        setRecalcState({ busy: false, text: '⚡ Recalculate All Campaigns' });
+        setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
       }
     } catch(err) {
       notify({ type: 'error', message: 'Error: ' + err.message });
-      setRecalcState({ busy: false, text: '⚡ Recalculate All Campaigns' });
+      setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
     } finally {
       setTimeout(()=>{
-        setRecalcState({ busy: false, text: '⚡ Recalculate All Campaigns' });
+        setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
       },2000);
     }
   };
@@ -398,7 +398,7 @@ export default function Schedule() {
     const tz = normalizeTimeZone(item.campaign_timezone);
     const time = isSent ? fmtTime(item.sent_at, tz) : fmtTime(item.scheduled_at, tz);
     const statusCls = isSent ? 'sent' : 'scheduled';
-    const statusLabel = isSent ? 'Sent' : 'Scheduled';
+    const statusLabel = isSent ? 'Wysłano' : 'Zaplanowano';
     const subject = item.subject || '(no subject)';
     const inboxLabel = item.inbox_email || '—';
     const isExpanded = expandedId === uid;
@@ -431,7 +431,7 @@ export default function Schedule() {
               {isSent ? (
                 <div><span className="dp-label">Sent at</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
               ) : (
-                <div><span className="dp-label">Scheduled for</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
+                <div><span className="dp-label">Zaplanowano na</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
               )}
               <div><span className="dp-label">Lead</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
               <div><span className="dp-label">Campaign</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
@@ -500,7 +500,7 @@ export default function Schedule() {
       parts.push(
         <div key="past">
           <div className="section-hdr" onClick={() => setPastExpanded(pe=>!pe)}>
-            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Sent ({totalSent} email{totalSent!==1?'s':''})
+            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości{totalSent!==1?'s':''})
           </div>
           {pastExpanded && groupByDate(filteredSent,true).map(group => (
             <div key={`${group.tz}-${group.dateKey}`}>
@@ -519,7 +519,7 @@ export default function Schedule() {
       parts.push(
         <div key="upcoming">
           <div className="section-hdr" onClick={() => setScheduledExpanded(se => !se)}>
-            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Scheduled ({totalScheduled} email{totalScheduled!==1?'s':''})
+            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości{totalScheduled!==1?'s':''})
           </div>
           {scheduledExpanded && groupByDate(filteredScheduled,false).map(group => {
             if (!todayByTz.has(group.tz)) {
@@ -561,7 +561,7 @@ export default function Schedule() {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-8">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Schedule</h1>
+        <h1 className="text-2xl font-bold">Harmonogram</h1>
         <span className="text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5" title="Times are stored in UTC and displayed in each campaign's timezone below">
           🕐 Times in campaign timezone
         </span>
@@ -593,40 +593,40 @@ export default function Schedule() {
             </>
           )}
           <div>
-            <span className="text-sm text-gray-500">Schedule:</span> <span className={serverStatus.schedule_running?'text-green-600':'text-red-600'}>{serverStatus.schedule_running?'Running':'Stopped'}</span>
+            <span className="text-sm text-gray-500">Harmonogram:</span> <span className={serverStatus.schedule_running?'text-green-600':'text-red-600'}>{serverStatus.schedule_running?'Działa':'Zatrzymany'}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Last Job:</span> <span className="font-semibold">{renderLastRun(serverStatus.last_send_job_run)}</span>
+            <span className="text-sm text-gray-500">Ostatnie uruchomienie:</span> <span className="font-semibold">{renderLastRun(serverStatus.last_send_job_run)}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Last Run Sent:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count??0}</span>
+            <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count??0}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Strategy:</span> <span className={strategy==='round_robin'?'text-teal-500':'text-gray-900'} style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}} title="Change in Settings" onClick={() => { window.location = '/settings#general'; }}>{strategy==='priority'?'Priority':'Round-Robin'}</span>
+            <span className="text-sm text-gray-500">Strategia:</span> <span className={strategy==='round_robin'?'text-teal-500':'text-gray-900'} style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}} title="Zmień w ustawieniach" onClick={() => { window.location = '/settings#general'; }}>{strategy==='priority'?'Priorytet':'Równomiernie'}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Auto-refresh: 30s</span>
-          <Button size="sm" variant="outline" onClick={loadData}>↻ Refresh Now</Button>
+          <span className="text-xs text-gray-500">Auto-odświeżanie: 30 s</span>
+          <Button size="sm" variant="outline" onClick={loadData}>↻ Odśwież</Button>
         </div>
       </Card>
       <div className="stats-row mb-4">
-        <div className="stat-card"><div className="num" id="stat-sent">{stats.total_sent||0}</div><div className="lbl">Total sent</div></div>
-        <div className="stat-card"><div className="num" id="stat-sched">{stats.total_scheduled||0}</div><div className="lbl">Scheduled</div></div>
-        <div className="stat-card"><div className="num" id="stat-camps">{stats.total_campaigns||0}</div><div className="lbl">Campaigns</div></div>
+        <div className="stat-card"><div className="num" id="stat-sent">{stats.total_sent||0}</div><div className="lbl">Wysłane</div></div>
+        <div className="stat-card"><div className="num" id="stat-sched">{stats.total_scheduled||0}</div><div className="lbl">Zaplanowane</div></div>
+        <div className="stat-card"><div className="num" id="stat-camps">{stats.total_campaigns||0}</div><div className="lbl">Kampanie</div></div>
       </div>
       <div className="cal-toolbar mb-4 flex flex-wrap gap-2 items-center">
         <select value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">All campaigns</option>
+          <option value="">Wszystkie kampanie</option>
           {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
         </select>
         <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">All statuses</option>
-          <option value="sent">Sent</option>
-          <option value="scheduled">Scheduled</option>
+          <option value="">Wszystkie statusy</option>
+          <option value="sent">Wysłane</option>
+          <option value="scheduled">Zaplanowane</option>
         </select>
-        <input type="text" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Search lead, subject…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
-        <Button size="sm" variant="outline" onClick={clearFilters}>Clear</Button>
+        <input type="text" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
+        <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
         {!isProduction && (
           <>
             <Button
@@ -653,7 +653,7 @@ export default function Schedule() {
       <Card className="p-4" id="schedule-body">
         {renderSection()}
         <div ref={sentinelRef} style={{ height: 1 }} />
-        {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--muted)' }}>Loading more…</p>}
+        {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--muted)' }}>Wczytywanie…</p>}
       </Card>
 
       {/* Email preview modal */}
