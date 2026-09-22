@@ -25,6 +25,8 @@ Sekaro is intended for workflows where contacts come from spreadsheets or extern
 
 See [ROADMAP.md](ROADMAP.md) for the version plan.
 
+For existing installations upgrading to the SMTP/IMAP core, see [docs/UPGRADE_0.2.md](docs/UPGRADE_0.2.md).
+
 ## Current 0.2 foundation
 
 The current Sekaro fork includes:
