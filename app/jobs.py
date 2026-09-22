@@ -336,6 +336,17 @@ async def run_send_job():
                 if not campaign_lead_may_receive_sends(cl, lead):
                     await session.delete(slot)
                     continue
+
+                from app.suppression import is_suppressed
+                if await is_suppressed(session, lead.email):
+                    log.info(
+                        "Global suppression blocked lead_id=%s email=%s; dropping slot %s",
+                        lead.id, lead.email, slot.id,
+                    )
+                    cl.sending_paused = True
+                    await session.delete(slot)
+                    continue
+
                 if campaign.stop_on_reply:
                     reply_check = await session.execute(
                         select(LeadReply).where(
@@ -1035,6 +1046,18 @@ async def send_slot_job(slot_id: int) -> None:
             await session.delete(slot)
             await session.commit()
             return
+
+        from app.suppression import is_suppressed
+        if await is_suppressed(session, lead.email):
+            log.info(
+                "send_slot_job: global suppression blocked lead_id=%s email=%s; dropping slot %s",
+                lead.id, lead.email, slot_id,
+            )
+            cl.sending_paused = True
+            await session.delete(slot)
+            await session.commit()
+            return
+
         if not _in_sending_window(now, campaign):
             log.info("send_slot_job: outside sending window for campaign %d, skipping slot %d",
                      campaign.id, slot_id)
