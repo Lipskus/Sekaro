@@ -12,7 +12,7 @@ const JITTER_MAX_MINUTES = 10;
 
 /** Full Beacon setup guide in the Quickly repo (INSTALL.md). */
 const BEACON_SETUP_DOCS_URL =
-  'https://github.com/AbdelftahZowail/Quickly/blob/main/docs/INSTALL.md#quickly-beacon-recommended-custom-tracking-hostnames';
+  'https://github.com/Lipskus/Sekaro/blob/main/docs/INSTALL.md#quickly-beacon-recommended-custom-tracking-hostnames';
 
 function CollapsibleInfo({ children }) {
   const [open, setOpen] = useState(false);
@@ -350,7 +350,7 @@ function InboxTrackingOptions({
         <div className="ml-6 min-w-0 max-w-full border-l-2 border-gray-200 pl-3 py-0.5">
           <CollapsibleInfo>
             <p>
-              Open, click, and unsubscribe links use your Quickly app URL{' '}
+              Open, click, and unsubscribe links use your Sekaro app URL{' '}
               <span className="text-gray-500 font-mono break-all">({hostHint})</span>. No Beacon service and no extra DNS records are required.
             </p>
           </CollapsibleInfo>
@@ -409,7 +409,7 @@ function InboxTrackingOptions({
           <CollapsibleInfo>
             <p className="font-medium text-gray-700">How Beacon works</p>
             <p>
-              Run the Beacon service on the HTTPS hostname you want for tracking links. While Quickly is not connected yet, open Beacon&apos;s root URL in a browser and copy the <strong>setup URL</strong> (it includes{' '}
+              Run the Beacon service on the HTTPS hostname you want for tracking links. While Sekaro is not connected yet, open Beacon&apos;s root URL in a browser and copy the <strong>setup URL</strong> (it includes{' '}
               <code className="bg-gray-100 px-0.5 rounded">?token=</code>
               ). Paste it above and click Connect. On Beacon, set{' '}
               <code className="bg-gray-100 px-0.5 rounded">BEACON_PUBLIC_BASE_URL</code>
@@ -422,7 +422,7 @@ function InboxTrackingOptions({
                 rel="noopener noreferrer"
                 className="text-blue-700 hover:underline break-all"
               >
-                Full setup guide (Quickly repo → INSTALL.md)
+                Full setup guide (Sekaro repo → INSTALL.md)
               </a>
             </p>
           </CollapsibleInfo>
@@ -515,7 +515,7 @@ export default function Inboxes() {
   const [customTrackingCnameUiEnabled, setCustomTrackingCnameUiEnabled] = useState(true);
   // state used for both add and edit forms
   const initialForm = {
-    provider: 'gmail',
+    provider: 'smtp',
     email: '',
     display_name: '',
     max_emails_per_day: 50,
@@ -548,10 +548,6 @@ export default function Inboxes() {
   const [editingSmtp, setEditingSmtp] = useState(null);
   const [smtpTesting, setSmtpTesting] = useState(false);
   const [smtpTestMsg, setSmtpTestMsg] = useState(null);
-  const [oauthConfigured, setOauthConfigured] = useState(false);
-  const [redirectUri, setRedirectUri] = useState('');
-  const [o365Configured, setO365Configured] = useState(false);
-  const [o365RedirectUri, setO365RedirectUri] = useState('');
   const [editing, setEditing] = useState(null); // inbox being edited
   const [editDirty, setEditDirty] = useState(false);
   const [showEditWarning, setShowEditWarning] = useState(false);
@@ -657,22 +653,6 @@ export default function Inboxes() {
   };
   useEffect(() => {
     load();
-    // check Gmail OAuth
-    fetch('/api/gmail/status')
-      .then(r => r.json())
-      .then(d => {
-        setOauthConfigured(d.configured);
-        setRedirectUri(d.redirect_uri || '');
-      })
-      .catch(() => {});
-    // check Office 365 OAuth
-    fetch('/api/office365/status')
-      .then(r => r.json())
-      .then(d => {
-        setO365Configured(d.configured);
-        setO365RedirectUri(d.redirect_uri || '');
-      })
-      .catch(() => {});
     // get server hostname for DNS instructions
     fetch('/api/settings/server-info')
       .then(r => r.json())
@@ -730,16 +710,11 @@ export default function Inboxes() {
     handleChange(e);
   };
 
-  const canSubmit = () => {
-    if (form.provider === 'gmail' || form.provider === 'office365') {
-      // allow click so user receives an error message if OAuth is not configured
-      return true;
-    }
-    if (form.provider === 'smtp') {
-      return form.email.trim() !== '' && smtpForm.smtp_host.trim() !== '';
-    }
-    return form.email.trim() !== '';
-  };
+  const canSubmit = () =>
+    form.email.trim() !== '' &&
+    smtpForm.smtp_host.trim() !== '' &&
+    smtpForm.smtp_username.trim() !== '' &&
+    smtpForm.smtp_password !== '';
 
   const submitSmtp = async (inboxPayload) => {
     // 1. create the inbox row, 2. save credentials, 3. test the connection
@@ -776,32 +751,6 @@ export default function Inboxes() {
   const submit = async (e) => {
     e.preventDefault();
     setMessage(null);
-    if (form.provider === 'gmail') {
-      if (!oauthConfigured) {
-        setMessage({
-          type: 'error',
-          text: 'Google OAuth is not configured. Define GOOGLE_CLIENT_ID/SECRET in your environment and restart the server.',
-        });
-        return;
-      }
-      // redirect to Gmail OAuth
-      const params = new URLSearchParams({ display_name: form.display_name, max_per_day: form.max_emails_per_day, ramp_up_enabled: form.ramp_up_enabled ? 'true' : 'false', ramp_up_start: form.ramp_up_start, ramp_up_step_size: form.ramp_up_step_size });
-      window.location.href = '/oauth/google/authorize?' + params;
-      return;
-    }
-    if (form.provider === 'office365') {
-      if (!o365Configured) {
-        setMessage({
-          type: 'error',
-          text: 'Office 365 OAuth is not configured. Define OFFICE365_CLIENT_ID/SECRET/TENANT_ID in your environment and restart the server.',
-        });
-        return;
-      }
-      // redirect to Office 365 OAuth
-      const params = new URLSearchParams({ display_name: form.display_name, max_per_day: form.max_emails_per_day, ramp_up_enabled: form.ramp_up_enabled ? 'true' : 'false', ramp_up_start: form.ramp_up_start, ramp_up_step_size: form.ramp_up_step_size });
-      window.location.href = '/oauth/office365/authorize?' + params;
-      return;
-    }
     if (form.provider === 'smtp') {
       if (!form.email.trim()) {
         setMessage({ type: 'error', text: 'Email address is required for SMTP inboxes.' });
@@ -1358,14 +1307,10 @@ export default function Inboxes() {
                       </div>
                       <div>
                         <label className="block text-xs font-medium text-gray-700">Provider</label>
-                        <select name="provider" value={editing.provider || 'gmail'} className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
-                          <option value="gmail">Gmail / Google Workspace</option>
-                          <option value="office365">Office 365 / Outlook</option>
-                          <option value="smtp">SMTP (any provider)</option>
+                        <select name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
+                          <option value="smtp">SMTP / IMAP</option>
                         </select>
                       </div>
-                      {editing.provider === 'gmail' && <RedirectUriBlock uri={redirectUri} />}
-                      {editing.provider === 'office365' && <RedirectUriBlock uri={o365RedirectUri} />}
                       {editing.provider === 'smtp' && (
                         <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP / IMAP</p>
@@ -1695,28 +1640,6 @@ export default function Inboxes() {
                         : <Button variant="outline" size="sm" className="flex-1 bg-orange-50 text-orange-700 border-orange-300 hover:bg-orange-100" onClick={() => openPauseModal(selectedInbox)}>Pause</Button>
                       }
                     </div>
-                    {(selectedInbox.provider === 'gmail' || selectedInbox.provider === 'office365') && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => reconnectInbox(selectedInbox)}
-                        title="Re-authenticate this inbox to refresh the OAuth login"
-                      >
-                        Reconnect login
-                      </Button>
-                    )}
-                    {(selectedInbox.provider === 'gmail' || selectedInbox.provider === 'office365') && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full"
-                        onClick={() => generateConnectUrlForInbox(selectedInbox)}
-                        title="Generate a one-time link to connect from another browser"
-                      >
-                        Copy Connect URL
-                      </Button>
-                    )}
                     <Button variant="danger" size="sm" className="w-full" onClick={() => deleteInbox(selectedInbox.id, selectedInbox.email)}>Delete inbox</Button>
                   </div>
                 </>
@@ -1738,21 +1661,18 @@ export default function Inboxes() {
             {message && <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{message.text}</div>}
             <form onSubmit={submit} className="space-y-4 min-w-0 max-w-full">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Provider</label>
-                <select name="provider" value={form.provider} onChange={handleProviderChange} className="mt-1 block w-full border-gray-300 rounded-md">
-                  <option value="gmail">Gmail / Google Workspace</option>
-                  <option value="office365">Office 365 / Outlook</option>
-                  <option value="smtp">SMTP (any provider)</option>
+                <label className="block text-sm font-medium text-gray-700">Typ skrzynki</label>
+                <select name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100" disabled>
+                  <option value="smtp">SMTP / IMAP</option>
                 </select>
+                <p className="mt-1 text-xs text-gray-400">Sekaro działa z dowolnym dostawcą obsługującym SMTP, a odbiór odpowiedzi realizuje przez IMAP.</p>
               </div>
 
-              {form.provider === 'smtp' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Email address</label>
-                  <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="you@yourdomain.com" className="mt-1 block w-full border-gray-300 rounded-md" />
-                  <p className="mt-1 text-xs text-gray-400">The From address used for sending. It should match your SMTP account.</p>
-                </div>
-              )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Adres e-mail</label>
+                <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="ty@twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md" />
+                <p className="mt-1 text-xs text-gray-400">Adres nadawcy. Powinien odpowiadać kontu używanemu do SMTP.</p>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700">Display name</label>
@@ -1904,52 +1824,14 @@ export default function Inboxes() {
                   )}
                 </div>
               </div>
-              {form.provider === 'gmail' && (
-                <>
-                  {!oauthConfigured && (
-                    <div className="text-red-600">
-                      Google OAuth credentials are not configured. Set the appropriate environment variables (e.g. in `.env`) and restart the server before reloading.
-                    </div>
-                  )}
-                  <RedirectUriBlock uri={redirectUri} size="sm" />
-                </>
-              )}
-              {form.provider === 'office365' && (
-                <>
-                  {!o365Configured && (
-                    <div className="text-red-600">
-                      Office 365 OAuth credentials are not configured. Set OFFICE365_CLIENT_ID, OFFICE365_CLIENT_SECRET, and OFFICE365_TENANT_ID in your environment and restart the server.
-                    </div>
-                  )}
-                  <RedirectUriBlock uri={o365RedirectUri} size="sm" />
-                </>
-              )}
               <div className="flex gap-2">
                 <Button type="submit" disabled={!canSubmit()} variant="default">
-                  {form.provider === 'gmail' ? 'Connect with Google' : form.provider === 'office365' ? 'Connect with Microsoft' : 'Add inbox'}
+                  Dodaj skrzynkę
                 </Button>
                 <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
                   Cancel
                 </Button>
               </div>
-              {(form.provider === 'gmail' || form.provider === 'office365') && (
-                <div className="mt-3 pt-3 border-t border-gray-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="h-px flex-1 bg-gray-200" />
-                    <span className="text-xs text-gray-400 font-medium uppercase tracking-wider">or</span>
-                    <div className="h-px flex-1 bg-gray-200" />
-                  </div>
-                  <p className="text-xs text-gray-500 mb-2 text-center">
-                    Click to copy a one-time link. Open it in a browser where your account is signed in.
-                  </p>
-                  <Button type="button" variant="outline" size="sm" className="w-full" onClick={generateConnectUrlForForm}>
-                    <svg className="w-3.5 h-3.5 mr-1.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    Copy Connect Link
-                  </Button>
-                </div>
-              )}
             </form>
           </div>
         </div>
