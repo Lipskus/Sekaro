@@ -34,6 +34,9 @@ The current Sekaro fork includes:
 - bcrypt password hashing and JWT sessions
 - PostgreSQL storage
 - SMTP/IMAP mailbox flow as the primary mailbox type
+- encrypted SMTP/IMAP passwords at rest when `SEKARO_ENCRYPTION_KEY` is set
+- optional per-inbox Reply-To address
+- IMAP over implicit TLS or STARTTLS only
 - existing campaign, queue, contacts, analytics and inbox foundations inherited from the upstream project
 - Polish, English, German and Russian translation infrastructure
 - Polish as the default UI language
@@ -69,6 +72,7 @@ Generate secrets:
 
 ```bash
 python3 -c "import secrets; print(secrets.token_urlsafe(64))"
+python3 -c "import secrets; print(secrets.token_urlsafe(48))"
 openssl rand -hex 32
 ```
 
@@ -79,6 +83,7 @@ BASE_URL=https://sekaro.example.com
 CORS_ORIGINS=https://sekaro.example.com
 
 QUICKLY_SECRET_KEY=<generated JWT secret>
+SEKARO_ENCRYPTION_KEY=<generated mailbox encryption secret>
 POSTGRES_PASSWORD=<generated database password>
 
 SEKARO_PORT=5050
