@@ -117,6 +117,12 @@ export default function Leads() {
   const [contactImportMapping, setContactImportMapping] = useState({});
   const [contactImportMode, setContactImportMode] = useState('merge');
   const [contactImportBusy, setContactImportBusy] = useState(false);
+  const [suppressionOpen, setSuppressionOpen] = useState(false);
+  const [suppressionRows, setSuppressionRows] = useState([]);
+  const [suppressionSearch, setSuppressionSearch] = useState('');
+  const [suppressionEmail, setSuppressionEmail] = useState('');
+  const [suppressionReason, setSuppressionReason] = useState('manual');
+  const [suppressionBusy, setSuppressionBusy] = useState(false);
 
   const notify = useNotify();
   const confirm = useConfirm();
@@ -328,8 +334,8 @@ export default function Leads() {
     }
   };
 
-  const closeContactImport = () => {
-    if (contactImportBusy) return;
+  const closeContactImport = (force = false) => {
+    if (contactImportBusy && !force) return;
     setContactImportFile(null);
     setContactImportPreview(null);
     setContactImportMapping({});
@@ -380,12 +386,70 @@ export default function Leads() {
           `Import zakończony: ${res.added || 0} nowych, ${res.updated || 0} zaktualizowanych, ` +
           `${res.skipped_suppressed || 0} na suppression list.`,
       });
-      closeContactImport();
+      closeContactImport(true);
       await loadLeads();
     } catch (e) {
       notify({ type: 'error', message: e.message || 'Import nie powiódł się.' });
     } finally {
       setContactImportBusy(false);
+    }
+  };
+
+  const loadSuppression = async (query = suppressionSearch) => {
+    setSuppressionBusy(true);
+    try {
+      const qs = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : '';
+      const rows = await api.get('/leads/suppression' + qs);
+      setSuppressionRows(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Nie udało się wczytać suppression list.' });
+    } finally {
+      setSuppressionBusy(false);
+    }
+  };
+
+  const openSuppression = async () => {
+    setSuppressionOpen(true);
+    await loadSuppression('');
+  };
+
+  const addSuppression = async (e) => {
+    e.preventDefault();
+    const email = suppressionEmail.trim().toLowerCase();
+    if (!email) return;
+    setSuppressionBusy(true);
+    try {
+      await api.post('/leads/suppression', {
+        email,
+        reason: suppressionReason,
+        source: 'manual',
+        note: '',
+      });
+      setSuppressionEmail('');
+      notify({ type: 'success', message: `${email} dodano do suppression list.` });
+      await loadSuppression('');
+      await loadLeads();
+    } catch (err) {
+      notify({ type: 'error', message: err.message || 'Nie udało się dodać adresu.' });
+    } finally {
+      setSuppressionBusy(false);
+    }
+  };
+
+  const removeSuppression = async (row) => {
+    const ok = await confirm(
+      `Usunąć ${row.email} z suppression list? Istniejące kampanie nie zostaną automatycznie wznowione.`,
+    );
+    if (!ok) return;
+    setSuppressionBusy(true);
+    try {
+      await api.del(`/leads/suppression/${row.id}`);
+      notify({ type: 'success', message: `${row.email} usunięto z suppression list.` });
+      await loadSuppression('');
+    } catch (err) {
+      notify({ type: 'error', message: err.message || 'Nie udało się usunąć wpisu.' });
+    } finally {
+      setSuppressionBusy(false);
     }
   };
 
@@ -436,6 +500,9 @@ export default function Leads() {
           >
             {contactImportBusy && !contactImportPreview ? 'Wczytywanie…' : 'Importuj kontakty'}
           </FileUploadArea>
+          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>
+            Suppression list
+          </Button>
           <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>
             Eksport CSV
           </Button>
@@ -595,6 +662,7 @@ export default function Leads() {
               <th className="p-2">Kampanie</th>
               <th className="p-2">Skrzynka nadawcza</th>
               <th className="p-2">Dodano</th>
+              <th className="p-2 min-w-[220px]">Pola własne</th>
               {tab === TAB_BOUNCED && <th className="p-2 min-w-[200px]">Nowy e-mail</th>}
               {tab === TAB_BOUNCED && <th className="p-2 w-44">Akcje</th>}
             </tr>
@@ -602,7 +670,7 @@ export default function Leads() {
           <tbody>
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={tab === TAB_BOUNCED ? 9 : 7} className="p-8 text-center text-gray-500">
+                <td colSpan={tab === TAB_BOUNCED ? 10 : 8} className="p-8 text-center text-gray-500">
                   Brak kontaktów pasujących do tego widoku.
                 </td>
               </tr>
@@ -684,6 +752,26 @@ export default function Leads() {
                     </div>
                   </td>
                   <td className="p-2 align-top text-gray-600">{formatEnrolled(l.campaigns)}</td>
+                  <td className="p-2 align-top">
+                    {l.custom_data && Object.keys(l.custom_data).length ? (
+                      <div className="flex flex-wrap gap-1 max-w-sm">
+                        {Object.entries(l.custom_data).slice(0, 4).map(([key, value]) => (
+                          <span
+                            key={key}
+                            className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600"
+                            title={`${key}: ${value}`}
+                          >
+                            {key}: {String(value).slice(0, 28)}
+                          </span>
+                        ))}
+                        {Object.keys(l.custom_data).length > 4 && (
+                          <span className="text-xs text-gray-400">+{Object.keys(l.custom_data).length - 4}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">—</span>
+                    )}
+                  </td>
                   {tab === TAB_BOUNCED && (
                     <td className="p-2 align-top">
                       <input
@@ -715,6 +803,100 @@ export default function Leads() {
           </tbody>
         </table>
       </Card>
+
+      {suppressionOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b px-6 py-4">
+              <div>
+                <h2 className="text-xl font-semibold">Suppression list</h2>
+                <p className="text-sm text-gray-500">Adresy, do których Sekaro nigdy nie wyśle wiadomości.</p>
+              </div>
+              <button type="button" className="text-2xl text-gray-400 hover:text-gray-700" onClick={() => setSuppressionOpen(false)}>×</button>
+            </div>
+
+            <div className="p-6 space-y-5 overflow-y-auto">
+              <form onSubmit={addSuppression} className="flex flex-wrap gap-2 items-end">
+                <div className="flex-1 min-w-[260px]">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                  <input
+                    type="email"
+                    value={suppressionEmail}
+                    onChange={(e) => setSuppressionEmail(e.target.value)}
+                    className="w-full rounded-md border-gray-300"
+                    placeholder="kontakt@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Powód</label>
+                  <select
+                    value={suppressionReason}
+                    onChange={(e) => setSuppressionReason(e.target.value)}
+                    className="rounded-md border-gray-300"
+                  >
+                    <option value="manual">Ręcznie</option>
+                    <option value="unsubscribe">Wypis</option>
+                    <option value="complaint">Skarga</option>
+                    <option value="bounce">Trwały bounce</option>
+                    <option value="other">Inny</option>
+                  </select>
+                </div>
+                <Button type="submit" size="sm" disabled={suppressionBusy}>Dodaj</Button>
+              </form>
+
+              <div className="flex gap-2">
+                <input
+                  value={suppressionSearch}
+                  onChange={(e) => setSuppressionSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      loadSuppression(e.currentTarget.value);
+                    }
+                  }}
+                  className="flex-1 rounded-md border-gray-300 text-sm"
+                  placeholder="Szukaj adresu…"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => loadSuppression(suppressionSearch)} disabled={suppressionBusy}>
+                  Szukaj
+                </Button>
+              </div>
+
+              <div className="rounded-lg border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left px-3 py-2">E-mail</th>
+                      <th className="text-left px-3 py-2">Powód</th>
+                      <th className="text-left px-3 py-2">Źródło</th>
+                      <th className="text-left px-3 py-2">Dodano</th>
+                      <th className="w-20"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {suppressionRows.length === 0 ? (
+                      <tr><td colSpan="5" className="px-3 py-8 text-center text-gray-400">Brak wpisów.</td></tr>
+                    ) : suppressionRows.map((row) => (
+                      <tr key={row.id} className="border-t">
+                        <td className="px-3 py-2 font-mono text-xs">{row.email}</td>
+                        <td className="px-3 py-2">{row.reason}</td>
+                        <td className="px-3 py-2">{row.source}</td>
+                        <td className="px-3 py-2 text-gray-500">{row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}</td>
+                        <td className="px-3 py-2 text-right">
+                          <button type="button" onClick={() => removeSuppression(row)} className="text-xs text-red-600 hover:underline">
+                            Usuń
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {contactImportPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
