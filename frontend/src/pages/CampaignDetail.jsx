@@ -1009,22 +1009,21 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       {filteredLeads.length === 0 ? (
         <div className="bg-gray-50 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-400">
           {leads.length === 0
-            ? 'No leads enrolled yet. Add them below or import a CSV file.'
-            : 'No leads match the current filter.'}
+            ? 'Brak kontaktów w kampanii. Dodaj je poniżej lub zaimportuj plik CSV.'
+            : 'Brak kontaktów pasujących do bieżącego filtra.'}
         </div>
       ) : (
         <div className="w-full max-w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
           <table className="min-w-max w-full text-sm bg-white">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Email</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Name</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">E-mail</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Nazwa / imię</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Stage</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Inbox</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Provider</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Enrolled</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Sending</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">Etap</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Skrzynka</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Dodano</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Wysyłka</th>
                 {customFields.map(f => (
                   <th key={f} className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap capitalize">{f}</th>
                 ))}
@@ -1039,7 +1038,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     <button
                       className="font-mono text-teal-600 hover:underline text-left"
                       onClick={() => onViewQueue?.(l.email)}
-                      title="View queue for this lead"
+                      title="Pokaż kolejkę dla tego kontaktu"
                     >
                       {l.email}
                     </button>
@@ -1063,17 +1062,6 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     ) : (
                       <span className="text-gray-300 text-xs">—</span>
                     )}
-                  </td>
-                  {/* provider */}
-                  <td className="px-4 py-2.5 whitespace-nowrap">
-                    {l.provider
-                      ? <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                          l.provider === 'Google Workspace' ? 'bg-blue-100 text-blue-700' :
-                          l.provider === 'Office 365'       ? 'bg-orange-100 text-orange-700' :
-                          l.provider === 'Unknown'          ? 'bg-gray-100 text-gray-500' :
-                          'bg-purple-100 text-purple-700'
-                        }`}>{l.provider}</span>
-                      : <span className="text-gray-300 text-xs">—</span>}
                   </td>
                   {/* enrolled date */}
                   <td className="px-4 py-2.5 text-gray-500 whitespace-nowrap">
@@ -1876,7 +1864,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
   };
 
   const deleteCampaign = async () => {
-    if (!await confirm('Delete this campaign? This cannot be undone.')) return;
+    if (!await confirm('Usunąć tę kampanię? Tej operacji nie można cofnąć.')) return;
     try {
       await api.del(`/campaigns/${campaignId}`);
       window.location.href = '/campaigns';
@@ -1886,20 +1874,19 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
   };
 
   const TOGGLE_OPTIONS = [
-    { key: 'stop_on_reply',            label: 'Stop sequence on reply' },
-    { key: 'paused',                   label: 'Pause this campaign' },
-    { key: 'track_opens',              label: 'Track email opens' },
-    { key: 'track_clicks',             label: 'Track link clicks' },
-    { key: 'add_unsubscribe_header',   label: 'Add List-Unsubscribe header (recommended)' },
-    { key: 'send_first_as_text',       label: 'Send first email as plain text', disabled: form.send_all_as_text },
-    { key: 'send_all_as_text',         label: 'Send all emails as plain text' },
-    { key: 'match_lead_provider',      label: 'Match lead provider — send from Google inboxes to Google leads, Office 365 to Office 365 (falls back to any inbox if none match)' },
+    { key: 'stop_on_reply',            label: 'Zatrzymaj sekwencję po odpowiedzi' },
+    { key: 'paused',                   label: 'Wstrzymaj kampanię' },
+    { key: 'track_opens',              label: 'Śledź otwarcia wiadomości' },
+    { key: 'track_clicks',             label: 'Śledź kliknięcia linków' },
+    { key: 'add_unsubscribe_header',   label: 'Dodaj nagłówek List-Unsubscribe (zalecane)' },
+    { key: 'send_first_as_text',       label: 'Pierwszą wiadomość wyślij jako zwykły tekst', disabled: form.send_all_as_text },
+    { key: 'send_all_as_text',         label: 'Wszystkie wiadomości wysyłaj jako zwykły tekst' },
   ];
 
   return (
     <div className="max-w-2xl space-y-8">
       <form onSubmit={submit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-5">
-        <h2 className="text-lg font-semibold text-gray-800">Campaign settings</h2>
+        <h2 className="text-lg font-semibold text-gray-800">Ustawienia kampanii</h2>
         {msg && (
           <div className={`rounded-lg px-3 py-2 text-sm ${msg.type==='error'?'bg-red-50 text-red-700':'bg-green-50 text-green-700'}`}>
             {msg.text}
@@ -1908,7 +1895,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {/* Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nazwa *</label>
           <input
             required
             className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -1952,9 +1939,9 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {/* Inboxes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sending inboxes *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Skrzynki nadawcze *</label>
           <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-1.5">
-            {inboxes.length === 0 && <p className="text-sm text-gray-400">No inboxes configured.</p>}
+            {inboxes.length === 0 && <p className="text-sm text-gray-400">Brak skonfigurowanych skrzynek.</p>}
             {inboxes.map(i => (
               <label key={i.id} className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={form.inbox_ids.includes(i.id)} onChange={()=>toggleInbox(i.id)} />
@@ -1966,12 +1953,12 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {/* Sending days */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Sending days</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Dni wysyłki</label>
           <div className="flex flex-wrap gap-3">
             {[0,1,2,3,4,5,6].map(d => (
               <label key={d} className="flex items-center gap-1.5 cursor-pointer text-sm">
                 <input type="checkbox" checked={form.sending_days.includes(d)} onChange={()=>toggleDay(d)} />
-                {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]}
+                {['Pon','Wt','Śr','Czw','Pt','Sob','Nd'][d]}
               </label>
             ))}
           </div>
@@ -1980,8 +1967,8 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
         {/* Hours */}
         <div className="grid grid-cols-2 gap-4">
           {[
-            { key: 'sending_hours_start', label: 'Window start' },
-            { key: 'sending_hours_end',   label: 'Window end' },
+            { key: 'sending_hours_start', label: 'Początek okna' },
+            { key: 'sending_hours_end',   label: 'Koniec okna' },
           ].map(({key, label}) => (
             <div key={key}>
               <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
@@ -1997,12 +1984,12 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {/* Timezone */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Strefa czasowa</label>
           <div className="relative">
             <input
               type="text"
               className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-              placeholder="Search timezones…"
+              placeholder="Szukaj strefy czasowej…"
               value={tzSearch !== null ? tzSearch : (form.timezone || '')}
               onChange={e => setTzSearch(e.target.value)}
               onFocus={() => setTzSearch(form.timezone || '')}
@@ -2082,7 +2069,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
       <div className="bg-white rounded-lg border border-red-200 p-6">
         <h3 className="font-semibold text-red-700 mb-1">Danger zone</h3>
         <p className="text-sm text-gray-500 mb-4">Permanently delete this campaign and all its data. This cannot be undone.</p>
-        <Button variant="destructive" onClick={deleteCampaign}>Delete campaign</Button>
+        <Button variant="destructive" onClick={deleteCampaign}>Usuń kampanię</Button>
       </div>
     </div>
   );
