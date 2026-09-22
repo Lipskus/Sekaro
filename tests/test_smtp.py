@@ -49,6 +49,17 @@ def _valid_payload(**overrides):
 # ---- validation ------------------------------------------------------------
 
 
+def test_inbox_schema_defaults_to_smtp_and_allows_empty_reply_to():
+    from app.schemas import InboxCreate, InboxUpdate
+
+    created = InboxCreate(email="sender@example.com", reply_to="")
+    assert created.provider == "smtp"
+    assert created.reply_to == ""
+
+    updated = InboxUpdate(reply_to="")
+    assert updated.reply_to == ""
+
+
 def test_validate_ok_send_only():
     assert validate_smtp_account_payload(_valid_payload()) is None
 
@@ -257,7 +268,7 @@ def test_imap_non_ssl_uses_starttls_before_login(monkeypatch):
 
     created = {}
 
-    def factory(host, port):
+    def factory(host, port, timeout=None):
         client = _FakeImapStartTls(host, port)
         created["client"] = client
         return client
