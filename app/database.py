@@ -86,6 +86,9 @@ async def _run_migrations(conn) -> None:
         # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS reply_to VARCHAR(255) NULL",
         "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
+        # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
+        "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS reply_to VARCHAR(255) NULL",
+        "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
         # 2026-03-24: track when ramp-up was last enabled (NULL = use created_at as fallback)
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS ramp_up_started_at TIMESTAMP WITHOUT TIME ZONE NULL",
         # 2026-03-25: per-campaign enrollment status (lead.status is no longer used for this)
