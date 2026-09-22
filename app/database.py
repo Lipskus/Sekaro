@@ -138,6 +138,24 @@ async def _run_migrations(conn) -> None:
         "CREATE INDEX IF NOT EXISTS ix_notification_user_read ON notification (user_id, read_at)",
         "CREATE INDEX IF NOT EXISTS ix_notification_event ON notification (event_type)",
         # 2026-09-04: generic SMTP / IMAP provider (per-inbox credentials + mirrors)
+        # 2026-09-22 Sekaro 0.3: named global contact lists.
+        """
+        CREATE TABLE IF NOT EXISTS contact_list (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL UNIQUE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS contact_list_member (
+            id SERIAL PRIMARY KEY,
+            list_id INTEGER NOT NULL REFERENCES contact_list(id) ON DELETE CASCADE,
+            lead_id INTEGER NOT NULL REFERENCES lead(id) ON DELETE CASCADE,
+            added_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+            CONSTRAINT uq_contact_list_member UNIQUE (list_id, lead_id)
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_contact_list_member_lead ON contact_list_member (lead_id)",
         # 2026-09-22 Sekaro 0.3: global do-not-contact / suppression list.
         """
         CREATE TABLE IF NOT EXISTS suppression_entry (
