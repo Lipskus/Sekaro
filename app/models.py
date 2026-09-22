@@ -840,6 +840,22 @@ class Webhook(Base):
     updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
 
 
+class SuppressionEntry(Base):
+    """Global do-not-contact entry.
+
+    Emails are normalized to lowercase before insertion. Any address present
+    here must never be scheduled or sent by Sekaro, regardless of campaign.
+    """
+    __tablename__ = "suppression_entry"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    reason = Column(String(64), nullable=False, default="manual")
+    source = Column(String(64), nullable=False, default="manual")
+    note = Column(Text, nullable=False, default="")
+    created_at = Column(DateTime, default=_utcnow)
+
+
 class KnownIP(Base):
     """IP addresses belonging to the app user (collected from sessions).
 
