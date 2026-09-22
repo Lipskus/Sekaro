@@ -207,6 +207,76 @@ def _smtp_account(**overrides):
     return SmtpAccount(**kwargs)
 
 
+
+
+
+def test_build_message_sets_reply_to():
+    msg = sender_mod._build_email_message(
+        to_email="lead@example.com",
+        subject="Hello",
+        body="Body",
+        from_email="sales@example.com",
+        reply_to_address="replies@example.com",
+    )
+    assert msg["Reply-To"] == "replies@example.com"
+
+
+class _FakeImapSocket:
+    def settimeout(self, value):
+        self.timeout = value
+
+
+class _FakeImapStartTls:
+    def __init__(self, host, port):
+        self.host = host
+        self.port = port
+        self.events = []
+        self._socket = _FakeImapSocket()
+
+    def socket(self):
+        return self._socket
+
+    def starttls(self, ssl_context=None):
+        self.events.append("starttls")
+        return "OK", []
+
+    def login(self, username, password):
+        self.events.append(("login", username, password))
+        return "OK", []
+
+    def select(self, mailbox, readonly=False):
+        self.events.append(("select", mailbox, readonly))
+        return "OK", []
+
+    def logout(self):
+        self.events.append("logout")
+
+
+def test_imap_non_ssl_uses_starttls_before_login(monkeypatch):
+    from app import smtp_utils
+
+    created = {}
+
+    def factory(host, port):
+        client = _FakeImapStartTls(host, port)
+        created["client"] = client
+        return client
+
+    monkeypatch.setattr(smtp_utils.imaplib, "IMAP4", factory)
+    acct = _smtp_account(
+        imap_host="imap.example.com",
+        imap_port=143,
+        imap_username="user@example.com",
+        imap_password="secret",
+        imap_use_ssl=False,
+    )
+
+    client = smtp_utils._imap_connect(acct, timeout=7)
+    assert client is created["client"]
+    assert client.events[0] == "starttls"
+    assert client.events[1] == ("login", "user@example.com", "secret")
+
+
 def test_send_via_smtp_ok(monkeypatch):
     fake = _FakeSMTP("ok")
     monkeypatch.setattr("app.smtp_utils._smtp_connect", lambda account, timeout=30: fake)
