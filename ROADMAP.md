@@ -15,13 +15,16 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 - [ ] Complete Polish translation of all existing screens
 
 ## 0.2 — Mailboxes
-- SMTP send configuration
-- IMAP reply synchronization
-- Encrypted mailbox credentials
-- Connection tests and diagnostics
-- Sender name / Reply-To
-- Mailbox pause/resume
-- Robust message threading
+- [x] SMTP send configuration
+- [x] IMAP reply synchronization
+- [x] Encrypted mailbox credentials
+- [x] Connection tests and diagnostics
+- [x] Sender name / Reply-To
+- [x] Mailbox pause/resume
+- [x] Robust SMTP Message-ID / References threading
+- [x] IMAP TLS / STARTTLS enforcement
+- [x] Manual inbox synchronization
+- [ ] Remove dormant Gmail/Microsoft provider internals after the SMTP-only regression suite is broader
 
 ## 0.3 — Contacts & imports
 - CSV import
