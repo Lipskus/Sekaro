@@ -74,7 +74,7 @@ export default function Campaigns() {
     }
   };
 
-  const toggleWstrzymaj = async (id, paused, name) => {
+  const togglePause = async (id, paused, name) => {
     const ok = await confirm(`${paused ? 'Wznowić' : 'Wstrzymać'} kampanię "${name}"?`);
     if (!ok) return;
     await api.patch(`/campaigns/${id}`, { paused: !paused });
@@ -160,11 +160,11 @@ export default function Campaigns() {
                 // When paused: scheduled slots were cleared, so denom == emailsSent
                 // which makes percent = 100%, but it's misleading.
                 const isCompleted = !c.paused && scheduled === 0 && emailsSent > 0;
-                const isWstrzymajd = !!c.paused;
+                const isPaused = !!c.paused;
 
                 // For paused campaigns, compute progress against total leads
                 // to give a better sense of how far we got
-                const pausedPercent = isWstrzymajd && totalLeads > 0
+                const pausedPercent = isPaused && totalLeads > 0
                   ? Math.round((emailsSent / totalLeads) * 100)
                   : 0;
 
@@ -180,7 +180,7 @@ export default function Campaigns() {
 
                 // Status display
                 let statusLabel, statusClass;
-                if (isWstrzymajd) {
+                if (isPaused) {
                   statusLabel = 'Wstrzymana';
                   statusClass = 'text-amber-600 font-bold';
                 } else if (isCompleted) {
@@ -198,7 +198,7 @@ export default function Campaigns() {
                 }
 
                 // Progress bar colour
-                const barColor = isWstrzymajd ? 'bg-amber-400' : isCompleted ? 'bg-blue-500' : 'bg-teal-500';
+                const barColor = isPaused ? 'bg-amber-400' : isCompleted ? 'bg-blue-500' : 'bg-teal-500';
 
                 return (
                   <tr
@@ -219,7 +219,7 @@ export default function Campaigns() {
                       </>
                     )}
                     <td className="py-2">
-                      {isWstrzymajd ? (
+                      {isPaused ? (
                         <span className="text-gray-500">
                           {c.name}{' '}
                           <span className="inline-block text-amber-700 bg-amber-100 px-1 py-0.5 text-xs font-bold rounded">WSTRZYMANA</span>
@@ -242,11 +242,11 @@ export default function Campaigns() {
                       <div className="w-32 inline-block bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div
                           className={`${barColor} h-2`}
-                          style={{ width: `${isWstrzymajd ? pausedPercent : percent}%` }}
+                          style={{ width: `${isPaused ? pausedPercent : percent}%` }}
                         />
                       </div>
                       <div className="text-xs mt-1">
-                        {isWstrzymajd ? (
+                        {isPaused ? (
                           <span className="text-amber-700">{emailsSent} wysłano z {totalLeads} lead{totalLeads !== 1 ? 's' : ''}</span>
                         ) : isCompleted ? (
                           <span className="text-blue-600">{emailsSent} wysłano — zakończono</span>
@@ -264,7 +264,7 @@ export default function Campaigns() {
                     <td className="py-2">
                       <div className="flex flex-wrap gap-2">
                         <Button as={Link} to={`/campaigns/${c.id}`} variant="outline" size="sm">View</Button>
-                        <Button variant="outline" size="sm" onClick={() => toggleWstrzymaj(c.id, c.paused, c.name)}>
+                        <Button variant="outline" size="sm" onClick={() => togglePause(c.id, c.paused, c.name)}>
                           {c.paused ? 'Wznów' : 'Wstrzymaj'}
                         </Button>
                         <Button variant="outline" size="sm" onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
