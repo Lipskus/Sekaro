@@ -27,6 +27,7 @@ function buildChecks(d) {
   if (!d) return [];
 
   const {
+    security = {},
     smtp = { accounts: [] },
     inboxes: inboxList = [],
     unibox_sync,
@@ -37,6 +38,29 @@ function buildChecks(d) {
   } = d;
 
   const checks = [];
+
+  /* ── Secrets at rest ─────────────────────────────────────────── */
+  const externalEncryptionKey = Boolean(security?.external_mailbox_encryption_key);
+  const smtpAccountCount = Number(security?.smtp_account_count || 0);
+  checks.push({
+    id: 'mailbox_encryption',
+    label: 'Szyfrowanie haseł skrzynek',
+    icon: 'verify',
+    status: externalEncryptionKey ? 'ok' : 'warning',
+    issues: externalEncryptionKey
+      ? []
+      : [{
+          level: 'warning',
+          text: 'SEKARO_ENCRYPTION_KEY nie jest ustawiony w środowisku serwera.',
+          fix: smtpAccountCount > 0
+            ? 'Skrzynki już istnieją — nie zmieniaj klucza w ciemno. Przed rotacją wykonaj kopię i migrację sekretów.'
+            : 'Przed dodaniem pierwszej skrzynki ustaw losowy SEKARO_ENCRYPTION_KEY w pliku .env i zrestartuj aplikację.',
+        }],
+    meta: { externalEncryptionKey, smtpAccountCount },
+    detail: externalEncryptionKey
+      ? 'Klucz szyfrowania jest oddzielony od bazy danych'
+      : 'Tryb kompatybilności — klucz nie jest dostarczony z .env',
+  });
 
   /* ── SMTP / IMAP ─────────────────────────────────────────────── */
   const smtpAccounts = smtp?.accounts || [];
