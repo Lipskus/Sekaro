@@ -71,7 +71,7 @@ function formatJitterMinutesLabel(seconds) {
  * Śledzenie: three choices — app URL, Beacon (setup URL + Połącz), or Konfiguracja DNS (CNAME + Sprawdź).
  * Long-form help is behind “Pokaż informacje” for each option.
  */
-function InboxŚledzenieOptions({
+function InboxTrackingOptions({
   variant,
   wrapClassName = 'space-y-4',
   radioName,
@@ -80,26 +80,26 @@ function InboxŚledzenieOptions({
   uiMode,
   onUiModeChange,
   trackingDomain,
-  onŚledzenieDomainChange,
-  onDnsSprawdźChange,
-  beaconPołączed,
+  onTrackingDomainChange,
+  onDnsVerifyChange,
+  beaconConnected,
   beaconBaseUrl,
   beaconSetupUrl,
   onBeaconSetupUrlChange,
-  onPołączBeacon,
-  onRozłączBeacon,
-  beaconPołączing,
+  onConnectBeacon,
+  onDisconnectBeacon,
+  beaconConnecting,
   siblingInboxesForReuse = [],
   currentInboxId = null,
-  onBeaconPołączFromSibling,
+  onBeaconConnectFromSibling,
   onReuseDnsDomain,
-  dnsAutoSprawdźTrigger = 0,
+  dnsAutoVerifyTrigger = 0,
 }) {
   const hostHint = cnameTarget || (typeof window !== 'undefined' ? window.location.hostname : '');
-  const dnsAktywna = uiMode === 'dns';
-  const beaconAktywna = uiMode === 'beacon';
-  const [verifyState, setSprawdźState] = useState(null);
-  const [verifyMsg, setSprawdźMsg] = useState('');
+  const dnsActive = uiMode === 'dns';
+  const beaconActive = uiMode === 'beacon';
+  const [verifyState, setVerifyState] = useState(null);
+  const [verifyMsg, setVerifyMsg] = useState('');
   const abortRef = useRef(false);
   const [reuseOpen, setReuseOpen] = useState(false);
   const [reuseSearch, setReuseSearch] = useState('');
@@ -112,7 +112,7 @@ function InboxŚledzenieOptions({
       .flatMap((i) => {
         const label = (i.display_name || '').trim() || i.email || `Inbox #${i.id}`;
         const rows = [];
-        if (!beaconPołączed && i.beacon_connected && (i.beacon_base_url || '').trim()) {
+        if (!beaconConnected && i.beacon_connected && (i.beacon_base_url || '').trim()) {
           const primary = (i.beacon_base_url || '').trim();
           const hay = `${primary} ${label} ${i.email || ''}`.toLowerCase();
           rows.push({
@@ -125,7 +125,7 @@ function InboxŚledzenieOptions({
           });
         }
         if (
-          !beaconPołączed
+          !beaconConnected
           && cnameUiEnabled
           && (i.tracking_domain || '').trim()
           && !i.beacon_connected
@@ -143,7 +143,7 @@ function InboxŚledzenieOptions({
         }
         return rows;
       });
-  }, [siblingInboxesForReuse, currentInboxId, beaconPołączed, cnameUiEnabled]);
+  }, [siblingInboxesForReuse, currentInboxId, beaconConnected, cnameUiEnabled]);
 
   const reuseRows = useMemo(() => {
     const q = (reuseSearch || '').trim().toLowerCase();
@@ -154,18 +154,18 @@ function InboxŚledzenieOptions({
 
   const handleDnsValue = (v) => {
     abortRef.current = true;
-    setSprawdźState(null);
-    setSprawdźMsg('');
-    onDnsSprawdźChange?.(false);
-    onŚledzenieDomainChange(v);
+    setVerifyState(null);
+    setVerifyMsg('');
+    onDnsVerifyChange?.(false);
+    onTrackingDomainChange(v);
   };
 
   const verifyDns = async () => {
     const domain = (trackingDomain || '').trim();
     if (!domain) return;
     abortRef.current = false;
-    setSprawdźState('checking');
-    setSprawdźMsg('Registering domain…');
+    setVerifyState('checking');
+    setVerifyMsg('Registering domain…');
     try {
       await api.post('/settings/register-tracking-domain-pending', { domain });
     } catch (_) { /* non-fatal */ }
@@ -175,16 +175,16 @@ function InboxŚledzenieOptions({
     let lastError = 'Timed out waiting for SSL certificate to be provisioned';
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       if (abortRef.current) return;
-      setSprawdźMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
+      setVerifyMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
       try {
         const data = await api.get(
           `/settings/verify-tracking-domain?domain=${encodeURIComponent(domain)}`
         );
         if (abortRef.current) return;
         if (data.ok) {
-          setSprawdźState('ok');
-          setSprawdźMsg('');
-          onDnsSprawdźChange?.(true);
+          setVerifyState('ok');
+          setVerifyMsg('');
+          onDnsVerifyChange?.(true);
           return;
         }
         lastError = data.error || 'Unknown error';
@@ -197,30 +197,30 @@ function InboxŚledzenieOptions({
       }
     }
     if (!abortRef.current) {
-      setSprawdźState({ error: lastError });
-      setSprawdźMsg('');
-      onDnsSprawdźChange?.(false);
+      setVerifyState({ error: lastError });
+      setVerifyMsg('');
+      onDnsVerifyChange?.(false);
     }
   };
 
   useEffect(() => {
     if (uiMode !== 'dns') {
       abortRef.current = true;
-      setSprawdźState(null);
-      setSprawdźMsg('');
+      setVerifyState(null);
+      setVerifyMsg('');
     }
   }, [uiMode]);
 
   useEffect(() => {
-    if (variant !== 'edit' || !dnsAutoSprawdźTrigger) return;
+    if (variant !== 'edit' || !dnsAutoVerifyTrigger) return;
     if (uiMode !== 'dns' || !(trackingDomain || '').trim()) return;
     verifyDns();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: run once per trigger after DNS mode + domain applied
-  }, [dnsAutoSprawdźTrigger]);
+  }, [dnsAutoVerifyTrigger]);
 
-  const dnsInputDisabled = !dnsAktywna;
-  const beaconInputDisabled = variant === 'add' || !beaconAktywna || beaconPołączed;
-  const canSprawdźDns = dnsAktywna && (trackingDomain || '').trim().length > 0;
+  const dnsInputDisabled = !dnsActive;
+  const beaconInputDisabled = variant === 'add' || !beaconActive || beaconConnected;
+  const canVerifyDns = dnsActive && (trackingDomain || '').trim().length > 0;
 
   return (
     <div className={`${wrapClassName} min-w-0 max-w-full`}>
@@ -250,7 +250,7 @@ function InboxŚledzenieOptions({
             <div className="px-3 pb-3 pt-0 border-t border-gray-100 space-y-2 min-w-0 max-w-full">
               {!hasReuseOptions ? (
                 <p className="text-xs text-gray-500 pt-2">
-                  No other inboxes have Beacon or DNS tracking yet. Połącz one inbox first, or paste a setup URL below.
+                  Żadna inna skrzynka nie ma jeszcze skonfigurowanego Beacon ani domeny DNS. Najpierw skonfiguruj jedną skrzynkę albo wklej adres konfiguracji poniżej.
                 </p>
               ) : (
                 <>
@@ -282,16 +282,16 @@ function InboxŚledzenieOptions({
                         <button
                           type="button"
                           disabled={
-                            beaconPołączing
+                            beaconConnecting
                             || reuseBusyKey === r.key
-                            || (r.kind === 'beacon' && !onBeaconPołączFromSibling)
+                            || (r.kind === 'beacon' && !onBeaconConnectFromSibling)
                             || (r.kind === 'dns' && !onReuseDnsDomain)
                           }
                           onClick={async () => {
-                            if (r.kind === 'beacon' && onBeaconPołączFromSibling) {
+                            if (r.kind === 'beacon' && onBeaconConnectFromSibling) {
                               setReuseBusyKey(r.key);
                               try {
-                                await onBeaconPołączFromSibling(r.inboxId);
+                                await onBeaconConnectFromSibling(r.inboxId);
                               } finally {
                                 setReuseBusyKey(null);
                               }
@@ -302,8 +302,8 @@ function InboxŚledzenieOptions({
                           className="shrink-0 self-start sm:self-center px-2 py-1 text-[11px] rounded border border-teal-600 bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:hover:bg-teal-600"
                         >
                           {r.kind === 'beacon'
-                            ? beaconPołączing && reuseBusyKey === r.key
-                              ? 'Połączing…'
+                            ? beaconConnecting && reuseBusyKey === r.key
+                              ? 'Łączenie…'
                               : 'Połącz'
                             : 'Use & verify'}
                         </button>
@@ -353,12 +353,12 @@ function InboxŚledzenieOptions({
         </label>
         <div className="ml-6 min-w-0 max-w-full space-y-2 border-l-2 border-gray-200 pl-3 py-0.5 box-border">
           <div className="w-full min-w-0 max-w-full space-y-2">
-            {beaconPołączed ? (
+            {beaconConnected ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between w-full min-w-0">
                 <p className="text-xs text-gray-700 min-w-0 break-words [overflow-wrap:anywhere]">
-                  Połączed: <code className="text-teal-800 break-all">{beaconBaseUrl || ''}</code>
+                  Połączono: <code className="text-teal-800 break-all">{beaconBaseUrl || ''}</code>
                 </p>
-                <Button type="button" size="sm" variant="outline" className="shrink-0 self-start" onClick={onRozłączBeacon}>
+                <Button type="button" size="sm" variant="outline" className="shrink-0 self-start" onClick={onDisconnectBeacon}>
                   Rozłącz
                 </Button>
               </div>
@@ -374,18 +374,18 @@ function InboxŚledzenieOptions({
                 />
                 <button
                   type="button"
-                  disabled={beaconInputDisabled || !beaconSetupUrl.trim() || beaconPołączing}
-                  onClick={onPołączBeacon}
+                  disabled={beaconInputDisabled || !beaconSetupUrl.trim() || beaconConnecting}
+                  onClick={onConnectBeacon}
                   className="self-start shrink-0 px-2 py-1 text-xs rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
-                  {beaconPołączing ? 'Połączing…' : 'Połącz'}
+                  {beaconConnecting ? 'Łączenie…' : 'Połącz'}
                 </button>
               </div>
             )}
           </div>
           {variant === 'add' && (
             <p className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded px-2 py-1">
-              Połącz is available after the inbox exists — finish adding the inbox, then open <strong>Edit</strong> and choose Beacon (zalecane) here.
+              Beacon można połączyć po utworzeniu skrzynki — najpierw dodaj skrzynkę, a następnie otwórz jej edycję.
             </p>
           )}
           <CollapsibleInfo>
@@ -393,7 +393,7 @@ function InboxŚledzenieOptions({
             <p>
               Run the Beacon service on the HTTPS hostname you want for tracking links. While Sekaro is not connected yet, open Beacon&apos;s root URL in a browser and copy the <strong>setup URL</strong> (it includes{' '}
               <code className="bg-gray-100 px-0.5 rounded">?token=</code>
-              ). Paste it above and click Połącz. On Beacon, set{' '}
+              ). Wklej adres powyżej i kliknij Połącz. On Beacon, set{' '}
               <code className="bg-gray-100 px-0.5 rounded">BEACON_PUBLIC_BASE_URL</code>
               {' '}if printed links should use a specific public origin.
             </p>
@@ -419,7 +419,7 @@ function InboxŚledzenieOptions({
               type="radio"
               name={radioName}
               className="mt-0.5 shrink-0"
-              checked={dnsAktywna}
+              checked={dnsActive}
               onChange={() => onUiModeChange('dns')}
             />
             <span className="font-medium text-gray-800">Konfiguracja DNS</span>
@@ -434,16 +434,16 @@ function InboxŚledzenieOptions({
                 value={trackingDomain || ''}
                 onChange={e => handleDnsValue(e.target.value)}
                 onFocus={() => {
-                  if (!dnsAktywna) onUiModeChange('dns');
+                  if (!dnsActive) onUiModeChange('dns');
                 }}
               />
               <button
                 type="button"
-                disabled={!canSprawdźDns || verifyState === 'checking'}
+                disabled={!canVerifyDns || verifyState === 'checking'}
                 onClick={verifyDns}
                 className="self-start shrink-0 px-2 py-1 text-xs rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                {verifyState === 'checking' ? 'Sprawdźing…' : 'Sprawdź'}
+                {verifyState === 'checking' ? 'Sprawdzanie…' : 'Sprawdź'}
               </button>
             </div>
             {verifyState === 'checking' && verifyMsg && (
@@ -472,7 +472,7 @@ function InboxŚledzenieOptions({
         </div>
       )}
 
-      {!cnameUiEnabled && (trackingDomain || '').trim() && !beaconPołączed && (
+      {!cnameUiEnabled && (trackingDomain || '').trim() && !beaconConnected && (
         <div className="text-xs text-amber-800 space-y-2 bg-amber-50 border border-amber-200 rounded p-2">
           <p>
             Legacy CNAME tracking domain saved:{' '}
@@ -481,7 +481,7 @@ function InboxŚledzenieOptions({
           <button
             type="button"
             className="text-xs px-2 py-1 rounded border border-amber-300 bg-white hover:bg-amber-100"
-            onClick={() => { onŚledzenieDomainChange(''); onDnsSprawdźChange?.(false); }}
+            onClick={() => { onTrackingDomainChange(''); onDnsVerifyChange?.(false); }}
           >
             Usuń zapisaną domenę
           </button>
@@ -494,7 +494,7 @@ function InboxŚledzenieOptions({
 export default function Inboxes() {
   const [inboxes, setInboxes] = useState(() => apiCache.get('/inboxes') || []);
   const [cnameTarget, setCnameTarget] = useState('');
-  const [customŚledzenieCnameUiEnabled, setCustomŚledzenieCnameUiEnabled] = useState(true);
+  const [customTrackingCnameUiEnabled, setCustomTrackingCnameUiEnabled] = useState(true);
   // state used for both add and edit forms
   const initialForm = {
     provider: 'smtp',
@@ -540,10 +540,10 @@ export default function Inboxes() {
   const editOriginalDomain = useRef('');
   const [editDomainVerified, setEditDomainVerified] = useState(false);
   const [beaconSetupUrl, setBeaconSetupUrl] = useState('');
-  const [beaconPołączing, setBeaconPołączing] = useState(false);
-  const [dnsAutoSprawdźTrigger, setDnsAutoSprawdźTrigger] = useState(0);
-  const [editŚledzenieMode, setEditŚledzenieMode] = useState('app');
-  const [addŚledzenieMode, setAddŚledzenieMode] = useState('app');
+  const [beaconConnecting, setBeaconConnecting] = useState(false);
+  const [dnsAutoVerifyTrigger, setDnsAutoVerifyTrigger] = useState(0);
+  const [editTrackingMode, setEditTrackingMode] = useState('app');
+  const [addTrackingMode, setAddTrackingMode] = useState('app');
   const [addDomainVerified, setAddDomainVerified] = useState(false);
   const [showAdd, setShowAdd] = useState(false); // controls add modal
   const confirm = useConfirm();
@@ -600,7 +600,7 @@ export default function Inboxes() {
       .then((d) => {
         setCnameTarget(d.cname_target || window.location.hostname);
         if (typeof d.custom_tracking_cname_ui_enabled === 'boolean') {
-          setCustomŚledzenieCnameUiEnabled(d.custom_tracking_cname_ui_enabled);
+          setCustomTrackingCnameUiEnabled(d.custom_tracking_cname_ui_enabled);
         }
       })
       .catch(() => setCnameTarget(window.location.hostname));
@@ -661,7 +661,7 @@ export default function Inboxes() {
     }
     setForm(initialForm);
     setSmtpForm(initialSmtpForm);
-    setAddŚledzenieMode('app');
+    setAddTrackingMode('app');
     setAddDomainVerified(false);
     load();
     setShowAdd(false);
@@ -679,7 +679,7 @@ export default function Inboxes() {
         setMessage({ type: 'error', text: 'Host SMTP, username, and password are required.' });
         return;
       }
-      const addDomain = addŚledzenieMode === 'dns' ? form.tracking_domain.trim() : '';
+      const addDomain = addTrackingMode === 'dns' ? form.tracking_domain.trim() : '';
       if (addDomain && !addDomainVerified) {
         setMessage({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
         return;
@@ -691,7 +691,7 @@ export default function Inboxes() {
       }
       return;
     }
-    const addDomain = addŚledzenieMode === 'dns' ? form.tracking_domain.trim() : '';
+    const addDomain = addTrackingMode === 'dns' ? form.tracking_domain.trim() : '';
     if (addDomain && !addDomainVerified) {
       setMessage({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
       return;
@@ -703,7 +703,7 @@ export default function Inboxes() {
       });
       setMessage({ type: 'success', text: 'Inbox added' });
       setForm(initialForm);
-      setAddŚledzenieMode('app');
+      setAddTrackingMode('app');
       setAddDomainVerified(false);
       load();
       setShowAdd(false);
@@ -744,11 +744,11 @@ export default function Inboxes() {
     editOriginalDomain.current = inbox.tracking_domain || '';
     setEditDomainVerified(false);
     setBeaconSetupUrl('');
-    setDnsAutoSprawdźTrigger(0);
-    setEditŚledzenieMode(
+    setDnsAutoVerifyTrigger(0);
+    setEditTrackingMode(
       inbox.beacon_connected
         ? 'beacon'
-        : (customŚledzenieCnameUiEnabled && (inbox.tracking_domain || '').trim() ? 'dns' : 'app'),
+        : (customTrackingCnameUiEnabled && (inbox.tracking_domain || '').trim() ? 'dns' : 'app'),
     );
   };
   const closeEdit = () => {
@@ -774,14 +774,14 @@ export default function Inboxes() {
       setSelectedInbox(null);
     }
   };
-  const applyEditŚledzenieMode = (mode) => {
+  const applyEditTrackingMode = (mode) => {
     if (!editing) return;
     if (editing.beacon_connected && mode !== 'beacon') {
-      setEditMsg({ type: 'error', text: 'Rozłącz Beacon before choosing another tracking option.' });
+      setEditMsg({ type: 'error', text: 'Najpierw rozłącz Beacon, zanim wybierzesz inną metodę śledzenia.' });
       return;
     }
     setEditMsg(null);
-    setEditŚledzenieMode(mode);
+    setEditTrackingMode(mode);
     if (mode === 'app' || mode === 'beacon') {
       setEditing(prev => ({ ...prev, tracking_domain: '' }));
       setEditDomainVerified(false);
@@ -789,19 +789,19 @@ export default function Inboxes() {
     setEditDirty(true);
   };
 
-  const applyAddŚledzenieMode = (mode) => {
-    setAddŚledzenieMode(mode);
+  const applyAddTrackingMode = (mode) => {
+    setAddTrackingMode(mode);
     if (mode === 'app' || mode === 'beacon') {
       setForm(f => ({ ...f, tracking_domain: '' }));
       setAddDomainVerified(false);
     }
   };
 
-  const doZapisz = async () => {
+  const doSave = async () => {
     if (!editing) return;
-    const newDomain = editŚledzenieMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
+    const newDomain = editTrackingMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
     const domainChanged = newDomain !== editOriginalDomain.current;
-    if (editŚledzenieMode === 'dns' && newDomain && domainChanged && !editDomainVerified) {
+    if (editTrackingMode === 'dns' && newDomain && domainChanged && !editDomainVerified) {
       setEditMsg({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
       return;
     }
@@ -828,7 +828,7 @@ export default function Inboxes() {
   };
   const saveEdit = async (e) => {
     e.preventDefault();
-    await doZapisz();
+    await doSave();
   };
 
   const saveEditingSmtp = async () => {
@@ -863,7 +863,7 @@ export default function Inboxes() {
         setSmtpTestMsg({ type: 'success', text: 'Test połączenia zakończony powodzeniem (SMTP' + (res.imap?.detail?.includes('skipped') ? '' : ' + IMAP') + ')' });
       } else {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
-        setSmtpTestMsg({ type: 'error', text: `Połączion test failed: ${details || 'unknown error'}` });
+        setSmtpTestMsg({ type: 'error', text: `Test połączenia nie powiódł się: ${details || 'unknown error'}` });
       }
       await refreshEditingInbox(editing.id);
     } catch (err) {
@@ -891,34 +891,34 @@ export default function Inboxes() {
       setEditMsg({ type: 'error', text: 'Paste the full Beacon setup URL (includes ?token=…).' });
       return;
     }
-    setBeaconPołączing(true);
+    setBeaconConnecting(true);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect`, { setup_url: url });
       setEditMsg({ type: 'success', text: 'Beacon connected. Custom Caddy tracking domain was cleared.' });
       setBeaconSetupUrl('');
-      setEditŚledzenieMode('beacon');
+      setEditTrackingMode('beacon');
       await refreshEditingInbox(editing.id);
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
     } finally {
-      setBeaconPołączing(false);
+      setBeaconConnecting(false);
     }
   };
 
   const connectBeaconFromSibling = async (sourceInboxId) => {
     if (!editing) return;
-    setBeaconPołączing(true);
+    setBeaconConnecting(true);
     setEditMsg(null);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect-from`, { source_inbox_id: sourceInboxId });
       setEditMsg({ type: 'success', text: 'Beacon connected using another inbox’s tracker.' });
       setBeaconSetupUrl('');
-      setEditŚledzenieMode('beacon');
+      setEditTrackingMode('beacon');
       await refreshEditingInbox(editing.id);
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
     } finally {
-      setBeaconPołączing(false);
+      setBeaconConnecting(false);
     }
   };
 
@@ -927,25 +927,25 @@ export default function Inboxes() {
     const d = (domain || '').trim();
     if (!d) return;
     setEditMsg(null);
-    setEditŚledzenieMode('dns');
+    setEditTrackingMode('dns');
     setEditing((prev) => ({ ...prev, tracking_domain: d }));
     setEditDomainVerified(false);
     setEditDirty(true);
-    setDnsAutoSprawdźTrigger((n) => n + 1);
+    setDnsAutoVerifyTrigger((n) => n + 1);
   };
 
   const disconnectBeacon = async () => {
     if (!editing) return;
     const ok = await confirm(
-      customŚledzenieCnameUiEnabled
-        ? 'Rozłącz Beacon? Śledzenie links will use the app domain or a custom CNAME domain again.'
-        : 'Rozłącz Beacon? Śledzenie links will use the app domain until you connect Beacon again or clear any legacy domain.',
+      customTrackingCnameUiEnabled
+        ? 'Rozłączyć Beacon? Linki śledzące ponownie użyją domeny aplikacji lub własnej domeny CNAME.'
+        : 'Rozłączyć Beacon? Linki śledzące będą używać domeny aplikacji do czasu ponownego połączenia Beacon.',
     );
     if (!ok) return;
     try {
       await api.post(`/inboxes/${editing.id}/beacon/disconnect`);
       setEditMsg({ type: 'success', text: 'Beacon disconnected.' });
-      setEditŚledzenieMode('app');
+      setEditTrackingMode('app');
       await refreshEditingInbox(editing.id);
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
@@ -957,7 +957,7 @@ export default function Inboxes() {
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
       if (showEditWarning) { setShowEditWarning(false); }
-      else if (showAdd) { setShowAdd(false); setMessage(null); setAddŚledzenieMode('app'); }
+      else if (showAdd) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }
       else if (editing) tryCloseEdit();
       else if (selectedInbox) setSelectedInbox(null);
     };
@@ -1048,7 +1048,7 @@ export default function Inboxes() {
       {/* header with add button */}
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-bold">Skrzynki</h1>
-        <Button variant="default" onClick={() => { setForm(initialForm); setSmtpForm(initialSmtpForm); setAddŚledzenieMode('app'); setMessage(null); setShowAdd(true); }}>
+        <Button variant="default" onClick={() => { setForm(initialForm); setSmtpForm(initialSmtpForm); setAddTrackingMode('app'); setMessage(null); setShowAdd(true); }}>
           Dodaj skrzynkę
         </Button>
       </div>
@@ -1071,7 +1071,7 @@ export default function Inboxes() {
               const isSelected = selectedInbox?.id === inbox.id;
               const sentDzisiaj = inbox.sent_today || 0;
               const maxDzisiaj = inbox.effective_max_per_day || inbox.max_emails_per_day;
-              const warmupAktywna = inbox.ramp_up_enabled && inbox.effective_max_per_day < inbox.max_emails_per_day;
+              const warmupActive = inbox.ramp_up_enabled && inbox.effective_max_per_day < inbox.max_emails_per_day;
               const avatarLetter = (inbox.email || inbox.display_name || 'I')[0].toUpperCase();
               return (
                 <button
@@ -1091,7 +1091,7 @@ export default function Inboxes() {
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-900 text-sm leading-tight truncate">
-                          {inbox.email || '(Połączed account)'}
+                          {inbox.email || '(połączone konto)'}
                         </p>
                         {inbox.display_name && (
                           <p className="text-xs text-gray-500 leading-tight mt-0.5 truncate">{inbox.display_name}</p>
@@ -1100,7 +1100,7 @@ export default function Inboxes() {
                     </div>
                     {/* Right: badges + sent count */}
                     <div className="flex items-center gap-2 shrink-0">
-                      {warmupAktywna && (
+                      {warmupActive && (
                         <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
                           Stage {inbox.effective_max_per_day}/{inbox.max_emails_per_day}
                         </span>
@@ -1134,7 +1134,7 @@ export default function Inboxes() {
                     <button
                       onClick={tryCloseEdit}
                       className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                      aria-label="Anuluj edit"
+                      aria-label="Anuluj edycję"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1262,30 +1262,30 @@ export default function Inboxes() {
                             </span>
                           )}
                         </p>
-                        <InboxŚledzenieOptions
+                        <InboxTrackingOptions
                           key={editing.id}
                           variant="edit"
                           wrapClassName="space-y-4"
                           radioName="inbox-tracking-edit"
-                          cnameUiEnabled={customŚledzenieCnameUiEnabled}
+                          cnameUiEnabled={customTrackingCnameUiEnabled}
                           cnameTarget={cnameTarget}
-                          uiMode={editŚledzenieMode}
-                          onUiModeChange={applyEditŚledzenieMode}
+                          uiMode={editTrackingMode}
+                          onUiModeChange={applyEditTrackingMode}
                           trackingDomain={editing.tracking_domain || ''}
-                          onŚledzenieDomainChange={(val) => { setEditing(prev => ({ ...prev, tracking_domain: val })); setEditDirty(true); }}
-                          onDnsSprawdźChange={setEditDomainVerified}
-                          beaconPołączed={!!editing.beacon_connected}
+                          onTrackingDomainChange={(val) => { setEditing(prev => ({ ...prev, tracking_domain: val })); setEditDirty(true); }}
+                          onDnsVerifyChange={setEditDomainVerified}
+                          beaconConnected={!!editing.beacon_connected}
                           beaconBaseUrl={editing.beacon_base_url}
                           beaconSetupUrl={beaconSetupUrl}
                           onBeaconSetupUrlChange={(v) => { setBeaconSetupUrl(v); setEditDirty(true); }}
-                          onPołączBeacon={connectBeacon}
-                          onRozłączBeacon={disconnectBeacon}
-                          beaconPołączing={beaconPołączing}
+                          onConnectBeacon={connectBeacon}
+                          onDisconnectBeacon={disconnectBeacon}
+                          beaconConnecting={beaconConnecting}
                           siblingInboxesForReuse={inboxes}
                           currentInboxId={editing.id}
-                          onBeaconPołączFromSibling={connectBeaconFromSibling}
+                          onBeaconConnectFromSibling={connectBeaconFromSibling}
                           onReuseDnsDomain={reuseDnsFromSibling}
-                          dnsAutoSprawdźTrigger={dnsAutoSprawdźTrigger}
+                          dnsAutoVerifyTrigger={dnsAutoVerifyTrigger}
                         />
                       </div>
                       <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
@@ -1347,7 +1347,7 @@ export default function Inboxes() {
                         {(selectedInbox.email || selectedInbox.display_name || 'I')[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{selectedInbox.email || '(Połączed account)'}</p>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{selectedInbox.email || '(połączone konto)'}</p>
                         {selectedInbox.display_name && (
                           <p className="text-xs text-gray-500 truncate leading-tight mt-0.5">{selectedInbox.display_name}</p>
                         )}
@@ -1491,7 +1491,7 @@ export default function Inboxes() {
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
           onMouseDown={e => { addBackdropDown.current = e.target === e.currentTarget; }}
-          onClick={() => { if (addBackdropDown.current) { setShowAdd(false); setMessage(null); setAddŚledzenieMode('app'); } }}
+          onClick={() => { if (addBackdropDown.current) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); } }}
         >
           <div data-darkreader-ignore className="p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" style={{ backgroundColor: 'white' }} onClick={e => e.stopPropagation()}>
             <h2 className="text-xl font-semibold mb-2">Dodaj skrzynkę</h2>
@@ -1599,24 +1599,24 @@ export default function Inboxes() {
               )}
               <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Śledzenie</p>
-                <InboxŚledzenieOptions
+                <InboxTrackingOptions
                   variant="add"
                   wrapClassName="space-y-4"
                   radioName="inbox-tracking-add"
-                  cnameUiEnabled={customŚledzenieCnameUiEnabled}
+                  cnameUiEnabled={customTrackingCnameUiEnabled}
                   cnameTarget={cnameTarget}
-                  uiMode={addŚledzenieMode}
-                  onUiModeChange={applyAddŚledzenieMode}
+                  uiMode={addTrackingMode}
+                  onUiModeChange={applyAddTrackingMode}
                   trackingDomain={form.tracking_domain}
-                  onŚledzenieDomainChange={(val) => { setForm(f => ({ ...f, tracking_domain: val })); setAddDomainVerified(false); }}
-                  onDnsSprawdźChange={setAddDomainVerified}
-                  beaconPołączed={false}
+                  onTrackingDomainChange={(val) => { setForm(f => ({ ...f, tracking_domain: val })); setAddDomainVerified(false); }}
+                  onDnsVerifyChange={setAddDomainVerified}
+                  beaconConnected={false}
                   beaconBaseUrl=""
                   beaconSetupUrl=""
                   onBeaconSetupUrlChange={() => {}}
-                  onPołączBeacon={() => {}}
-                  onRozłączBeacon={() => {}}
-                  beaconPołączing={false}
+                  onConnectBeacon={() => {}}
+                  onDisconnectBeacon={() => {}}
+                  beaconConnecting={false}
                 />
               </div>
               <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
@@ -1665,7 +1665,7 @@ export default function Inboxes() {
                 <Button type="submit" disabled={!canSubmit()} variant="default">
                   Dodaj skrzynkę
                 </Button>
-                <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setMessage(null); setAddŚledzenieMode('app'); }}>
+                <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
                   Anuluj
                 </Button>
               </div>
@@ -1680,12 +1680,12 @@ export default function Inboxes() {
       {showEditWarning && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
           <div data-darkreader-ignore className="rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ backgroundColor: 'white' }}>
-            <h3 className="font-semibold text-gray-800 mb-1">Zapisz changes?</h3>
+            <h3 className="font-semibold text-gray-800 mb-1">Zapisać zmiany?</h3>
             <p className="text-sm text-gray-500 mb-4">Masz niezapisane zmiany w tej skrzynce.</p>
             <div className="flex gap-2 justify-end">
               <Button size="sm" variant="outline" onClick={() => { setShowEditWarning(false); setEditWarningCloseSidebar(false); }}>Kontynuuj edycję</Button>
               <Button size="sm" variant="destructive" onClick={() => { setShowEditWarning(false); closeEdit(); if (editWarningCloseSidebar) { setSelectedInbox(null); setEditWarningCloseSidebar(false); } }}>Odrzuć</Button>
-              <Button size="sm" variant="default" onClick={async () => { setShowEditWarning(false); setEditWarningCloseSidebar(false); await doZapisz(); }}>Zapisz</Button>
+              <Button size="sm" variant="default" onClick={async () => { setShowEditWarning(false); setEditWarningCloseSidebar(false); await doSave(); }}>Zapisz</Button>
             </div>
           </div>
         </div>
