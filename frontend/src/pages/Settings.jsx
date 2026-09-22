@@ -11,35 +11,34 @@ import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
 
 const SETTINGS_TABS = [
-  { id: 'general', label: 'General' },
-  { id: 'setup', label: 'Setup' },
-  { id: 'features', label: 'Features' },
-  { id: 'integrating', label: 'Integrating' },
-  { id: 'dev', label: 'Dev' },
+  { id: 'general', label: 'Ogólne' },
+  { id: 'setup', label: 'Kopia i dane' },
+  { id: 'features', label: 'Funkcje' },
+  { id: 'integrating', label: 'Integracje' },
+  { id: 'dev', label: 'Deweloperskie' },
 ];
 
 /** In-tab section anchors (DOM id = `settings-${id}`). */
 const SECTIONS_BY_TAB = {
   general: [
-    { id: 'scheduling', label: 'Scheduling' },
-    { id: 'appearance', label: 'Appearance' },
-    { id: 'account', label: 'Account & Security' },
-    { id: 'known-ips', label: 'Known IPs' },
+    { id: 'scheduling', label: 'Harmonogram' },
+    { id: 'appearance', label: 'Wygląd' },
+    { id: 'account', label: 'Konto i bezpieczeństwo' },
+    { id: 'known-ips', label: 'Znane adresy IP' },
   ],
   setup: [
-    { id: 'gmail-sync', label: 'Gmail sync' },
-    { id: 'backup-restore', label: 'Backup & restore' },
+    { id: 'backup-restore', label: 'Kopia i przywracanie' },
   ],
   features: [
-    { id: 'ai', label: 'AI features' },
-    { id: 'other', label: 'Other' },
+    { id: 'ai', label: 'Funkcje AI' },
+    { id: 'other', label: 'Pozostałe' },
   ],
   integrating: [
-    { id: 'api-keys', label: 'API keys' },
-    { id: 'webhooks', label: 'Webhooks' },
+    { id: 'api-keys', label: 'Klucze API' },
+    { id: 'webhooks', label: 'Webhooki' },
     { id: 'mcp', label: 'MCP' },
   ],
-  dev: [{ id: 'test-mode', label: 'Test mode' }],
+  dev: [{ id: 'test-mode', label: 'Tryb testowy' }],
 };
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -91,12 +90,7 @@ export default function Settings() {
   const [testEventType, setTestEventType] = useState('');
   const [testEventResult, setTestEventResult] = useState(null);
 
-  // Gmail Sync
-  const [gmailSync, setGmailSync] = useState({ push_topic: '', webhook_token: '', sync_interval_minutes: 5 });
-  const [gmailSyncSaving, setGmailSyncSaving] = useState(false);
-  const savedGmailSyncRef = useRef(null);
-
-  // Backup & restore (admin — PostgreSQL)
+  // Kopia i przywracanie (admin — PostgreSQL)
   const [backupCfg, setBackupCfg] = useState({
     schedule_enabled: false,
     cron_expression: '0 3 * * *',
@@ -224,7 +218,7 @@ export default function Settings() {
         encrypt_backups: !!r.encrypt_backups,
         backup_encryption_hint: r.backup_encryption_hint ?? prev.backup_encryption_hint,
       }));
-      notify({ type: 'success', message: 'Backup settings saved' });
+      notify({ type: 'success', message: 'Ustawienia kopii saved' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -245,7 +239,7 @@ export default function Settings() {
   /* ── load data ── */
   const loadAll = useCallback(async () => {
     try {
-      const [stratData, tmData, whList, evtData, aiData, provData, ipData, keysData, notifData, gmailSyncData, mcpData] = await Promise.all([
+      const [stratData, tmData, whList, evtData, aiData, provData, ipData, keysData, notifData, mcpData] = await Promise.all([
         api.get('/settings/scheduling-strategy'),
         api.get('/settings/test-mode'),
         api.get('/settings/webhooks'),
@@ -255,7 +249,6 @@ export default function Settings() {
         api.get('/settings/known-ips'),
         api.get('/auth/api-keys'),
         api.get('/notifications/config').catch(() => null),
-        api.get('/settings/gmail-sync').catch(() => null),
         api.get('/settings/mcp-setup').catch(() => null),
       ]);
       setStrategy(stratData.scheduling_strategy || 'priority');
@@ -277,15 +270,6 @@ export default function Settings() {
       setApiKeys(keysData || []);
       if (notifData) {
         setNotifConfig(notifData);
-      }
-      if (gmailSyncData) {
-        const snap = {
-          push_topic: gmailSyncData.push_topic || '',
-          webhook_token: gmailSyncData.webhook_token || '',
-          sync_interval_minutes: gmailSyncData.sync_interval_minutes ?? 5,
-        };
-        setGmailSync(snap);
-        savedGmailSyncRef.current = snap;
       }
       if (user?.role === 'admin') {
         try {
@@ -425,7 +409,7 @@ export default function Settings() {
     try {
       await api.post('/settings/test-mode', { test_mode: val });
       setTestMode(val);
-      notify({ type: 'success', message: 'Test mode saved' });
+      notify({ type: 'success', message: 'Tryb testowy saved' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -707,10 +691,10 @@ export default function Settings() {
   return (
     <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
       <header className="shrink-0 px-6 lg:px-8 pt-6 lg:pt-8 pb-0 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-transparent">
-        <h1 className="text-2xl font-bold">Settings</h1>
+        <h1 className="text-2xl font-bold">Ustawienia</h1>
         <nav
           className="mt-4 flex flex-wrap gap-x-1 gap-y-0 items-end"
-          aria-label="Settings sections"
+          aria-label="Sekcje ustawień"
         >
           {visibleTabs.map(t => (
             <button
@@ -733,11 +717,11 @@ export default function Settings() {
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row lg:items-stretch">
         <aside
           className="flex min-h-0 w-full shrink-0 flex-col border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/60 lg:h-full lg:min-h-0 lg:w-44 lg:border-b-0 lg:border-r lg:bg-gray-100 lg:dark:bg-gray-900/50"
-          aria-label="On this page"
+          aria-label="Na tej stronie"
         >
           <div className="flex min-h-0 flex-1 flex-col px-4 py-3 lg:py-5 lg:pl-5 lg:pr-3">
             <p className="mb-2 block shrink-0 text-[10px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-              On this page
+              Na tej stronie
             </p>
             <nav className="flex min-h-0 flex-1 flex-row flex-wrap content-start gap-1 overflow-y-auto lg:flex-col lg:flex-nowrap">
               {sectionNav.map(s => {
@@ -770,25 +754,25 @@ export default function Settings() {
         {activeTab === 'general' && (
           <>
         <section id="settings-scheduling" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Scheduling</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Controls how Recalculate All Campaigns distributes emails.</p>
+          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Harmonogram</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Określa sposób rozdzielania wiadomości pomiędzy aktywne kampanie.</p>
           <div className="space-y-3">
             <label className="flex gap-2 items-start cursor-pointer">
               <input type="radio" name="strategy" value="priority" checked={strategy === 'priority'} onChange={() => submitStrategy('priority')} />
               <span>
-                <strong>Priority by campaign</strong><br />
+                <strong>Priorytet kampanii</strong><br />
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Campaigns processed in ascending priority order.{' '}
-                  <a href="/campaigns" className="text-teal-500 underline">Reorder campaigns</a>
+                  Kampanie są przetwarzane zgodnie z ustawionym priorytetem.{' '}
+                  <a href="/campaigns" className="text-teal-500 underline">Zmień kolejność kampanii</a>
                 </span>
               </span>
             </label>
             <label className="flex gap-2 items-start cursor-pointer">
               <input type="radio" name="strategy" value="round_robin" checked={strategy === 'round_robin'} onChange={() => submitStrategy('round_robin')} />
               <span>
-                <strong>Round-robin distribution</strong><br />
+                <strong>Równomierny podział</strong><br />
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Inbox capacity divided evenly across active campaigns.
+                  Dostępny limit skrzynek jest dzielony równomiernie pomiędzy aktywne kampanie.
                 </span>
               </span>
             </label>
@@ -796,8 +780,8 @@ export default function Settings() {
         </section>
 
         <section id="settings-appearance" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Appearance</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Theme follows your choice; System uses your device light/dark setting (default).</p>
+          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Wygląd</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Motyw może być zgodny z systemem albo ustawiony ręcznie.</p>
           <div className="space-y-3">
             <label className="flex gap-2 items-start cursor-pointer">
               <input
@@ -808,10 +792,10 @@ export default function Settings() {
                 onChange={() => setThemePreference('system')}
               />
               <span>
-                <strong>System</strong>
+                <strong>Systemowy</strong>
                 <br />
                 <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Match your OS or browser appearance automatically.
+                  Automatycznie dopasuj wygląd do systemu lub przeglądarki.
                 </span>
               </span>
             </label>
@@ -824,9 +808,9 @@ export default function Settings() {
                 onChange={() => setThemePreference('light')}
               />
               <span>
-                <strong>Light</strong>
+                <strong>Jasny</strong>
                 <br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Always use light theme.</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Zawsze używaj jasnego motywu.</span>
               </span>
             </label>
             <label className="flex gap-2 items-start cursor-pointer">
@@ -838,36 +822,36 @@ export default function Settings() {
                 onChange={() => setThemePreference('dark')}
               />
               <span>
-                <strong>Dark</strong>
+                <strong>Ciemny</strong>
                 <br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Always use dark theme.</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">Zawsze używaj ciemnego motywu.</span>
               </span>
             </label>
           </div>
         </section>
 
         <section id="settings-account" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Account &amp; Security</h2>
+          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Konto i bezpieczeństwo</h2>
           {user && (
             <div className="space-y-4">
               <div className="text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Logged in as </span>
+                <span className="text-gray-500 dark:text-gray-400">Zalogowano jako </span>
                 <span className="font-medium">{user.username}</span>
                 <span className="ml-2 text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase">{user.role}</span>
               </div>
 
-              <Button size="sm" variant="outline" onClick={logout}>Log Out</Button>
+              <Button size="sm" variant="outline" onClick={logout}>Wyloguj</Button>
             </div>
           )}
         </section>
 
         <section id="settings-known-ips" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">Known IPs</h2>
+          <h2 className="text-lg font-semibold mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">Znane adresy IP</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Opens and clicks from these IPs are ignored for self-open filtering.
+            Otwarcia i kliknięcia z tych adresów IP są ignorowane przy filtrowaniu własnej aktywności.
           </p>
           <Button size="sm" variant="outline" onClick={() => setKnownIpsOpen(true)}>
-            Manage Known IPs
+            Zarządzaj adresami IP
           </Button>
         </section>
           </>
@@ -875,101 +859,11 @@ export default function Settings() {
 
         {activeTab === 'setup' && (
           <>
-        {/* ──────────────── Gmail Sync ──────────────── */}
-        <section id="settings-gmail-sync" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Gmail Sync</h2>
-          <p className="text-xs text-gray-500 mb-4">
-            Configure how Quickly detects replies from Gmail inboxes. Optional — polling works
-            without these settings, but push notifications make reply detection instant.
-          </p>
-          <div className="space-y-4">
-
-            {/* Push Topic */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Google Pub/Sub Topic</label>
-              <input
-                type="text"
-                className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                placeholder="projects/your-project/topics/gmail-replies"
-                value={gmailSync.push_topic}
-                onChange={e => setGmailSync(prev => ({ ...prev, push_topic: e.target.value }))}
-              />
-              <p className="text-xs text-gray-400 mt-1">
-                Create a Pub/Sub topic in Google Cloud Console and enter its full resource name here.
-                Leave blank to use polling only.
-              </p>
-            </div>
-
-            {/* Webhook token */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Push Webhook Token</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  className="flex-1 border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  placeholder="auto-generated on first startup"
-                  value={gmailSync.webhook_token}
-                  onChange={e => setGmailSync(prev => ({ ...prev, webhook_token: e.target.value }))}
-                />
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    navigator.clipboard.writeText(
-                      window.location.origin + '/api/unibox/gmail/push?token=' + gmailSync.webhook_token
-                    );
-                    notify({ type: 'success', message: 'Push URL copied!' });
-                  }}
-                >
-                  Copy URL
-                </Button>
-              </div>
-              <p className="text-xs text-gray-400 mt-1">
-                Append this token to your Pub/Sub push endpoint:
-                {' '}<code className="bg-gray-100 dark:bg-gray-800 rounded px-1">/api/unibox/gmail/push?token=…</code>
-              </p>
-            </div>
-
-            {/* Sync interval */}
-            <div>
-              <label className="block text-sm font-medium mb-1">Polling Interval (minutes)</label>
-              <input
-                type="number"
-                min="1"
-                max="60"
-                className="w-28 border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                value={gmailSync.sync_interval_minutes}
-                onChange={e => setGmailSync(prev => ({ ...prev, sync_interval_minutes: Math.max(1, parseInt(e.target.value) || 1) }))}
-              />
-              <p className="text-xs text-gray-400 mt-1">How often to poll Gmail for new replies (fallback when push is not configured).</p>
-            </div>
-
-            <Button
-              size="sm"
-              disabled={gmailSyncSaving}
-              onClick={async () => {
-                setGmailSyncSaving(true);
-                try {
-                  await api.post('/settings/gmail-sync', gmailSync);
-                  savedGmailSyncRef.current = { ...gmailSync };
-                  notify({ type: 'success', message: 'Gmail sync settings saved' });
-                } catch (e) {
-                  notify({ type: 'error', message: e.message });
-                } finally {
-                  setGmailSyncSaving(false);
-                }
-              }}
-            >
-              {gmailSyncSaving ? 'Saving…' : 'Save'}
-            </Button>
-          </div>
-        </section>
-
         {user?.role === 'admin' && (
         <section id="settings-backup-restore" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2 dark:border-gray-700">Backup & restore</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2 dark:border-gray-700">Kopia i przywracanie</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-            Backup and restore the database containing all your leads, campaigns, and other data.
+            Twórz kopie bazy Sekaro i przywracaj kontakty, kampanie, konfigurację oraz historię.
           </p>
 
           <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-4">
@@ -977,7 +871,7 @@ export default function Settings() {
             unrecoverable from that file. The optional hint is stored in the file in plain text; it is not a secret.
           </div>
 
-          <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Backup settings</h3>
+          <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Ustawienia kopii</h3>
           <div className="space-y-4 text-sm mb-8 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50/50 dark:bg-gray-900/30">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -992,7 +886,7 @@ export default function Settings() {
                   }));
                 }}
               />
-              <span>Encrypt backups with password (recommended)</span>
+              <span>Szyfruj kopie hasłem (zalecane)</span>
             </label>
             {!backupCfg.encrypt_backups && (
               <p className="text-xs text-amber-700 dark:text-amber-400">
@@ -1044,7 +938,7 @@ export default function Settings() {
                   checked={backupCfg.schedule_enabled}
                   onChange={e => setBackupCfg(prev => ({ ...prev, schedule_enabled: e.target.checked }))}
                 />
-                <span>Enable scheduled backup</span>
+                <span>Włącz automatyczne kopie</span>
               </label>
               {backupCfg.schedule_enabled && (
                 <div className="space-y-3 sm:border-l-2 border-gray-200 dark:border-gray-600 sm:pl-3">
@@ -1062,7 +956,7 @@ export default function Settings() {
                   {!backupMeta.local_disk_available && (
                     <p className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
                       Saving backups on the server requires the deployment to set{' '}
-                      <code className="text-[11px]">QUICKLY_LOCAL_DISK_BACKUPS</code> and a persistent{' '}
+                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> and a persistent{' '}
                       <code className="text-[11px]">backups</code> folder (Docker Compose in this repo does). On hosts without that, use{' '}
                       <strong>POST to webhook</strong> below.
                     </p>
@@ -1131,7 +1025,7 @@ export default function Settings() {
             </div>
 
             <Button size="sm" disabled={backupSaving} onClick={saveBackupSettings}>
-              {backupSaving ? 'Saving…' : 'Save settings'}
+              {backupSaving ? 'Saving…' : 'Zapisz ustawienia'}
             </Button>
           </div>
 
@@ -1139,10 +1033,10 @@ export default function Settings() {
             id="settings-backup-manual"
             className="text-sm font-semibold mb-2 scroll-mt-6 text-gray-900 dark:text-gray-100"
           >
-            Download, run, or restore
+            Pobierz, uruchom lub przywróć
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Uses encryption and schedule options from <strong>Backup settings</strong> above. Save settings before downloading if you changed them.
+            Uses encryption and schedule options from <strong>Ustawienia kopii</strong> above. Zapisz ustawienia before downloading if you changed them.
           </p>
           <div className="space-y-4 mb-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -2036,7 +1930,7 @@ export default function Settings() {
 
         {activeTab === 'dev' && !isProduction && (
           <section id="settings-test-mode" className="mb-10 scroll-mt-6">
-            <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Test mode</h2>
+            <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Tryb testowy</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
               When enabled emails are simulated — no real messages are sent.
             </p>
@@ -2054,7 +1948,7 @@ export default function Settings() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Known IPs</h2>
+              <h2 className="text-lg font-semibold">Znane adresy IP</h2>
               <button
                 onClick={() => setKnownIpsOpen(false)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
