@@ -4,7 +4,7 @@
 
 Sekaro is being developed as a provider-agnostic tool. Google Workspace and Microsoft 365 OAuth are not required to log in to the application or to use the core mailbox workflow.
 
-> Current development line: **0.2.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
+> Current development line: **0.3.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
 
 ## Goals
 
@@ -27,7 +27,7 @@ See [ROADMAP.md](ROADMAP.md) for the version plan.
 
 For existing installations upgrading to the SMTP/IMAP core, see [docs/UPGRADE_0.2.md](docs/UPGRADE_0.2.md).
 
-## Current 0.2 foundation
+## Current 0.3 foundation
 
 The current Sekaro fork includes:
 
@@ -39,6 +39,11 @@ The current Sekaro fork includes:
 - encrypted SMTP/IMAP passwords at rest when `SEKARO_ENCRYPTION_KEY` is set
 - optional per-inbox Reply-To address
 - IMAP over implicit TLS or STARTTLS only
+- CSV/XLSX contact imports with interactive field mapping
+- arbitrary spreadsheet columns stored as custom fields
+- named contact lists
+- global case-insensitive import deduplication
+- global suppression / do-not-contact enforcement
 - existing campaign, queue, contacts, analytics and inbox foundations inherited from the upstream project
 - Polish, English, German and Russian translation infrastructure
 - Polish as the default UI language
