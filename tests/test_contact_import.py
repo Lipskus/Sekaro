@@ -1,7 +1,9 @@
 """Sekaro 0.3 contact import and suppression tests."""
 from io import BytesIO
+import json
 
 import pytest
+from fastapi import UploadFile
 from sqlalchemy import select
 
 from app.contact_import import (
@@ -10,8 +12,9 @@ from app.contact_import import (
     suggest_mapping,
     validate_mapping,
 )
-from app.models import Lead, SuppressionEntry
+from app.models import ContactList, ContactListMember, Lead, SuppressionEntry
 from app.suppression import is_suppressed, suppress_email
+from app.routers.leads import import_contacts_file
 from tests.conftest import make_campaign, make_campaign_lead, make_inbox, make_lead, make_sequence
 
 
@@ -126,3 +129,88 @@ async def test_suppression_pauses_matching_contact_enrollments(session):
 
     assert cl.sending_paused is True
     assert cl.enrollment_status == "unsubscribed"
+
+
+@pytest.mark.asyncio
+async def test_global_contact_import_merges_custom_fields_lists_and_suppression(session):
+    await suppress_email(
+        session,
+        "blocked@example.com",
+        reason="manual",
+        source="test",
+        stop_active_sends=False,
+    )
+    await session.flush()
+
+    raw = (
+        "Email;Nazwa;Land;Miasto\n"
+        "office@marina.de;Marina A;Hamburg;Hamburg\n"
+        "blocked@example.com;Blocked Marina;Berlin;Berlin\n"
+        "office@marina.de;Duplicate Row;SH;Kiel\n"
+    ).encode("utf-8")
+
+    upload = UploadFile(filename="mariny-niemcy.csv", file=BytesIO(raw))
+    mapping = {
+        "Email": "email",
+        "Nazwa": "name",
+        "Land": "custom:land",
+        "Miasto": "custom:miasto",
+    }
+
+    result = await import_contacts_file(
+        file=upload,
+        mapping_json=json.dumps(mapping),
+        duplicate_mode="merge",
+        list_name="Mariny Niemcy",
+        db=session,
+    )
+
+    assert result["added"] == 1
+    assert result["skipped_suppressed"] == 1
+    assert result["duplicates_in_file"] == 1
+    assert result["list"]["name"] == "Mariny Niemcy"
+    assert result["list_members_added"] == 1
+
+    lead_res = await session.execute(
+        select(Lead).where(Lead.email == "office@marina.de")
+    )
+    lead = lead_res.scalar_one()
+    assert lead.name == "Marina A"
+    assert lead.custom_data == {"land": "Hamburg", "miasto": "Hamburg"}
+
+    list_res = await session.execute(
+        select(ContactList).where(ContactList.name == "Mariny Niemcy")
+    )
+    contact_list = list_res.scalar_one()
+
+    member_res = await session.execute(
+        select(ContactListMember).where(
+            ContactListMember.list_id == contact_list.id,
+            ContactListMember.lead_id == lead.id,
+        )
+    )
+    assert member_res.scalar_one_or_none() is not None
+
+    second_raw = (
+        "Email;Nazwa;Land;Miasto\n"
+        "office@marina.de;Marina A Updated;Schleswig-Holstein;Kiel\n"
+    ).encode("utf-8")
+    second_upload = UploadFile(filename="update.csv", file=BytesIO(second_raw))
+    second = await import_contacts_file(
+        file=second_upload,
+        mapping_json=json.dumps(mapping),
+        duplicate_mode="merge",
+        list_name="Mariny Niemcy",
+        db=session,
+    )
+
+    assert second["added"] == 0
+    assert second["updated"] == 1
+    assert second["list_members_added"] == 0
+
+    refreshed = (
+        await session.execute(select(Lead).where(Lead.id == lead.id))
+    ).scalar_one()
+    assert refreshed.name == "Marina A Updated"
+    assert refreshed.custom_data["land"] == "Schleswig-Holstein"
+    assert refreshed.custom_data["miasto"] == "Kiel"
