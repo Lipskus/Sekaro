@@ -19,8 +19,14 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
       - name: Validate Python syntax
         run: python -m compileall -q app
+
+      - name: Run SMTP/IMAP tests
+        run: pytest -q tests/test_smtp.py
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
