@@ -23,13 +23,13 @@ async function uniboxRequest(path, options = {}) {
 
   const contentType = res.headers.get('content-type') || '';
   if (!contentType.includes('application/json')) {
-    throw new Error('Unexpected response type from Unibox API. Verify backend routing/proxy for /api/unibox.');
+    throw new Error('Nieoczekiwany typ odpowiedzi z API skrzynki. Sprawdź routing /api/unibox.');
   }
   return res.json();
 }
 
 function formatDateTime(value) {
-  if (!value) return 'Unknown';
+  if (!value) return 'Nieznane';
   const dt = new Date(value);
   if (Number.isNaN(dt.getTime())) return value;
   return dt.toLocaleString();
@@ -485,13 +485,13 @@ export default function Unibox() {
           is_html: finalIsHtml,
         }),
       });
-      notify({ type: 'success', message: 'Reply sent.' });
+      notify({ type: 'success', message: 'Odpowiedź została wysłana.' });
       setCompose(c => ({ ...c, body: '' }));
       setReplyOpen(false);
       await loadThread(selectedThread.thread_id, selectedThread.inbox_id);
       await loadConversations({ silent: true });
     } catch (err) {
-      notify({ type: 'error', message: err.message || 'Failed to send reply.' });
+      notify({ type: 'error', message: err.message || 'Nie udało się wysłać odpowiedzi.' });
     } finally {
       setSending(false);
     }
@@ -503,22 +503,22 @@ export default function Unibox() {
     <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-8">
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold">Unibox</h1>
+          <h1 className="text-2xl font-semibold">Odebrane</h1>
           {unreadCount > 0 && (
             <span className="inline-flex items-center justify-center h-6 min-w-6 px-1.5 rounded-full bg-red-500 text-white text-xs font-bold">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
           )}
         </div>
-          <span className="text-sm text-gray-500">Email inbox and replies</span>
+          <span className="text-sm text-gray-500">Wiadomości i odpowiedzi</span>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 flex-1 min-h-0">
         <Card className="xl:col-span-1 flex flex-col min-h-0 overflow-hidden">
           <div className="flex items-center justify-between border-b border-gray-200 pb-3 mb-3">
-            <h2 className="font-semibold">Conversations</h2>
+            <h2 className="font-semibold">Konwersacje</h2>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">{total} total</span>
+              <span className="text-xs text-gray-500">{total} łącznie</span>
               {/* Leads-only filter toggle */}
               <button
                 type="button"
@@ -530,7 +530,7 @@ export default function Unibox() {
                     : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                <span>{leadsOnly ? 'Leads' : 'All'}</span>
+                <span>{leadsOnly ? 'Kontakty' : 'Wszystkie'}</span>
               </button>
               {/* Lead status filter */}
               <select
@@ -548,18 +548,18 @@ export default function Unibox() {
             </div>
           </div>
 
-          {listLoading && <p className="text-sm text-gray-500">Loading conversations...</p>}
+          {listLoading && <p className="text-sm text-gray-500">Wczytywanie konwersacji...</p>}
           {initialListSyncLoading && (
             <p className="text-sm text-teal-700">
-              Initial sync is loading conversation list...
+              Trwa pierwsza synchronizacja listy konwersacji...
             </p>
           )}
           {listError && <p className="text-sm text-red-600">{listError}</p>}
           {!listLoading && !listError && conversations.length === 0 && (
             <p className="text-sm text-gray-500">
               {leadsOnly
-                ? 'No lead conversations found. Replies from leads will appear here.'
-                : 'No synced conversations yet. Initial sync includes recent 7 days only.'}
+                ? 'Brak konwersacji z kontaktami. Odpowiedzi pojawią się tutaj.'
+                : 'Brak zsynchronizowanych konwersacji. Pierwsza synchronizacja obejmuje ostatnie 7 dni.'}
             </p>
           )}
 
@@ -589,12 +589,12 @@ export default function Unibox() {
                         </span>
                       )}
                       {isUnread && (
-                        <span className="h-2 w-2 rounded-full bg-red-500" title="Unread reply from lead" />
+                        <span className="h-2 w-2 rounded-full bg-red-500" title="Nieprzeczytana odpowiedź od kontaktu" />
                       )}
                     </div>
                   </div>
                   <div className={`truncate ${isUnread ? 'font-semibold text-gray-900' : 'font-medium'}`}>
-                    {item.subject || '(no subject)'}
+                    {item.subject || '(bez tematu)'}
                   </div>
                   {item.lead_email && (
                     <div className="text-xs text-gray-500 truncate">→ {item.lead_email}</div>
@@ -607,7 +607,7 @@ export default function Unibox() {
             {/* show older button at bottom of scrollable list */}
             <div className="flex justify-center py-2">
               <Button variant="outline" size="sm" onClick={triggerLoadOlder} disabled={loadingOlder}>
-                {loadingOlder ? 'Loading older...' : 'Show older'}
+                {loadingOlder ? 'Wczytywanie starszych...' : 'Pokaż starsze'}
               </Button>
             </div>
           </div>
@@ -615,17 +615,17 @@ export default function Unibox() {
 
         <Card className="xl:col-span-2 flex flex-col min-h-0 overflow-hidden">
           {!selectedThread && !threadLoading && (
-            <div className="text-gray-500 text-sm flex-1">Select a conversation to view messages and reply.</div>
+            <div className="text-gray-500 text-sm flex-1">Wybierz konwersację, aby zobaczyć wiadomości i odpowiedzieć.</div>
           )}
-          {threadLoading && <div className="text-gray-500 text-sm">Loading thread...</div>}
+          {threadLoading && <div className="text-gray-500 text-sm">Wczytywanie wątku...</div>}
           {threadError && <div className="text-red-600 text-sm">{threadError}</div>}
 
           {selectedThread && !threadLoading && (
             <>
               <div className="border-b border-gray-200 pb-3 mb-3">
-                <h2 className="text-lg font-semibold truncate">{selectedThread.subject || '(no subject)'}</h2>
+                <h2 className="text-lg font-semibold truncate">{selectedThread.subject || '(bez tematu)'}</h2>
                 <p className="text-xs text-gray-500">
-                  Inbox: {selectedThread.inbox_account || selectedThread.gmail_account} | Last update: {formatDateTime(selectedThread.last_message_timestamp)}
+                  Skrzynka: {selectedThread.inbox_account || selectedThread.gmail_account} | Ostatnia aktualizacja: {formatDateTime(selectedThread.last_message_timestamp)}
                 </p>
               </div>
 
@@ -642,12 +642,12 @@ export default function Unibox() {
                     >
                         <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
                           <span className="text-xs uppercase tracking-wide font-semibold text-gray-600">
-                            {msg.direction === 'sent' ? 'Sent' : 'Received'}
+                            {msg.direction === 'sent' ? 'Wysłano' : 'Odebrano'}
                           </span>
                           <span className="text-xs text-gray-500">{formatDateTime(msg.timestamp)}</span>
                         </div>
                         <div className="text-xs text-gray-500 mb-2">
-                          From: {msg.from || '-'} | To: {msg.to || '-'}
+                          Od: {msg.from || '-'} | Do: {msg.to || '-'}
                         </div>
                         {msg.body_html && msg.body_html.trim() ? (
                           <div className="w-full bg-white border border-gray-200 rounded min-h-[220px] overflow-auto">
@@ -655,7 +655,7 @@ export default function Unibox() {
                           </div>
                         ) : (
                           <div className="text-sm whitespace-pre-wrap break-words">
-                            {msg.body_plain || msg.snippet || '(no message body)'}
+                            {msg.body_plain || msg.snippet || '(brak treści wiadomości)'}
                           </div>
                         )}
                     </article>
@@ -664,14 +664,14 @@ export default function Unibox() {
                   {replyOpen && (
                     <form onSubmit={sendReply} className="rounded-2xl border border-gray-200 bg-gradient-to-b from-white to-gray-50 p-4 shadow-sm">
                       <div className="flex items-center justify-between mb-3 gap-2">
-                        <h3 className="font-semibold">Reply</h3>
-                        <span className="text-xs text-gray-500 truncate">To {compose.to_email || '(unknown recipient)'}</span>
+                        <h3 className="font-semibold">Odpowiedź</h3>
+                        <span className="text-xs text-gray-500 truncate">Do {compose.to_email || '(nieznany odbiorca)'}</span>
                       </div>
                       <textarea
                         value={compose.body}
                         onChange={e => setCompose(c => ({ ...c, body: e.target.value }))}
                         className="w-full min-h-[180px] resize-y rounded-xl border border-gray-300 shadow-sm focus:ring-teal-500 focus:border-teal-500 p-2 text-sm"
-                        placeholder="Write your reply..."
+                        placeholder="Napisz odpowiedź..."
                         required
                       />
 
@@ -685,7 +685,7 @@ export default function Unibox() {
                                 type="button"
                                 className="mt-0.5 inline-flex items-center justify-center w-7 h-4 bg-[#f1f3f4] hover:bg-[#e8eaed] border border-[#dadce0] rounded-[3px] text-[#444746] text-sm font-bold leading-none cursor-pointer select-none flex-shrink-0"
                                 onClick={() => setCompose(c => ({ ...c, includeQuote: false }))}
-                                title="Remove quoted message"
+                                title="Usuń cytowaną wiadomość"
                               >
                                 ✕
                               </button>
@@ -710,7 +710,7 @@ export default function Unibox() {
                               className="text-xs text-gray-400 hover:text-teal-600 transition-colors"
                               onClick={() => setCompose(c => ({ ...c, includeQuote: true }))}
                             >
-                              + Include quoted message
+                              + Dołącz cytowaną wiadomość
                             </button>
                           )}
                         </div>
@@ -727,7 +727,7 @@ export default function Unibox() {
                           Cancel
                         </Button>
                         <Button type="submit" variant="default" size="sm" disabled={sending} className="rounded-full px-4 py-1.5">
-                          {sending ? 'Sending...' : 'Send reply'}
+                          {sending ? 'Wysyłanie...' : 'Wyślij odpowiedź'}
                         </Button>
                       </div>
                     </form>
@@ -737,7 +737,7 @@ export default function Unibox() {
 
               <div className="pt-3 mt-3 border-t border-gray-200 flex items-center justify-between gap-3">
                 <p className="text-xs text-gray-500">
-                  {replyOpen ? 'Reply box added at the end of this thread.' : 'Want to continue this thread?'}
+                  {replyOpen ? 'Pole odpowiedzi jest otwarte na końcu wątku.' : 'Chcesz kontynuować tę rozmowę?'}
                 </p>
                 <Button
                   type="button"
@@ -746,7 +746,7 @@ export default function Unibox() {
                   className="rounded-full px-4 py-2 shadow-sm"
                   onClick={() => setReplyOpen((open) => !open)}
                 >
-                  {replyOpen ? 'Close reply' : 'Reply'}
+                  {replyOpen ? 'Zamknij odpowiedź' : 'Odpowiedz'}
                 </Button>
               </div>
             </>
