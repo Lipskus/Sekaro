@@ -110,6 +110,8 @@ async def _run_migrations(conn) -> None:
         "ALTER TABLE queue_slot ADD COLUMN IF NOT EXISTS variant_id INTEGER NULL REFERENCES sequence_variant(id)",
         # 2026-05-24: custom sequence mode for personalized sequences (wait_for_all | asap)
         "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS custom_sequence_mode VARCHAR(32) NOT NULL DEFAULT 'wait_for_all'",
+        # 2026-09-22 Sekaro: provider-agnostic SMTP/IMAP flow; legacy provider matching is off.
+        "ALTER TABLE campaign ALTER COLUMN match_lead_provider SET DEFAULT FALSE",
         # 2026-05-24: notification table for in-app notification center
         """
         CREATE TABLE IF NOT EXISTS notification (
@@ -237,6 +239,22 @@ async def _run_migrations(conn) -> None:
             "CREATE TABLE IF NOT EXISTS _app_schema_migrations (id VARCHAR(128) PRIMARY KEY)"
         )
     )
+
+    # Sekaro 0.1.1: legacy Google/Microsoft provider matching no longer applies.
+    once_provider_matching = await conn.execute(
+        text(
+            """
+            INSERT INTO _app_schema_migrations (id)
+            VALUES ('20260922_sekaro_disable_provider_matching')
+            ON CONFLICT (id) DO NOTHING
+            RETURNING id
+            """
+        )
+    )
+    if once_provider_matching.fetchone() is not None:
+        await conn.execute(
+            text("UPDATE campaign SET match_lead_provider = FALSE WHERE match_lead_provider IS DISTINCT FROM FALSE")
+        )
 
     # Backfill enrollment from legacy lead.status + interest.
     # Sync from lead.status must run once only: enrollment is authoritative afterward; API updates cl only.
