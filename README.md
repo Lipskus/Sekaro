@@ -4,7 +4,7 @@
 
 Sekaro is being developed as a provider-agnostic tool. Google Workspace and Microsoft 365 OAuth are not required to log in to the application or to use the core mailbox workflow.
 
-> Current development line: **0.1.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
+> Current development line: **0.2.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
 
 ## Goals
 
@@ -25,7 +25,7 @@ Sekaro is intended for workflows where contacts come from spreadsheets or extern
 
 See [ROADMAP.md](ROADMAP.md) for the version plan.
 
-## Current 0.1 foundation
+## Current 0.2 foundation
 
 The current Sekaro fork includes:
 
@@ -108,7 +108,7 @@ On the first visit, Sekaro asks you to create the first local administrator acco
 
 ## Architecture
 
-The 0.1 deployment contains:
+The 0.2 deployment contains:
 
 ```text
 sekaro-app
