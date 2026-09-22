@@ -30,7 +30,10 @@ log = logging.getLogger("quickly.security")
 # Fernet encryption for sensitive data at rest (OAuth tokens, etc.)
 # ---------------------------------------------------------------------------
 
-_ENCRYPTION_KEY_ENV: str = os.getenv("QUICKLY_ENCRYPTION_KEY", "")
+_ENCRYPTION_KEY_ENV: str = (
+    os.getenv("SEKARO_ENCRYPTION_KEY", "")
+    or os.getenv("QUICKLY_ENCRYPTION_KEY", "")
+)
 _fernet: Fernet | None = None
 
 
@@ -44,7 +47,7 @@ def init_encryption(key: str | None = None) -> None:
     """Initialise the module-level Fernet instance.
 
     *key* may be a raw passphrase (any length) or a valid Fernet key.
-    If *key* is ``None``, ``QUICKLY_ENCRYPTION_KEY`` env var is used.
+    If *key* is ``None``, ``SEKARO_ENCRYPTION_KEY`` (or legacy ``QUICKLY_ENCRYPTION_KEY``) env var is used.
     If neither is set, encryption is disabled and sensitive columns are
     stored as plaintext (development/migration fallback).
     """
@@ -52,7 +55,7 @@ def init_encryption(key: str | None = None) -> None:
     raw = key or _ENCRYPTION_KEY_ENV
     if not raw:
         log.warning(
-            "QUICKLY_ENCRYPTION_KEY not set – sensitive columns (including SMTP/IMAP "
+            "SEKARO_ENCRYPTION_KEY not set – sensitive columns (including SMTP/IMAP "
             "mailbox and relay passwords) will be stored as PLAINTEXT. Set the key "
             "before going to production. Generate one with: python -c \"from "
             "cryptography.fernet import Fernet; print(Fernet.generate_key().decode())\""
@@ -73,7 +76,7 @@ init_encryption()
 
 
 def generate_encryption_key() -> str:
-    """Generate a random URL-safe key suitable for ``QUICKLY_ENCRYPTION_KEY``."""
+    """Generate a random URL-safe key suitable for ``SEKARO_ENCRYPTION_KEY``."""
     return secrets.token_urlsafe(32)
 
 
