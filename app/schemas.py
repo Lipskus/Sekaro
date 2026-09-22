@@ -96,10 +96,11 @@ class LeadBulkRecoverRequest(BaseModel):
 class InboxCreate(BaseModel):
     email: str
     display_name: str = ""
+    reply_to: Optional[EmailStr] = None
     max_emails_per_day: int = 50
     wait_minutes_between: int = 5
     max_jitter_seconds: int = 180
-    provider: INBOX_PROVIDERS = "gmail"  # gmail | office365 | smtp
+    provider: INBOX_PROVIDERS = "smtp"  # Sekaro core; legacy provider values remain readable
     tracking_domain: Optional[str] = None  # custom hostname for tracking links
     ramp_up_enabled: bool = False
     ramp_up_period_days: int = 42
@@ -109,6 +110,7 @@ class InboxCreate(BaseModel):
 
 class InboxUpdate(BaseModel):
     display_name: Optional[str] = None
+    reply_to: Optional[EmailStr] = None
     max_emails_per_day: Optional[int] = None
     wait_minutes_between: Optional[int] = None
     max_jitter_seconds: Optional[int] = None
@@ -143,6 +145,7 @@ class InboxResponse(BaseModel):
     id: int
     email: str
     display_name: str
+    reply_to: Optional[str] = None
     max_emails_per_day: int
     wait_minutes_between: int
     max_jitter_seconds: int = 180
