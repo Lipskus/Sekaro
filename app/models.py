@@ -180,9 +180,8 @@ class Campaign(Base):
     send_all_as_text = Column(Boolean, default=False, nullable=False)    # Force every sequence to plain text
     # Timezone for scheduling (IANA timezone name, e.g. "America/New_York")
     timezone = Column(String(64), nullable=True, default=None)
-    # Provider matching: when True, prefer inboxes whose provider matches the lead's email provider
-    # (Google leads → Gmail inboxes, Office 365 leads → Office 365 inboxes; falls back to any inbox)
-    match_lead_provider = Column(Boolean, default=True, nullable=False)
+    # Legacy provider matching is disabled in Sekaro's provider-agnostic SMTP/IMAP flow.
+    match_lead_provider = Column(Boolean, default=False, nullable=False)
     # Custom sequence mode: wait_for_all (default) = don't send until all personalized
     # emails are written; asap = start sending each personalized email as soon as it's written
     custom_sequence_mode = Column(String(32), default="wait_for_all", nullable=False)
