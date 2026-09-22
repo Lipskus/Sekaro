@@ -210,6 +210,18 @@ async def process_unsubscribe(db: AsyncSession, token: str) -> tuple[str, int]:
             )
         await db.execute(delete(QueueSlot).where(QueueSlot.campaign_lead_id == cl.id))
 
+    if lead and lead.email:
+        from app.suppression import suppress_email
+
+        await suppress_email(
+            db,
+            lead.email,
+            reason="unsubscribe",
+            source="unsubscribe_link",
+            note=f"Campaign {row.campaign_id}",
+            stop_active_sends=True,
+        )
+
     await db.commit()
 
     if not already_done and lead and cl:
