@@ -482,6 +482,77 @@ async def test_send_test_email_smtp_missing_account_500(session, monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_rotate_smtp_secrets_to_external_key(session):
+    import base64
+    import hashlib
+
+    from cryptography.fernet import Fernet
+    from sqlalchemy import text
+
+    from app.settings_manager import _migrate_smtp_encryption_key
+
+    old_key = "legacy-db-key"
+    new_key = "sekaro-env-key"
+
+    def fernet(raw):
+        digest = hashlib.sha256(raw.encode()).digest()
+        return Fernet(base64.urlsafe_b64encode(digest))
+
+    inbox = Inbox(
+        email="rotate@example.com",
+        display_name="Rotate",
+        provider="smtp",
+    )
+    session.add(inbox)
+    await session.flush()
+
+    old_f = fernet(old_key)
+    await session.execute(
+        text(
+            """
+            INSERT INTO smtp_account (
+                inbox_id, smtp_host, smtp_port, smtp_username, smtp_password,
+                smtp_use_tls, smtp_use_ssl, imap_host, imap_port,
+                imap_username, imap_password, imap_use_ssl,
+                last_test_ok, last_test_error
+            ) VALUES (
+                :inbox_id, 'smtp.example.com', 587, 'rotate@example.com', :smtp_password,
+                1, 0, 'imap.example.com', 993,
+                'rotate@example.com', :imap_password, 1,
+                0, ''
+            )
+            """
+        ),
+        {
+            "inbox_id": inbox.id,
+            "smtp_password": old_f.encrypt(b"smtp-secret").decode(),
+            "imap_password": old_f.encrypt(b"imap-secret").decode(),
+        },
+    )
+    await session.flush()
+
+    await _migrate_smtp_encryption_key(
+        session,
+        new_key=new_key,
+        old_key=old_key,
+    )
+    await session.flush()
+
+    row = (
+        await session.execute(
+            text(
+                "SELECT smtp_password, imap_password FROM smtp_account WHERE inbox_id = :id"
+            ),
+            {"id": inbox.id},
+        )
+    ).mappings().one()
+
+    new_f = fernet(new_key)
+    assert new_f.decrypt(row["smtp_password"].encode()).decode() == "smtp-secret"
+    assert new_f.decrypt(row["imap_password"].encode()).decode() == "imap-secret"
+
+
+@pytest.mark.asyncio
 async def test_smtp_crud_and_test(session, monkeypatch):
     inbox = Inbox(email="me@mydomain.com", provider="smtp")
     session.add(inbox)
