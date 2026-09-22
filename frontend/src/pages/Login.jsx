@@ -124,14 +124,6 @@ export default function Login() {
     ? 'Create your admin account'
     : 'Sign in to your account';
 
-  const googleLabel = isFirstUser
-    ? 'Create admin account with Google'
-    : 'Sign in with Google';
-
-  const microsoftLabel = isFirstUser
-    ? 'Create admin account with Microsoft'
-    : 'Sign in with Microsoft';
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">
