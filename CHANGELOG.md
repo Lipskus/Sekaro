@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.2.0 — SMTP/IMAP mailbox core
+
+- SMTP is now the default mailbox provider for new Sekaro inboxes
+- added optional per-inbox Reply-To
+- campaign sends and manual replies use the configured Reply-To header
+- IMAP authentication is always protected by implicit TLS or STARTTLS
+- SMTP/IMAP mailbox passwords use encrypted-at-rest columns
+- added native `SEKARO_ENCRYPTION_KEY` support with legacy-key compatibility
+- System Health warns when the mailbox encryption key is not supplied outside PostgreSQL
+- added manual IMAP synchronization in Odebrane
+- fixed threading for replies to messages sent manually from Sekaro
+- fixed IMAP UID checkpoint handling so normal backlogs do not silently skip messages
+- first mailbox sync intentionally imports the newest bounded set of messages for fast startup
+- added SMTP/IMAP regression tests to CI
+- added Reply-To and STARTTLS tests
+
 ## 0.1.1 — Sekaro identity and SMTP/IMAP cleanup
 
 - reworked the visible application around Sekaro branding
