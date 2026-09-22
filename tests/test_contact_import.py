@@ -2,6 +2,7 @@
 from io import BytesIO
 
 import pytest
+from sqlalchemy import select
 
 from app.contact_import import (
     apply_mapping,
@@ -11,6 +12,7 @@ from app.contact_import import (
 )
 from app.models import Lead, SuppressionEntry
 from app.suppression import is_suppressed, suppress_email
+from tests.conftest import make_campaign, make_campaign_lead, make_inbox, make_lead, make_sequence
 
 
 def test_csv_import_detects_polish_headers_and_custom_fields():
@@ -100,27 +102,18 @@ async def test_suppression_normalizes_email_and_is_idempotent(session):
     assert first.email == "contact@example.com"
     assert await is_suppressed(session, "CONTACT@example.com") is True
 
-    rows = await session.execute(
-        __import__("sqlalchemy").select(SuppressionEntry)
-    )
+    rows = await session.execute(select(SuppressionEntry))
     assert len(rows.scalars().all()) == 1
 
 
 @pytest.mark.asyncio
-async def test_suppression_pauses_matching_contact_enrollments(
-    session,
-    campaign_factory,
-    inbox_factory,
-    sequence_factory,
-    lead_factory,
-    campaign_lead_factory,
-):
+async def test_suppression_pauses_matching_contact_enrollments(session):
     """Suppression must stop an enrolled contact before the sender sees it."""
-    campaign = await campaign_factory(name="Suppression campaign")
-    _inbox = await inbox_factory(email="sender@example.com", provider="smtp")
-    _sequence = await sequence_factory(campaign_id=campaign.id, position=0)
-    lead = await lead_factory(email="blocked@example.com")
-    cl = await campaign_lead_factory(campaign_id=campaign.id, lead_id=lead.id)
+    campaign = await make_campaign(session, name="Suppression campaign")
+    _inbox = await make_inbox(session, email="sender@example.com", provider="smtp")
+    _sequence = await make_sequence(session, campaign_id=campaign.id, position=0)
+    lead = await make_lead(session, email="blocked@example.com")
+    cl = await make_campaign_lead(session, campaign_id=campaign.id, lead_id=lead.id)
 
     await suppress_email(
         session,
