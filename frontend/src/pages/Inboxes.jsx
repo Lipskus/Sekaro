@@ -810,7 +810,7 @@ export default function Inboxes() {
     try {
       const body = {
         display_name: editing.display_name,
-        reply_to: (editing.reply_to || '').trim() || null,
+        reply_to: (editing.reply_to || '').trim(),
         provider: editing.provider,
         max_emails_per_day: editing.max_emails_per_day,
         wait_minutes_between: editing.wait_minutes_between,
