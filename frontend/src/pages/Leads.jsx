@@ -78,8 +78,9 @@ function importCustomKey(target) {
   return target?.startsWith('custom:') ? target.slice(7) : '';
 }
 
-function buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter }) {
+function buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter }) {
   const params = new URLSearchParams();
+  if (listFilter) params.set('list_id', String(listFilter));
   if (debouncedSearch) params.set('q', debouncedSearch);
   if (tab === TAB_BOUNCED) {
     params.set('bad_only', 'true');
@@ -112,10 +113,13 @@ export default function Leads() {
   const [emailDrafts, setEmailDrafts] = useState({});
   const [bulkEnrollmentStatus, setBulkEnrollmentStatus] = useState('active');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [contactLists, setContactLists] = useState([]);
+  const [listFilter, setListFilter] = useState('');
   const [contactImportFile, setContactImportFile] = useState(null);
   const [contactImportPreview, setContactImportPreview] = useState(null);
   const [contactImportMapping, setContactImportMapping] = useState({});
   const [contactImportMode, setContactImportMode] = useState('merge');
+  const [contactImportListName, setContactImportListName] = useState('');
   const [contactImportBusy, setContactImportBusy] = useState(false);
   const [suppressionOpen, setSuppressionOpen] = useState(false);
   const [suppressionRows, setSuppressionRows] = useState([]);
@@ -133,10 +137,23 @@ export default function Leads() {
     return () => clearTimeout(t);
   }, [search]);
 
+  const loadContactLists = useCallback(async () => {
+    try {
+      const rows = await api.get('/leads/lists');
+      setContactLists(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadContactLists();
+  }, [loadContactLists]);
+
   const loadLeads = useCallback(async () => {
     loading.start();
     try {
-      const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter });
+      const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter });
       const qs = params.toString();
       const data = await api.get('/leads' + (qs ? `?${qs}` : ''));
       const rows = Array.isArray(data) ? data : [];
@@ -154,7 +171,7 @@ export default function Leads() {
     } finally {
       loading.stop();
     }
-  }, [debouncedSearch, statusFilter, interestFilter, tab, loading, notify]);
+  }, [debouncedSearch, statusFilter, interestFilter, listFilter, tab, loading, notify]);
 
   useEffect(() => {
     loadLeads();
@@ -293,7 +310,7 @@ export default function Leads() {
   };
 
   const exportCsv = async () => {
-    const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter });
+    const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter });
     const qs = params.toString();
     loading.start();
     try {
@@ -327,6 +344,7 @@ export default function Leads() {
       setContactImportPreview(preview);
       setContactImportMapping(preview.suggested_mapping || {});
       setContactImportMode('merge');
+      setContactImportListName(preview.default_list_name || '');
     } catch (e) {
       notify({ type: 'error', message: e.message || 'Nie udało się odczytać pliku.' });
     } finally {
@@ -339,6 +357,7 @@ export default function Leads() {
     setContactImportFile(null);
     setContactImportPreview(null);
     setContactImportMapping({});
+    setContactImportListName('');
   };
 
   const setImportMappingKind = (header, kind) => {
@@ -379,6 +398,7 @@ export default function Leads() {
       const res = await api.uploadMultipart('/leads/import', contactImportFile, {
         mapping_json: contactImportMapping,
         duplicate_mode: contactImportMode,
+        list_name: contactImportListName.trim(),
       });
       notify({
         type: 'success',
@@ -387,7 +407,7 @@ export default function Leads() {
           `${res.skipped_suppressed || 0} na suppression list.`,
       });
       closeContactImport(true);
-      await loadLeads();
+      await Promise.all([loadLeads(), loadContactLists()]);
     } catch (e) {
       notify({ type: 'error', message: e.message || 'Import nie powiódł się.' });
     } finally {
@@ -545,6 +565,22 @@ export default function Leads() {
         >
           Odbite i niepoprawne
         </button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-gray-500">Lista:</span>
+        <select
+          value={listFilter}
+          onChange={(e) => setListFilter(e.target.value)}
+          className="rounded-md border-gray-300 text-sm"
+        >
+          <option value="">Wszystkie kontakty</option>
+          {contactLists.map((list) => (
+            <option key={list.id} value={list.id}>
+              {list.name} ({list.member_count})
+            </option>
+          ))}
+        </select>
       </div>
 
       {tab === TAB_ALL && (
@@ -1029,6 +1065,20 @@ export default function Leads() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Lista kontaktów</h3>
+                <input
+                  value={contactImportListName}
+                  onChange={(e) => setContactImportListName(e.target.value)}
+                  className="w-full max-w-lg rounded-md border-gray-300 text-sm"
+                  placeholder="np. Mariny Niemcy"
+                  maxLength={255}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Jeśli lista już istnieje, kontakty zostaną do niej dopisane. Puste pole oznacza import bez listy.
+                </p>
               </div>
 
               <div>
