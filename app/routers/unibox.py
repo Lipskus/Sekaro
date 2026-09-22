@@ -206,7 +206,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
     if not inbox:
         raise HTTPException(status_code=404, detail="Inbox not found")
 
-    provider = inbox.provider or "gmail"
+    provider = inbox.provider or "smtp"
     gmail_account = None
     o365_account = None
     smtp_account = None
