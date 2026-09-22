@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 
 const SystemHealthContext = createContext(null);
 
-const MUTE_KEY = 'quickly_health_muted_v1';
+const MUTE_KEY = 'sekaro_health_muted_v1';
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
 function loadMuted() {
@@ -19,24 +19,15 @@ function saveMuted(set) {
   localStorage.setItem(MUTE_KEY, JSON.stringify([...set]));
 }
 
-function computeO365TokenStatus(tokenExpiry) {
-  if (!tokenExpiry) return 'expired';
-  const expiry = new Date(tokenExpiry);
-  const now = new Date();
-  const msLeft = expiry - now;
-  if (msLeft <= 0) return 'expired';
-  if (msLeft < 24 * 60 * 60 * 1000) return 'expiring_soon';
-  return 'valid';
-}
-
 async function fetchAllHealthData() {
   return api.get('/system-health');
 }
+
 function buildChecks(d) {
   if (!d) return [];
+
   const {
-    google_oauth,
-    microsoft_oauth,
+    smtp = { accounts: [] },
     inboxes: inboxList = [],
     unibox_sync,
     ai_features: rawAi = [],
@@ -44,129 +35,67 @@ function buildChecks(d) {
     flags,
     beacon_reconciliation: beaconReconciliation = null,
   } = d;
+
   const checks = [];
 
-  /* ── Google OAuth ─────────────────────────────────────────────── */
-  const googleAccounts = google_oauth?.accounts || [];
-  const hasGmailInboxes = inboxList.some(i => i.provider === 'gmail');
-  let googleStatus = 'ok';
-  const googleIssues = [];
+  /* ── SMTP / IMAP ─────────────────────────────────────────────── */
+  const smtpAccounts = smtp?.accounts || [];
+  let smtpStatus = 'ok';
+  const smtpIssues = [];
 
-  if (!google_oauth) {
-    googleStatus = 'unknown';
-  } else {
-    if (!google_oauth.configured && hasGmailInboxes) {
-      googleStatus = 'error';
-      googleIssues.push({
-        level: 'error',
-        text: 'Google OAuth credentials are not configured, but Gmail inboxes exist.',
-        fix: 'Open Settings and add your Google OAuth Client ID / Secret.',
-        action: { label: 'Open Settings', to: '/settings#general' },
-      });
-    }
-    googleAccounts.forEach(acc => {
-      const inboxLink = `/inboxes?inbox=${acc.inbox_id}`;
-      if (acc.token_status === 'expired') {
-        googleStatus = 'error';
-        googleIssues.push({
-          level: 'error',
-          text: `Token expired for ${acc.google_email} (${acc.inbox_display_name || ''})`,
-          fix: 'Reconnect this account from the Inboxes page.',
-          action: { label: 'Fix it', to: inboxLink },
-        });
-      }
-      if (acc.login_status === 'invalid') {
-        googleStatus = 'error';
-        googleIssues.push({
-          level: 'error',
-          text: `Login is no longer valid for ${acc.google_email}`,
-          fix: 'Reconnect this account from the Inboxes page.',
-          action: { label: 'Fix it', to: inboxLink },
-        });
-      }
-      if (acc.missing_scopes?.length > 0) {
-        googleStatus = 'error';
-        googleIssues.push({
-          level: 'error',
-          text: `Missing required send scope for ${acc.google_email}: ${acc.missing_scopes.map(s => s.name).join(', ')}`,
-          fix: 'Disconnect and reconnect the account, granting the required Gmail send permission.',
-          action: { label: 'Fix it', to: inboxLink },
-        });
-      }
+  if (smtpAccounts.length === 0) {
+    smtpStatus = 'warning';
+    smtpIssues.push({
+      level: 'warning',
+      text: 'Nie skonfigurowano jeszcze żadnej skrzynki SMTP/IMAP.',
+      fix: 'Dodaj skrzynkę, aby Sekaro mogło wysyłać wiadomości i synchronizować odpowiedzi.',
+      action: { label: 'Dodaj skrzynkę', to: '/inboxes' },
     });
   }
 
-  checks.push({
-    id: 'google_oauth',
-    label: 'Google OAuth',
-    icon: 'google',
-    status: googleStatus,
-    issues: googleIssues,
-    meta: {
-      configured: google_oauth?.configured,
-      accountCount: googleAccounts.length,
-      accounts: googleAccounts,
-    },
-    detail: googleAccounts.length > 0
-      ? `${googleAccounts.length} account${googleAccounts.length !== 1 ? 's' : ''} connected`
-      : 'No accounts connected',
+  smtpAccounts.forEach(acc => {
+    const label = acc.inbox_display_name || acc.inbox_email || `Skrzynka #${acc.inbox_id}`;
+    const inboxLink = `/inboxes?inbox=${acc.inbox_id}`;
+
+    if (!acc.last_tested_at) {
+      if (smtpStatus === 'ok') smtpStatus = 'warning';
+      smtpIssues.push({
+        level: 'warning',
+        text: `Połączenie skrzynki „${label}” nie zostało jeszcze przetestowane.`,
+        fix: 'Uruchom test połączenia SMTP/IMAP w ustawieniach skrzynki.',
+        action: { label: 'Otwórz skrzynkę', to: inboxLink },
+      });
+    } else if (!acc.last_test_ok) {
+      smtpStatus = 'error';
+      smtpIssues.push({
+        level: 'error',
+        text: `Test połączenia skrzynki „${label}” zakończył się błędem.`,
+        fix: acc.last_test_error || 'Sprawdź host, port, login, hasło i ustawienia TLS/SSL.',
+        action: { label: 'Napraw', to: inboxLink },
+      });
+    }
+
+    if (!acc.imap_configured) {
+      if (smtpStatus === 'ok') smtpStatus = 'warning';
+      smtpIssues.push({
+        level: 'warning',
+        text: `Skrzynka „${label}” nie ma skonfigurowanego IMAP.`,
+        fix: 'Bez IMAP Sekaro może wysyłać pocztę, ale nie będzie widziało odpowiedzi w Odebranych.',
+        action: { label: 'Skonfiguruj IMAP', to: inboxLink },
+      });
+    }
   });
 
-  /* ── Microsoft OAuth ──────────────────────────────────────────── */
-  const o365Accounts = microsoft_oauth?.accounts || [];
-  const hasO365Inboxes = inboxList.some(i => i.provider === 'office365');
-  let msStatus = 'ok';
-  const msIssues = [];
-
-  if (!microsoft_oauth) {
-    msStatus = 'unknown';
-  } else {
-    if (!microsoft_oauth.configured && hasO365Inboxes) {
-      msStatus = 'error';
-      msIssues.push({
-        level: 'error',
-        text: 'Microsoft OAuth credentials are not configured, but Office 365 inboxes exist.',
-        fix: 'Open Settings and add your Azure AD App credentials.',
-        action: { label: 'Open Settings', to: '/settings#general' },
-      });
-    }
-    o365Accounts.forEach(acc => {
-      const inboxLink = `/inboxes?inbox=${acc.inbox_id}`;
-      if (acc.token_status === 'expired') {
-        msStatus = 'error';
-        msIssues.push({
-          level: 'error',
-          text: `Token expired for ${acc.microsoft_email}`,
-          fix: 'Reconnect this Office 365 account from the Inboxes page.',
-          action: { label: 'Fix it', to: inboxLink },
-        });
-      }
-      if (acc.login_status === 'invalid') {
-        msStatus = 'error';
-        msIssues.push({
-          level: 'error',
-          text: `Login is no longer valid for ${acc.microsoft_email}`,
-          fix: 'Reconnect this Office 365 account from the Inboxes page.',
-          action: { label: 'Fix it', to: inboxLink },
-        });
-      }
-    });
-  }
-
   checks.push({
-    id: 'microsoft_oauth',
-    label: 'Microsoft OAuth',
-    icon: 'microsoft',
-    status: msStatus,
-    issues: msIssues,
-    meta: {
-      configured: microsoft_oauth?.configured,
-      accountCount: o365Accounts.length,
-      accounts: o365Accounts,
-    },
-    detail: o365Accounts.length > 0
-      ? `${o365Accounts.length} account${o365Accounts.length !== 1 ? 's' : ''} connected`
-      : 'No accounts connected',
+    id: 'smtp_imap',
+    label: 'SMTP / IMAP',
+    icon: 'inbox',
+    status: smtpStatus,
+    issues: smtpIssues,
+    meta: { accounts: smtpAccounts },
+    detail: smtpAccounts.length === 0
+      ? 'Brak skonfigurowanych skrzynek'
+      : `${smtpAccounts.length} skrzyn${smtpAccounts.length === 1 ? 'ka' : 'ki'} skonfigurowane`,
   });
 
   /* ── Inbox Status ─────────────────────────────────────────────── */
@@ -178,236 +107,225 @@ function buildChecks(d) {
       if (inboxStatLvl === 'ok') inboxStatLvl = 'warning';
       inboxIssues.push({
         level: 'warning',
-        text: `"${inbox.display_name || inbox.email}" is paused`,
-        fix: 'Unpause this inbox from the Inboxes page when you are ready to resume sending.',
-        action: { label: 'Open Inboxes', to: '/inboxes' },
+        text: `„${inbox.display_name || inbox.email}” jest wstrzymana.`,
+        fix: 'Wznów skrzynkę, gdy chcesz ponownie uruchomić wysyłkę.',
+        action: { label: 'Otwórz skrzynki', to: '/inboxes' },
       });
     }
   });
 
   checks.push({
     id: 'inbox_status',
-    label: 'Inbox Status',
+    label: 'Stan skrzynek',
     icon: 'inbox',
     status: inboxStatLvl,
     issues: inboxIssues,
     meta: { inboxList },
     detail: inboxList.length === 0
-      ? 'No inboxes configured'
-      : `${inboxList.length} inbox${inboxList.length !== 1 ? 'es' : ''} — ${inboxList.filter(i => !i.paused).length} active`,
+      ? 'Brak skrzynek'
+      : `${inboxList.length} skrzynek — ${inboxList.filter(i => !i.paused).length} aktywnych`,
   });
 
-  /* ── Custom Tracking Domains ──────────────────────────────────────── */
+  /* ── Custom Tracking Domains ─────────────────────────────────── */
   const inboxesWithDomains = inboxList.filter(i => i.tracking_domain);
   if (inboxesWithDomains.length > 0) {
-    let domainStatLvl = 'ok';
+    let domainStatus = 'ok';
     const domainIssues = [];
+
     inboxesWithDomains.forEach(inbox => {
       if (inbox.tracking_domain_status !== 'ok') {
-        domainStatLvl = 'error';
+        domainStatus = 'error';
         const name = inbox.display_name || inbox.email;
         domainIssues.push({
           level: 'error',
-          text: `Domain "${inbox.tracking_domain}" for "${name}" is not responding over HTTPS.`,
-          fix: 'Make sure the CNAME record points to this server and that HTTPS (TLS) is working for the domain.',
-          action: { label: 'Open Inboxes', to: '/inboxes' },
+          text: `Domena śledząca „${inbox.tracking_domain}” dla „${name}” nie odpowiada poprawnie po HTTPS.`,
+          fix: 'Sprawdź rekord DNS oraz obsługę HTTPS dla domeny śledzącej.',
+          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
         });
       }
     });
+
     checks.push({
       id: 'tracking_domains',
-      label: 'Custom Tracking Domains',
+      label: 'Domeny śledzące',
       icon: 'domain',
-      status: domainStatLvl,
+      status: domainStatus,
       issues: domainIssues,
       meta: { inboxesWithDomains },
       detail: inboxesWithDomains.length === 1
-        ? `1 domain — ${inboxesWithDomains[0].tracking_domain}`
-        : `${inboxesWithDomains.length} domains configured`,
+        ? `1 domena — ${inboxesWithDomains[0].tracking_domain}`
+        : `${inboxesWithDomains.length} domen`,
     });
   }
 
-  /* ── Beacon tracking hosts ───────────────────────────────────────── */
+  /* ── Beacon ──────────────────────────────────────────────────── */
   const inboxesWithBeacon = inboxList.filter(i => i.beacon_connected && i.beacon_base_url);
   if (inboxesWithBeacon.length > 0) {
-    let beaconStatLvl = 'ok';
+    let beaconStatus = 'ok';
     const beaconIssues = [];
+
     inboxesWithBeacon.forEach(inbox => {
       const name = inbox.display_name || inbox.email;
       if (inbox.beacon_status !== 'ok') {
-        beaconStatLvl = 'error';
+        beaconStatus = 'error';
         beaconIssues.push({
           level: 'error',
-          text: `Beacon at "${inbox.beacon_base_url}" for "${name}" failed the health check (not reachable or not connected to this inbox).`,
-          fix: 'Confirm the Beacon service is running, the URL is correct, and Beacon is still connected (try reconnect from Inboxes if needed).',
-          action: { label: 'Open Inboxes', to: '/inboxes' },
+          text: `Beacon „${inbox.beacon_base_url}” dla „${name}” nie odpowiada poprawnie.`,
+          fix: 'Sprawdź usługę Beacon i połączenie z Sekaro.',
+          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
         });
         return;
       }
       if (inbox.beacon_registration_ok === false) {
-        if (beaconStatLvl === 'ok') beaconStatLvl = 'warning';
+        if (beaconStatus === 'ok') beaconStatus = 'warning';
         beaconIssues.push({
           level: 'warning',
-          text: `Beacon registration count still mismatched for "${name}" (Quickly expects ${inbox.beacon_registration_expected}, Beacon has ${inbox.beacon_registration_actual}).`,
-          fix: 'The server attempted a full resync during this health check. If this persists, check connectivity to Beacon.',
-          action: { label: 'Open Inboxes', to: '/inboxes' },
+          text: `Liczba rejestracji Beacon dla „${name}” nie zgadza się ze stanem Sekaro.`,
+          fix: 'Sekaro wykonało ponowną synchronizację. Jeśli ostrzeżenie pozostaje, sprawdź logi Beacon.',
+          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
         });
       }
     });
+
     checks.push({
       id: 'beacon_tracking',
-      label: 'Beacon tracking',
+      label: 'Beacon',
       icon: 'domain',
-      status: beaconStatLvl,
+      status: beaconStatus,
       issues: beaconIssues,
       meta: { inboxesWithBeacon, beaconReconciliation },
       detail: inboxesWithBeacon.length === 1
         ? `1 host — ${inboxesWithBeacon[0].beacon_base_url}`
-        : `${inboxesWithBeacon.length} Beacon hosts`,
+        : `${inboxesWithBeacon.length} hostów Beacon`,
     });
   }
 
-  /* ── Unibox Sync ──────────────────────────────────────────────── */
-  let uniboxStatLvl = 'ok';
-  const uniboxIssues = [];
-
-  if (unibox_sync && !unibox_sync.push_enabled) {
-    uniboxStatLvl = 'warning';
-    uniboxIssues.push({
-      level: 'warning',
-      text: 'Gmail push notifications (Pub/Sub) are not configured. Email detection uses polling instead.',
-      fix: 'Set up a Google Cloud Pub/Sub topic in Settings → Setup (Gmail sync) for instant real-time email events.',
-      action: { label: 'Open Settings', to: '/settings#setup' },
-    });
-  }
-  if (unibox_sync?.initial_list_sync_in_progress) {
-    if (uniboxStatLvl === 'ok') uniboxStatLvl = 'warning';
-    uniboxIssues.push({
-      level: 'warning',
-      text: 'Initial inbox sync is currently in progress.',
-      fix: null,
-    });
-  }
-
+  /* ── Inbox synchronization ───────────────────────────────────── */
+  const syncInProgress = Boolean(unibox_sync?.initial_list_sync_in_progress);
   checks.push({
     id: 'unibox_sync',
-    label: 'Unibox & Email Sync',
+    label: 'Synchronizacja poczty',
     icon: 'sync',
-    status: uniboxStatLvl,
-    issues: uniboxIssues,
+    status: syncInProgress ? 'warning' : 'ok',
+    issues: syncInProgress
+      ? [{
+          level: 'warning',
+          text: 'Trwa synchronizacja wiadomości.',
+          fix: 'Poczekaj na zakończenie synchronizacji.',
+        }]
+      : [],
     meta: {
-      pushEnabled: Boolean(unibox_sync?.push_enabled),
-      syncInProgress: Boolean(unibox_sync?.initial_list_sync_in_progress),
+      syncInProgress,
       inflightIds: unibox_sync?.inflight_inbox_ids || [],
+      syncIntervalMinutes: unibox_sync?.sync_interval_minutes ?? 5,
     },
-    detail: unibox_sync?.push_enabled ? 'Push notifications active' : 'Polling mode',
+    detail: syncInProgress
+      ? 'Synchronizacja w toku'
+      : `IMAP polling co około ${unibox_sync?.sync_interval_minutes ?? 5} min`,
   });
 
-  /* ── AI Features ──────────────────────────────────────────────── */
+  /* ── AI Features ─────────────────────────────────────────────── */
   const enabledAiFeatures = rawAi.filter(f => f.enabled);
-  let aiStatLvl = 'ok';
+  let aiStatus = 'ok';
   const aiIssues = [];
 
   enabledAiFeatures.forEach(f => {
     if (!f.api_key_set) {
-      if (aiStatLvl === 'ok') aiStatLvl = 'warning';
+      if (aiStatus === 'ok') aiStatus = 'warning';
       aiIssues.push({
         level: 'warning',
-        text: `"${f.label}" is enabled but no API key is configured.`,
-        fix: 'Open Settings → Features → AI features to add an API key.',
-        action: { label: 'Open Settings', to: '/settings#features' },
+        text: `„${f.label}” jest włączone, ale nie ma skonfigurowanego klucza API.`,
+        fix: 'Uzupełnij konfigurację w Ustawienia → Funkcje.',
+        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
       });
     } else if (!f.connection_tested) {
-      if (aiStatLvl === 'ok') aiStatLvl = 'warning';
+      if (aiStatus === 'ok') aiStatus = 'warning';
       aiIssues.push({
         level: 'warning',
-        text: `"${f.label}" is enabled but connection has not been verified.`,
-        fix: 'Open Settings → Features → AI features and click "Test Connection".',
-        action: { label: 'Open Settings', to: '/settings#features' },
+        text: `Połączenie dla „${f.label}” nie zostało przetestowane.`,
+        fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
+        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
       });
     } else if (f.last_error) {
-      if (aiStatLvl !== 'error') aiStatLvl = 'error';
+      aiStatus = 'error';
       aiIssues.push({
         level: 'error',
-        text: `"${f.label}" failed during use: ${f.last_error}`,
-        fix: 'Check your API key and quota. Re-test connection in Settings → Features → AI features.',
-        action: { label: 'Open Settings', to: '/settings#features' },
+        text: `„${f.label}” zgłosiło błąd: ${f.last_error}`,
+        fix: 'Sprawdź klucz API, limity i konfigurację dostawcy.',
+        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
       });
     }
   });
 
   checks.push({
     id: 'ai_features',
-    label: 'AI Features',
+    label: 'Funkcje AI',
     icon: 'ai',
-    status: aiStatLvl,
+    status: aiStatus,
     issues: aiIssues,
     meta: { enabledFeatures: enabledAiFeatures, allFeatures: rawAi },
     detail: enabledAiFeatures.length === 0
-      ? 'No AI features enabled'
-      : `${enabledAiFeatures.length} feature${enabledAiFeatures.length !== 1 ? 's' : ''} enabled`,
+      ? 'Funkcje AI są wyłączone'
+      : `${enabledAiFeatures.length} aktywnych funkcji`,
   });
 
-  /* ── Email Verification ────────────────────────────────────────── */
-  let evStatLvl = 'ok';
+  /* ── Email verification ──────────────────────────────────────── */
+  let evStatus = 'ok';
   const evIssues = [];
 
-  if (evData) {
-    if (evData.enabled && !evData.connection_tested) {
-      evStatLvl = 'warning';
-      evIssues.push({
-        level: 'warning',
-        text: 'Email verification is enabled but the connection has not been tested.',
-        fix: 'Open Settings → Features → Email verification and run "Test Connection".',
-        action: { label: 'Open Settings', to: '/settings#features' },
-      });
-    } else if (evData.enabled && evData.last_error) {
-      evStatLvl = 'error';
-      evIssues.push({
-        level: 'error',
-        text: `Email verification failed during use: ${evData.last_error}`,
-        fix: 'Check your API key and provider configuration in Settings → Features → Email verification.',
-        action: { label: 'Open Settings', to: '/settings#features' },
-      });
-    }
+  if (evData?.enabled && !evData.connection_tested) {
+    evStatus = 'warning';
+    evIssues.push({
+      level: 'warning',
+      text: 'Weryfikacja adresów jest włączona, ale połączenie nie zostało przetestowane.',
+      fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
+      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+    });
+  } else if (evData?.enabled && evData.last_error) {
+    evStatus = 'error';
+    evIssues.push({
+      level: 'error',
+      text: `Weryfikacja adresów zgłosiła błąd: ${evData.last_error}`,
+      fix: 'Sprawdź konfigurację dostawcy weryfikacji.',
+      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+    });
   }
 
   checks.push({
     id: 'email_verification',
-    label: 'Email Verification',
+    label: 'Weryfikacja adresów',
     icon: 'verify',
-    status: evStatLvl,
+    status: evStatus,
     issues: evIssues,
     meta: { emailVerification: evData },
     detail: !evData || !evData.enabled
-      ? 'Not enabled'
+      ? 'Wyłączona'
       : evData.connection_tested
-        ? `Active — ${evData.provider}`
-        : 'Enabled but not tested',
+        ? `Aktywna — ${evData.provider}`
+        : 'Włączona, ale nieprzetestowana',
   });
 
-  /* ── Active Settings / Flags ──────────────────────────────────── */
-  let flagsStatLvl = 'ok';
+  /* ── Active settings ─────────────────────────────────────────── */
   const flagsIssues = [];
-
+  let flagsStatus = 'ok';
   if (flags?.test_mode) {
-    flagsStatLvl = 'warning';
+    flagsStatus = 'warning';
     flagsIssues.push({
       level: 'warning',
-      text: 'Test Mode is ON — emails will not be sent to real recipients.',
-      fix: 'Disable Test mode in Settings → Dev when you are ready to send live emails.',
-      action: { label: 'Open Settings', to: '/settings#dev' },
+      text: 'Tryb testowy jest aktywny — wiadomości nie są wysyłane do rzeczywistych odbiorców.',
+      fix: 'Wyłącz tryb testowy, gdy będziesz gotowy do realnej wysyłki.',
+      action: { label: 'Otwórz ustawienia', to: '/settings#dev' },
     });
   }
 
   checks.push({
     id: 'active_settings',
-    label: 'Active Settings',
+    label: 'Tryb pracy',
     icon: 'settings',
-    status: flagsStatLvl,
+    status: flagsStatus,
     issues: flagsIssues,
     meta: { testMode: flags?.test_mode },
-    detail: flags?.test_mode ? 'Test mode is active' : 'Normal operation',
+    detail: flags?.test_mode ? 'Tryb testowy' : 'Normalna praca',
   });
 
   return checks;
@@ -464,9 +382,7 @@ export function SystemHealthProvider({ children }) {
     }
 
     refresh();
-    refreshTimerRef.current = setInterval(() => {
-      refresh();
-    }, AUTO_REFRESH_MS);
+    refreshTimerRef.current = setInterval(refresh, AUTO_REFRESH_MS);
 
     return () => {
       if (refreshTimerRef.current) {
