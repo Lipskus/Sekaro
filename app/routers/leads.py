@@ -567,6 +567,7 @@ async def list_leads(
 
 @router.get("/export")
 async def export_leads_csv(
+    list_id: int | None = Query(None, ge=1),
     status: str | None = Query(None),
     bad_only: bool = Query(False),
     interest: str | None = Query(
@@ -579,6 +580,15 @@ async def export_leads_csv(
     """CSV export aligned with the Leads UI: core columns plus all custom_data keys."""
     intr = _optional_interest_for_stmt(interest)
     stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr)
+    if list_id is not None:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(ContactListMember).where(
+                    ContactListMember.lead_id == Lead.id,
+                    ContactListMember.list_id == list_id,
+                )
+            )
+        )
     result = await db.execute(stmt)
     leads = list(result.scalars().all())
     ids = [x.id for x in leads]
