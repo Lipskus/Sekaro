@@ -286,6 +286,7 @@ def _build_email_message(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -322,6 +323,8 @@ def _build_email_message(
     msg["From"] = f"{from_name} <{from_email}>" if from_name else from_email
     msg["To"] = to_email
     msg["Subject"] = subject
+    if reply_to_address:
+        msg["Reply-To"] = reply_to_address
     if message_id:
         msg["Message-ID"] = message_id
 
@@ -343,6 +346,7 @@ def build_raw_mime(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -366,6 +370,7 @@ def build_raw_mime(
         body=body,
         from_email=from_email,
         from_name=from_name,
+        reply_to_address=reply_to_address,
         reply_to_msg_id=reply_to_msg_id,
         references=references,
         is_html=is_html,
@@ -381,6 +386,7 @@ def _send_via_gmail(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -446,6 +452,7 @@ def _send_via_gmail(
         body=body,
         from_email=from_email,
         from_name=from_name,
+        reply_to_address=reply_to_address,
         reply_to_msg_id=reply_to_msg_id,
         references=references,
         is_html=is_html,
@@ -607,6 +614,7 @@ def send_email(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -668,6 +676,7 @@ def send_email(
             body=body,
             from_email=from_email,
             from_name=from_name,
+            reply_to_address=reply_to_address,
             reply_to_msg_id=reply_to_msg_id,
             references=references,
             is_html=is_html,
