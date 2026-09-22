@@ -223,6 +223,91 @@ async def initialize_settings(db: AsyncSession):
     await _ensure_secrets(db)
 
 
+async def _migrate_smtp_encryption_key(
+    db: AsyncSession,
+    *,
+    new_key: str,
+    old_key: str = "",
+) -> None:
+    """Re-encrypt SMTP/IMAP passwords to *new_key* using raw SQL.
+
+    This runs before the global Fernet instance is switched.  It supports:
+    - legacy DB-stored encryption keys,
+    - plaintext rows from old/dev installs,
+    - rows already encrypted with the new external key.
+
+    Unknown ciphertext is left untouched and logged rather than destroyed.
+    """
+    import base64 as _base64
+    import hashlib as _hashlib
+
+    from cryptography.fernet import Fernet, InvalidToken
+    from sqlalchemy import text as _text
+
+    def _fernet(raw: str) -> Fernet:
+        digest = _hashlib.sha256(raw.encode()).digest()
+        return Fernet(_base64.urlsafe_b64encode(digest))
+
+    new_f = _fernet(new_key)
+    old_f = _fernet(old_key) if old_key else None
+
+    rows = (
+        await db.execute(
+            _text("SELECT id, smtp_password, imap_password FROM smtp_account")
+        )
+    ).mappings().all()
+
+    changed = 0
+    for row in rows:
+        updates: dict[str, str] = {}
+        for column in ("smtp_password", "imap_password"):
+            value = row.get(column) or ""
+            if not value:
+                continue
+
+            raw = str(value)
+            # Already encrypted with the requested key.
+            try:
+                new_f.decrypt(raw.encode())
+                continue
+            except (InvalidToken, Exception):
+                pass
+
+            plaintext: str | None = None
+            if old_f is not None:
+                try:
+                    plaintext = old_f.decrypt(raw.encode()).decode()
+                except (InvalidToken, Exception):
+                    plaintext = None
+
+            # Legacy plaintext rows can be migrated directly.  Fernet tokens
+            # with an unknown key are deliberately not treated as plaintext.
+            if plaintext is None and not raw.startswith("gAAAAA"):
+                plaintext = raw
+
+            if plaintext is None:
+                log.error(
+                    "Could not rotate encrypted SMTP secret id=%s column=%s; "
+                    "ciphertext key is unknown",
+                    row["id"],
+                    column,
+                )
+                continue
+
+            updates[column] = new_f.encrypt(plaintext.encode()).decode()
+
+        if updates:
+            sets = ", ".join(f"{k} = :{k}" for k in updates)
+            await db.execute(
+                _text(f"UPDATE smtp_account SET {sets} WHERE id = :id"),
+                {**updates, "id": row["id"]},
+            )
+            changed += 1
+
+    if changed:
+        log.info("Re-encrypted SMTP/IMAP secrets for %s account(s).", changed)
+
+
 async def _ensure_secrets(db: AsyncSession) -> None:
     """Auto-generate and persist security secrets that are missing from both
     the environment and the database.
@@ -275,10 +360,28 @@ async def _ensure_secrets(db: AsyncSession) -> None:
     db_enc = data.get("quickly_encryption_key", "")
 
     if env_enc:
+        # Move secrets to the external deployment key before dropping the
+        # legacy DB-stored key. This makes database-only theft insufficient
+        # to decrypt mailbox passwords.
+        await _migrate_smtp_encryption_key(
+            db,
+            new_key=env_enc,
+            old_key=db_enc,
+        )
         final_enc = env_enc
-        if not db_enc:
-            await save_setting_to_db(db, "quickly_encryption_key", env_enc)
+        if db_enc:
+            from sqlalchemy import delete as _delete
+            from app.models import AppSetting as _AppSetting
+
+            await db.execute(
+                _delete(_AppSetting).where(
+                    _AppSetting.key == "quickly_encryption_key"
+                )
+            )
             changed = True
+            log.info(
+                "Removed legacy DB-stored encryption key after rotating SMTP/IMAP secrets."
+            )
     elif db_enc:
         final_enc = db_enc
     else:
