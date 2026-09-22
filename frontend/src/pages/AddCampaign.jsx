@@ -247,7 +247,7 @@ export default function AddCampaign() {
                 disabled={form.send_all_as_text}
                 onChange={handleChange}
               />
-              <span className="text-sm">Pierwszą wiadomość wyślij jako zwykły tekst (improves deliverability)</span>
+              <span className="text-sm">Pierwszą wiadomość wyślij jako zwykły tekst</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -261,17 +261,6 @@ export default function AddCampaign() {
                 }))}
               />
               <span className="text-sm">Wszystkie wiadomości wysyłaj jako zwykły tekst</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Provider matching */}
-        <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Provider matching</p>
-          <div className="space-y-1 pl-1">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="match_lead_provider" checked={form.match_lead_provider} onChange={handleChange} />
-              <span className="text-sm">Match lead provider — send from Google inboxes to Google leads, Office 365 to Office 365 (falls back to any inbox if none match)</span>
             </label>
           </div>
         </div>
