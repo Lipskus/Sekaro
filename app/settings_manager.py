@@ -264,9 +264,14 @@ async def _ensure_secrets(db: AsyncSession) -> None:
         log.exception("Failed to reinitialise auth secret key.")
 
     # ------------------------------------------------------------------ #
-    # 2.  Fernet encryption key (QUICKLY_ENCRYPTION_KEY)                  #
+    # 2.  Fernet encryption key (SEKARO_ENCRYPTION_KEY)                  #
     # ------------------------------------------------------------------ #
-    env_enc = _os.getenv("QUICKLY_ENCRYPTION_KEY", "")
+    # Prefer a deployment secret outside PostgreSQL. Legacy QUICKLY_* and
+    # DB-stored keys remain supported so existing installations keep working.
+    env_enc = (
+        _os.getenv("SEKARO_ENCRYPTION_KEY", "")
+        or _os.getenv("QUICKLY_ENCRYPTION_KEY", "")
+    )
     db_enc = data.get("quickly_encryption_key", "")
 
     if env_enc:
@@ -281,7 +286,11 @@ async def _ensure_secrets(db: AsyncSession) -> None:
         final_enc = Fernet.generate_key().decode()
         await save_setting_to_db(db, "quickly_encryption_key", final_enc)
         changed = True
-        log.info("Auto-generated QUICKLY_ENCRYPTION_KEY and stored in the database.")
+        log.warning(
+            "SEKARO_ENCRYPTION_KEY is not set; generated encryption key is stored "
+            "in PostgreSQL for compatibility. For new production installs, set "
+            "SEKARO_ENCRYPTION_KEY in .env before adding mailbox credentials."
+        )
 
     try:
         from app.security import init_encryption
