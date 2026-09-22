@@ -645,7 +645,7 @@ def send_email(
     logging, analytics, webhooks) proceeds normally.
     """
     if not provider:
-        provider = "gmail"
+        provider = "smtp"
 
     if settings.test_mode:
         fake_id = make_msgid()
@@ -717,6 +717,7 @@ def send_email(
         body=body,
         from_email=from_email,
         from_name=from_name,
+        reply_to_address=reply_to_address,
         reply_to_msg_id=reply_to_msg_id,
         references=references,
         is_html=is_html,
@@ -1035,6 +1036,7 @@ def _send_via_smtp(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -1064,6 +1066,7 @@ def _send_via_smtp(
         body=body,
         from_email=from_email,
         from_name=from_name,
+        reply_to_address=reply_to_address,
         reply_to_msg_id=reply_to_msg_id,
         references=references,
         is_html=is_html,
