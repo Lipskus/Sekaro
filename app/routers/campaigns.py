@@ -2052,7 +2052,7 @@ async def bulk_add_leads_to_campaign(
 
         try:
             # Find or create lead by email
-            lead_result = await db.execute(select(Lead).where(Lead.email == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
             lead = lead_result.scalar_one_or_none()
             if not lead:
                 lead = Lead(
@@ -2793,7 +2793,7 @@ async def import_campaign_leads(
             return None
 
         try:
-            lead_result = await db.execute(select(Lead).where(Lead.email == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
             lead = lead_result.scalar_one_or_none()
             if not lead:
                 lead = Lead(email=email, name=name, custom_data=custom_data)
