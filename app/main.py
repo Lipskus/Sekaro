@@ -27,9 +27,6 @@ from app.client_ip import client_ip_from_request
 from app.database import init_db, db_url
 from app.settings_manager import settings
 from app.routers import inbox, leads, campaigns, test_mode
-from app.routers import gmail_oauth
-from app.routers import office365_oauth
-from app.routers import office365_webhook as office365_webhook_router
 from app.routers import schedule as schedule_router
 from app.routers import settings as settings_router
 from app.routers import backup as backup_router
@@ -38,7 +35,6 @@ from app.routers import tracking as tracking_router
 from app.routers import beacon_ingest as beacon_ingest_router
 from app.routers import email_provider as email_provider_router
 from app.routers import smtp as smtp_router
-from app.routers import app_oauth as app_oauth_router
 from app.routers import notifications as notifications_router
 from app.routers import system_health as system_health_router
 from app.routers import analytics as analytics_router
@@ -82,13 +78,6 @@ async def lifespan(app: FastAPI):
             minute=f"*/{unibox_interval_minutes}",
             second=10,
             id="unibox_sync",
-            replace_existing=True,
-        )
-        schedule.add_job(
-            office365_webhook_router.renew_expiring_subscriptions,
-            "interval",
-            hours=6,
-            id="office365_graph_subscription_renewal",
             replace_existing=True,
         )
         # Single periodic worker: every minute it looks ahead 60 seconds and spawns
@@ -145,7 +134,7 @@ async def lifespan(app: FastAPI):
         schedule.shutdown()
 
 
-app = FastAPI(title="Quickly", lifespan=lifespan)
+app = FastAPI(title="Sekaro", lifespan=lifespan)
 
 # ---------------------------------------------------------------------------
 # Security middleware (CSP, HSTS, X-Frame-Options, …)
@@ -204,21 +193,12 @@ from app.routers import auth as auth_router
 app.include_router(auth_router.router)
 
 # ---------------------------------------------------------------------------
-# App OAuth routes (public — login/signup via Google & Microsoft)
-# ---------------------------------------------------------------------------
-app.include_router(app_oauth_router.router)
-
-# ---------------------------------------------------------------------------
 # Protected routers – all require authentication
 # ---------------------------------------------------------------------------
 from app.auth import get_current_user as _auth_dep
 
 _auth_deps = [Depends(_auth_dep)]
 
-# Gmail / Office365 OAuth: status is public; other routes set auth per-endpoint (see routers).
-# Callback routes are public – the provider's redirect carries no auth cookie.
-# office365_webhook_router has a public notification endpoint called by Microsoft,
-# so auth is NOT applied globally.  Management routes enforce auth individually.
 # tracking_router has public endpoints (open pixel, click redirect, unsubscribe)
 # so it does NOT get global auth — individual endpoints handle auth internally.
 
@@ -226,11 +206,6 @@ app.include_router(inbox.router, dependencies=_auth_deps)
 app.include_router(leads.router, dependencies=_auth_deps)
 app.include_router(campaigns.router, dependencies=_auth_deps)
 app.include_router(test_mode.router, dependencies=_auth_deps)
-app.include_router(gmail_oauth.router)
-app.include_router(gmail_oauth.callback_router)
-app.include_router(office365_oauth.router)
-app.include_router(office365_oauth.callback_router)
-app.include_router(office365_webhook_router.router)
 app.include_router(schedule_router.router, dependencies=_auth_deps)
 app.include_router(settings_router.router, dependencies=_auth_deps)
 app.include_router(backup_router.router, dependencies=_auth_deps)
