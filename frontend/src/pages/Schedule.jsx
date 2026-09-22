@@ -57,7 +57,7 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
               {item.type === 'sent' ? `Wysłano do ${item.lead_email}` : `Zaplanowano dla ${item.lead_email}`}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-brak">×</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
 
         {/* Meta */}
@@ -97,7 +97,7 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
             {body ? (
               isHtml ? (
                 <div
-                  className="border rounded-lg p-5 bg-white prose prose-sm max-w-brak"
+                  className="border rounded-lg p-5 bg-white prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: body }}
                 />
               ) : (
