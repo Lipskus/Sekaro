@@ -8,6 +8,7 @@ single response so the frontend only needs one round-trip."""
 import asyncio
 import json
 import logging
+import os
 import re
 import urllib.error
 import urllib.request
@@ -474,6 +475,13 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
     test_mode = bool(test_mode_val)
 
     return {
+        "security": {
+            "external_mailbox_encryption_key": bool(
+                os.getenv("SEKARO_ENCRYPTION_KEY", "")
+                or os.getenv("QUICKLY_ENCRYPTION_KEY", "")
+            ),
+            "smtp_account_count": len(smtp_accounts),
+        },
         "smtp": {
             "accounts": smtp_accounts,
         },
