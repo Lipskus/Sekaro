@@ -305,6 +305,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
         body=data.body,
         from_email=inbox.email,
         from_name=inbox.display_name or "",
+        reply_to_address=(getattr(inbox, "reply_to", None) or None),
         reply_to_msg_id=reply_to,
         references=references,
         is_html=data.is_html,
