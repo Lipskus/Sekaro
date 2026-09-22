@@ -23,6 +23,79 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [setupComplete, setSetupComplete] = useState(null);
 
+  const parseError = async (res) => {
+    const text = await res.text();
+    try {
+      const data = JSON.parse(text);
+      if (typeof data.detail === 'string') return data.detail;
+      if (Array.isArray(data.detail)) {
+        return data.detail.map(item => item?.msg || String(item)).join(' ');
+      }
+    } catch {
+      // fall through
+    }
+    return text || res.statusText || 'Request failed';
+  };
+
+  const login = useCallback(async (email, password) => {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username: email.trim().toLowerCase(),
+        password,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(await parseError(res));
+    }
+
+    const data = await res.json();
+    _accessToken = data.access_token;
+
+    const userRes = await fetch('/api/auth/me', {
+      headers: { Authorization: `Bearer ${_accessToken}` },
+      credentials: 'include',
+    });
+    if (!userRes.ok) {
+      throw new Error(await parseError(userRes));
+    }
+
+    const currentUser = await userRes.json();
+    setUser(currentUser);
+    setSetupComplete(true);
+    return currentUser;
+  }, []);
+
+  const registerAdmin = useCallback(async (email, password) => {
+    const normalizedEmail = email.trim().toLowerCase();
+    const localPart = (normalizedEmail.split('@')[0] || 'admin')
+      .replace(/[^a-z0-9_-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const username = (localPart.length >= 3 ? localPart : `admin_${localPart || 'user'}`).slice(0, 150);
+
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        username,
+        email: normalizedEmail,
+        password,
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(await parseError(res));
+    }
+
+    setSetupComplete(true);
+    return login(normalizedEmail, password);
+  }, [login]);
+
   const refreshToken = useCallback(async () => {
     try {
       const res = await fetch('/api/auth/refresh', {
@@ -117,6 +190,8 @@ export function AuthProvider({ children }) {
       user,
       loading,
       setupComplete,
+      login,
+      registerAdmin,
       logout,
       refreshToken,
       checkSetup,
