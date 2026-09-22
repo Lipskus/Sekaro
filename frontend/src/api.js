@@ -226,13 +226,15 @@ export const api = {
   },
   download: (path) => downloadRequest(path),
   downloadPost: (path, data) => postJsonForDownload(path, data),
-  /** Multipart upload with optional password field (restore preview). */
+  /** Multipart upload with optional string/form fields. */
   uploadMultipart: async (path, file, fields = {}) => {
     const form = new FormData();
     form.append('file', file);
-    if (fields.password != null && fields.password !== '') {
-      form.append('password', fields.password);
-    }
+    Object.entries(fields || {}).forEach(([key, value]) => {
+      if (value == null) return;
+      if (typeof value === 'object') form.append(key, JSON.stringify(value));
+      else form.append(key, String(value));
+    });
     const res = await fetch(API_ROOT + path, { method: 'POST', body: form, headers: _authHeaders() });
     if (res.status === 401) {
       try {

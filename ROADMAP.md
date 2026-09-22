@@ -27,13 +27,19 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 - [ ] Remove dormant Gmail/Microsoft provider internals after the SMTP-only regression suite is broader
 
 ## 0.3 — Contacts & imports
-- CSV import
-- XLSX import
-- Field mapping
-- Custom fields
-- Global deduplication
-- Global suppression / do-not-contact list
-- Import validation and preview
+- [x] CSV import
+- [x] XLSX/XLSM import
+- [x] Import validation and preview
+- [x] Interactive field mapping
+- [x] Custom fields from arbitrary spreadsheet columns
+- [x] Named contact lists
+- [x] Contact-list filtering and filtered CSV export
+- [x] Global case-insensitive deduplication for new imports
+- [x] Global suppression / do-not-contact list
+- [x] Unsubscribe automatically adds global suppression
+- [x] Sender hard-checks suppression before every send
+- [x] Campaign imports respect suppression
+- [ ] Optional merge tool for duplicate contacts already present in legacy databases
 
 ## 0.4 — Messages & templates
 - Plain-text messages

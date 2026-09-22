@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.0 — Contacts, spreadsheets and suppression
+
+- added global CSV, TSV and TXT contact import
+- added XLSX/XLSM Excel import
+- added import preview with sample rows and validation counts
+- added interactive column mapping for email, name, custom fields and ignored columns
+- arbitrary spreadsheet columns can be stored as custom fields
+- added merge/skip behavior for contacts that already exist
+- new imports deduplicate email addresses case-insensitively
+- added named contact lists and list filtering
+- imports can create or append to a named contact list
+- CSV export respects the active contact-list filter
+- added global suppression / do-not-contact list and management UI
+- unsubscribe links automatically add the recipient to global suppression
+- suppression pauses active enrollments and deletes queued sends
+- the sender performs a final suppression check immediately before sending
+- campaign bulk/CSV imports also respect global suppression
+- added parser, suppression and mapped-import regression tests
+- legacy duplicate contacts are preserved; a dedicated merge tool is deferred
+
 ## 0.2.0 — SMTP/IMAP mailbox core
 
 - SMTP is now the default mailbox provider for new Sekaro inboxes

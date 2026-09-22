@@ -67,8 +67,20 @@ function leadRowSummary(lead) {
   return bits.slice(0, 3).join(' · ') + (bits.length > 3 ? '…' : '');
 }
 
-function buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter }) {
+function importTargetKind(target) {
+  if (target === 'email') return 'email';
+  if (target === 'name') return 'name';
+  if (target?.startsWith('custom:')) return 'custom';
+  return 'skip';
+}
+
+function importCustomKey(target) {
+  return target?.startsWith('custom:') ? target.slice(7) : '';
+}
+
+function buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter }) {
   const params = new URLSearchParams();
+  if (listFilter) params.set('list_id', String(listFilter));
   if (debouncedSearch) params.set('q', debouncedSearch);
   if (tab === TAB_BOUNCED) {
     params.set('bad_only', 'true');
@@ -101,6 +113,20 @@ export default function Leads() {
   const [emailDrafts, setEmailDrafts] = useState({});
   const [bulkEnrollmentStatus, setBulkEnrollmentStatus] = useState('active');
   const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [contactLists, setContactLists] = useState([]);
+  const [listFilter, setListFilter] = useState('');
+  const [contactImportFile, setContactImportFile] = useState(null);
+  const [contactImportPreview, setContactImportPreview] = useState(null);
+  const [contactImportMapping, setContactImportMapping] = useState({});
+  const [contactImportMode, setContactImportMode] = useState('merge');
+  const [contactImportListName, setContactImportListName] = useState('');
+  const [contactImportBusy, setContactImportBusy] = useState(false);
+  const [suppressionOpen, setSuppressionOpen] = useState(false);
+  const [suppressionRows, setSuppressionRows] = useState([]);
+  const [suppressionSearch, setSuppressionSearch] = useState('');
+  const [suppressionEmail, setSuppressionEmail] = useState('');
+  const [suppressionReason, setSuppressionReason] = useState('manual');
+  const [suppressionBusy, setSuppressionBusy] = useState(false);
 
   const notify = useNotify();
   const confirm = useConfirm();
@@ -111,10 +137,23 @@ export default function Leads() {
     return () => clearTimeout(t);
   }, [search]);
 
+  const loadContactLists = useCallback(async () => {
+    try {
+      const rows = await api.get('/leads/lists');
+      setContactLists(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadContactLists();
+  }, [loadContactLists]);
+
   const loadLeads = useCallback(async () => {
     loading.start();
     try {
-      const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter });
+      const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter });
       const qs = params.toString();
       const data = await api.get('/leads' + (qs ? `?${qs}` : ''));
       const rows = Array.isArray(data) ? data : [];
@@ -132,7 +171,7 @@ export default function Leads() {
     } finally {
       loading.stop();
     }
-  }, [debouncedSearch, statusFilter, interestFilter, tab, loading, notify]);
+  }, [debouncedSearch, statusFilter, interestFilter, listFilter, tab, loading, notify]);
 
   useEffect(() => {
     loadLeads();
@@ -271,7 +310,7 @@ export default function Leads() {
   };
 
   const exportCsv = async () => {
-    const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter });
+    const params = buildLeadsQueryParams({ tab, debouncedSearch, statusFilter, interestFilter, listFilter });
     const qs = params.toString();
     loading.start();
     try {
@@ -294,6 +333,143 @@ export default function Leads() {
       notify({ type: 'error', message: e.message || 'Export failed' });
     } finally {
       loading.stop();
+    }
+  };
+
+  const previewContactImport = async (file) => {
+    setContactImportBusy(true);
+    try {
+      const preview = await api.upload('/leads/import/preview', file);
+      setContactImportFile(file);
+      setContactImportPreview(preview);
+      setContactImportMapping(preview.suggested_mapping || {});
+      setContactImportMode('merge');
+      setContactImportListName(preview.default_list_name || '');
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Nie udało się odczytać pliku.' });
+    } finally {
+      setContactImportBusy(false);
+    }
+  };
+
+  const closeContactImport = (force = false) => {
+    if (contactImportBusy && !force) return;
+    setContactImportFile(null);
+    setContactImportPreview(null);
+    setContactImportMapping({});
+    setContactImportListName('');
+  };
+
+  const setImportMappingKind = (header, kind) => {
+    setContactImportMapping((prev) => {
+      const next = { ...prev };
+      if (kind === 'email') {
+        Object.keys(next).forEach((key) => {
+          if (next[key] === 'email') next[key] = 'skip';
+        });
+        next[header] = 'email';
+      } else if (kind === 'name') {
+        Object.keys(next).forEach((key) => {
+          if (next[key] === 'name') next[key] = 'skip';
+        });
+        next[header] = 'name';
+      } else if (kind === 'custom') {
+        const fallback = header
+          .toLowerCase()
+          .replace(/[^0-9a-ząćęłńóśźż]+/gi, '_')
+          .replace(/^_+|_+$/g, '') || 'field';
+        next[header] = `custom:${fallback}`;
+      } else {
+        next[header] = 'skip';
+      }
+      return next;
+    });
+  };
+
+  const commitContactImport = async () => {
+    if (!contactImportFile || !contactImportPreview) return;
+    const hasEmail = Object.values(contactImportMapping).includes('email');
+    if (!hasEmail) {
+      notify({ type: 'error', message: 'Wskaż kolumnę zawierającą adres e-mail.' });
+      return;
+    }
+    setContactImportBusy(true);
+    try {
+      const res = await api.uploadMultipart('/leads/import', contactImportFile, {
+        mapping_json: contactImportMapping,
+        duplicate_mode: contactImportMode,
+        list_name: contactImportListName.trim(),
+      });
+      notify({
+        type: 'success',
+        message:
+          `Import zakończony: ${res.added || 0} nowych, ${res.updated || 0} zaktualizowanych, ` +
+          `${res.skipped_suppressed || 0} na suppression list.`,
+      });
+      closeContactImport(true);
+      await Promise.all([loadLeads(), loadContactLists()]);
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Import nie powiódł się.' });
+    } finally {
+      setContactImportBusy(false);
+    }
+  };
+
+  const loadSuppression = async (query = suppressionSearch) => {
+    setSuppressionBusy(true);
+    try {
+      const qs = query.trim() ? `?q=${encodeURIComponent(query.trim())}` : '';
+      const rows = await api.get('/leads/suppression' + qs);
+      setSuppressionRows(Array.isArray(rows) ? rows : []);
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Nie udało się wczytać suppression list.' });
+    } finally {
+      setSuppressionBusy(false);
+    }
+  };
+
+  const openSuppression = async () => {
+    setSuppressionOpen(true);
+    await loadSuppression('');
+  };
+
+  const addSuppression = async (e) => {
+    e.preventDefault();
+    const email = suppressionEmail.trim().toLowerCase();
+    if (!email) return;
+    setSuppressionBusy(true);
+    try {
+      await api.post('/leads/suppression', {
+        email,
+        reason: suppressionReason,
+        source: 'manual',
+        note: '',
+      });
+      setSuppressionEmail('');
+      notify({ type: 'success', message: `${email} dodano do suppression list.` });
+      await loadSuppression('');
+      await loadLeads();
+    } catch (err) {
+      notify({ type: 'error', message: err.message || 'Nie udało się dodać adresu.' });
+    } finally {
+      setSuppressionBusy(false);
+    }
+  };
+
+  const removeSuppression = async (row) => {
+    const ok = await confirm(
+      `Usunąć ${row.email} z suppression list? Istniejące kampanie nie zostaną automatycznie wznowione.`,
+    );
+    if (!ok) return;
+    setSuppressionBusy(true);
+    try {
+      await api.del(`/leads/suppression/${row.id}`);
+      notify({ type: 'success', message: `${row.email} usunięto z suppression list.` });
+      await loadSuppression('');
+    } catch (err) {
+      notify({ type: 'error', message: err.message || 'Nie udało się usunąć wpisu.' });
+    } finally {
+      setSuppressionBusy(false);
     }
   };
 
@@ -332,6 +508,21 @@ export default function Leads() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <FileUploadArea
+            size="sm"
+            accept=".xlsx,.xlsm,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+            disabled={contactImportBusy}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = '';
+              if (file) previewContactImport(file);
+            }}
+          >
+            {contactImportBusy && !contactImportPreview ? 'Wczytywanie…' : 'Importuj kontakty'}
+          </FileUploadArea>
+          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>
+            Suppression list
+          </Button>
           <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>
             Eksport CSV
           </Button>
@@ -374,6 +565,22 @@ export default function Leads() {
         >
           Odbite i niepoprawne
         </button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm text-gray-500">Lista:</span>
+        <select
+          value={listFilter}
+          onChange={(e) => setListFilter(e.target.value)}
+          className="rounded-md border-gray-300 text-sm"
+        >
+          <option value="">Wszystkie kontakty</option>
+          {contactLists.map((list) => (
+            <option key={list.id} value={list.id}>
+              {list.name} ({list.member_count})
+            </option>
+          ))}
+        </select>
       </div>
 
       {tab === TAB_ALL && (
@@ -491,6 +698,7 @@ export default function Leads() {
               <th className="p-2">Kampanie</th>
               <th className="p-2">Skrzynka nadawcza</th>
               <th className="p-2">Dodano</th>
+              <th className="p-2 min-w-[220px]">Pola własne</th>
               {tab === TAB_BOUNCED && <th className="p-2 min-w-[200px]">Nowy e-mail</th>}
               {tab === TAB_BOUNCED && <th className="p-2 w-44">Akcje</th>}
             </tr>
@@ -498,7 +706,7 @@ export default function Leads() {
           <tbody>
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={tab === TAB_BOUNCED ? 9 : 7} className="p-8 text-center text-gray-500">
+                <td colSpan={tab === TAB_BOUNCED ? 10 : 8} className="p-8 text-center text-gray-500">
                   Brak kontaktów pasujących do tego widoku.
                 </td>
               </tr>
@@ -580,6 +788,26 @@ export default function Leads() {
                     </div>
                   </td>
                   <td className="p-2 align-top text-gray-600">{formatEnrolled(l.campaigns)}</td>
+                  <td className="p-2 align-top">
+                    {l.custom_data && Object.keys(l.custom_data).length ? (
+                      <div className="flex flex-wrap gap-1 max-w-sm">
+                        {Object.entries(l.custom_data).slice(0, 4).map(([key, value]) => (
+                          <span
+                            key={key}
+                            className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600"
+                            title={`${key}: ${value}`}
+                          >
+                            {key}: {String(value).slice(0, 28)}
+                          </span>
+                        ))}
+                        {Object.keys(l.custom_data).length > 4 && (
+                          <span className="text-xs text-gray-400">+{Object.keys(l.custom_data).length - 4}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-400 text-xs">—</span>
+                    )}
+                  </td>
                   {tab === TAB_BOUNCED && (
                     <td className="p-2 align-top">
                       <input
@@ -611,6 +839,292 @@ export default function Leads() {
           </tbody>
         </table>
       </Card>
+
+      {suppressionOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b px-6 py-4">
+              <div>
+                <h2 className="text-xl font-semibold">Suppression list</h2>
+                <p className="text-sm text-gray-500">Adresy, do których Sekaro nigdy nie wyśle wiadomości.</p>
+              </div>
+              <button type="button" className="text-2xl text-gray-400 hover:text-gray-700" onClick={() => setSuppressionOpen(false)}>×</button>
+            </div>
+
+            <div className="p-6 space-y-5 overflow-y-auto">
+              <form onSubmit={addSuppression} className="flex flex-wrap gap-2 items-end">
+                <div className="flex-1 min-w-[260px]">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">E-mail</label>
+                  <input
+                    type="email"
+                    value={suppressionEmail}
+                    onChange={(e) => setSuppressionEmail(e.target.value)}
+                    className="w-full rounded-md border-gray-300"
+                    placeholder="kontakt@example.com"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Powód</label>
+                  <select
+                    value={suppressionReason}
+                    onChange={(e) => setSuppressionReason(e.target.value)}
+                    className="rounded-md border-gray-300"
+                  >
+                    <option value="manual">Ręcznie</option>
+                    <option value="unsubscribe">Wypis</option>
+                    <option value="complaint">Skarga</option>
+                    <option value="bounce">Trwały bounce</option>
+                    <option value="other">Inny</option>
+                  </select>
+                </div>
+                <Button type="submit" size="sm" disabled={suppressionBusy}>Dodaj</Button>
+              </form>
+
+              <div className="flex gap-2">
+                <input
+                  value={suppressionSearch}
+                  onChange={(e) => setSuppressionSearch(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      loadSuppression(e.currentTarget.value);
+                    }
+                  }}
+                  className="flex-1 rounded-md border-gray-300 text-sm"
+                  placeholder="Szukaj adresu…"
+                />
+                <Button type="button" variant="outline" size="sm" onClick={() => loadSuppression(suppressionSearch)} disabled={suppressionBusy}>
+                  Szukaj
+                </Button>
+              </div>
+
+              <div className="rounded-lg border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left px-3 py-2">E-mail</th>
+                      <th className="text-left px-3 py-2">Powód</th>
+                      <th className="text-left px-3 py-2">Źródło</th>
+                      <th className="text-left px-3 py-2">Dodano</th>
+                      <th className="w-20"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {suppressionRows.length === 0 ? (
+                      <tr><td colSpan="5" className="px-3 py-8 text-center text-gray-400">Brak wpisów.</td></tr>
+                    ) : suppressionRows.map((row) => (
+                      <tr key={row.id} className="border-t">
+                        <td className="px-3 py-2 font-mono text-xs">{row.email}</td>
+                        <td className="px-3 py-2">{row.reason}</td>
+                        <td className="px-3 py-2">{row.source}</td>
+                        <td className="px-3 py-2 text-gray-500">{row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}</td>
+                        <td className="px-3 py-2 text-right">
+                          <button type="button" onClick={() => removeSuppression(row)} className="text-xs text-red-600 hover:underline">
+                            Usuń
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {contactImportPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+            <div className="flex items-start justify-between gap-4 border-b px-6 py-4">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Import kontaktów</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {contactImportPreview.filename}
+                  {contactImportPreview.sheet_name ? ` · arkusz: ${contactImportPreview.sheet_name}` : ''}
+                  {' · '}{contactImportPreview.total_rows} wierszy
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={closeContactImport}
+                className="text-2xl leading-none text-gray-400 hover:text-gray-700"
+                aria-label="Zamknij"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="overflow-y-auto px-6 py-5 space-y-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-gray-500">Poprawne e-maile</div>
+                  <div className="text-xl font-semibold">{contactImportPreview.valid_unique_emails}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-gray-500">Już istnieją</div>
+                  <div className="text-xl font-semibold">{contactImportPreview.existing_contacts}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-gray-500">Suppression</div>
+                  <div className="text-xl font-semibold">{contactImportPreview.suppressed_contacts}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-gray-500">Duplikaty w pliku</div>
+                  <div className="text-xl font-semibold">{contactImportPreview.duplicates_in_file}</div>
+                </div>
+                <div className="rounded-lg border p-3">
+                  <div className="text-xs text-gray-500">Niepoprawne</div>
+                  <div className="text-xl font-semibold">{contactImportPreview.invalid_count}</div>
+                </div>
+              </div>
+
+              {contactImportPreview.mapping_required && (
+                <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                  Sekaro nie rozpoznało automatycznie kolumny e-mail. Wskaż ją poniżej.
+                </div>
+              )}
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Mapowanie kolumn</h3>
+                <div className="rounded-lg border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-3 py-2">Kolumna w pliku</th>
+                        <th className="text-left px-3 py-2">Pole w Sekaro</th>
+                        <th className="text-left px-3 py-2">Nazwa custom field</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(contactImportPreview.headers || []).map((header) => {
+                        const target = contactImportMapping[header] || 'skip';
+                        const kind = importTargetKind(target);
+                        return (
+                          <tr key={header} className="border-t">
+                            <td className="px-3 py-2 font-medium text-gray-800">{header}</td>
+                            <td className="px-3 py-2">
+                              <select
+                                value={kind}
+                                onChange={(e) => setImportMappingKind(header, e.target.value)}
+                                className="rounded-md border-gray-300 text-sm"
+                              >
+                                <option value="skip">Pomiń</option>
+                                <option value="email">E-mail</option>
+                                <option value="name">Nazwa / imię</option>
+                                <option value="custom">Custom field</option>
+                              </select>
+                            </td>
+                            <td className="px-3 py-2">
+                              {kind === 'custom' ? (
+                                <input
+                                  value={importCustomKey(target)}
+                                  onChange={(e) =>
+                                    setContactImportMapping((prev) => ({
+                                      ...prev,
+                                      [header]: `custom:${e.target.value}`,
+                                    }))
+                                  }
+                                  className="w-full rounded-md border-gray-300 text-sm"
+                                  placeholder="np. land"
+                                />
+                              ) : (
+                                <span className="text-gray-400">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Podgląd danych</h3>
+                <div className="overflow-x-auto rounded-lg border">
+                  <table className="min-w-max w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        {(contactImportPreview.headers || []).map((header) => (
+                          <th key={header} className="px-3 py-2 text-left font-semibold text-gray-600">{header}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(contactImportPreview.sample_rows || []).map((row, idx) => (
+                        <tr key={idx} className="border-t">
+                          {(contactImportPreview.headers || []).map((header) => (
+                            <td key={header} className="px-3 py-2 max-w-[260px] truncate" title={row[header] || ''}>
+                              {row[header] || '—'}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Lista kontaktów</h3>
+                <input
+                  value={contactImportListName}
+                  onChange={(e) => setContactImportListName(e.target.value)}
+                  className="w-full max-w-lg rounded-md border-gray-300 text-sm"
+                  placeholder="np. Mariny Niemcy"
+                  maxLength={255}
+                />
+                <p className="mt-1 text-xs text-gray-500">
+                  Jeśli lista już istnieje, kontakty zostaną do niej dopisane. Puste pole oznacza import bez listy.
+                </p>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-2">Istniejące kontakty</h3>
+                <div className="flex flex-wrap gap-4 text-sm">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="duplicate-mode"
+                      checked={contactImportMode === 'merge'}
+                      onChange={() => setContactImportMode('merge')}
+                    />
+                    Uzupełnij / zaktualizuj danymi z pliku
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="duplicate-mode"
+                      checked={contactImportMode === 'skip'}
+                      onChange={() => setContactImportMode('skip')}
+                    />
+                    Pomiń istniejące kontakty
+                  </label>
+                </div>
+                <p className="mt-2 text-xs text-gray-500">
+                  Adresy znajdujące się na suppression list są zawsze pomijane niezależnie od tego ustawienia.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t px-6 py-4">
+              <Button type="button" variant="outline" onClick={closeContactImport} disabled={contactImportBusy}>
+                Anuluj
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                onClick={commitContactImport}
+                disabled={contactImportBusy || !Object.values(contactImportMapping).includes('email')}
+              >
+                {contactImportBusy ? 'Importowanie…' : 'Importuj kontakty'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

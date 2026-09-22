@@ -2032,6 +2032,7 @@ async def bulk_add_leads_to_campaign(
     added = 0
     already_enrolled = 0
     errors = 0
+    suppressed = 0
     duplicate_leads: list[str] = []
     # Track new enrollments for bulk scheduling after provider detection
     new_enrollments: list[tuple[int, int, str, bool, bool]] = []  # cl.id, lead.id, email, has_prov, can_send
@@ -2043,9 +2044,15 @@ async def bulk_add_leads_to_campaign(
             errors += 1
             continue
 
+        from app.suppression import is_suppressed
+        if await is_suppressed(db, email):
+            results.append({"email": email, "status": "suppressed"})
+            suppressed += 1
+            continue
+
         try:
             # Find or create lead by email
-            lead_result = await db.execute(select(Lead).where(Lead.email == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
             lead = lead_result.scalar_one_or_none()
             if not lead:
                 lead = Lead(
@@ -2208,6 +2215,7 @@ async def bulk_add_leads_to_campaign(
         "duplicate_leads": duplicate_leads,
         "duplicates_in_batch": duplicates_in_batch,
         "errors": errors,
+        "suppressed": suppressed,
         "results": results,
         "verification_queued": verify_emails and bool(added_lead_ids),
     }
@@ -2727,6 +2735,7 @@ async def import_campaign_leads(
     added = 0
     already_enrolled = 0
     errors = 0
+    suppressed = 0
     duplicates_in_batch = 0
     duplicate_leads: list[str] = []
     results_list = []
@@ -2758,6 +2767,12 @@ async def import_campaign_leads(
             continue
         seen_emails.add(email)
 
+        from app.suppression import is_suppressed
+        if await is_suppressed(db, email):
+            results_list.append({"row": row_num, "email": email, "status": "suppressed"})
+            suppressed += 1
+            continue
+
         name = next(
             (by_header[h] for h in raw_headers if h.lower() == "name"),
             "",
@@ -2778,7 +2793,7 @@ async def import_campaign_leads(
             return None
 
         try:
-            lead_result = await db.execute(select(Lead).where(Lead.email == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
             lead = lead_result.scalar_one_or_none()
             if not lead:
                 lead = Lead(email=email, name=name, custom_data=custom_data)
@@ -2918,7 +2933,8 @@ async def import_campaign_leads(
         "duplicate_leads": duplicate_leads,
         "duplicates_in_batch": duplicates_in_batch,
         "errors": errors,
-        "total_rows": added + already_enrolled + duplicates_in_batch + errors,
+        "suppressed": suppressed,
+        "total_rows": added + already_enrolled + duplicates_in_batch + suppressed + errors,
         "verification_queued": verify_emails and bool(added_lead_ids_csv),
     }
 
