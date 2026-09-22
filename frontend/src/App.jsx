@@ -21,6 +21,7 @@ import SplashScreen from './components/SplashScreen';
 import { DarkModeProvider } from './context/DarkModeContext';
 import { SystemHealthProvider } from './context/SystemHealthContext';
 import { NotificationsProvider } from './context/NotificationsContext';
+import { LanguageProvider } from './context/LanguageContext';
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -81,14 +82,16 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <DarkModeProvider>
-      <AuthProvider>
-        <SystemHealthProvider>
-          <NotificationsProvider>
-            <AppRoutes />
-          </NotificationsProvider>
-        </SystemHealthProvider>
-      </AuthProvider>
-    </DarkModeProvider>
+    <LanguageProvider>
+      <DarkModeProvider>
+        <AuthProvider>
+          <SystemHealthProvider>
+            <NotificationsProvider>
+              <AppRoutes />
+            </NotificationsProvider>
+          </SystemHealthProvider>
+        </AuthProvider>
+      </DarkModeProvider>
+    </LanguageProvider>
   );
 }
