@@ -1547,18 +1547,30 @@ def _fetch_smtp_new_messages(
         uid_bytes = uid_data[0] if uid_data else b""
         uids = [int(u) for u in uid_bytes.split() if u.isdigit()]
         # Only process genuinely-new UIDs (RFC 3501 `last+1:*` can re-return
-        # the highest existing message) and, when over the cap, keep the
-        # NEWEST ones so a busy INBOX cannot starve fresh reply detection.
+        # the highest existing message).
+        #
+        # First sync intentionally mirrors only the newest messages so a
+        # long-lived mailbox becomes useful immediately. During normal
+        # operation we process the oldest outstanding UIDs first; advancing
+        # the checkpoint past an unprocessed UID would otherwise lose it.
+        initial_sync = int(last_uid) <= 0
         uids = sorted(u for u in uids if u > int(last_uid))
         cap = max(1, cap)
         if len(uids) > cap:
             deferred = len(uids) - cap
-            log.warning(
-                "SMTP sync: %d new UIDs beyond fetch cap %d — deferring the oldest %d "
-                "(next sync continues); watch for chronic backlog",
-                deferred, cap, deferred,
-            )
-            uids = uids[-cap:]
+            if initial_sync:
+                log.info(
+                    "SMTP initial sync: %d messages exceed cap %d — importing newest %d",
+                    len(uids), cap, cap,
+                )
+                uids = uids[-cap:]
+            else:
+                log.warning(
+                    "SMTP sync backlog: %d messages exceed cap %d — processing oldest %d; "
+                    "%d remain for the next sync",
+                    len(uids), cap, cap, deferred,
+                )
+                uids = uids[:cap]
 
         out: list[tuple[int, bytes]] = []
         for uid in uids:
@@ -1907,6 +1919,20 @@ async def _sync_inbox_smtp(db: AsyncSession, inbox, reason: str = "") -> set[tup
             hit = log_res.scalar_one_or_none()
             if hit:
                 thread_key = hit
+            else:
+                # Manual replies sent from Sekaro's unified inbox do not
+                # necessarily have an EmailLog row. Resolve those through
+                # the local SMTP message mirror so the next reply stays in
+                # the same conversation.
+                mirror_res = await db.execute(
+                    select(SmtpMessage.thread_key).where(
+                        SmtpMessage.inbox_id == inbox.id,
+                        SmtpMessage.rfc_message_id.in_(candidates),
+                    ).limit(1)
+                )
+                mirror_hit = mirror_res.scalar_one_or_none()
+                if mirror_hit:
+                    thread_key = mirror_hit
         if not thread_key:
             thread_key = parsed.get("message_id") or _norm_mid(f"smtp-{inbox.id}-{message_pk}")
             # If the inbound message itself matches a sent log (e.g. delivery
