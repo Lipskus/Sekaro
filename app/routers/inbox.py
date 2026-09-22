@@ -198,6 +198,7 @@ async def create_inbox(data: InboxCreate, db: AsyncSession = Depends(get_db)):
     inbox = Inbox(
         email=data.email,
         display_name=data.display_name,
+        reply_to=str(data.reply_to).strip().lower() if data.reply_to else None,
         max_emails_per_day=data.max_emails_per_day,
         wait_minutes_between=data.wait_minutes_between,
         max_jitter_seconds=data.max_jitter_seconds,
@@ -280,6 +281,8 @@ async def update_inbox(
     capacity_changed = False
     if data.display_name is not None:
         inbox.display_name = data.display_name
+    if data.reply_to is not None:
+        inbox.reply_to = str(data.reply_to).strip().lower() or None
     if data.max_emails_per_day is not None:
         inbox.max_emails_per_day = data.max_emails_per_day
         capacity_changed = True
