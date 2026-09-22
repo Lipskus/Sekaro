@@ -73,6 +73,25 @@ class LeadResponse(BaseModel):
         from_attributes = True
 
 
+class SuppressionCreate(BaseModel):
+    email: EmailStr
+    reason: str = "manual"
+    source: str = "manual"
+    note: str = ""
+
+
+class SuppressionResponse(BaseModel):
+    id: int
+    email: str
+    reason: str
+    source: str
+    note: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 class LeadBulkDeleteRequest(BaseModel):
     lead_ids: List[int]
 
