@@ -22,7 +22,7 @@ export default function AddCampaign() {
     // sending format
     send_first_as_text: false,
     send_all_as_text: false,
-    match_lead_provider: true,
+    match_lead_provider: false,
   });
   const [message, setMessage] = useState(null);
   const [tzSearch, setTzSearch] = useState('');
@@ -46,7 +46,7 @@ export default function AddCampaign() {
 
   useEffect(() => {
     api.get('/inboxes').then(setInboxes).catch(() => {
-      setMessage({ type: 'error', text: 'Could not load inboxes. Add inboxes first.' });
+      setMessage({ type: 'error', text: 'Nie udało się wczytać skrzynek. Najpierw dodaj skrzynkę SMTP/IMAP.' });
     });
   }, []);
 
@@ -78,7 +78,7 @@ export default function AddCampaign() {
     e.preventDefault();
     try {
       const data = await api.post('/campaigns', form);
-      setMessage({ type: 'success', text: `Campaign created. ` });
+      setMessage({ type: 'success', text: 'Kampania została utworzona.' });
       navigate(`/campaigns/${data.id}#analytics`);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
@@ -87,7 +87,7 @@ export default function AddCampaign() {
 
   return (
     <div className="min-h-0 max-w-xl flex-1 overflow-y-auto p-8">
-      <h1 className="text-2xl font-bold mb-4">Create campaign</h1>
+      <h1 className="text-2xl font-bold mb-4">Nowa kampania</h1>
       {message && (
         <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>
           {message.text}
@@ -96,7 +96,7 @@ export default function AddCampaign() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <Input
-            label="Campaign name *"
+            label="Nazwa kampanii *"
             name="name"
             value={form.name}
             onChange={handleChange}
@@ -105,7 +105,7 @@ export default function AddCampaign() {
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700">
-            Sending inboxes (optional)
+            Skrzynki nadawcze
           </label>
           <div className="mt-1 space-y-1 max-h-52 overflow-y-auto p-2 border border-gray-300 rounded">
             {inboxes.map(i => (
@@ -125,7 +125,7 @@ export default function AddCampaign() {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700">Sending days</label>
+          <label className="block text-sm font-medium text-gray-700">Dni wysyłki</label>
           <div className="mt-1 flex flex-wrap gap-2">
             {[0,1,2,3,4,5,6].map(d => (
               <label key={d} className="flex items-center gap-2">
@@ -165,13 +165,13 @@ export default function AddCampaign() {
             />
           </div>
         </div>
-        {/* Timezone */}
+        {/* Strefa czasowa */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Strefa czasowa</label>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search timezone…"
+              placeholder="Szukaj strefy czasowej…"
               value={tzSearch || form.timezone}
               onFocus={e => { setTzSearch(''); e.target.select(); }}
               onChange={e => { setTzSearch(e.target.value); }}
@@ -195,7 +195,7 @@ export default function AddCampaign() {
               </ul>
             )}
           </div>
-          <p className="text-xs text-gray-400 mt-1">Sending hours above are interpreted in this timezone</p>
+          <p className="text-xs text-gray-400 mt-1">Godziny wysyłki above are interpreted in this timezone</p>
         </div>
         <div>
           <label className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export default function AddCampaign() {
               checked={form.stop_on_reply}
               onChange={handleChange}
             />
-            <span className="text-sm">Stop sending sequence when lead replies</span>
+            <span className="text-sm">Zatrzymaj sekwencję, gdy kontakt odpowie</span>
           </label>
         </div>
 
@@ -215,11 +215,11 @@ export default function AddCampaign() {
           <div className="space-y-1 pl-1">
             <label className="flex items-center gap-2">
               <input type="checkbox" name="track_opens" checked={form.track_opens} onChange={handleChange} />
-              <span className="text-sm">Track email opens</span>
+              <span className="text-sm">Śledź otwarcia wiadomości</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" name="track_clicks" checked={form.track_clicks} onChange={handleChange} />
-              <span className="text-sm">Track link clicks</span>
+              <span className="text-sm">Śledź kliknięcia linków</span>
             </label>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function AddCampaign() {
           <div className="space-y-1 pl-1">
             <label className="flex items-center gap-2">
               <input type="checkbox" name="add_unsubscribe_header" checked={form.add_unsubscribe_header} onChange={handleChange} />
-              <span className="text-sm">Add List-Unsubscribe header (recommended)</span>
+              <span className="text-sm">Dodaj nagłówek List-Unsubscribe (recommended)</span>
             </label>
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function AddCampaign() {
                 disabled={form.send_all_as_text}
                 onChange={handleChange}
               />
-              <span className="text-sm">Send first email as plain text (improves deliverability)</span>
+              <span className="text-sm">Pierwszą wiadomość wyślij jako zwykły tekst (improves deliverability)</span>
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -260,7 +260,7 @@ export default function AddCampaign() {
                   send_first_as_text: e.target.checked ? false : f.send_first_as_text,
                 }))}
               />
-              <span className="text-sm">Send all emails as plain text</span>
+              <span className="text-sm">Wszystkie wiadomości wysyłaj jako zwykły tekst</span>
             </label>
           </div>
         </div>
@@ -277,7 +277,7 @@ export default function AddCampaign() {
         </div>
 
         <div className="flex gap-2">
-          <Button type="submit" variant="default">Create campaign</Button>
+          <Button type="submit" variant="default">Utwórz kampanię</Button>
         </div>
       </form>
     </div>
