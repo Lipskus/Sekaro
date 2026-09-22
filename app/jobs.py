@@ -744,6 +744,7 @@ async def run_send_job():
                         body=send_body,
                         from_email=from_addr,
                         from_name=from_name,
+                        reply_to_address=(getattr(inbox, "reply_to", None) or None),
                         reply_to_msg_id=reply_to_msg_id,
                         references=references_chain,
                         is_html=is_html,
