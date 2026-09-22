@@ -327,10 +327,13 @@ async def register(data: RegisterRequest, db: AsyncSession = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 async def login(data: LoginRequest, response: Response, db: AsyncSession = Depends(get_db)):
     """Authenticate and return JWT tokens."""
-    result = await db.execute(select(User).where(User.username == data.username.lower()))
+    identifier = data.username.strip().lower()
+    result = await db.execute(
+        select(User).where((User.username == identifier) | (User.email == identifier))
+    )
     user = result.scalar_one_or_none()
 
-    if not user or not verify_password(data.password, user.password_hash):
+    if not user or not user.password_hash or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     if not user.is_active:
