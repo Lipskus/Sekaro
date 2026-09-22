@@ -6,6 +6,7 @@ python-multipart>=0.0.9
 apscheduler>=3.10
 pydantic>=2.5
 pydantic-settings>=2.1
+email-validator>=2.1
 python-dotenv>=1.0
 httpx>=0.24
 # Gmail API client libraries for OAuth2 and service access
