@@ -6,9 +6,9 @@ import json
 import logging
 from datetime import datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends, File, HTTPException, Query, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
-from sqlalchemy import delete, exists, or_, select
+from sqlalchemy import delete, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -23,6 +23,7 @@ from app.models import (
     Lead,
     LeadReply,
     Office365Message,
+    SuppressionEntry,
 )
 from app.schemas import (
     LeadBulkDeleteRequest,
@@ -35,6 +36,8 @@ from app.schemas import (
     LeadUpdate,
     LeadCampaignInfo,
     MarkReplied,
+    SuppressionCreate,
+    SuppressionResponse,
 )
 
 log = logging.getLogger("quickly.routes")
@@ -829,6 +832,283 @@ async def mark_lead_replied(
         return {"ok": True}
     db.add(LeadReply(lead_id=lead_id, campaign_id=campaign_id))
     return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Global contact import + suppression (Sekaro 0.3)
+# ---------------------------------------------------------------------------
+
+def _batch(values: list[str], size: int = 1000):
+    for i in range(0, len(values), size):
+        yield values[i:i + size]
+
+
+async def _existing_contact_map(
+    db: AsyncSession,
+    emails: list[str],
+) -> dict[str, Lead]:
+    result: dict[str, Lead] = {}
+    for chunk in _batch(emails):
+        rows = await db.execute(
+            select(Lead).where(func.lower(Lead.email).in_(chunk)).order_by(Lead.id.asc())
+        )
+        for lead in rows.scalars().all():
+            key = (lead.email or "").strip().lower()
+            result.setdefault(key, lead)
+    return result
+
+
+async def _suppressed_email_set(
+    db: AsyncSession,
+    emails: list[str],
+) -> set[str]:
+    found: set[str] = set()
+    for chunk in _batch(emails):
+        rows = await db.execute(
+            select(SuppressionEntry.email).where(SuppressionEntry.email.in_(chunk))
+        )
+        found.update((row[0] or "").strip().lower() for row in rows.all())
+    return found
+
+
+def _normalise_import_email(raw: str) -> str | None:
+    from email_validator import EmailNotValidError, validate_email
+
+    value = (raw or "").strip().lower()
+    if not value:
+        return None
+    try:
+        checked = validate_email(value, check_deliverability=False)
+        return checked.normalized.strip().lower()
+    except EmailNotValidError:
+        return None
+
+
+@router.post("/import/preview")
+async def preview_contacts_import(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parse CSV/XLSX and return mapping suggestions + duplicate/suppression stats."""
+    from app.contact_import import PREVIEW_ROWS, apply_mapping, parse_contact_file, suggest_mapping
+
+    contents = await file.read()
+    try:
+        table = parse_contact_file(file.filename or "contacts.csv", contents)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+    mapping = suggest_mapping(table.headers)
+    email_source = next((s for s, target in mapping.items() if target == "email"), None)
+
+    valid: list[str] = []
+    invalid_rows: list[int] = []
+    duplicates_in_file = 0
+    seen: set[str] = set()
+
+    if email_source:
+        for row_num, row in enumerate(table.rows, start=2):
+            email, _, _ = apply_mapping(row, mapping)
+            norm = _normalise_import_email(email)
+            if not norm:
+                invalid_rows.append(row_num)
+                continue
+            if norm in seen:
+                duplicates_in_file += 1
+                continue
+            seen.add(norm)
+            valid.append(norm)
+
+    existing = await _existing_contact_map(db, valid) if valid else {}
+    suppressed = await _suppressed_email_set(db, valid) if valid else set()
+
+    return {
+        "preview": True,
+        "filename": table.filename,
+        "sheet_name": table.sheet_name,
+        "headers": table.headers,
+        "suggested_mapping": mapping,
+        "sample_rows": table.rows[:PREVIEW_ROWS],
+        "total_rows": len(table.rows),
+        "valid_unique_emails": len(valid),
+        "invalid_rows": invalid_rows[:50],
+        "invalid_count": len(invalid_rows),
+        "duplicates_in_file": duplicates_in_file,
+        "existing_contacts": len(existing),
+        "suppressed_contacts": len(suppressed),
+        "mapping_required": email_source is None,
+    }
+
+
+@router.post("/import")
+async def import_contacts_file(
+    file: UploadFile = File(...),
+    mapping_json: str = Form(...),
+    duplicate_mode: str = Form("merge"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Import global contacts from CSV/XLSX using explicit column mapping.
+
+    duplicate_mode:
+      - merge: update non-empty name/custom fields on an existing contact
+      - skip: keep an existing contact unchanged
+    Suppressed addresses are always skipped.
+    """
+    from app.contact_import import apply_mapping, parse_contact_file, validate_mapping
+
+    mode = (duplicate_mode or "merge").strip().lower()
+    if mode not in {"merge", "skip"}:
+        raise HTTPException(400, "duplicate_mode must be 'merge' or 'skip'")
+
+    try:
+        mapping = json.loads(mapping_json)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(400, "mapping_json must be valid JSON") from exc
+    if not isinstance(mapping, dict):
+        raise HTTPException(400, "mapping_json must be an object")
+
+    contents = await file.read()
+    try:
+        table = parse_contact_file(file.filename or "contacts.csv", contents)
+        validate_mapping(table.headers, mapping)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+    parsed_rows: list[tuple[int, str, str, dict[str, str]]] = []
+    invalid_rows: list[dict] = []
+    duplicate_rows: list[dict] = []
+    seen: set[str] = set()
+
+    for row_num, row in enumerate(table.rows, start=2):
+        raw_email, name, custom = apply_mapping(row, mapping)
+        email = _normalise_import_email(raw_email)
+        if not email:
+            invalid_rows.append({"row": row_num, "email": raw_email})
+            continue
+        if email in seen:
+            duplicate_rows.append({"row": row_num, "email": email})
+            continue
+        seen.add(email)
+        parsed_rows.append((row_num, email, name.strip(), custom))
+
+    emails = [row[1] for row in parsed_rows]
+    existing = await _existing_contact_map(db, emails) if emails else {}
+    suppressed = await _suppressed_email_set(db, emails) if emails else set()
+
+    added = 0
+    updated = 0
+    skipped_existing = 0
+    skipped_suppressed = 0
+    custom_fields: set[str] = set()
+
+    for _row_num, email, name, custom in parsed_rows:
+        if email in suppressed:
+            skipped_suppressed += 1
+            continue
+
+        lead = existing.get(email)
+        if lead is not None:
+            if mode == "skip":
+                skipped_existing += 1
+                continue
+
+            changed = False
+            if name and name != (lead.name or ""):
+                lead.name = name
+                changed = True
+            if custom:
+                merged = {**(lead.custom_data or {})}
+                for key, value in custom.items():
+                    if value:
+                        merged[key] = value
+                        custom_fields.add(key)
+                if merged != (lead.custom_data or {}):
+                    lead.custom_data = merged
+                    changed = True
+            if changed:
+                updated += 1
+            else:
+                skipped_existing += 1
+            continue
+
+        custom_fields.update(custom.keys())
+        lead = Lead(
+            email=email,
+            name=name,
+            custom_data=custom,
+            status="active",
+        )
+        db.add(lead)
+        await db.flush()
+        existing[email] = lead
+        added += 1
+
+    await db.commit()
+
+    return {
+        "ok": True,
+        "filename": table.filename,
+        "sheet_name": table.sheet_name,
+        "total_rows": len(table.rows),
+        "added": added,
+        "updated": updated,
+        "skipped_existing": skipped_existing,
+        "skipped_suppressed": skipped_suppressed,
+        "invalid_count": len(invalid_rows),
+        "duplicates_in_file": len(duplicate_rows),
+        "invalid_rows": invalid_rows[:50],
+        "duplicate_rows": duplicate_rows[:50],
+        "custom_fields": sorted(custom_fields),
+    }
+
+
+@router.get("/suppression", response_model=list[SuppressionResponse])
+async def list_suppression_entries(
+    q: str | None = Query(None),
+    limit: int = Query(500, ge=1, le=5000),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(SuppressionEntry).order_by(SuppressionEntry.created_at.desc()).limit(limit)
+    if q and q.strip():
+        stmt = stmt.where(SuppressionEntry.email.ilike(f"%{q.strip()}%"))
+    rows = await db.execute(stmt)
+    return rows.scalars().all()
+
+
+@router.post("/suppression", response_model=SuppressionResponse)
+async def create_suppression_entry(
+    data: SuppressionCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.suppression import suppress_email
+
+    try:
+        entry = await suppress_email(
+            db,
+            str(data.email),
+            reason=data.reason,
+            source=data.source,
+            note=data.note,
+            stop_active_sends=True,
+        )
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    await db.commit()
+    await db.refresh(entry)
+    return entry
+
+
+@router.delete("/suppression/{entry_id}")
+async def delete_suppression_entry(
+    entry_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.suppression import remove_suppression
+
+    if not await remove_suppression(db, entry_id):
+        raise HTTPException(404, "Suppression entry not found")
+    await db.commit()
+    return {"ok": True, "id": entry_id}
 
 
 @router.get("/{lead_id}", response_model=LeadResponse)
