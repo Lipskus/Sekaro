@@ -5,7 +5,6 @@ import { Card } from '../components/ui/Card';
 import { useAppMode } from '../context/AppModeContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
-import { useSystemHealth } from '../context/SystemHealthContext';
 
 /** Backend stores jitter in seconds (cap 600). Forms show minutes and convert on change / save. */
 const JITTER_MAX_MINUTES = 10;
@@ -33,7 +32,7 @@ function CollapsibleInfo({ children }) {
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
-        {open ? 'Hide info' : 'Show info'}
+        {open ? 'Ukryj informacje' : 'Pokaż informacje'}
       </button>
       {open && (
         <div className="mt-2 pl-1 space-y-2 text-xs text-gray-600 border-l-2 border-gray-200 ml-0.5 py-0.5">
@@ -69,8 +68,8 @@ function formatJitterMinutesLabel(seconds) {
 }
 
 /**
- * Śledzenie: three choices — app URL, Beacon (setup URL + Connect), or DNS setup (CNAME + Verify).
- * Long-form help is behind “Show info” for each option.
+ * Śledzenie: three choices — app URL, Beacon (setup URL + Połącz), or Konfiguracja DNS (CNAME + Sprawdź).
+ * Long-form help is behind “Pokaż informacje” for each option.
  */
 function InboxŚledzenieOptions({
   variant,
@@ -82,25 +81,25 @@ function InboxŚledzenieOptions({
   onUiModeChange,
   trackingDomain,
   onŚledzenieDomainChange,
-  onDnsVerifyChange,
-  beaconConnected,
+  onDnsSprawdźChange,
+  beaconPołączed,
   beaconBaseUrl,
   beaconSetupUrl,
   onBeaconSetupUrlChange,
-  onConnectBeacon,
-  onDisconnectBeacon,
-  beaconConnecting,
+  onPołączBeacon,
+  onRozłączBeacon,
+  beaconPołączing,
   siblingInboxesForReuse = [],
   currentInboxId = null,
-  onBeaconConnectFromSibling,
+  onBeaconPołączFromSibling,
   onReuseDnsDomain,
-  dnsAutoVerifyTrigger = 0,
+  dnsAutoSprawdźTrigger = 0,
 }) {
   const hostHint = cnameTarget || (typeof window !== 'undefined' ? window.location.hostname : '');
   const dnsAktywna = uiMode === 'dns';
   const beaconAktywna = uiMode === 'beacon';
-  const [verifyState, setVerifyState] = useState(null);
-  const [verifyMsg, setVerifyMsg] = useState('');
+  const [verifyState, setSprawdźState] = useState(null);
+  const [verifyMsg, setSprawdźMsg] = useState('');
   const abortRef = useRef(false);
   const [reuseOpen, setReuseOpen] = useState(false);
   const [reuseSearch, setReuseSearch] = useState('');
@@ -113,7 +112,7 @@ function InboxŚledzenieOptions({
       .flatMap((i) => {
         const label = (i.display_name || '').trim() || i.email || `Inbox #${i.id}`;
         const rows = [];
-        if (!beaconConnected && i.beacon_connected && (i.beacon_base_url || '').trim()) {
+        if (!beaconPołączed && i.beacon_connected && (i.beacon_base_url || '').trim()) {
           const primary = (i.beacon_base_url || '').trim();
           const hay = `${primary} ${label} ${i.email || ''}`.toLowerCase();
           rows.push({
@@ -126,7 +125,7 @@ function InboxŚledzenieOptions({
           });
         }
         if (
-          !beaconConnected
+          !beaconPołączed
           && cnameUiEnabled
           && (i.tracking_domain || '').trim()
           && !i.beacon_connected
@@ -144,7 +143,7 @@ function InboxŚledzenieOptions({
         }
         return rows;
       });
-  }, [siblingInboxesForReuse, currentInboxId, beaconConnected, cnameUiEnabled]);
+  }, [siblingInboxesForReuse, currentInboxId, beaconPołączed, cnameUiEnabled]);
 
   const reuseRows = useMemo(() => {
     const q = (reuseSearch || '').trim().toLowerCase();
@@ -155,9 +154,9 @@ function InboxŚledzenieOptions({
 
   const handleDnsValue = (v) => {
     abortRef.current = true;
-    setVerifyState(null);
-    setVerifyMsg('');
-    onDnsVerifyChange?.(false);
+    setSprawdźState(null);
+    setSprawdźMsg('');
+    onDnsSprawdźChange?.(false);
     onŚledzenieDomainChange(v);
   };
 
@@ -165,8 +164,8 @@ function InboxŚledzenieOptions({
     const domain = (trackingDomain || '').trim();
     if (!domain) return;
     abortRef.current = false;
-    setVerifyState('checking');
-    setVerifyMsg('Registering domain…');
+    setSprawdźState('checking');
+    setSprawdźMsg('Registering domain…');
     try {
       await api.post('/settings/register-tracking-domain-pending', { domain });
     } catch (_) { /* non-fatal */ }
@@ -176,16 +175,16 @@ function InboxŚledzenieOptions({
     let lastError = 'Timed out waiting for SSL certificate to be provisioned';
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       if (abortRef.current) return;
-      setVerifyMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
+      setSprawdźMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
       try {
         const data = await api.get(
           `/settings/verify-tracking-domain?domain=${encodeURIComponent(domain)}`
         );
         if (abortRef.current) return;
         if (data.ok) {
-          setVerifyState('ok');
-          setVerifyMsg('');
-          onDnsVerifyChange?.(true);
+          setSprawdźState('ok');
+          setSprawdźMsg('');
+          onDnsSprawdźChange?.(true);
           return;
         }
         lastError = data.error || 'Unknown error';
@@ -198,30 +197,30 @@ function InboxŚledzenieOptions({
       }
     }
     if (!abortRef.current) {
-      setVerifyState({ error: lastError });
-      setVerifyMsg('');
-      onDnsVerifyChange?.(false);
+      setSprawdźState({ error: lastError });
+      setSprawdźMsg('');
+      onDnsSprawdźChange?.(false);
     }
   };
 
   useEffect(() => {
     if (uiMode !== 'dns') {
       abortRef.current = true;
-      setVerifyState(null);
-      setVerifyMsg('');
+      setSprawdźState(null);
+      setSprawdźMsg('');
     }
   }, [uiMode]);
 
   useEffect(() => {
-    if (variant !== 'edit' || !dnsAutoVerifyTrigger) return;
+    if (variant !== 'edit' || !dnsAutoSprawdźTrigger) return;
     if (uiMode !== 'dns' || !(trackingDomain || '').trim()) return;
     verifyDns();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional: run once per trigger after DNS mode + domain applied
-  }, [dnsAutoVerifyTrigger]);
+  }, [dnsAutoSprawdźTrigger]);
 
   const dnsInputDisabled = !dnsAktywna;
-  const beaconInputDisabled = variant === 'add' || !beaconAktywna || beaconConnected;
-  const canVerifyDns = dnsAktywna && (trackingDomain || '').trim().length > 0;
+  const beaconInputDisabled = variant === 'add' || !beaconAktywna || beaconPołączed;
+  const canSprawdźDns = dnsAktywna && (trackingDomain || '').trim().length > 0;
 
   return (
     <div className={`${wrapClassName} min-w-0 max-w-full`}>
@@ -251,7 +250,7 @@ function InboxŚledzenieOptions({
             <div className="px-3 pb-3 pt-0 border-t border-gray-100 space-y-2 min-w-0 max-w-full">
               {!hasReuseOptions ? (
                 <p className="text-xs text-gray-500 pt-2">
-                  No other inboxes have Beacon or DNS tracking yet. Connect one inbox first, or paste a setup URL below.
+                  No other inboxes have Beacon or DNS tracking yet. Połącz one inbox first, or paste a setup URL below.
                 </p>
               ) : (
                 <>
@@ -283,16 +282,16 @@ function InboxŚledzenieOptions({
                         <button
                           type="button"
                           disabled={
-                            beaconConnecting
+                            beaconPołączing
                             || reuseBusyKey === r.key
-                            || (r.kind === 'beacon' && !onBeaconConnectFromSibling)
+                            || (r.kind === 'beacon' && !onBeaconPołączFromSibling)
                             || (r.kind === 'dns' && !onReuseDnsDomain)
                           }
                           onClick={async () => {
-                            if (r.kind === 'beacon' && onBeaconConnectFromSibling) {
+                            if (r.kind === 'beacon' && onBeaconPołączFromSibling) {
                               setReuseBusyKey(r.key);
                               try {
-                                await onBeaconConnectFromSibling(r.inboxId);
+                                await onBeaconPołączFromSibling(r.inboxId);
                               } finally {
                                 setReuseBusyKey(null);
                               }
@@ -303,9 +302,9 @@ function InboxŚledzenieOptions({
                           className="shrink-0 self-start sm:self-center px-2 py-1 text-[11px] rounded border border-teal-600 bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-50 disabled:hover:bg-teal-600"
                         >
                           {r.kind === 'beacon'
-                            ? beaconConnecting && reuseBusyKey === r.key
-                              ? 'Connecting…'
-                              : 'Connect'
+                            ? beaconPołączing && reuseBusyKey === r.key
+                              ? 'Połączing…'
+                              : 'Połącz'
                             : 'Use & verify'}
                         </button>
                       </li>
@@ -318,7 +317,7 @@ function InboxŚledzenieOptions({
         </div>
       )}
 
-      {/* Use app domain */}
+      {/* Użyj domeny aplikacji */}
       <div className="space-y-2 min-w-0 max-w-full">
         <label className="flex items-start gap-2 cursor-pointer text-sm">
           <input
@@ -328,7 +327,7 @@ function InboxŚledzenieOptions({
             checked={uiMode === 'app'}
             onChange={() => onUiModeChange('app')}
           />
-          <span className="font-medium text-gray-800">Use app domain</span>
+          <span className="font-medium text-gray-800">Użyj domeny aplikacji</span>
         </label>
         <div className="ml-6 min-w-0 max-w-full border-l-2 border-gray-200 pl-3 py-0.5">
           <CollapsibleInfo>
@@ -350,17 +349,17 @@ function InboxŚledzenieOptions({
             checked={uiMode === 'beacon'}
             onChange={() => onUiModeChange('beacon')}
           />
-          <span className="font-medium text-gray-800">Beacon (Recommended)</span>
+          <span className="font-medium text-gray-800">Beacon (zalecane)</span>
         </label>
         <div className="ml-6 min-w-0 max-w-full space-y-2 border-l-2 border-gray-200 pl-3 py-0.5 box-border">
           <div className="w-full min-w-0 max-w-full space-y-2">
-            {beaconConnected ? (
+            {beaconPołączed ? (
               <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between w-full min-w-0">
                 <p className="text-xs text-gray-700 min-w-0 break-words [overflow-wrap:anywhere]">
-                  Connected: <code className="text-teal-800 break-all">{beaconBaseUrl || ''}</code>
+                  Połączed: <code className="text-teal-800 break-all">{beaconBaseUrl || ''}</code>
                 </p>
-                <Button type="button" size="sm" variant="outline" className="shrink-0 self-start" onClick={onDisconnectBeacon}>
-                  Disconnect
+                <Button type="button" size="sm" variant="outline" className="shrink-0 self-start" onClick={onRozłączBeacon}>
+                  Rozłącz
                 </Button>
               </div>
             ) : (
@@ -375,18 +374,18 @@ function InboxŚledzenieOptions({
                 />
                 <button
                   type="button"
-                  disabled={beaconInputDisabled || !beaconSetupUrl.trim() || beaconConnecting}
-                  onClick={onConnectBeacon}
+                  disabled={beaconInputDisabled || !beaconSetupUrl.trim() || beaconPołączing}
+                  onClick={onPołączBeacon}
                   className="self-start shrink-0 px-2 py-1 text-xs rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
                 >
-                  {beaconConnecting ? 'Connecting…' : 'Connect'}
+                  {beaconPołączing ? 'Połączing…' : 'Połącz'}
                 </button>
               </div>
             )}
           </div>
           {variant === 'add' && (
             <p className="text-xs text-amber-800 bg-amber-50 border border-amber-100 rounded px-2 py-1">
-              Connect is available after the inbox exists — finish adding the inbox, then open <strong>Edit</strong> and choose Beacon (Recommended) here.
+              Połącz is available after the inbox exists — finish adding the inbox, then open <strong>Edit</strong> and choose Beacon (zalecane) here.
             </p>
           )}
           <CollapsibleInfo>
@@ -394,7 +393,7 @@ function InboxŚledzenieOptions({
             <p>
               Run the Beacon service on the HTTPS hostname you want for tracking links. While Sekaro is not connected yet, open Beacon&apos;s root URL in a browser and copy the <strong>setup URL</strong> (it includes{' '}
               <code className="bg-gray-100 px-0.5 rounded">?token=</code>
-              ). Paste it above and click Connect. On Beacon, set{' '}
+              ). Paste it above and click Połącz. On Beacon, set{' '}
               <code className="bg-gray-100 px-0.5 rounded">BEACON_PUBLIC_BASE_URL</code>
               {' '}if printed links should use a specific public origin.
             </p>
@@ -412,7 +411,7 @@ function InboxŚledzenieOptions({
         </div>
       </div>
 
-      {/* DNS setup */}
+      {/* Konfiguracja DNS */}
       {cnameUiEnabled && (
         <div className="space-y-2 min-w-0 max-w-full">
           <label className="flex items-start gap-2 cursor-pointer text-sm min-w-0">
@@ -423,7 +422,7 @@ function InboxŚledzenieOptions({
               checked={dnsAktywna}
               onChange={() => onUiModeChange('dns')}
             />
-            <span className="font-medium text-gray-800">DNS setup</span>
+            <span className="font-medium text-gray-800">Konfiguracja DNS</span>
           </label>
           <div className="ml-6 min-w-0 max-w-full space-y-2 border-l-2 border-gray-200 pl-3 py-0.5 box-border">
             <div className="flex flex-col gap-2 w-full min-w-0 max-w-full">
@@ -440,11 +439,11 @@ function InboxŚledzenieOptions({
               />
               <button
                 type="button"
-                disabled={!canVerifyDns || verifyState === 'checking'}
+                disabled={!canSprawdźDns || verifyState === 'checking'}
                 onClick={verifyDns}
                 className="self-start shrink-0 px-2 py-1 text-xs rounded border border-gray-300 bg-white hover:bg-gray-50 disabled:opacity-50"
               >
-                {verifyState === 'checking' ? 'Verifying…' : 'Verify'}
+                {verifyState === 'checking' ? 'Sprawdźing…' : 'Sprawdź'}
               </button>
             </div>
             {verifyState === 'checking' && verifyMsg && (
@@ -460,20 +459,20 @@ function InboxŚledzenieOptions({
               <p className="text-xs text-red-600">✗ {verifyState.error}</p>
             )}
             <CollapsibleInfo>
-              <p className="font-medium text-gray-700">DNS setup (CNAME)</p>
+              <p className="font-medium text-gray-700">Konfiguracja DNS (CNAME)</p>
               <p>Add a <code>CNAME</code> at your DNS host pointing your tracking hostname at this Sekaro server:</p>
               <pre className="bg-white border rounded p-2 overflow-x-auto whitespace-pre-wrap break-all text-gray-700 text-[11px]">
                 {`${(trackingDomain || '').trim() || 'mail.yourdomain.com'}  CNAME  ${cnameTarget || 'your-app-host'}.`}
               </pre>
               <p>
-                Caddy requests a certificate on the first HTTPS hit. Select <strong>DNS setup</strong>, enter the hostname, run <strong>Verify</strong>, then save the inbox.
+                Caddy requests a certificate on the first HTTPS hit. Select <strong>Konfiguracja DNS</strong>, enter the hostname, run <strong>Sprawdź</strong>, then save the inbox.
               </p>
             </CollapsibleInfo>
           </div>
         </div>
       )}
 
-      {!cnameUiEnabled && (trackingDomain || '').trim() && !beaconConnected && (
+      {!cnameUiEnabled && (trackingDomain || '').trim() && !beaconPołączed && (
         <div className="text-xs text-amber-800 space-y-2 bg-amber-50 border border-amber-200 rounded p-2">
           <p>
             Legacy CNAME tracking domain saved:{' '}
@@ -482,9 +481,9 @@ function InboxŚledzenieOptions({
           <button
             type="button"
             className="text-xs px-2 py-1 rounded border border-amber-300 bg-white hover:bg-amber-100"
-            onClick={() => { onŚledzenieDomainChange(''); onDnsVerifyChange?.(false); }}
+            onClick={() => { onŚledzenieDomainChange(''); onDnsSprawdźChange?.(false); }}
           >
-            Clear saved domain
+            Usuń zapisaną domenę
           </button>
         </div>
       )}
@@ -541,8 +540,8 @@ export default function Inboxes() {
   const editOriginalDomain = useRef('');
   const [editDomainVerified, setEditDomainVerified] = useState(false);
   const [beaconSetupUrl, setBeaconSetupUrl] = useState('');
-  const [beaconConnecting, setBeaconConnecting] = useState(false);
-  const [dnsAutoVerifyTrigger, setDnsAutoVerifyTrigger] = useState(0);
+  const [beaconPołączing, setBeaconPołączing] = useState(false);
+  const [dnsAutoSprawdźTrigger, setDnsAutoSprawdźTrigger] = useState(0);
   const [editŚledzenieMode, setEditŚledzenieMode] = useState('app');
   const [addŚledzenieMode, setAddŚledzenieMode] = useState('app');
   const [addDomainVerified, setAddDomainVerified] = useState(false);
@@ -573,26 +572,13 @@ export default function Inboxes() {
     };
   }, [editing?.id, mode]);
 
-  // ---- Wstrzymaj modal state ----
+  // ---- Pause modal state ----
   const [showPauseModal, setShowPauseModal] = useState(false);
   const [pausingInbox, setPausingInbox] = useState(null);
-  const [pauseAction, setpauseAction] = useState('pause_leads');
+  const [pauseAction, setPauseAction] = useState('pause_leads');
 
   // ---- Detail panel state ----
   const [selectedInbox, setSelectedInbox] = useState(null);
-
-  // ---- Token expiry visual indicator (from system health data) ----
-  const { rawData } = useSystemHealth();
-  const expiredInboxIds = useMemo(() => {
-    if (!rawData) return new Set();
-    const ids = new Set();
-    for (const acc of [...(rawData.google_oauth?.accounts || []), ...(rawData.microsoft_oauth?.accounts || [])]) {
-      if (acc.token_status === 'expired' && acc.inbox_id != null) {
-        ids.add(acc.inbox_id);
-      }
-    }
-    return ids;
-  }, [rawData]);
 
   // Auto-open inbox detail panel when ?inbox=<id> is in the URL
   const autoOpenHandledRef = useRef(false);
@@ -758,7 +744,7 @@ export default function Inboxes() {
     editOriginalDomain.current = inbox.tracking_domain || '';
     setEditDomainVerified(false);
     setBeaconSetupUrl('');
-    setDnsAutoVerifyTrigger(0);
+    setDnsAutoSprawdźTrigger(0);
     setEditŚledzenieMode(
       inbox.beacon_connected
         ? 'beacon'
@@ -791,7 +777,7 @@ export default function Inboxes() {
   const applyEditŚledzenieMode = (mode) => {
     if (!editing) return;
     if (editing.beacon_connected && mode !== 'beacon') {
-      setEditMsg({ type: 'error', text: 'Disconnect Beacon before choosing another tracking option.' });
+      setEditMsg({ type: 'error', text: 'Rozłącz Beacon before choosing another tracking option.' });
       return;
     }
     setEditMsg(null);
@@ -877,7 +863,7 @@ export default function Inboxes() {
         setSmtpTestMsg({ type: 'success', text: 'Test połączenia zakończony powodzeniem (SMTP' + (res.imap?.detail?.includes('skipped') ? '' : ' + IMAP') + ')' });
       } else {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
-        setSmtpTestMsg({ type: 'error', text: `Connection test failed: ${details || 'unknown error'}` });
+        setSmtpTestMsg({ type: 'error', text: `Połączion test failed: ${details || 'unknown error'}` });
       }
       await refreshEditingInbox(editing.id);
     } catch (err) {
@@ -905,7 +891,7 @@ export default function Inboxes() {
       setEditMsg({ type: 'error', text: 'Paste the full Beacon setup URL (includes ?token=…).' });
       return;
     }
-    setBeaconConnecting(true);
+    setBeaconPołączing(true);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect`, { setup_url: url });
       setEditMsg({ type: 'success', text: 'Beacon connected. Custom Caddy tracking domain was cleared.' });
@@ -915,13 +901,13 @@ export default function Inboxes() {
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
     } finally {
-      setBeaconConnecting(false);
+      setBeaconPołączing(false);
     }
   };
 
   const connectBeaconFromSibling = async (sourceInboxId) => {
     if (!editing) return;
-    setBeaconConnecting(true);
+    setBeaconPołączing(true);
     setEditMsg(null);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect-from`, { source_inbox_id: sourceInboxId });
@@ -932,7 +918,7 @@ export default function Inboxes() {
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
     } finally {
-      setBeaconConnecting(false);
+      setBeaconPołączing(false);
     }
   };
 
@@ -945,15 +931,15 @@ export default function Inboxes() {
     setEditing((prev) => ({ ...prev, tracking_domain: d }));
     setEditDomainVerified(false);
     setEditDirty(true);
-    setDnsAutoVerifyTrigger((n) => n + 1);
+    setDnsAutoSprawdźTrigger((n) => n + 1);
   };
 
   const disconnectBeacon = async () => {
     if (!editing) return;
     const ok = await confirm(
       customŚledzenieCnameUiEnabled
-        ? 'Disconnect Beacon? Śledzenie links will use the app domain or a custom CNAME domain again.'
-        : 'Disconnect Beacon? Śledzenie links will use the app domain until you connect Beacon again or clear any legacy domain.',
+        ? 'Rozłącz Beacon? Śledzenie links will use the app domain or a custom CNAME domain again.'
+        : 'Rozłącz Beacon? Śledzenie links will use the app domain until you connect Beacon again or clear any legacy domain.',
     );
     if (!ok) return;
     try {
@@ -1021,15 +1007,15 @@ export default function Inboxes() {
       // No pending leads to handle — pause silently without a dialog
       try {
         await api.post(`/inboxes/${inbox.id}/pause`, { action: 'pause_leads' });
-        notify({ type: 'success', message: `Inbox "${inbox.email}" paused` });
+        notify({ type: 'success', message: `Skrzynka "${inbox.email}" została wstrzymana` });
         load();
       } catch (e) {
-        notify({ type: 'error', message: 'Error pausing inbox: ' + e.message });
+        notify({ type: 'error', message: 'Błąd podczas wstrzymywania skrzynki: ' + e.message });
       }
       return;
     }
     setPausingInbox(inbox);
-    setpauseAction('reassign');
+    setPauseAction('reassign');
     setShowPauseModal(true);
   };
 
@@ -1039,21 +1025,21 @@ export default function Inboxes() {
       await api.post(`/inboxes/${pausingInbox.id}/pause`, {
         action: pauseAction,
       });
-      notify({ type: 'success', message: `Inbox "${pausingInbox.email}" paused` });
+      notify({ type: 'success', message: `Skrzynka "${pausingInbox.email}" została wstrzymana` });
       setShowPauseModal(false);
       load();
     } catch (e) {
-      notify({ type: 'error', message: 'Error pausing inbox: ' + e.message });
+      notify({ type: 'error', message: 'Błąd podczas wstrzymywania skrzynki: ' + e.message });
     }
   };
 
   const resumeInbox = async (id, email) => {
     try {
       await api.post(`/inboxes/${id}/unpause`, {});
-      notify({ type: 'success', message: `Inbox "${email}" resumed` });
+      notify({ type: 'success', message: `Skrzynka "${email}" została wznowiona` });
       load();
     } catch (e) {
-      notify({ type: 'error', message: 'Error resuming inbox: ' + e.message });
+      notify({ type: 'error', message: 'Błąd podczas wznawiania skrzynki: ' + e.message });
     }
   };
 
@@ -1105,7 +1091,7 @@ export default function Inboxes() {
                       </div>
                       <div className="min-w-0">
                         <p className="font-medium text-gray-900 text-sm leading-tight truncate">
-                          {inbox.email || '(Connected account)'}
+                          {inbox.email || '(Połączed account)'}
                         </p>
                         {inbox.display_name && (
                           <p className="text-xs text-gray-500 leading-tight mt-0.5 truncate">{inbox.display_name}</p>
@@ -1127,11 +1113,6 @@ export default function Inboxes() {
                         ? <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">Paused</span>
                         : <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Aktywna</span>
                       }
-                      {expiredInboxIds.has(inbox.id) && (
-                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full font-medium">
-                          Token Expired
-                        </span>
-                      )}
                       <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isSelected ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                       </svg>
@@ -1164,15 +1145,6 @@ export default function Inboxes() {
                   {/* Edit form */}
                   <div className="px-5 py-4 overflow-y-auto flex-1 min-w-0">
                     {editMsg && <div className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{editMsg.text}</div>}
-                    {/* Token expired banner */}
-                    {expiredInboxIds.has(editing.id) && (
-                      <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                        <svg className="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <p className="text-sm text-red-700">Token expired — reconnect this account from the detail panel.</p>
-                      </div>
-                    )}
                     <form onSubmit={saveEdit} className="space-y-4 min-w-0 max-w-full">
                       <div>
                         <label className="block text-xs font-medium text-gray-700">Email (read-only)</label>
@@ -1301,19 +1273,19 @@ export default function Inboxes() {
                           onUiModeChange={applyEditŚledzenieMode}
                           trackingDomain={editing.tracking_domain || ''}
                           onŚledzenieDomainChange={(val) => { setEditing(prev => ({ ...prev, tracking_domain: val })); setEditDirty(true); }}
-                          onDnsVerifyChange={setEditDomainVerified}
-                          beaconConnected={!!editing.beacon_connected}
+                          onDnsSprawdźChange={setEditDomainVerified}
+                          beaconPołączed={!!editing.beacon_connected}
                           beaconBaseUrl={editing.beacon_base_url}
                           beaconSetupUrl={beaconSetupUrl}
                           onBeaconSetupUrlChange={(v) => { setBeaconSetupUrl(v); setEditDirty(true); }}
-                          onConnectBeacon={connectBeacon}
-                          onDisconnectBeacon={disconnectBeacon}
-                          beaconConnecting={beaconConnecting}
+                          onPołączBeacon={connectBeacon}
+                          onRozłączBeacon={disconnectBeacon}
+                          beaconPołączing={beaconPołączing}
                           siblingInboxesForReuse={inboxes}
                           currentInboxId={editing.id}
-                          onBeaconConnectFromSibling={connectBeaconFromSibling}
+                          onBeaconPołączFromSibling={connectBeaconFromSibling}
                           onReuseDnsDomain={reuseDnsFromSibling}
-                          dnsAutoVerifyTrigger={dnsAutoVerifyTrigger}
+                          dnsAutoSprawdźTrigger={dnsAutoSprawdźTrigger}
                         />
                       </div>
                       <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
@@ -1375,7 +1347,7 @@ export default function Inboxes() {
                         {(selectedInbox.email || selectedInbox.display_name || 'I')[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{selectedInbox.email || '(Connected account)'}</p>
+                        <p className="font-semibold text-gray-900 text-sm leading-tight truncate">{selectedInbox.email || '(Połączed account)'}</p>
                         {selectedInbox.display_name && (
                           <p className="text-xs text-gray-500 truncate leading-tight mt-0.5">{selectedInbox.display_name}</p>
                         )}
@@ -1394,18 +1366,6 @@ export default function Inboxes() {
 
                   {/* Scrollable content */}
                   <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1">
-                    {/* Token expired banner */}
-                    {expiredInboxIds.has(selectedInbox.id) && (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                        <svg className="w-4 h-4 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium text-red-800">Token expired</p>
-                          <p className="text-xs text-red-600 mt-0.5">Reconnect this account at the bottom of this panel.</p>
-                        </div>
-                      </div>
-                    )}
                     {/* Status + Typ skrzynki row */}
                     <div className="flex items-center justify-between">
                       {selectedInbox.paused
@@ -1649,14 +1609,14 @@ export default function Inboxes() {
                   onUiModeChange={applyAddŚledzenieMode}
                   trackingDomain={form.tracking_domain}
                   onŚledzenieDomainChange={(val) => { setForm(f => ({ ...f, tracking_domain: val })); setAddDomainVerified(false); }}
-                  onDnsVerifyChange={setAddDomainVerified}
-                  beaconConnected={false}
+                  onDnsSprawdźChange={setAddDomainVerified}
+                  beaconPołączed={false}
                   beaconBaseUrl=""
                   beaconSetupUrl=""
                   onBeaconSetupUrlChange={() => {}}
-                  onConnectBeacon={() => {}}
-                  onDisconnectBeacon={() => {}}
-                  beaconConnecting={false}
+                  onPołączBeacon={() => {}}
+                  onRozłączBeacon={() => {}}
+                  beaconPołączing={false}
                 />
               </div>
               <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
@@ -1737,7 +1697,7 @@ export default function Inboxes() {
           <div data-darkreader-ignore className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mx-auto">
             <h2 className="text-xl font-semibold mb-1">Wstrzymaj skrzynkę</h2>
             <p className="text-sm text-gray-500 mb-4">
-              Pausing <span className="font-mono font-medium">{pausingInbox.email}</span>. What should happen to leads currently assigned to this inbox?
+              Wstrzymujesz <span className="font-mono font-medium">{pausingInbox.email}</span>. Co zrobić z kontaktami przypisanymi do tej skrzynki?
             </p>
 
             <div className="space-y-3 mb-5">
@@ -1746,12 +1706,12 @@ export default function Inboxes() {
                   type="radio"
                   className="mt-0.5 shrink-0"
                   checked={pauseAction === 'reassign'}
-                  onChange={() => setpauseAction('reassign')}
+                  onChange={() => setPauseAction('reassign')}
                 />
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Reassign to another inbox</p>
+                  <p className="text-sm font-medium text-gray-800">Przypisz do innej skrzynki</p>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    The queue will be recalculated and leads will be automatically redistributed across remaining active inboxes.
+                    Kolejka zostanie przeliczona, a kontakty automatycznie rozdzielone pomiędzy pozostałe aktywne skrzynki.
                   </p>
                 </div>
               </label>
@@ -1761,11 +1721,11 @@ export default function Inboxes() {
                   type="radio"
                   className="mt-0.5 shrink-0"
                   checked={pauseAction === 'pause_leads'}
-                  onChange={() => setpauseAction('pause_leads')}
+                  onChange={() => setPauseAction('pause_leads')}
                 />
                 <div>
-                  <p className="text-sm font-medium text-gray-800">Wstrzymaj all assigned leads</p>
-                  <p className="text-xs text-gray-500 mt-0.5">Sending will be paused for every lead whose next email is scheduled through this inbox. You can resume them individually later.</p>
+                  <p className="text-sm font-medium text-gray-800">Wstrzymaj wszystkie przypisane kontakty</p>
+                  <p className="text-xs text-gray-500 mt-0.5">Wysyłka zostanie wstrzymana dla kontaktów, których następna wiadomość miała wyjść z tej skrzynki. Możesz wznowić je później.</p>
                 </div>
               </label>
             </div>
