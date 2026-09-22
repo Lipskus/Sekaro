@@ -212,12 +212,14 @@ def _imap_connect(account, timeout: float = 15.0):
     host = (account.imap_host or "").strip()
     port = int(account.imap_port or 993)
     if account.imap_use_ssl:
-        client = imaplib.IMAP4_SSL(host, port, ssl_context=_verified_ssl_context())
+        client = imaplib.IMAP4_SSL(
+            host, port, ssl_context=_verified_ssl_context(), timeout=timeout
+        )
         client.socket().settimeout(timeout)
     else:
         # Plain IMAP is never used with credentials. When implicit SSL is
         # disabled, upgrade the connection with STARTTLS before login.
-        client = imaplib.IMAP4(host, port)
+        client = imaplib.IMAP4(host, port, timeout=timeout)
         client.socket().settimeout(timeout)
         client.starttls(ssl_context=_verified_ssl_context())
     client.login(account.imap_username or "", account.imap_password or "")
