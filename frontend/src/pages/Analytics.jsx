@@ -44,11 +44,11 @@ function buildPresets(serverToday) {
   const lastMonthStart = localIso(new Date(t.getFullYear(), t.getMonth() - 1, 1));
   const lastMonthEnd = localIso(new Date(t.getFullYear(), t.getMonth(), 0));
   return [
-    { label: 'Last 7 Days',  start: d(-6),          end: todayStr },
-    { label: 'Last Week',    start: lastWeekStart,  end: localIso(lastWeekEnd) },
-    { label: 'Last 30 Days', start: d(-29),         end: todayStr },
-    { label: 'Last Month',   start: lastMonthStart, end: lastMonthEnd },
-    { label: 'Last 90 Days', start: d(-89),         end: todayStr },
+    { label: 'Ostatnie 7 dni',  start: d(-6),          end: todayStr },
+    { label: 'Poprzedni tydzień',    start: lastWeekStart,  end: localIso(lastWeekEnd) },
+    { label: 'Ostatnie 30 dni', start: d(-29),         end: todayStr },
+    { label: 'Poprzedni miesiąc',   start: lastMonthStart, end: lastMonthEnd },
+    { label: 'Ostatnie 90 dni', start: d(-89),         end: todayStr },
   ];
 }
 
@@ -62,8 +62,8 @@ export default function Analytics() {
   const [serverToday, setServerToday] = useState(null);
 
   const [presets, setPresets] = useState(() => buildPresets(new Date()));
-  const [activePreset, setActivePreset] = useState('Last 7 Days');
-  const defaultRange = presets.find(p => p.label === 'Last 7 Days') || presets[0];
+  const [activePreset, setActivePreset] = useState('Ostatnie 7 dni');
+  const defaultRange = presets.find(p => p.label === 'Ostatnie 7 dni') || presets[0];
   const [startDate, setStartDate] = useState(defaultRange.start);
   const [endDate, setEndDate] = useState(defaultRange.end);
 
@@ -98,10 +98,10 @@ export default function Analytics() {
         // Rebuild presets using server time
         const newPresets = buildPresets(t);
         setPresets(newPresets);
-        const last7 = newPresets.find(p => p.label === 'Last 7 Days') || newPresets[0];
+        const last7 = newPresets.find(p => p.label === 'Ostatnie 7 dni') || newPresets[0];
         setStartDate(last7.start);
         setEndDate(last7.end);
-        setActivePreset('Last 7 Days');
+        setActivePreset('Ostatnie 7 dni');
       } catch (e) {
         setError('Failed to load analytics');
       }
@@ -168,12 +168,12 @@ export default function Analytics() {
 
   // series metadata for chart and legend
   const seriesList = [
-    { key: 'sent', name: 'Sent', stroke: 'rgba(59,130,246,0.8)', fill: 'rgba(59,130,246,0.4)' },
-    { key: 'totalOpens', name: 'Total Opens', stroke: 'rgba(234,179,8,0.8)', fill: 'rgba(234,179,8,0.4)' },
-    { key: 'uniqueOpens', name: 'Unique Opens', stroke: 'rgba(16,185,129,0.8)', fill: 'rgba(16,185,129,0.4)' },
-    { key: 'totalReplies', name: 'Total Replies', stroke: 'rgba(45,212,191,0.8)', fill: 'rgba(45,212,191,0.4)' },
-    { key: 'totalClicks', name: 'Total Clicks', stroke: 'rgba(234,88,12,0.8)', fill: 'rgba(234,88,12,0.4)' },
-    { key: 'uniqueClicks', name: 'Unique Clicks', stroke: 'rgba(236,72,153,0.8)', fill: 'rgba(236,72,153,0.4)' },
+    { key: 'sent', name: 'Wysłane', stroke: 'rgba(59,130,246,0.8)', fill: 'rgba(59,130,246,0.4)' },
+    { key: 'totalOpens', name: 'Wszystkie otwarcia', stroke: 'rgba(234,179,8,0.8)', fill: 'rgba(234,179,8,0.4)' },
+    { key: 'uniqueOpens', name: 'Unikalne otwarcia', stroke: 'rgba(16,185,129,0.8)', fill: 'rgba(16,185,129,0.4)' },
+    { key: 'totalReplies', name: 'Odpowiedzi', stroke: 'rgba(45,212,191,0.8)', fill: 'rgba(45,212,191,0.4)' },
+    { key: 'totalClicks', name: 'Wszystkie kliknięcia', stroke: 'rgba(234,88,12,0.8)', fill: 'rgba(234,88,12,0.4)' },
+    { key: 'uniqueClicks', name: 'Unikalne kliknięcia', stroke: 'rgba(236,72,153,0.8)', fill: 'rgba(236,72,153,0.4)' },
   ];
 
   // once chartData is computed, initialize hide state for any all-zero series (only first time)
@@ -246,21 +246,21 @@ export default function Analytics() {
 
   return (
     <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
-      <h1 className="text-2xl font-semibold mb-4">Analytics</h1>
+      <h1 className="text-2xl font-semibold mb-4">Analityka</h1>
       {error && <div className="text-red-600">{error}</div>}
 
       {/* KPI cards */}
       <div className="flex flex-wrap gap-4 mb-4">
         <Card className="p-4">
-          <div className="text-sm text-gray-500">Total Sent</div>
+          <div className="text-sm text-gray-500">Wysłane</div>
           <div className="text-2xl font-bold">{rangeSent}</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-500">Reply Rate</div>
+          <div className="text-sm text-gray-500">Wskaźnik odpowiedzi</div>
           <div className="text-2xl font-bold">{replyRateRange}%</div>
         </Card>
         <Card className="p-4">
-          <div className="text-sm text-gray-500">Click Rate</div>
+          <div className="text-sm text-gray-500">Wskaźnik kliknięć</div>
           <div className="text-2xl font-bold">{clickRateRange}%</div>
         </Card>
       </div>
@@ -343,7 +343,7 @@ export default function Analytics() {
       </Card>
       <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
         <div className="flex-1">
-          <label htmlFor="campaign-select" className="sr-only">Campaigns</label>
+          <label htmlFor="campaign-select" className="sr-only">Kampanie</label>
           <div className="flex items-center gap-2">
             <select
               id="campaign-select"
@@ -413,13 +413,13 @@ export default function Analytics() {
               <tr>
                 <th>Name</th>
                 <th className="text-center">Leads</th>
-                <th className="text-center">Sent</th>
+                <th className="text-center">Wysłane</th>
                 <th className="text-center">Pending</th>
                 <th className="text-center">Progress</th>
-                <th className="text-center">Replies</th>
-                <th className="text-center">Reply Rate</th>
-                <th className="text-center">Open Rate</th>
-                <th className="text-center">Click Rate</th>
+                <th className="text-center">Odpowiedzi</th>
+                <th className="text-center">Odpowiedzi %</th>
+                <th className="text-center">Otwarcia %</th>
+                <th className="text-center">Kliknięcia %</th>
               </tr>
             </thead>
             <tbody>
