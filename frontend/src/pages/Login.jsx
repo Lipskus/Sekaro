@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
+import { useLanguage } from '../context/LanguageContext';
 
 const BACKUP_MIN_PASSWORD_LEN = 8;
 
@@ -19,6 +20,7 @@ function parseDetailMessage(text) {
 
 export default function Login() {
   const { setupComplete, login, registerAdmin } = useAuth();
+  const { t, language, setLanguage, languages } = useLanguage();
   const [restoreExpanded, setRestoreExpanded] = useState(false);
   const [restoreFile, setRestoreFile] = useState(null);
   const [restoreFileKey, setRestoreFileKey] = useState(0);
@@ -43,15 +45,15 @@ export default function Login() {
 
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail) {
-      setAuthError('Enter your email address.');
+      setAuthError(t('auth.emailRequired'));
       return;
     }
     if (!password) {
-      setAuthError('Enter your password.');
+      setAuthError(t('auth.passwordRequired'));
       return;
     }
     if (isFirstUser && password !== confirmPassword) {
-      setAuthError('Passwords do not match.');
+      setAuthError(t('auth.passwordsMismatch'));
       return;
     }
 
@@ -63,7 +65,7 @@ export default function Login() {
         await login(normalizedEmail, password);
       }
     } catch (error) {
-      setAuthError(error?.message || 'Authentication failed.');
+      setAuthError(error?.message || t('auth.authFailed'));
     } finally {
       setAuthBusy(false);
     }
@@ -121,15 +123,27 @@ export default function Login() {
   };
 
   const heading = isFirstUser
-    ? 'Create your admin account'
-    : 'Sign in to your account';
+    ? t('auth.createAdminTitle')
+    : t('auth.signInTitle');
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="max-w-md w-full space-y-8 p-8">
         <div>
+          <div className="flex justify-end">
+            <select
+              value={language}
+              onChange={event => setLanguage(event.target.value)}
+              className="border border-gray-300 rounded-lg px-2 py-1 text-xs bg-white text-gray-700"
+              aria-label="Language"
+            >
+              {languages.map(item => (
+                <option key={item.code} value={item.code}>{item.label}</option>
+              ))}
+            </select>
+          </div>
           <h1 className="text-center text-3xl font-bold text-gray-900">
-            Sekaro
+            {t('common.appName')}
           </h1>
           <h2 className="mt-2 text-center text-lg text-gray-600">
             {heading}
@@ -139,7 +153,7 @@ export default function Login() {
         <form className="mt-8 space-y-4" onSubmit={handleAuthSubmit}>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              {t('common.email')}
             </label>
             <input
               id="email"
@@ -156,7 +170,7 @@ export default function Login() {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+              {t('common.password')}
             </label>
             <input
               id="password"
@@ -175,7 +189,7 @@ export default function Login() {
             <>
               <div>
                 <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700 mb-1">
-                  Confirm password
+                  {t('common.confirmPassword')}
                 </label>
                 <input
                   id="confirm-password"
@@ -190,7 +204,7 @@ export default function Login() {
                 />
               </div>
               <p className="text-xs text-gray-500">
-                Use at least 8 characters with an uppercase letter, lowercase letter, and a number.
+                {t('auth.passwordHint')}
               </p>
             </>
           )}
@@ -207,15 +221,15 @@ export default function Login() {
             className="w-full py-2.5 px-4 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 disabled:opacity-50"
           >
             {authBusy
-              ? (isFirstUser ? 'Creating account…' : 'Signing in…')
-              : (isFirstUser ? 'Create admin account' : 'Sign in')}
+              ? (isFirstUser ? t('common.creatingAccount') : t('common.signingIn'))
+              : (isFirstUser ? t('common.createAdmin') : t('common.signIn'))}
           </button>
         </form>
 
         {isFirstUser && (
           <>
             <p className="text-center text-sm text-gray-500">
-              The first account created becomes the admin.
+              {t('auth.firstAccountAdmin')}
             </p>
 
             <div className="mt-10 pt-8 border-t border-gray-200 space-y-3">
