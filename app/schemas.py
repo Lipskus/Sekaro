@@ -289,8 +289,8 @@ class CampaignCreate(BaseModel):
     send_all_as_text: bool = False
     # Timezone (IANA name e.g. "America/New_York"); None = user's local timezone
     timezone: Optional[str] = None
-    # When True, prefer inboxes matching the lead's email provider (Google → Gmail, O365 → Office 365)
-    match_lead_provider: bool = True
+    # Legacy provider matching is disabled for Sekaro's SMTP/IMAP-first flow.
+    match_lead_provider: bool = False
     # wait_for_all (default) = don't send until all personalized emails are written
     # asap = start sending each personalized email as soon as it's written
     custom_sequence_mode: str = "wait_for_all"
@@ -369,7 +369,7 @@ class CampaignResponse(BaseModel):
     send_first_as_text: bool = False
     send_all_as_text: bool = False
     timezone: Optional[str] = None
-    match_lead_provider: bool = True
+    match_lead_provider: bool = False
     custom_sequence_mode: str = "wait_for_all"
     created_at: datetime
 
