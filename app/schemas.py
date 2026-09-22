@@ -96,7 +96,7 @@ class LeadBulkRecoverRequest(BaseModel):
 class InboxCreate(BaseModel):
     email: str
     display_name: str = ""
-    reply_to: Optional[EmailStr] = None
+    reply_to: Optional[EmailStr | Literal[""]] = None
     max_emails_per_day: int = 50
     wait_minutes_between: int = 5
     max_jitter_seconds: int = 180
@@ -110,7 +110,7 @@ class InboxCreate(BaseModel):
 
 class InboxUpdate(BaseModel):
     display_name: Optional[str] = None
-    reply_to: Optional[EmailStr] = None
+    reply_to: Optional[EmailStr | Literal[""]] = None
     max_emails_per_day: Optional[int] = None
     wait_minutes_between: Optional[int] = None
     max_jitter_seconds: Optional[int] = None
