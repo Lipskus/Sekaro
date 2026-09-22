@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import logo from '../../assets/quickly_logo.svg';
+import logo from '../../assets/sekaro_logo.svg';
 import {
   RiSendPlaneLine,
   RiLineChartLine,
@@ -18,17 +18,18 @@ import { useUniboxNotifications } from '../../context/UniboxNotificationsContext
 import { useNotifications } from '../../context/NotificationsContext';
 import { useOnboarding } from '../../context/OnboardingContext';
 import { useSystemHealth } from '../../context/SystemHealthContext';
+import { useLanguage } from '../../context/LanguageContext';
 
 // links including icons
 const links = [
-  { to: '/analytics', label: 'Analytics', icon: <RiLineChartLine size={20} /> },
-  { to: '/campaigns', label: 'Campaigns', icon: <RiSendPlaneLine size={20} /> },
-  { to: '/leads', label: 'Leads', icon: <RiContactsLine size={20} /> },
-  { to: '/inboxes', label: 'Inboxes', icon: <RiMailLine size={20} /> },
-  { to: '/unibox', label: 'Unibox', icon: <RiInboxLine size={20} /> },
-  { to: '/schedule', label: 'Schedule', icon: <RiCalendarScheduleLine size={20} /> },
-  { to: '/notifications', label: 'Notifications', icon: <RiNotification3Line size={20} /> },
-  { to: '/settings#general', label: 'Settings', icon: <RiSettingsLine size={20} /> },
+  { to: '/analytics', key: 'analytics', icon: <RiLineChartLine size={20} /> },
+  { to: '/campaigns', key: 'campaigns', icon: <RiSendPlaneLine size={20} /> },
+  { to: '/leads', key: 'leads', icon: <RiContactsLine size={20} /> },
+  { to: '/inboxes', key: 'inboxes', icon: <RiMailLine size={20} /> },
+  { to: '/unibox', key: 'unibox', icon: <RiInboxLine size={20} /> },
+  { to: '/schedule', key: 'schedule', icon: <RiCalendarScheduleLine size={20} /> },
+  { to: '/notifications', key: 'notifications', icon: <RiNotification3Line size={20} /> },
+  { to: '/settings#general', key: 'settings', icon: <RiSettingsLine size={20} /> },
 ];
 
 const APP_VERSION = '0.1.0';
@@ -75,9 +76,9 @@ function buildBugUrl() {
     '**Environment**',
     `- OS: ${getOS()}`,
     `- Browser: ${getBrowser()}`,
-    `- Quickly version: ${APP_VERSION}`,
+    `- Sekaro version: ${APP_VERSION}`,
   ].join('\n');
-  return `https://github.com/AbdelftahZowail/Quickly/issues/new?labels=bug&title=%5BBug%5D%20&body=${encodeURIComponent(body)}`;
+  return `https://github.com/Lipskus/Sekaro/issues/new?labels=bug&title=%5BBug%5D%20&body=${encodeURIComponent(body)}`;
 }
 
 function buildFeatureUrl() {
@@ -92,7 +93,7 @@ function buildFeatureUrl() {
     '',
     '**Additional context**',
   ].join('\n');
-  return `https://github.com/AbdelftahZowail/Quickly/issues/new?labels=enhancement&title=%5BFeature%5D%20&body=${encodeURIComponent(body)}`;
+  return `https://github.com/Lipskus/Sekaro/issues/new?labels=enhancement&title=%5BFeature%5D%20&body=${encodeURIComponent(body)}`;
 }
 
 export default function Sidebar({ collapsed, onToggle }) {
@@ -101,6 +102,7 @@ export default function Sidebar({ collapsed, onToggle }) {
   const { count: notifUnreadCount } = useNotifications();
   const { startOnboarding } = useOnboarding();
   const { overallStatus } = useSystemHealth();
+  const { t, language, setLanguage, languages } = useLanguage();
   const [helpOpen, setHelpOpen] = useState(false);
   const helpRef = useRef(null);
 
@@ -134,11 +136,11 @@ export default function Sidebar({ collapsed, onToggle }) {
         className={`mb-8 flex items-center gap-2 no-underline hover:no-underline ${
           justifyLogo
         }`}
-        title="Home"
+        title={t('common.appName')}
       >
-        <img src={logo} alt="Quickly logo" className="h-8 w-8" />
+        <img src={logo} alt="Sekaro logo" className="h-8 w-8" />
         {!collapsed && (
-          <span className="text-primary font-extrabold text-xl">Quickly</span>
+          <span className="text-primary font-extrabold text-xl">Sekaro</span>
         )}
       </NavLink>
       <div className="flex flex-col gap-2">
@@ -172,11 +174,11 @@ export default function Sidebar({ collapsed, onToggle }) {
                   </span>
                 )}
               </span>
-              {!collapsed && <span className="ml-2">{l.label}</span>}
+              {!collapsed && <span className="ml-2">{t(`nav.${l.key}`)}</span>}
             </NavLink>
             {collapsed && (
               <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 pointer-events-none shadow-md">
-                {l.label}
+                {t(`nav.${l.key}`)}
               </span>
             )}
           </div>
@@ -202,11 +204,11 @@ export default function Sidebar({ collapsed, onToggle }) {
                 className={`absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-gray-800 ${healthDotColor}`}
               />
             </span>
-            {!collapsed && <span className="ml-2">System Health</span>}
+            {!collapsed && <span className="ml-2">{t('nav.health')}</span>}
           </NavLink>
           {collapsed && (
             <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 pointer-events-none shadow-md">
-              System Health
+              {t('nav.health')}
             </span>
           )}
         </div>
@@ -220,13 +222,13 @@ export default function Sidebar({ collapsed, onToggle }) {
             }`}
           >
             <span className="flex-shrink-0"><RiInformationLine size={20} /></span>
-            {!collapsed && <span className="ml-2">Help</span>}
+            {!collapsed && <span className="ml-2">{t('nav.help')}</span>}
           </button>
 
           {/* Collapsed tooltip */}
           {collapsed && (
             <span className="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10 pointer-events-none shadow-md">
-              Help
+              {t('nav.help')}
             </span>
           )}
 
@@ -238,7 +240,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                 onClick={() => { setHelpOpen(false); startOnboarding(); }}
                 className="w-full text-left block px-3 py-2 text-sm text-gray-300 hover:text-primary hover:bg-gray-700"
               >
-                App Tour
+                {t('nav.tour')}
               </button>
 
               <div className="border-t border-gray-700" />
@@ -248,7 +250,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                 onClick={() => setHelpOpen(false)}
                 className="block px-3 py-2 text-sm text-gray-300 hover:text-primary hover:bg-gray-700 !no-underline"
               >
-                Deliverability Tips
+                {t('nav.deliverability')}
               </NavLink>
 
               <div className="border-t border-gray-700" />
@@ -260,7 +262,7 @@ export default function Sidebar({ collapsed, onToggle }) {
                 rel="noopener noreferrer"
                 className="block px-3 py-2 text-sm text-gray-300 hover:text-primary hover:bg-gray-700"
               >
-                Report a Bug
+                {t('nav.reportBug')}
               </a>
 
               <div className="border-t border-gray-700" />
@@ -272,11 +274,26 @@ export default function Sidebar({ collapsed, onToggle }) {
                 rel="noopener noreferrer"
                 className="block px-3 py-2 text-sm text-gray-300 hover:text-primary hover:bg-gray-700"
               >
-                Suggest a Feature
+                {t('nav.suggestFeature')}
               </a>
             </div>
           )}
         </div>
+
+        {!collapsed && (
+          <div className="px-1">
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+              className="w-full rounded border border-gray-600 bg-gray-900 px-2 py-1.5 text-xs text-gray-300"
+              aria-label="Language"
+            >
+              {languages.map(item => (
+                <option key={item.code} value={item.code}>{item.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
 
         {/* Collapse toggle */}
         <div className="flex justify-end mr-1">
