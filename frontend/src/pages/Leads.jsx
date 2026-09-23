@@ -127,6 +127,16 @@ export default function Leads() {
   const [suppressionEmail, setSuppressionEmail] = useState('');
   const [suppressionReason, setSuppressionReason] = useState('manual');
   const [suppressionBusy, setSuppressionBusy] = useState(false);
+  const [contactFields, setContactFields] = useState([]);
+  const [columnsOpen, setColumnsOpen] = useState(false);
+  const [hiddenColumns, setHiddenColumns] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('sekaro.contacts.hiddenColumns') || '[]');
+      return new Set(Array.isArray(stored) ? stored : []);
+    } catch {
+      return new Set();
+    }
+  });
 
   const notify = useNotify();
   const confirm = useConfirm();
@@ -149,6 +159,12 @@ export default function Leads() {
   useEffect(() => {
     loadContactLists();
   }, [loadContactLists]);
+
+  useEffect(() => {
+    api.get('/contact-fields')
+      .then(rows => setContactFields(Array.isArray(rows) ? rows.filter(f => !f.system) : []))
+      .catch(() => setContactFields([]));
+  }, []);
 
   const loadLeads = useCallback(async () => {
     loading.start();
@@ -178,6 +194,53 @@ export default function Leads() {
   }, [loadLeads]);
 
   const visibleIds = useMemo(() => leads.map((l) => l.id), [leads]);
+
+  const customColumns = useMemo(() => {
+    const keys = new Set();
+    leads.forEach((lead) => {
+      Object.keys(lead.custom_data || {}).forEach((key) => keys.add(key));
+    });
+    contactFields.forEach((field) => keys.add(field.key));
+
+    const labels = new Map(contactFields.map((field) => [field.key, field.label || field.key]));
+    return [...keys]
+      .sort((a, b) => (labels.get(a) || a).localeCompare(labels.get(b) || b, 'pl'))
+      .map((key) => ({
+        key,
+        id: `custom:${key}`,
+        label: labels.get(key) || key,
+      }));
+  }, [leads, contactFields]);
+
+  const systemColumns = [
+    { id: 'name', label: 'Nazwa / imię' },
+    { id: 'verification', label: 'Weryfikacja / kampanie' },
+    { id: 'campaigns', label: 'Kampanie' },
+    { id: 'inbox', label: 'Skrzynka nadawcza' },
+    { id: 'enrolled', label: 'Dodano' },
+  ];
+
+  const isColumnVisible = (id) => !hiddenColumns.has(id);
+
+  const toggleColumn = (id) => {
+    setHiddenColumns((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      try {
+        localStorage.setItem('sekaro.contacts.hiddenColumns', JSON.stringify([...next]));
+      } catch {
+        // ignore storage errors
+      }
+      return next;
+    });
+  };
+
+  const visibleColumnCount = useMemo(() => {
+    const systemCount = systemColumns.filter((column) => !hiddenColumns.has(column.id)).length;
+    const customCount = customColumns.filter((column) => !hiddenColumns.has(column.id)).length;
+    return 2 + systemCount + customCount + (tab === TAB_BOUNCED ? 2 : 0);
+  }, [customColumns, hiddenColumns, tab]);
 
   const toggleOne = (id) => {
     setSelected((prev) => {
@@ -642,6 +705,80 @@ export default function Leads() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+
+        <div className="relative">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setColumnsOpen((value) => !value)}
+          >
+            Kolumny
+          </Button>
+
+          {columnsOpen && (
+            <div className="absolute right-0 top-full z-40 mt-2 w-72 rounded-lg border border-gray-200 bg-white p-3 shadow-xl">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="text-sm font-semibold text-gray-800">Widoczne kolumny</span>
+                <button
+                  type="button"
+                  className="text-xs text-teal-600 hover:underline"
+                  onClick={() => {
+                    const next = new Set();
+                    setHiddenColumns(next);
+                    try {
+                      localStorage.setItem('sekaro.contacts.hiddenColumns', '[]');
+                    } catch {
+                      // ignore storage errors
+                    }
+                  }}
+                >
+                  Pokaż wszystkie
+                </button>
+              </div>
+
+              <div className="max-h-80 space-y-1 overflow-y-auto">
+                <label className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-gray-400">
+                  <input type="checkbox" checked readOnly className="rounded" />
+                  E-mail
+                  <span className="ml-auto text-[10px] uppercase">stała</span>
+                </label>
+
+                {systemColumns.map((column) => (
+                  <label key={column.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      className="rounded"
+                      checked={isColumnVisible(column.id)}
+                      onChange={() => toggleColumn(column.id)}
+                    />
+                    {column.label}
+                  </label>
+                ))}
+
+                {customColumns.length > 0 && (
+                  <>
+                    <div className="my-2 border-t border-gray-100" />
+                    <div className="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                      Pola własne
+                    </div>
+                    {customColumns.map((column) => (
+                      <label key={column.id} className="flex cursor-pointer items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          className="rounded"
+                          checked={isColumnVisible(column.id)}
+                          onChange={() => toggleColumn(column.id)}
+                        />
+                        <span className="min-w-0 truncate" title={column.key}>{column.label}</span>
+                      </label>
+                    ))}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {selected.size > 0 && (
@@ -677,8 +814,8 @@ export default function Leads() {
 
       <Card className="overflow-x-auto max-w-full min-w-0">
         <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
-          {leads.length} lead{leads.length !== 1 ? 's' : ''}
-          {tab === TAB_BOUNCED ? ' (bounced or invalid)' : ''}
+          {leads.length} kontakt{leads.length === 1 ? '' : 'ów'}
+          {tab === TAB_BOUNCED ? ' (odbite lub niepoprawne)' : ''}
         </div>
         <table className="min-w-max w-full table-auto border-collapse text-sm">
           <thead>
@@ -693,12 +830,16 @@ export default function Leads() {
                 />
               </th>
               <th className="p-2">E-mail</th>
-              <th className="p-2">Nazwa / imię</th>
-              <th className="p-2">Weryfikacja / kampanie</th>
-              <th className="p-2">Kampanie</th>
-              <th className="p-2">Skrzynka nadawcza</th>
-              <th className="p-2">Dodano</th>
-              <th className="p-2 min-w-[220px]">Pola własne</th>
+              {isColumnVisible('name') && <th className="p-2">Nazwa / imię</th>}
+              {isColumnVisible('verification') && <th className="p-2">Weryfikacja / kampanie</th>}
+              {isColumnVisible('campaigns') && <th className="p-2">Kampanie</th>}
+              {isColumnVisible('inbox') && <th className="p-2">Skrzynka nadawcza</th>}
+              {isColumnVisible('enrolled') && <th className="p-2">Dodano</th>}
+              {customColumns.filter((column) => isColumnVisible(column.id)).map((column) => (
+                <th key={column.id} className="p-2 min-w-[150px]" title={column.key}>
+                  {column.label}
+                </th>
+              ))}
               {tab === TAB_BOUNCED && <th className="p-2 min-w-[200px]">Nowy e-mail</th>}
               {tab === TAB_BOUNCED && <th className="p-2 w-44">Akcje</th>}
             </tr>
@@ -706,7 +847,7 @@ export default function Leads() {
           <tbody>
             {leads.length === 0 ? (
               <tr>
-                <td colSpan={tab === TAB_BOUNCED ? 10 : 8} className="p-8 text-center text-gray-500">
+                <td colSpan={visibleColumnCount} className="p-8 text-center text-gray-500">
                   Brak kontaktów pasujących do tego widoku.
                 </td>
               </tr>
@@ -727,87 +868,93 @@ export default function Leads() {
                       {l.email}
                     </Link>
                   </td>
-                  <td className="p-2 align-top">{l.name || '—'}</td>
-                  <td className="p-2 align-top">
-                    <div className="flex flex-wrap gap-1">
-                      {l.email_verification_status && (
-                        <span
-                          className={cn(
-                            'rounded-full px-2 py-0.5 text-xs font-medium',
-                            statusPillClass(l.email_verification_status),
-                          )}
-                        >
-                          verify: {l.email_verification_status}
-                        </span>
-                      )}
-                      {(l.campaigns || []).slice(0, 3).map((c) => (
-                        <span
-                          key={c.campaign_id}
-                          className={cn('rounded-full px-2 py-0.5 text-xs font-medium', statusPillClass(c.status))}
-                          title={`${c.campaign_name}: ${c.status}${c.interest ? ` · ${c.interest}` : ''}`}
-                        >
-                          {c.status}
-                        </span>
-                      ))}
-                      {(l.campaigns || []).length > 3 && (
-                        <span className="text-xs text-gray-500">+{l.campaigns.length - 3}</span>
-                      )}
-                      {!(l.campaigns || []).length && !l.email_verification_status && (
-                        <span className="text-gray-400 text-xs">—</span>
-                      )}
-                    </div>
-                  </td>
-                  <td className="p-2 align-top">
-                    <div className="flex flex-wrap gap-1 max-w-xs">
-                      {(l.campaigns || []).map((c) => (
-                        <Link
-                          key={c.campaign_id}
-                          to={`/campaigns/${c.campaign_id}#leads`}
-                          className="bg-gray-200 dark:bg-gray-600 rounded-full px-2 py-0.5 text-xs hover:bg-gray-300 dark:hover:bg-gray-500"
-                        >
-                          {c.campaign_name}
-                        </Link>
-                      ))}
-                      {!(l.campaigns || []).length && <span className="text-gray-400">—</span>}
-                    </div>
-                  </td>
-                  <td className="p-2 align-top">
-                    <div className="flex flex-col gap-1 max-w-xs">
-                      {(l.campaigns || []).map((c) => (
-                        <div key={c.campaign_id} className="text-xs">
-                          {c.from_inbox_email ? (
-                            <span className="font-mono text-gray-700" title={`${c.campaign_name}: sent from ${c.from_inbox_email}`}>
-                              {c.from_inbox_email}
-                            </span>
-                          ) : (
-                            <span className="text-gray-400">—</span>
-                          )}
-                        </div>
-                      ))}
-                      {!(l.campaigns || []).length && <span className="text-gray-400 text-xs">—</span>}
-                    </div>
-                  </td>
-                  <td className="p-2 align-top text-gray-600">{formatEnrolled(l.campaigns)}</td>
-                  <td className="p-2 align-top">
-                    {l.custom_data && Object.keys(l.custom_data).length ? (
-                      <div className="flex flex-wrap gap-1 max-w-sm">
-                        {Object.entries(l.custom_data).slice(0, 4).map(([key, value]) => (
+                  {isColumnVisible('name') && (
+                    <td className="p-2 align-top">{l.name || '—'}</td>
+                  )}
+                  {isColumnVisible('verification') && (
+                    <td className="p-2 align-top">
+                      <div className="flex flex-wrap gap-1">
+                        {l.email_verification_status && (
                           <span
-                            key={key}
-                            className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] text-gray-600"
-                            title={`${key}: ${value}`}
+                            className={cn(
+                              'rounded-full px-2 py-0.5 text-xs font-medium',
+                              statusPillClass(l.email_verification_status),
+                            )}
                           >
-                            {key}: {String(value).slice(0, 28)}
+                            verify: {l.email_verification_status}
+                          </span>
+                        )}
+                        {(l.campaigns || []).slice(0, 3).map((c) => (
+                          <span
+                            key={c.campaign_id}
+                            className={cn('rounded-full px-2 py-0.5 text-xs font-medium', statusPillClass(c.status))}
+                            title={`${c.campaign_name}: ${c.status}${c.interest ? ` · ${c.interest}` : ''}`}
+                          >
+                            {c.status}
                           </span>
                         ))}
-                        {Object.keys(l.custom_data).length > 4 && (
-                          <span className="text-xs text-gray-400">+{Object.keys(l.custom_data).length - 4}</span>
+                        {(l.campaigns || []).length > 3 && (
+                          <span className="text-xs text-gray-500">+{l.campaigns.length - 3}</span>
+                        )}
+                        {!(l.campaigns || []).length && !l.email_verification_status && (
+                          <span className="text-gray-400 text-xs">—</span>
                         )}
                       </div>
-                    ) : (
-                      <span className="text-gray-400 text-xs">—</span>
-                    )}
-                  </td>
+                    </td>
+                  )}
+                  {isColumnVisible('campaigns') && (
+                    <td className="p-2 align-top">
+                      <div className="flex flex-wrap gap-1 max-w-xs">
+                        {(l.campaigns || []).map((c) => (
+                          <Link
+                            key={c.campaign_id}
+                            to={`/campaigns/${c.campaign_id}#leads`}
+                            className="bg-gray-200 dark:bg-gray-600 rounded-full px-2 py-0.5 text-xs hover:bg-gray-300 dark:hover:bg-gray-500"
+                          >
+                            {c.campaign_name}
+                          </Link>
+                        ))}
+                        {!(l.campaigns || []).length && <span className="text-gray-400">—</span>}
+                      </div>
+                    </td>
+                  )}
+                  {isColumnVisible('inbox') && (
+                    <td className="p-2 align-top">
+                      <div className="flex flex-col gap-1 max-w-xs">
+                        {(l.campaigns || []).map((c) => (
+                          <div key={c.campaign_id} className="text-xs">
+                            {c.from_inbox_email ? (
+                              <span className="font-mono text-gray-700" title={`${c.campaign_name}: wysyłka z ${c.from_inbox_email}`}>
+                                {c.from_inbox_email}
+                              </span>
+                            ) : (
+                              <span className="text-gray-400">—</span>
+                            )}
+                          </div>
+                        ))}
+                        {!(l.campaigns || []).length && <span className="text-gray-400 text-xs">—</span>}
+                      </div>
+                    </td>
+                  )}
+                  {isColumnVisible('enrolled') && (
+                    <td className="p-2 align-top text-gray-600">{formatEnrolled(l.campaigns)}</td>
+                  )}
+                  {customColumns.filter((column) => isColumnVisible(column.id)).map((column) => {
+                    const value = l.custom_data?.[column.key];
+                    return (
+                      <td key={column.id} className="p-2 align-top text-sm text-gray-700">
+                        {value === undefined || value === null || value === '' ? (
+                          <span className="text-gray-300">—</span>
+                        ) : typeof value === 'object' ? (
+                          <span className="font-mono text-xs" title={JSON.stringify(value)}>
+                            {JSON.stringify(value)}
+                          </span>
+                        ) : (
+                          <span title={String(value)}>{String(value)}</span>
+                        )}
+                      </td>
+                    );
+                  })}
                   {tab === TAB_BOUNCED && (
                     <td className="p-2 align-top">
                       <input
@@ -994,7 +1141,7 @@ export default function Leads() {
                       <tr>
                         <th className="text-left px-3 py-2">Kolumna w pliku</th>
                         <th className="text-left px-3 py-2">Pole w Sekaro</th>
-                        <th className="text-left px-3 py-2">Nazwa custom field</th>
+                        <th className="text-left px-3 py-2">Klucz pola własnego</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1013,7 +1160,7 @@ export default function Leads() {
                                 <option value="skip">Pomiń</option>
                                 <option value="email">E-mail</option>
                                 <option value="name">Nazwa / imię</option>
-                                <option value="custom">Custom field</option>
+                                <option value="custom">Pole własne</option>
                               </select>
                             </td>
                             <td className="px-3 py-2">
@@ -1027,7 +1174,7 @@ export default function Leads() {
                                     }))
                                   }
                                   className="w-full rounded-md border-gray-300 text-sm"
-                                  placeholder="np. land"
+                                  placeholder="np. region"
                                 />
                               ) : (
                                 <span className="text-gray-400">—</span>

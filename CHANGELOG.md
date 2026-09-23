@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 — Configurable contact columns
+
+- each user-defined contact field is displayed as its own table column
+- removed the aggregated "Pola własne" cell from the Contacts table
+- added a "Kolumny" picker for system and user-defined fields
+- email remains permanently visible as the primary contact identifier
+- new user-defined fields are visible by default
+- hidden-column preferences persist in the browser
+- column labels use Sekaro field definitions when available
+- import UI now consistently calls arbitrary fields "Pola własne"
+
 ## 0.4.0 — Messages, templates and dynamic variables
 
 - added reusable message templates
