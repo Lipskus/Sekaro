@@ -1595,38 +1595,44 @@ async def send_slot_job(slot_id: int) -> None:
             return
 
         # ── Send ──────────────────────────────────────────────────────────
-        if simulate_send:
-            fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
-            result = SendResult(
-                message_id=make_msgid(domain="test.local"),
-                thread_id=fake_thread_id,
-                gmail_message_id=f"test-gmail-{email_log_entry.id}",
-            )
-        else:
-            result = send_email(
-                to_email=lead.email,
-                subject=subject,
-                body=send_body,
-                from_email=from_addr,
-                from_name=from_name,
-                reply_to_msg_id=reply_to_msg_id,
-                references=references_chain,
-                is_html=is_html,
-                provider=inbox.provider or "smtp",
-                gmail_access_token=gmail_token,
-                gmail_account=ga,
-                thread_id=prev_thread_id,
-                list_unsubscribe_url=list_unsub_url,
-                google_client_id=g_client_id,
-                google_client_secret=g_client_secret,
-                office365_account=o365_account,
-                office365_client_id=o365_client_id,
-                office365_client_secret=o365_client_secret,
-                office365_tenant_id=o365_tenant_id,
-                conversation_id=prev_thread_id if inbox.provider == "office365" else None,
-                reply_graph_message_id=reply_graph_message_id if inbox.provider == "office365" else None,
-                smtp_account=smtp_account,
-            )
+        try:
+            if simulate_send:
+                fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
+                result = SendResult(
+                    message_id=make_msgid(domain="test.local"),
+                    thread_id=fake_thread_id,
+                    gmail_message_id=f"test-gmail-{email_log_entry.id}",
+                )
+            else:
+                result = send_email(
+                    to_email=lead.email,
+                    subject=subject,
+                    body=send_body,
+                    from_email=from_addr,
+                    from_name=from_name,
+                    reply_to_msg_id=reply_to_msg_id,
+                    references=references_chain,
+                    is_html=is_html,
+                    provider=inbox.provider or "smtp",
+                    gmail_access_token=gmail_token,
+                    gmail_account=ga,
+                    thread_id=prev_thread_id,
+                    list_unsubscribe_url=list_unsub_url,
+                    google_client_id=g_client_id,
+                    google_client_secret=g_client_secret,
+                    office365_account=o365_account,
+                    office365_client_id=o365_client_id,
+                    office365_client_secret=o365_client_secret,
+                    office365_tenant_id=o365_tenant_id,
+                    conversation_id=prev_thread_id if inbox.provider == "office365" else None,
+                    reply_graph_message_id=reply_graph_message_id if inbox.provider == "office365" else None,
+                    smtp_account=smtp_account,
+                )
+        except Exception:
+            log.exception("send_slot_job: send raised before delivery state was known for slot %d", slot_id)
+            await session.rollback()
+            await _release_send_attempt(slot_id, attempt_token)
+            return
 
         # ── Permanent failure ─────────────────────────────────────────────
         if isinstance(result, SendFailure):
