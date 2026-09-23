@@ -384,7 +384,7 @@ class CampaignCreate(BaseModel):
     sending_hours_start: str = "09:00"
     sending_hours_end: str = "17:00"
     stop_on_reply: bool = True
-    paused: bool = False
+    paused: bool = True
     priority: int = 0  # Lower value = processed first in priority scheduling
     # Tracking (off by default for better deliverability)
     track_opens: bool = False
