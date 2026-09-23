@@ -4,7 +4,7 @@
 
 Sekaro is being developed as a provider-agnostic tool. Google Workspace and Microsoft 365 OAuth are not required to log in to the application or to use the core mailbox workflow.
 
-> Current development line: **0.3.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
+> Current development line: **0.4.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
 
 ## Goals
 
@@ -27,7 +27,7 @@ See [ROADMAP.md](ROADMAP.md) for the version plan.
 
 For existing installations upgrading to the SMTP/IMAP core, see [docs/UPGRADE_0.2.md](docs/UPGRADE_0.2.md).
 
-## Current 0.3 foundation
+## Current 0.4 foundation
 
 The current Sekaro fork includes:
 
@@ -44,6 +44,11 @@ The current Sekaro fork includes:
 - named contact lists
 - global case-insensitive import deduplication
 - global suppression / do-not-contact enforcement
+- reusable plain-text and HTML message templates
+- immutable template version history
+- universal user-defined contact variables using `{{key}}`
+- per-contact message preview and missing-variable diagnostics
+- SMTP test sends from the template editor
 - existing campaign, queue, contacts, analytics and inbox foundations inherited from the upstream project
 - Polish, English, German and Russian translation infrastructure
 - Polish as the default UI language
@@ -115,7 +120,7 @@ On the first visit, Sekaro asks you to create the first local administrator acco
 
 ## Architecture
 
-The 0.2 deployment contains:
+The current deployment contains:
 
 ```text
 sekaro-app
