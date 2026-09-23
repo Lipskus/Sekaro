@@ -266,6 +266,8 @@ class InboxResponse(BaseModel):
     effective_max_per_day: int = 0  # computed; 0 means use max_emails_per_day directly
     # how many emails have been sent from this inbox **today** (UTC)
     sent_today: int = 0
+    # rolling 60-minute count, useful when max_emails_per_hour is enabled
+    sent_last_hour: int = 0
     # how many future queue slots are pending on this inbox right now
     pending_leads: int = 0
 
