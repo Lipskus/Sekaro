@@ -88,6 +88,16 @@ async def _run_migrations(conn) -> None:
         "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
         # 2026-09-23 Sekaro 0.5: optional hard hourly sending cap (0 = disabled).
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS max_emails_per_hour INTEGER NOT NULL DEFAULT 0",
+        # Durable claim to prevent concurrent/retry duplicate sends.
+        """
+        CREATE TABLE IF NOT EXISTS send_attempt (
+            id SERIAL PRIMARY KEY,
+            queue_slot_id INTEGER NOT NULL UNIQUE REFERENCES queue_slot(id) ON DELETE CASCADE,
+            attempt_token VARCHAR(64) NOT NULL UNIQUE,
+            started_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_send_attempt_started_at ON send_attempt (started_at)",
         # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS reply_to VARCHAR(255) NULL",
         "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
