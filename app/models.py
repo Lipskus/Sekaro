@@ -392,6 +392,30 @@ class QueueSlot(Base):
     variant = relationship("SequenceVariant", foreign_keys=[variant_id])
 
 
+class SendAttempt(Base):
+    """Durable claim created immediately before an external send.
+
+    A unique queue_slot_id prevents two workers from sending the same slot.
+    If the process dies after the external SMTP call, the claim remains and
+    blocks automatic retry until an operator explicitly clears it.
+    """
+    __tablename__ = "send_attempt"
+    __table_args__ = (
+        UniqueConstraint("queue_slot_id", name="uq_send_attempt_queue_slot"),
+        Index("ix_send_attempt_started_at", "started_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    queue_slot_id = Column(
+        Integer,
+        ForeignKey("queue_slot.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    attempt_token = Column(String(64), nullable=False, unique=True, index=True)
+    started_at = Column(DateTime, default=_utcnow, nullable=False)
+
+
 class EmailLog(Base):
     __tablename__ = "email_log"
     __table_args__ = (
