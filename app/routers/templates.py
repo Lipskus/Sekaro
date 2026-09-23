@@ -175,7 +175,7 @@ async def preview_template(
     )
 
 
-@router.post("/test-send")
+@router.post("/actions/test-send")
 async def test_send_template(
     data: TemplateTestSendRequest,
     db: AsyncSession = Depends(get_db),
