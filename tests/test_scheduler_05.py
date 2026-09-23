@@ -2,13 +2,14 @@
 from datetime import datetime, timedelta
 
 import pytest
+from fastapi import BackgroundTasks, HTTPException
 from sqlalchemy import select
 
 from app.jobs import _claim_send_attempt, _release_send_attempt
 from app.models import CampaignLead, Inbox, QueueSlot, SendAttempt, SmtpAccount
 from app.queue_logic import compute_effective_wait_minutes
-from app.routers.campaigns import _campaign_preflight
-from app.schemas import CampaignCreate
+from app.routers.campaigns import _campaign_preflight, start_campaign, update_campaign
+from app.schemas import CampaignCreate, CampaignUpdate
 from tests.conftest import (
     make_campaign,
     make_campaign_inbox,
@@ -205,3 +206,43 @@ async def test_preflight_blocks_uncertain_send_attempt(session):
     assert slot.id in uncertain[0]["details"]["slot_ids"]
 
     await _release_send_attempt(slot.id, token)
+
+
+@pytest.mark.asyncio
+async def test_start_campaign_rejects_blocking_preflight_errors(session):
+    campaign = await make_campaign(session, name="Broken start", paused=True)
+
+    with pytest.raises(HTTPException) as exc:
+        await start_campaign(campaign.id, BackgroundTasks(), session)
+
+    assert exc.value.status_code == 409
+    assert exc.value.detail["ready"] is False
+    assert campaign.paused is True
+
+
+@pytest.mark.asyncio
+async def test_start_campaign_unpauses_ready_campaign(session):
+    campaign, _inbox, _lead = await _ready_campaign(session)
+
+    result = await start_campaign(campaign.id, BackgroundTasks(), session)
+    await session.refresh(campaign)
+
+    assert result["started"] is True
+    assert result["ready"] is True
+    assert campaign.paused is False
+
+
+@pytest.mark.asyncio
+async def test_legacy_patch_cannot_bypass_preflight(session):
+    campaign = await make_campaign(session, name="Patch bypass", paused=True)
+
+    with pytest.raises(HTTPException) as exc:
+        await update_campaign(
+            campaign.id,
+            CampaignUpdate(paused=False),
+            BackgroundTasks(),
+            session,
+        )
+
+    assert exc.value.status_code == 409
+    assert exc.value.detail["ready"] is False
