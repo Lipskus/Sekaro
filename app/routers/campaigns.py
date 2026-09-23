@@ -652,6 +652,79 @@ async def delete_campaign(campaign_id: int, db: AsyncSession = Depends(get_db)):
     return {"ok": True}
 
 
+@router.get("/{campaign_id}/preflight")
+async def campaign_preflight(
+    campaign_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    return await _campaign_preflight(db, campaign_id)
+
+
+@router.post("/{campaign_id}/start")
+async def start_campaign(
+    campaign_id: int,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    report = await _campaign_preflight(db, campaign_id)
+    if not report["ready"]:
+        raise HTTPException(status_code=409, detail=report)
+
+    campaign = await db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise HTTPException(404, "Campaign not found")
+    campaign.paused = False
+    await db.commit()
+
+    from app.routers.schedule import enqueue_global_recalculate
+    enqueue_global_recalculate(background_tasks)
+    return {**report, "started": True, "paused": False}
+
+
+@router.post("/{campaign_id}/pause")
+async def pause_campaign(
+    campaign_id: int,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    campaign = await db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise HTTPException(404, "Campaign not found")
+    campaign.paused = True
+    await db.commit()
+
+    from app.routers.schedule import enqueue_global_recalculate
+    enqueue_global_recalculate(background_tasks)
+    return {"ok": True, "campaign_id": campaign_id, "paused": True}
+
+
+@router.post("/{campaign_id}/send-attempts/{slot_id}/reset")
+async def reset_uncertain_send_attempt(
+    campaign_id: int,
+    slot_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Clear an uncertain claim only after the operator verifies delivery.
+
+    This endpoint does not resend. It merely makes the retained queue slot
+    eligible for a future send again.
+    """
+    row = await db.execute(
+        select(SendAttempt)
+        .join(QueueSlot, QueueSlot.id == SendAttempt.queue_slot_id)
+        .join(CampaignLead, CampaignLead.id == QueueSlot.campaign_lead_id)
+        .where(
+            SendAttempt.queue_slot_id == slot_id,
+            CampaignLead.campaign_id == campaign_id,
+        )
+    )
+    attempt = row.scalar_one_or_none()
+    if attempt is None:
+        raise HTTPException(404, "Uncertain send attempt not found")
+    await db.delete(attempt)
+    await db.commit()
+    return {"ok": True, "campaign_id": campaign_id, "slot_id": slot_id}
+
 @router.patch("/{campaign_id}", response_model=CampaignResponse)
 async def update_campaign(
     campaign_id: int,
@@ -664,6 +737,7 @@ async def update_campaign(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
     needs_global_recalc = False
+    resume_requested = False
     if data.name is not None:
         campaign.name = data.name
     if data.inbox_ids is not None:
@@ -705,21 +779,16 @@ async def update_campaign(
     if data.stop_on_reply is not None:
         campaign.stop_on_reply = data.stop_on_reply
     if data.paused is not None:
-        # paused toggle impacts scheduling order and slot existence
-        old_paused = campaign.paused
-        campaign.paused = data.paused
-        if old_paused != data.paused:
-            # run a full recalculation so that paused campaigns drop out of the
-            # schedule (or are added back when resumed) and other campaigns can
-            # move into the newly freed capacity.  Using the global routine is
-            # simpler than trying to reason about individual leads.
-            log.info(
-                "Campaign %s paused state changed (%s -> %s); triggering full recalculation",
-                campaign_id,
-                old_paused,
-                data.paused,
-            )
-            needs_global_recalc = True
+        old_paused = bool(campaign.paused)
+        if data.paused:
+            campaign.paused = True
+            if not old_paused:
+                log.info("Campaign %s paused; triggering full recalculation", campaign_id)
+                needs_global_recalc = True
+        elif old_paused:
+            # Do not bypass pre-flight when the legacy PATCH endpoint is used.
+            # Apply the remaining edits first, then validate the resulting state.
+            resume_requested = True
     if data.priority is not None:
         campaign.priority = data.priority
         # Changing priority affects the order campaigns are scheduled, so
@@ -768,6 +837,14 @@ async def update_campaign(
             log.info("Campaign %s timezone changed (%s -> %s); triggering queue recalculation", campaign_id, old_tz, campaign.timezone)
             needs_global_recalc = True
     await db.flush()
+    if resume_requested:
+        report = await _campaign_preflight(db, campaign_id)
+        if not report["ready"]:
+            raise HTTPException(status_code=409, detail=report)
+        campaign.paused = False
+        needs_global_recalc = True
+        await db.flush()
+
     if needs_global_recalc:
         await db.commit()
         from app.routers.schedule import enqueue_global_recalculate
