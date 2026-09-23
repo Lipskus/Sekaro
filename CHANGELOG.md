@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 — Messages, templates and dynamic variables
+
+- added reusable message templates
+- added immutable template version history
+- added plain-text and HTML template modes
+- added visual HTML editing plus raw HTML source mode
+- added user-defined contact fields managed inside Sekaro
+- template variables are fully generic and use `{{key}}` syntax
+- no business-specific variables such as country/company/land are hardcoded
+- imported spreadsheet custom fields become available as template variables
+- contact profiles can edit values for user-defined fields
+- added per-contact rendered preview
+- missing variables stay visible and are reported before test sends
+- HTML contact values are escaped before insertion
+- added SMTP test sending from the template editor
+- reusable templates can be loaded directly into campaign sequence steps
+- campaign sender and previews now share the same generic variable renderer
+- added regression tests for rendering, versioning, contact fields and SMTP test sends
+
 ## 0.3.0 — Contacts, spreadsheets and suppression
 
 - added global CSV, TSV and TXT contact import
