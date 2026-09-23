@@ -98,6 +98,7 @@ class Inbox(Base):
     display_name = Column(String(255), default="")
     reply_to = Column(String(255), nullable=True, default=None)
     max_emails_per_day = Column(Integer, default=50, nullable=False)
+    max_emails_per_hour = Column(Integer, default=0, nullable=False)  # 0 = disabled
     wait_minutes_between = Column(Integer, default=5, nullable=False)  # Minutes between emails from this inbox
     max_jitter_seconds = Column(Integer, default=180, nullable=False)   # Max random seconds added to each send time (0 = disabled)
     provider = Column(String(32), default="smtp")  # Sekaro core: smtp; legacy rows may use gmail/office365
