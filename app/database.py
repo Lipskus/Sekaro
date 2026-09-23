@@ -86,6 +86,8 @@ async def _run_migrations(conn) -> None:
         # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS reply_to VARCHAR(255) NULL",
         "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
+        # 2026-09-23 Sekaro 0.5: optional hard hourly sending cap (0 = disabled).
+        "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS max_emails_per_hour INTEGER NOT NULL DEFAULT 0",
         # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS reply_to VARCHAR(255) NULL",
         "ALTER TABLE inbox ALTER COLUMN provider SET DEFAULT 'smtp'",
