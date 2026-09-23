@@ -130,6 +130,7 @@ async def _run_migrations(conn) -> None:
         "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS custom_sequence_mode VARCHAR(32) NOT NULL DEFAULT 'wait_for_all'",
         # 2026-09-22 Sekaro: provider-agnostic SMTP/IMAP flow; legacy provider matching is off.
         "ALTER TABLE campaign ALTER COLUMN match_lead_provider SET DEFAULT FALSE",
+        "ALTER TABLE campaign ALTER COLUMN paused SET DEFAULT TRUE",
         # 2026-05-24: notification table for in-app notification center
         """
         CREATE TABLE IF NOT EXISTS notification (
