@@ -502,6 +502,7 @@ export default function Inboxes() {
     display_name: '',
     reply_to: '',
     max_emails_per_day: 50,
+    max_emails_per_hour: 0,
     wait_minutes_between: 5,
     max_jitter_seconds: 180,
     tracking_domain: '',
@@ -813,6 +814,7 @@ export default function Inboxes() {
         reply_to: (editing.reply_to || '').trim(),
         provider: editing.provider,
         max_emails_per_day: editing.max_emails_per_day,
+        max_emails_per_hour: editing.max_emails_per_hour ?? 0,
         wait_minutes_between: editing.wait_minutes_between,
         max_jitter_seconds: clampJitterSeconds(editing.max_jitter_seconds ?? 180),
         tracking_domain: newDomain || null,
@@ -1249,6 +1251,18 @@ export default function Inboxes() {
                         <input type="number" name="max_emails_per_day" value={editing.max_emails_per_day} onChange={e => { setEditing(prev => ({ ...prev, max_emails_per_day: +e.target.value })); setEditDirty(true); }} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
                       <div>
+                        <label className="block text-xs font-medium text-gray-700">Maks. wiadomości na godzinę</label>
+                        <input
+                          type="number"
+                          value={editing.max_emails_per_hour ?? 0}
+                          onChange={e => { setEditing(prev => ({ ...prev, max_emails_per_hour: Math.max(0, +e.target.value) })); setEditDirty(true); }}
+                          min={0}
+                          max={1000}
+                          className="mt-1 block w-full border-gray-300 rounded-md text-sm"
+                        />
+                        <p className="mt-1 text-xs text-gray-400">0 = brak osobnego limitu godzinowego.</p>
+                      </div>
+                      <div>
                         <label className="block text-xs font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
                         <input type="number" name="wait_minutes_between" value={editing.wait_minutes_between || 5} onChange={e => { setEditing(prev => ({ ...prev, wait_minutes_between: +e.target.value })); setEditDirty(true); }} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
@@ -1415,6 +1429,14 @@ export default function Inboxes() {
                         <span className="font-medium text-gray-900">{selectedInbox.max_emails_per_day}</span>
                       </div>
                       <div className="flex justify-between text-sm">
+                        <span className="text-gray-600">Limit godzinowy</span>
+                        <span className="font-medium text-gray-900">
+                          {selectedInbox.max_emails_per_hour > 0
+                            ? `${selectedInbox.sent_last_hour || 0} / ${selectedInbox.max_emails_per_hour}`
+                            : <span className="text-gray-400">wyłączony</span>}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Wait between sends</span>
                         <span className="font-medium text-gray-900">{selectedInbox.wait_minutes_between || 5} min</span>
                       </div>
@@ -1543,6 +1565,11 @@ export default function Inboxes() {
               <div>
                 <label className="block text-sm font-medium text-gray-700">Maks. wiadomości dziennie</label>
                 <input type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Maks. wiadomości na godzinę</label>
+                <input type="number" name="max_emails_per_hour" value={form.max_emails_per_hour} onChange={handleChange} min={0} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <p className="mt-1 text-xs text-gray-400">0 = brak osobnego limitu godzinowego.</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
