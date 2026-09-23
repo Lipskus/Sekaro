@@ -16,6 +16,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.orm import selectinload
 from datetime import date
 from typing import List
+from zoneinfo import ZoneInfo
 
 from app.database import get_db
 from app.models import (
@@ -31,6 +32,8 @@ from app.models import (
     CampaignInbox,
     LeadReply,
     CustomEmailOverride,
+    SmtpAccount,
+    SendAttempt,
 )
 from app.campaign_lead_status import (
     ENROLLMENT_STATUSES,
@@ -56,12 +59,186 @@ from app.schemas import (
 )
 from app.lead_inbox_resolution import from_inbox_email_by_lead_campaign
 from app.routers.leads import _fetch_lead_interactions_batch
-from app.queue_logic import reserve_slots_for_new_leads_bulk
+from app.queue_logic import reserve_slots_for_new_leads_bulk, _parse_time, compute_effective_wait_minutes
+from app.sender import get_lead_data
+from app.template_renderer import extract_variables
 
 log = logging.getLogger("quickly.routes")
 
 router = APIRouter(prefix="/api/campaigns", tags=["campaigns"])
 
+
+async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
+    """Return blocker/warning diagnostics for starting a campaign."""
+    campaign = await db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise HTTPException(404, "Campaign not found")
+
+    issues: list[dict] = []
+
+    def add(severity: str, code: str, message: str, **details):
+        row = {"severity": severity, "code": code, "message": message}
+        if details:
+            row["details"] = details
+        issues.append(row)
+
+    # Sending calendar.
+    days = list(campaign.sending_days or [])
+    if not days:
+        add("error", "no_sending_days", "Nie wybrano żadnego dnia wysyłki.")
+    elif any(day not in range(7) for day in days):
+        add("error", "invalid_sending_days", "Konfiguracja dni wysyłki jest niepoprawna.")
+
+    start_t = _parse_time(campaign.sending_hours_start or "")
+    end_t = _parse_time(campaign.sending_hours_end or "")
+    if start_t >= end_t:
+        add("error", "invalid_sending_window", "Godzina końca wysyłki musi być późniejsza niż początek.")
+
+    if campaign.timezone:
+        try:
+            ZoneInfo(campaign.timezone)
+        except Exception:
+            add("error", "invalid_timezone", f"Niepoprawna strefa czasowa: {campaign.timezone}.")
+
+    # Assigned inboxes and SMTP readiness.
+    inbox_rows = await db.execute(
+        select(Inbox)
+        .join(CampaignInbox, CampaignInbox.inbox_id == Inbox.id)
+        .where(CampaignInbox.campaign_id == campaign_id)
+        .order_by(CampaignInbox.position, CampaignInbox.inbox_id)
+    )
+    inboxes = list(inbox_rows.scalars().all())
+    if not inboxes:
+        add("error", "no_inboxes", "Kampania nie ma przypisanej skrzynki nadawczej.")
+    else:
+        smtp_rows = await db.execute(
+            select(SmtpAccount).where(SmtpAccount.inbox_id.in_([i.id for i in inboxes]))
+        )
+        smtp_by_inbox = {row.inbox_id: row for row in smtp_rows.scalars().all()}
+        for inbox in inboxes:
+            if inbox.paused:
+                add("error", "inbox_paused", f"Skrzynka {inbox.email} jest wstrzymana.", inbox_id=inbox.id)
+            if (inbox.provider or "smtp") != "smtp":
+                add("warning", "legacy_provider", f"Skrzynka {inbox.email} używa starego providera {inbox.provider}.", inbox_id=inbox.id)
+                continue
+            account = smtp_by_inbox.get(inbox.id)
+            if account is None or not (account.smtp_host or "").strip():
+                add("error", "smtp_missing", f"Skrzynka {inbox.email} nie ma kompletnej konfiguracji SMTP.", inbox_id=inbox.id)
+            elif not bool(account.last_test_ok):
+                add("warning", "smtp_not_verified", f"Ostatni test SMTP skrzynki {inbox.email} nie zakończył się powodzeniem.", inbox_id=inbox.id)
+            if int(inbox.max_emails_per_day or 0) <= 0:
+                add("error", "daily_limit_invalid", f"Skrzynka {inbox.email} ma niepoprawny limit dzienny.", inbox_id=inbox.id)
+            hourly = int(getattr(inbox, "max_emails_per_hour", 0) or 0)
+            effective_wait = compute_effective_wait_minutes(inbox)
+            if hourly > 0 and hourly > int(inbox.max_emails_per_day or 0):
+                add("warning", "hourly_above_daily", f"Limit godzinowy skrzynki {inbox.email} jest wyższy niż limit dzienny.", inbox_id=inbox.id)
+            if effective_wait != int(inbox.wait_minutes_between or 1):
+                add(
+                    "warning",
+                    "hourly_spacing_applied",
+                    f"Limit godzinowy skrzynki {inbox.email} zwiększa efektywny odstęp do {effective_wait} min.",
+                    inbox_id=inbox.id,
+                    effective_wait_minutes=effective_wait,
+                )
+
+    # Sequence content.
+    seq_rows = await db.execute(
+        select(Sequence).where(Sequence.campaign_id == campaign_id).order_by(Sequence.position)
+    )
+    sequences = list(seq_rows.scalars().all())
+    if not sequences:
+        add("error", "no_sequences", "Kampania nie ma żadnej wiadomości w sekwencji.")
+    else:
+        first = sequences[0]
+        if (first.sequence_type or "standard") == "standard" and not (first.subject or "").strip():
+            add("error", "first_subject_missing", "Pierwsza wiadomość kampanii musi mieć temat.")
+        for seq in sequences:
+            if (seq.sequence_type or "standard") == "standard" and not (seq.body or "").strip():
+                add("error", "empty_sequence_body", f"Krok {seq.position + 1} ma pustą treść.", sequence_id=seq.id)
+
+    # Contacts eligible for sending.
+    cl_rows = await db.execute(
+        select(CampaignLead, Lead)
+        .join(Lead, CampaignLead.lead_id == Lead.id)
+        .where(CampaignLead.campaign_id == campaign_id)
+    )
+    pairs = list(cl_rows.all())
+    eligible = [(cl, lead) for cl, lead in pairs if campaign_lead_may_receive_sends(cl, lead)]
+    if not pairs:
+        add("error", "no_contacts", "Kampania nie ma żadnych kontaktów.")
+    elif not eligible:
+        add("error", "no_sendable_contacts", "Kampania nie ma kontaktów kwalifikujących się do wysyłki.")
+
+    waiting_custom = sum(1 for cl, _lead in pairs if (cl.enrollment_status or "") == "needs_custom_email")
+    if waiting_custom:
+        severity = "warning" if getattr(campaign, "custom_sequence_mode", "wait_for_all") == "asap" else "error"
+        add(
+            severity,
+            "custom_emails_pending",
+            f"{waiting_custom} kontaktów czeka na przygotowanie spersonalizowanej wiadomości.",
+            count=waiting_custom,
+        )
+
+    # Missing variables in standard sequence content.
+    allowed_runtime = {"unsubscribe_link"}
+    missing_by_var: dict[str, int] = {}
+    if sequences and eligible:
+        for seq in sequences:
+            if (seq.sequence_type or "standard") != "standard":
+                continue
+            variables = set(extract_variables(seq.subject, seq.body, seq.preview_text)) - allowed_runtime
+            if not variables:
+                continue
+            for _cl, lead in eligible:
+                context = get_lead_data(lead)
+                for variable in variables:
+                    if context.get(variable) in (None, ""):
+                        missing_by_var[variable] = missing_by_var.get(variable, 0) + 1
+        for variable, count in sorted(missing_by_var.items()):
+            add(
+                "error",
+                "missing_variable_values",
+                f"Zmienna {{{{{variable}}}}} nie ma wartości dla {count} kontaktów.",
+                variable=variable,
+                contacts=count,
+            )
+
+    # A durable SendAttempt means delivery state is uncertain and automatic
+    # retry is intentionally blocked to prevent duplicates.
+    attempt_rows = await db.execute(
+        select(SendAttempt.queue_slot_id)
+        .join(QueueSlot, QueueSlot.id == SendAttempt.queue_slot_id)
+        .join(CampaignLead, CampaignLead.id == QueueSlot.campaign_lead_id)
+        .where(CampaignLead.campaign_id == campaign_id)
+        .order_by(SendAttempt.started_at.asc())
+    )
+    uncertain_slots = [row[0] for row in attempt_rows.all()]
+    if uncertain_slots:
+        add(
+            "error",
+            "uncertain_send_attempts",
+            f"{len(uncertain_slots)} wysyłek ma niepewny stan i wymaga weryfikacji przed dalszym startem.",
+            slot_ids=uncertain_slots[:50],
+            count=len(uncertain_slots),
+        )
+
+    errors = [issue for issue in issues if issue["severity"] == "error"]
+    warnings = [issue for issue in issues if issue["severity"] == "warning"]
+    return {
+        "campaign_id": campaign_id,
+        "ready": not errors,
+        "errors": errors,
+        "warnings": warnings,
+        "issues": issues,
+        "summary": {
+            "inboxes": len(inboxes),
+            "sequences": len(sequences),
+            "contacts": len(pairs),
+            "sendable_contacts": len(eligible),
+            "errors": len(errors),
+            "warnings": len(warnings),
+        },
+    }
 
 def _apply_campaign_lead_add_options(cl: CampaignLead, lead: Lead, entry: CampaignLeadAdd) -> None:
     if entry.status:
@@ -475,6 +652,79 @@ async def delete_campaign(campaign_id: int, db: AsyncSession = Depends(get_db)):
     return {"ok": True}
 
 
+@router.get("/{campaign_id}/preflight")
+async def campaign_preflight(
+    campaign_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    return await _campaign_preflight(db, campaign_id)
+
+
+@router.post("/{campaign_id}/start")
+async def start_campaign(
+    campaign_id: int,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    report = await _campaign_preflight(db, campaign_id)
+    if not report["ready"]:
+        raise HTTPException(status_code=409, detail=report)
+
+    campaign = await db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise HTTPException(404, "Campaign not found")
+    campaign.paused = False
+    await db.commit()
+
+    from app.routers.schedule import enqueue_global_recalculate
+    enqueue_global_recalculate(background_tasks)
+    return {**report, "started": True, "paused": False}
+
+
+@router.post("/{campaign_id}/pause")
+async def pause_campaign(
+    campaign_id: int,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    campaign = await db.get(Campaign, campaign_id)
+    if campaign is None:
+        raise HTTPException(404, "Campaign not found")
+    campaign.paused = True
+    await db.commit()
+
+    from app.routers.schedule import enqueue_global_recalculate
+    enqueue_global_recalculate(background_tasks)
+    return {"ok": True, "campaign_id": campaign_id, "paused": True}
+
+
+@router.post("/{campaign_id}/send-attempts/{slot_id}/reset")
+async def reset_uncertain_send_attempt(
+    campaign_id: int,
+    slot_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """Clear an uncertain claim only after the operator verifies delivery.
+
+    This endpoint does not resend. It merely makes the retained queue slot
+    eligible for a future send again.
+    """
+    row = await db.execute(
+        select(SendAttempt)
+        .join(QueueSlot, QueueSlot.id == SendAttempt.queue_slot_id)
+        .join(CampaignLead, CampaignLead.id == QueueSlot.campaign_lead_id)
+        .where(
+            SendAttempt.queue_slot_id == slot_id,
+            CampaignLead.campaign_id == campaign_id,
+        )
+    )
+    attempt = row.scalar_one_or_none()
+    if attempt is None:
+        raise HTTPException(404, "Uncertain send attempt not found")
+    await db.delete(attempt)
+    await db.commit()
+    return {"ok": True, "campaign_id": campaign_id, "slot_id": slot_id}
+
 @router.patch("/{campaign_id}", response_model=CampaignResponse)
 async def update_campaign(
     campaign_id: int,
@@ -487,6 +737,7 @@ async def update_campaign(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
     needs_global_recalc = False
+    resume_requested = False
     if data.name is not None:
         campaign.name = data.name
     if data.inbox_ids is not None:
@@ -528,21 +779,16 @@ async def update_campaign(
     if data.stop_on_reply is not None:
         campaign.stop_on_reply = data.stop_on_reply
     if data.paused is not None:
-        # paused toggle impacts scheduling order and slot existence
-        old_paused = campaign.paused
-        campaign.paused = data.paused
-        if old_paused != data.paused:
-            # run a full recalculation so that paused campaigns drop out of the
-            # schedule (or are added back when resumed) and other campaigns can
-            # move into the newly freed capacity.  Using the global routine is
-            # simpler than trying to reason about individual leads.
-            log.info(
-                "Campaign %s paused state changed (%s -> %s); triggering full recalculation",
-                campaign_id,
-                old_paused,
-                data.paused,
-            )
-            needs_global_recalc = True
+        old_paused = bool(campaign.paused)
+        if data.paused:
+            campaign.paused = True
+            if not old_paused:
+                log.info("Campaign %s paused; triggering full recalculation", campaign_id)
+                needs_global_recalc = True
+        elif old_paused:
+            # Do not bypass pre-flight when the legacy PATCH endpoint is used.
+            # Apply the remaining edits first, then validate the resulting state.
+            resume_requested = True
     if data.priority is not None:
         campaign.priority = data.priority
         # Changing priority affects the order campaigns are scheduled, so
@@ -591,6 +837,14 @@ async def update_campaign(
             log.info("Campaign %s timezone changed (%s -> %s); triggering queue recalculation", campaign_id, old_tz, campaign.timezone)
             needs_global_recalc = True
     await db.flush()
+    if resume_requested:
+        report = await _campaign_preflight(db, campaign_id)
+        if not report["ready"]:
+            raise HTTPException(status_code=409, detail=report)
+        campaign.paused = False
+        needs_global_recalc = True
+        await db.flush()
+
     if needs_global_recalc:
         await db.commit()
         from app.routers.schedule import enqueue_global_recalculate

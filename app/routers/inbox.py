@@ -183,8 +183,17 @@ async def list_inboxes(db: AsyncSession = Depends(get_db)):
     )
     pending_counts = {row[0]: row[1] for row in pending_res.all()}
 
+    hour_start = now - timedelta(hours=1)
+    hour_res = await db.execute(
+        select(EmailLog.inbox_id, func.count(EmailLog.id))
+        .where(EmailLog.sent_at >= hour_start, EmailLog.sent_at <= now)
+        .group_by(EmailLog.inbox_id)
+    )
+    hour_counts = {row[0]: row[1] for row in hour_res.all()}
+
     for i in inboxes:
         i.sent_today = counts.get(i.id, 0)
+        i.sent_last_hour = hour_counts.get(i.id, 0)
         i.pending_leads = pending_counts.get(i.id, 0)
         i.effective_max_per_day = _compute_effective_limit(i)
         await _maybe_complete_ramp_up(i, db)
@@ -200,6 +209,7 @@ async def create_inbox(data: InboxCreate, db: AsyncSession = Depends(get_db)):
         display_name=data.display_name,
         reply_to=str(data.reply_to).strip().lower() if data.reply_to else None,
         max_emails_per_day=data.max_emails_per_day,
+        max_emails_per_hour=data.max_emails_per_hour,
         wait_minutes_between=data.wait_minutes_between,
         max_jitter_seconds=data.max_jitter_seconds,
         provider=data.provider,
@@ -240,6 +250,14 @@ async def get_inbox(inbox_id: int, db: AsyncSession = Depends(get_db)):
         )
     )
     inbox.sent_today = count_res.scalar() or 0
+    hour_start = datetime.utcnow() - timedelta(hours=1)
+    hour_count_res = await db.execute(
+        select(func.count(EmailLog.id)).where(
+            EmailLog.inbox_id == inbox_id,
+            EmailLog.sent_at >= hour_start,
+        )
+    )
+    inbox.sent_last_hour = hour_count_res.scalar() or 0
     inbox.effective_max_per_day = _compute_effective_limit(inbox)
     await _maybe_complete_ramp_up(inbox, db)
     return inbox
@@ -285,6 +303,9 @@ async def update_inbox(
         inbox.reply_to = str(data.reply_to).strip().lower() or None
     if data.max_emails_per_day is not None:
         inbox.max_emails_per_day = data.max_emails_per_day
+        capacity_changed = True
+    if data.max_emails_per_hour is not None:
+        inbox.max_emails_per_hour = data.max_emails_per_hour
         capacity_changed = True
     if data.wait_minutes_between is not None:
         inbox.wait_minutes_between = data.wait_minutes_between

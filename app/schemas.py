@@ -196,8 +196,9 @@ class InboxCreate(BaseModel):
     email: str
     display_name: str = ""
     reply_to: Optional[EmailStr | Literal[""]] = None
-    max_emails_per_day: int = 50
-    wait_minutes_between: int = 5
+    max_emails_per_day: int = Field(default=50, ge=1, le=10000)
+    max_emails_per_hour: int = Field(default=0, ge=0, le=10000)
+    wait_minutes_between: int = Field(default=5, ge=1, le=1440)
     max_jitter_seconds: int = 180
     provider: INBOX_PROVIDERS = "smtp"  # Sekaro core; legacy provider values remain readable
     tracking_domain: Optional[str] = None  # custom hostname for tracking links
@@ -210,8 +211,9 @@ class InboxCreate(BaseModel):
 class InboxUpdate(BaseModel):
     display_name: Optional[str] = None
     reply_to: Optional[EmailStr | Literal[""]] = None
-    max_emails_per_day: Optional[int] = None
-    wait_minutes_between: Optional[int] = None
+    max_emails_per_day: Optional[int] = Field(default=None, ge=1, le=10000)
+    max_emails_per_hour: Optional[int] = Field(default=None, ge=0, le=10000)
+    wait_minutes_between: Optional[int] = Field(default=None, ge=1, le=1440)
     max_jitter_seconds: Optional[int] = None
     provider: Optional[INBOX_PROVIDERS] = None
     tracking_domain: Optional[str] = None  # set to "" to clear
@@ -246,6 +248,7 @@ class InboxResponse(BaseModel):
     display_name: str
     reply_to: Optional[str] = None
     max_emails_per_day: int
+    max_emails_per_hour: int = 0
     wait_minutes_between: int
     max_jitter_seconds: int = 180
     provider: str
@@ -263,6 +266,8 @@ class InboxResponse(BaseModel):
     effective_max_per_day: int = 0  # computed; 0 means use max_emails_per_day directly
     # how many emails have been sent from this inbox **today** (UTC)
     sent_today: int = 0
+    # rolling 60-minute count, useful when max_emails_per_hour is enabled
+    sent_last_hour: int = 0
     # how many future queue slots are pending on this inbox right now
     pending_leads: int = 0
 
@@ -379,7 +384,7 @@ class CampaignCreate(BaseModel):
     sending_hours_start: str = "09:00"
     sending_hours_end: str = "17:00"
     stop_on_reply: bool = True
-    paused: bool = False
+    paused: bool = True
     priority: int = 0  # Lower value = processed first in priority scheduling
     # Tracking (off by default for better deliverability)
     track_opens: bool = False

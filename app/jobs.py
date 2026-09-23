@@ -11,7 +11,7 @@ import re
 import secrets
 from datetime import datetime, date, time, timedelta
 from email.utils import make_msgid
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 try:
@@ -37,16 +37,59 @@ from app.models import (
     GmailMessage,
     Office365Message,
     CustomEmailOverride,
+    SendAttempt,
 )
 from app.sender import send_email, render_body, get_lead_data, SendResult, SendFailure, build_quote_html, build_quote_plain, _plain_to_quoted_html, _strip_html_tags
 from app.webhooks import fire_webhook_event
 from app.app_settings import get_google_oauth_credentials, get_office365_oauth_credentials
 from app import time as time_provider
-from app.queue_logic import _parse_time, compute_effective_daily_limit
+from app.queue_logic import _parse_time, compute_effective_daily_limit, compute_effective_wait_minutes
 from app.campaign_lead_status import campaign_lead_may_receive_sends
 
 log = logging.getLogger(__name__)
 
+
+async def _claim_send_attempt(slot_id: int) -> str | None:
+    """Atomically claim a queue slot immediately before the external send.
+
+    Uses INSERT .. ON CONFLICT DO NOTHING so racing workers never need an
+    exception/rollback path. The committed claim survives process crashes
+    and therefore blocks an automatic duplicate when delivery is uncertain.
+    """
+    token = secrets.token_urlsafe(24)
+    from app import database as _database
+
+    async with _database.AsyncSessionLocal() as claim_session:
+        result = await claim_session.execute(
+            text(
+                """
+                INSERT INTO send_attempt (queue_slot_id, attempt_token, started_at)
+                VALUES (:slot_id, :token, :started_at)
+                ON CONFLICT DO NOTHING
+                RETURNING attempt_token
+                """
+            ),
+            {
+                "slot_id": slot_id,
+                "token": token,
+                "started_at": time_provider.now(),
+            },
+        )
+        claimed = result.scalar_one_or_none()
+        await claim_session.commit()
+        return token if claimed else None
+
+
+async def _release_send_attempt(slot_id: int, token: str | None = None) -> None:
+    """Release a claim after a known failed/non-delivered attempt."""
+    from app import database as _database
+
+    async with _database.AsyncSessionLocal() as claim_session:
+        stmt = delete(SendAttempt).where(SendAttempt.queue_slot_id == slot_id)
+        if token:
+            stmt = stmt.where(SendAttempt.attempt_token == token)
+        await claim_session.execute(stmt)
+        await claim_session.commit()
 
 async def _update_enrollment_after_send(session: AsyncSession, cl: CampaignLead, campaign: Campaign, sequence: Sequence) -> None:
     n_seq = (
@@ -255,7 +298,28 @@ async def run_send_job():
             # Use the warmup-aware effective limit as the per-inbox rate cap.
             max_per_day = compute_effective_daily_limit(inbox)
 
-            # compute last sent timestamp so we can enforce the wait-minutes
+            # Hard rolling-hour cap, separate from the daily quota.
+            max_per_hour = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+            hourly_remaining = None
+            if max_per_hour > 0:
+                hour_start = now - timedelta(hours=1)
+                hour_count_res = await session.execute(
+                    select(func.count(EmailLog.id)).where(
+                        EmailLog.inbox_id == inbox.id,
+                        EmailLog.sent_at >= hour_start,
+                        EmailLog.sent_at <= now,
+                    )
+                )
+                sent_last_hour = int(hour_count_res.scalar() or 0)
+                hourly_remaining = max(0, max_per_hour - sent_last_hour)
+                if hourly_remaining <= 0:
+                    log.info(
+                        "Hourly limit reached for inbox %s (%d/%d); skipping this run",
+                        inbox.email, sent_last_hour, max_per_hour,
+                    )
+                    continue
+
+            # compute last sent timestamp so we can enforce the effective wait
             last_sent_time = None
 
             # Per-inbox tracking base URL — custom domain takes priority
@@ -278,10 +342,19 @@ async def run_send_job():
                     )
                     break
 
+                if hourly_remaining is not None and sent_this_inbox >= hourly_remaining:
+                    log.info(
+                        "Hourly send allowance exhausted for inbox %s in this run (%d/%d)",
+                        inbox.email,
+                        sent_this_inbox,
+                        hourly_remaining,
+                    )
+                    break
+
                 # HARD LIMIT: rate/minutes between messages
                 if last_sent_time is not None:
                     delta = now - last_sent_time
-                    required = timedelta(minutes=inbox.wait_minutes_between)
+                    required = timedelta(minutes=compute_effective_wait_minutes(inbox))
                     # allow up to 20 second of slack before firing rate_limit
                     if delta + timedelta(seconds=20) < required:
                         # Try recalculation to spread slots out
@@ -303,7 +376,7 @@ async def run_send_job():
                                     {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                      "last_sent": (new_last or last_sent_time).isoformat(),
                                      "now": now.isoformat(),
-                                     "wait_minutes": inbox.wait_minutes_between,
+                                     "wait_minutes": compute_effective_wait_minutes(inbox),
                                      "recalculated": True, "resolved": False},
                                 )
                             else:
@@ -312,7 +385,7 @@ async def run_send_job():
                                     {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                      "last_sent": (new_last or last_sent_time).isoformat(),
                                      "now": now.isoformat(),
-                                     "wait_minutes": inbox.wait_minutes_between,
+                                     "wait_minutes": compute_effective_wait_minutes(inbox),
                                      "recalculated": True, "resolved": True,
                                      "message": "Rate limit was hit but resolved after recalculation"},
                                 )
@@ -325,7 +398,7 @@ async def run_send_job():
                                 {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                  "last_sent": last_sent_time.isoformat(),
                                  "now": now.isoformat(),
-                                 "wait_minutes": inbox.wait_minutes_between},
+                                 "wait_minutes": compute_effective_wait_minutes(inbox)},
                             )
                         break
                 if getattr(campaign, 'paused', False):
@@ -1083,6 +1156,25 @@ async def send_slot_job(slot_id: int) -> None:
             await session.commit()
             return
 
+        # ── Rolling hourly cap ───────────────────────────────────────────
+        max_per_hour = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+        if max_per_hour > 0:
+            hour_start = now - timedelta(hours=1)
+            hour_count_res = await session.execute(
+                select(func.count(EmailLog.id)).where(
+                    EmailLog.inbox_id == inbox.id,
+                    EmailLog.sent_at >= hour_start,
+                    EmailLog.sent_at <= now,
+                )
+            )
+            sent_last_hour = int(hour_count_res.scalar() or 0)
+            if sent_last_hour >= max_per_hour:
+                log.info(
+                    "send_slot_job: hourly limit hit for inbox %s (%d/%d), skipping slot %d",
+                    inbox.email, sent_last_hour, max_per_hour, slot_id,
+                )
+                return
+
         # ── Rate-limit check ─────────────────────────────────────────────
         last_sent_res = await session.execute(
             select(EmailLog.sent_at)
@@ -1093,7 +1185,7 @@ async def send_slot_job(slot_id: int) -> None:
         last_sent_time = last_sent_res.scalar_one_or_none()
         if last_sent_time is not None:
             delta = now - last_sent_time
-            required = timedelta(minutes=inbox.wait_minutes_between)
+            required = timedelta(minutes=compute_effective_wait_minutes(inbox))
             if delta + timedelta(seconds=20) < required:
                 log.info(
                     "send_slot_job: rate limit for inbox %s – "
@@ -1106,7 +1198,7 @@ async def send_slot_job(slot_id: int) -> None:
                         "inbox_id": inbox.id, "inbox_email": inbox.email,
                         "last_sent": last_sent_time.isoformat(),
                         "now": now.isoformat(),
-                        "wait_minutes": inbox.wait_minutes_between,
+                        "wait_minutes": compute_effective_wait_minutes(inbox),
                     },
                 )
                 await session.commit()
@@ -1510,39 +1602,56 @@ async def send_slot_job(slot_id: int) -> None:
 
         list_unsub_url = unsub_url if getattr(campaign, "add_unsubscribe_header", True) else None
 
+        # ── Durable send claim ───────────────────────────────────────────
+        attempt_token = await _claim_send_attempt(slot_id)
+        if not attempt_token:
+            log.warning(
+                "send_slot_job: slot %d already has an active/uncertain send attempt; not sending again",
+                slot_id,
+            )
+            await session.rollback()
+            return
+
         # ── Send ──────────────────────────────────────────────────────────
-        if simulate_send:
-            fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
-            result = SendResult(
-                message_id=make_msgid(domain="test.local"),
-                thread_id=fake_thread_id,
-                gmail_message_id=f"test-gmail-{email_log_entry.id}",
-            )
-        else:
-            result = send_email(
-                to_email=lead.email,
-                subject=subject,
-                body=send_body,
-                from_email=from_addr,
-                from_name=from_name,
-                reply_to_msg_id=reply_to_msg_id,
-                references=references_chain,
-                is_html=is_html,
-                provider=inbox.provider or "smtp",
-                gmail_access_token=gmail_token,
-                gmail_account=ga,
-                thread_id=prev_thread_id,
-                list_unsubscribe_url=list_unsub_url,
-                google_client_id=g_client_id,
-                google_client_secret=g_client_secret,
-                office365_account=o365_account,
-                office365_client_id=o365_client_id,
-                office365_client_secret=o365_client_secret,
-                office365_tenant_id=o365_tenant_id,
-                conversation_id=prev_thread_id if inbox.provider == "office365" else None,
-                reply_graph_message_id=reply_graph_message_id if inbox.provider == "office365" else None,
-                smtp_account=smtp_account,
-            )
+        try:
+            if simulate_send:
+                fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
+                result = SendResult(
+                    message_id=make_msgid(domain="test.local"),
+                    thread_id=fake_thread_id,
+                    gmail_message_id=f"test-gmail-{email_log_entry.id}",
+                )
+            else:
+                result = send_email(
+                    to_email=lead.email,
+                    subject=subject,
+                    body=send_body,
+                    from_email=from_addr,
+                    from_name=from_name,
+                    reply_to_address=(getattr(inbox, "reply_to", None) or None),
+                    reply_to_msg_id=reply_to_msg_id,
+                    references=references_chain,
+                    is_html=is_html,
+                    provider=inbox.provider or "smtp",
+                    gmail_access_token=gmail_token,
+                    gmail_account=ga,
+                    thread_id=prev_thread_id,
+                    list_unsubscribe_url=list_unsub_url,
+                    google_client_id=g_client_id,
+                    google_client_secret=g_client_secret,
+                    office365_account=o365_account,
+                    office365_client_id=o365_client_id,
+                    office365_client_secret=o365_client_secret,
+                    office365_tenant_id=o365_tenant_id,
+                    conversation_id=prev_thread_id if inbox.provider == "office365" else None,
+                    reply_graph_message_id=reply_graph_message_id if inbox.provider == "office365" else None,
+                    smtp_account=smtp_account,
+                )
+        except Exception:
+            log.exception("send_slot_job: send raised before delivery state was known for slot %d", slot_id)
+            await session.rollback()
+            await _release_send_attempt(slot_id, attempt_token)
+            return
 
         # ── Permanent failure ─────────────────────────────────────────────
         if isinstance(result, SendFailure):
@@ -1576,12 +1685,14 @@ async def send_slot_job(slot_id: int) -> None:
                     "inbox_id": inbox.id, "inbox_email": inbox.email, "error": result.message,
                 })
             await session.commit()
+            await _release_send_attempt(slot_id, attempt_token)
             return
 
         if not result:
             # Transient failure – roll back the pre-created log; slot stays for retry
             await session.delete(email_log_entry)
             await session.commit()
+            await _release_send_attempt(slot_id, attempt_token)
             log.warning("send_slot_job: transient failure for slot %d, slot retained for retry", slot_id)
             return
 

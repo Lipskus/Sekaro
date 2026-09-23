@@ -98,6 +98,7 @@ class Inbox(Base):
     display_name = Column(String(255), default="")
     reply_to = Column(String(255), nullable=True, default=None)
     max_emails_per_day = Column(Integer, default=50, nullable=False)
+    max_emails_per_hour = Column(Integer, default=0, nullable=False)  # 0 = disabled
     wait_minutes_between = Column(Integer, default=5, nullable=False)  # Minutes between emails from this inbox
     max_jitter_seconds = Column(Integer, default=180, nullable=False)   # Max random seconds added to each send time (0 = disabled)
     provider = Column(String(32), default="smtp")  # Sekaro core: smtp; legacy rows may use gmail/office365
@@ -212,7 +213,7 @@ class Campaign(Base):
     id = Column(Integer, primary_key=True, index=True)
     public_id = Column(String(16), unique=True, nullable=False, index=True, default=_make_public_id)
     name = Column(String(255), nullable=False)
-    paused = Column(Boolean, default=False)  # If True, skip sending from this campaign
+    paused = Column(Boolean, default=True)  # New campaigns require pre-flight before sending
     priority = Column(Integer, default=0, nullable=False)  # Lower = higher priority in priority-based scheduling
     # sending_days: 0=Mon .. 6=Sun, stored as JSON array e.g. [0,1,2,3,4]
     sending_days = Column(JSON, default=[0, 1, 2, 3, 4])  # Mon-Fri default
@@ -389,6 +390,30 @@ class QueueSlot(Base):
     campaign_lead = relationship("CampaignLead", back_populates="queue_slots")
     inbox = relationship("Inbox")
     variant = relationship("SequenceVariant", foreign_keys=[variant_id])
+
+
+class SendAttempt(Base):
+    """Durable claim created immediately before an external send.
+
+    A unique queue_slot_id prevents two workers from sending the same slot.
+    If the process dies after the external SMTP call, the claim remains and
+    blocks automatic retry until an operator explicitly clears it.
+    """
+    __tablename__ = "send_attempt"
+    __table_args__ = (
+        UniqueConstraint("queue_slot_id", name="uq_send_attempt_queue_slot"),
+        Index("ix_send_attempt_started_at", "started_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    queue_slot_id = Column(
+        Integer,
+        ForeignKey("queue_slot.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+    )
+    attempt_token = Column(String(64), nullable=False, unique=True, index=True)
+    started_at = Column(DateTime, default=_utcnow, nullable=False)
 
 
 class EmailLog(Base):

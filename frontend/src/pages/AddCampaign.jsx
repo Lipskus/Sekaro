@@ -14,6 +14,7 @@ export default function AddCampaign() {
     sending_hours_end: '17:00',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     stop_on_reply: true,
+    paused: true,
     // Tracking (off by default)
     track_opens: false,
     track_clicks: false,
@@ -78,7 +79,7 @@ export default function AddCampaign() {
     e.preventDefault();
     try {
       const data = await api.post('/campaigns', form);
-      setMessage({ type: 'success', text: 'Kampania została utworzona.' });
+      setMessage({ type: 'success', text: 'Kampania została utworzona jako wstrzymana. Uruchom ją po przejściu pre-flight.' });
       navigate(`/campaigns/${data.id}#analytics`);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
@@ -118,7 +119,8 @@ export default function AddCampaign() {
                   onChange={handleCheckboxChange}
                 />
                 <span className="text-sm">
-                  {i.email}{i.display_name ? ` (${i.display_name})` : ''} — max {i.max_emails_per_day}/day
+                  {i.email}{i.display_name ? ` (${i.display_name})` : ''} — maks. {i.max_emails_per_day}/dzień
+                  {i.max_emails_per_hour > 0 ? ` · ${i.max_emails_per_hour}/godz.` : ''}
                 </span>
               </label>
             ))}

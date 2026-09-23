@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — Campaign scheduler safety
+
+- added optional per-inbox rolling hourly sending limits
+- scheduler derives a safe minimum spacing from the configured hourly cap
+- send workers enforce the hourly cap again immediately before sending
+- existing daily limits, jitter, sending windows and timezone scheduling remain active
+- new campaigns are created paused by default
+- added campaign pre-flight diagnostics before start
+- pre-flight validates sending days/hours, timezone, SMTP inbox readiness, limits, sequences and contacts
+- pre-flight blocks campaigns when required dynamic variable values are missing
+- added explicit Start and Pause campaign actions
+- legacy unpause through generic campaign update also requires successful pre-flight
+- added durable PostgreSQL send-attempt claims to prevent two workers from sending the same queue slot
+- a crash after an external send leaves an uncertain attempt that blocks automatic retry instead of risking a duplicate email
+- added operator reset action for an uncertain attempt after delivery has been checked manually
+- added scheduler, pre-flight, hourly-limit and send-claim regression tests
+
 ## 0.4.1 — Configurable contact columns
 
 - each user-defined contact field is displayed as its own table column
