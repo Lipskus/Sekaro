@@ -1568,7 +1568,7 @@ async def preview_email(
         if lead:
             lead_data = get_lead_data(lead)
 
-    rendered_body = render_body(preview_body, lead_data)
+    rendered_body = render_body(preview_body, lead_data, html_escape_values=bool(preview_is_html))
     rendered_subject = render_body(preview_subject, lead_data)
 
     # For HTML sequences inject tracking with a placeholder log id so that
@@ -1671,7 +1671,7 @@ async def send_test_email(
         if lead:
             lead_data = get_lead_data(lead)
 
-    rendered_body = render_body(send_body, lead_data)
+    rendered_body = render_body(send_body, lead_data, html_escape_values=bool(send_is_html))
     rendered_subject = render_body(send_subject, lead_data)
 
     # Get Gmail account if needed
