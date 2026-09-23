@@ -59,13 +59,20 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 - [ ] Optional variable fallbacks/default values
 
 ## 0.5 — Campaigns & scheduler
-- Daily/hourly limits
-- Minimum interval between messages
-- Random jitter
-- Sending days/hours
-- Pause/resume
-- Safe queue and idempotent sending
-- Campaign pre-flight checks
+- [x] Daily inbox limits
+- [x] Optional rolling hourly inbox limits
+- [x] Scheduler spacing derived from hourly caps
+- [x] Minimum interval between messages
+- [x] Random jitter
+- [x] Sending days/hours and campaign timezone
+- [x] Explicit campaign pause/resume
+- [x] New campaigns start paused
+- [x] Safe queue slot uniqueness
+- [x] Durable send claims to prevent concurrent duplicate sends
+- [x] Uncertain-delivery state blocks automatic retry
+- [x] Campaign pre-flight checks
+- [x] Pre-flight validates inboxes, schedule, sequence content, contacts and variables
+- [x] Operator reset path for verified non-delivered uncertain attempts
 
 ## 0.6 — Sequences
 - Multi-step follow-ups
