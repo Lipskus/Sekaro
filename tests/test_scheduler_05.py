@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import select
 
 from app.jobs import _claim_send_attempt, _release_send_attempt
-from app.models import Inbox, QueueSlot, SendAttempt, SmtpAccount
+from app.models import CampaignLead, Inbox, QueueSlot, SendAttempt, SmtpAccount
 from app.queue_logic import compute_effective_wait_minutes
 from app.routers.campaigns import _campaign_preflight
 from app.schemas import CampaignCreate
@@ -143,9 +143,9 @@ async def test_preflight_allows_user_defined_variable_when_contact_has_value(ses
 async def test_send_attempt_claim_is_exclusive_and_releasable(session):
     campaign, inbox, lead = await _ready_campaign(session)
     cl_res = await session.execute(
-        select(__import__("app.models", fromlist=["CampaignLead"]).CampaignLead).where(
-            __import__("app.models", fromlist=["CampaignLead"]).CampaignLead.campaign_id == campaign.id,
-            __import__("app.models", fromlist=["CampaignLead"]).CampaignLead.lead_id == lead.id,
+        select(CampaignLead).where(
+            CampaignLead.campaign_id == campaign.id,
+            CampaignLead.lead_id == lead.id,
         )
     )
     cl = cl_res.scalar_one()
@@ -177,8 +177,6 @@ async def test_send_attempt_claim_is_exclusive_and_releasable(session):
 @pytest.mark.asyncio
 async def test_preflight_blocks_uncertain_send_attempt(session):
     campaign, inbox, lead = await _ready_campaign(session)
-    from app.models import CampaignLead
-
     cl = (
         await session.execute(
             select(CampaignLead).where(
