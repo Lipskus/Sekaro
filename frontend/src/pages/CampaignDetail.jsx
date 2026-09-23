@@ -1812,6 +1812,8 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
   });
   const [msg,    setMsg]    = useState(null);
   const [saving, setSaving] = useState(false);
+  const [preflight, setPreflight] = useState(null);
+  const [preflightBusy, setPreflightBusy] = useState(false);
   const [tzSearch, setTzSearch] = useState(null); // null = not focused
 
   // pre-compute timezone list once
@@ -1836,13 +1838,83 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
   const toggleDay   = d  => setForm(f => { const s=new Set(f.sending_days); s.has(d)?s.delete(d):s.add(d); return {...f, sending_days:[...s].sort()}; });
   const toggleInbox = id => setForm(f => { const s=new Set(f.inbox_ids);   s.has(id)?s.delete(id):s.add(id); return {...f, inbox_ids:[...s]}; });
 
+  const settingsPayload = () => {
+    const { paused: _paused, ...payload } = form;
+    return payload;
+  };
+
+  const runPreflight = async () => {
+    setPreflightBusy(true);
+    try {
+      const report = await api.get(`/campaigns/${campaignId}/preflight`);
+      setPreflight(report);
+      return report;
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Nie udało się sprawdzić kampanii.' });
+      return null;
+    } finally {
+      setPreflightBusy(false);
+    }
+  };
+
+  const startCampaign = async () => {
+    setSaving(true);
+    try {
+      // Save the visible settings first, but never bypass pre-flight by
+      // changing paused through the generic PATCH endpoint.
+      await api.patch(`/campaigns/${campaignId}`, settingsPayload());
+      const report = await api.get(`/campaigns/${campaignId}/preflight`);
+      setPreflight(report);
+      if (!report.ready) {
+        setMsg({ type: 'error', text: 'Kampania ma błędy blokujące start. Popraw je i uruchom pre-flight ponownie.' });
+        return;
+      }
+      await api.post(`/campaigns/${campaignId}/start`, {});
+      setForm(prev => ({ ...prev, paused: false }));
+      setMsg({ type: 'success', text: 'Kampania uruchomiona. Kolejka jest przeliczana.' });
+      onSave();
+    } catch (e) {
+      setMsg({ type: 'error', text: e.message || 'Nie udało się uruchomić kampanii.' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const pauseCampaign = async () => {
+    setSaving(true);
+    try {
+      await api.post(`/campaigns/${campaignId}/pause`, {});
+      setForm(prev => ({ ...prev, paused: true }));
+      setMsg({ type: 'success', text: 'Kampania została wstrzymana.' });
+      onSave();
+    } catch (e) {
+      setMsg({ type: 'error', text: e.message || 'Nie udało się wstrzymać kampanii.' });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetUncertainAttempt = async (slotId) => {
+    const ok = await confirm(
+      `Odblokować slot #${slotId}? Zrób to tylko po sprawdzeniu, że wiadomość NIE została faktycznie dostarczona.`,
+    );
+    if (!ok) return;
+    try {
+      await api.post(`/campaigns/${campaignId}/send-attempts/${slotId}/reset`, {});
+      notify({ type: 'success', message: `Slot #${slotId} odblokowany.` });
+      await runPreflight();
+    } catch (e) {
+      notify({ type: 'error', message: e.message || 'Nie udało się odblokować slotu.' });
+    }
+  };
+
   const submit = async e => {
     e.preventDefault();
     if (!form.name.trim())          { setMsg({type:'error',text:'Name is required'});           return; }
     if (!form.inbox_ids.length)     { setMsg({type:'error',text:'Select at least one inbox'});  return; }
     setSaving(true);
     try {
-      await api.patch(`/campaigns/${campaignId}`, form);
+      await api.patch(`/campaigns/${campaignId}`, settingsPayload());
       // If the timezone was changed, trigger a queue recalculation automatically.
       const tzChanged = form.timezone !== (campaign.timezone ?? '');
       if (tzChanged) {
@@ -1875,7 +1947,6 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
   const TOGGLE_OPTIONS = [
     { key: 'stop_on_reply',            label: 'Zatrzymaj sekwencję po odpowiedzi' },
-    { key: 'paused',                   label: 'Wstrzymaj kampanię' },
     { key: 'track_opens',              label: 'Śledź otwarcia wiadomości' },
     { key: 'track_clicks',             label: 'Śledź kliknięcia linków' },
     { key: 'add_unsubscribe_header',   label: 'Dodaj nagłówek List-Unsubscribe (zalecane)' },
@@ -1885,6 +1956,88 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
   return (
     <div className="max-w-2xl space-y-8">
+      <div className="rounded-lg border border-gray-200 bg-white p-5 space-y-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-gray-800">Gotowość kampanii</h2>
+              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                form.paused ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'
+              }`}>
+                {form.paused ? 'Wstrzymana' : 'Aktywna'}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-gray-500">
+              Pre-flight sprawdza skrzynki, limity, harmonogram, sekwencje, kontakty, zmienne i bezpieczeństwo kolejki.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button type="button" size="sm" variant="outline" onClick={runPreflight} disabled={preflightBusy || saving}>
+              {preflightBusy ? 'Sprawdzanie…' : 'Sprawdź gotowość'}
+            </Button>
+            {form.paused ? (
+              <Button type="button" size="sm" variant="default" onClick={startCampaign} disabled={saving}>
+                {saving ? 'Uruchamianie…' : 'Uruchom kampanię'}
+              </Button>
+            ) : (
+              <Button type="button" size="sm" variant="outline" onClick={pauseCampaign} disabled={saving}>
+                Wstrzymaj kampanię
+              </Button>
+            )}
+          </div>
+        </div>
+
+        {preflight && (
+          <div className="space-y-3">
+            <div className={`rounded-lg px-3 py-2 text-sm ${
+              preflight.ready
+                ? 'border border-green-200 bg-green-50 text-green-800'
+                : 'border border-red-200 bg-red-50 text-red-800'
+            }`}>
+              {preflight.ready
+                ? `Gotowa do startu · ${preflight.summary?.sendable_contacts || 0} kontaktów · ${preflight.summary?.sequences || 0} kroków`
+                : `${preflight.summary?.errors || 0} błędów blokujących start`}
+              {(preflight.summary?.warnings || 0) > 0 && (
+                <span> · {preflight.summary.warnings} ostrzeżeń</span>
+              )}
+            </div>
+
+            {(preflight.issues || []).length > 0 && (
+              <div className="space-y-2">
+                {preflight.issues.map((issue, idx) => (
+                  <div
+                    key={`${issue.code}-${idx}`}
+                    className={`rounded-lg border px-3 py-2 text-sm ${
+                      issue.severity === 'error'
+                        ? 'border-red-200 bg-red-50/60 text-red-800'
+                        : 'border-amber-200 bg-amber-50/60 text-amber-800'
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span>{issue.message}</span>
+                      {issue.code === 'uncertain_send_attempts' && issue.details?.slot_ids?.length > 0 && (
+                        <div className="flex flex-wrap gap-1">
+                          {issue.details.slot_ids.map(slotId => (
+                            <button
+                              key={slotId}
+                              type="button"
+                              onClick={() => resetUncertainAttempt(slotId)}
+                              className="rounded border border-red-300 bg-white px-2 py-0.5 text-xs text-red-700 hover:bg-red-50"
+                            >
+                              Sprawdź/resetuj #{slotId}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       <form onSubmit={submit} className="bg-white rounded-lg border border-gray-200 p-6 space-y-5">
         <h2 className="text-lg font-semibold text-gray-800">Ustawienia kampanii</h2>
         {msg && (
