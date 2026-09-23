@@ -293,6 +293,7 @@ async def run_send_job():
 
             # Hard rolling-hour cap, separate from the daily quota.
             max_per_hour = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+            hourly_remaining = None
             if max_per_hour > 0:
                 hour_start = now - timedelta(hours=1)
                 hour_count_res = await session.execute(
@@ -303,7 +304,8 @@ async def run_send_job():
                     )
                 )
                 sent_last_hour = int(hour_count_res.scalar() or 0)
-                if sent_last_hour >= max_per_hour:
+                hourly_remaining = max(0, max_per_hour - sent_last_hour)
+                if hourly_remaining <= 0:
                     log.info(
                         "Hourly limit reached for inbox %s (%d/%d); skipping this run",
                         inbox.email, sent_last_hour, max_per_hour,
@@ -330,6 +332,15 @@ async def run_send_job():
                         session,
                         "daily_limit",
                         {"inbox_id": inbox.id, "inbox_email": inbox.email, "date": str(today)},
+                    )
+                    break
+
+                if hourly_remaining is not None and sent_this_inbox >= hourly_remaining:
+                    log.info(
+                        "Hourly send allowance exhausted for inbox %s in this run (%d/%d)",
+                        inbox.email,
+                        sent_this_inbox,
+                        hourly_remaining,
                     )
                     break
 
