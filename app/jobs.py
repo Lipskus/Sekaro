@@ -527,7 +527,7 @@ async def run_send_job():
                                     _prev_body_raw = _prev_var.body
                                     if _prev_var.is_html is not None:
                                         _prev_is_html_raw = _prev_var.is_html
-                            _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead))
+                            _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead), html_escape_values=bool(_prev_is_html_raw))
                             if _prev_is_html_raw:
                                 prev_email_body_html = _rendered_prev
                             else:
@@ -643,10 +643,10 @@ async def run_send_job():
                 lead_data = get_lead_data(lead)
                 lead_data["unsubscribe_link"] = unsub_url
 
-                body = render_body(seq_body, lead_data)
+                body = render_body(seq_body, lead_data, html_escape_values=is_html)
                 # Inject hidden preheader so email clients show the custom preview text.
                 if is_html and seq_preview_text:
-                    rendered_preview = render_body(seq_preview_text, lead_data)
+                    rendered_preview = render_body(seq_preview_text, lead_data, html_escape_values=True)
                     preheader = (
                         '<div style="display:none !important; visibility:hidden; '
                         'font-size:1px; overflow:hidden; max-height:0; mso-hide:all;">'
@@ -1340,7 +1340,7 @@ async def send_slot_job(slot_id: int) -> None:
                             _prev_body_raw = _prev_var.body
                             if _prev_var.is_html is not None:
                                 _prev_is_html_raw = _prev_var.is_html
-                    _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead))
+                    _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead), html_escape_values=bool(_prev_is_html_raw))
                     if _prev_is_html_raw:
                         prev_email_body_html = _rendered_prev
                     else:
@@ -1425,9 +1425,9 @@ async def send_slot_job(slot_id: int) -> None:
         lead_data = get_lead_data(lead)
         lead_data["unsubscribe_link"] = unsub_url
 
-        body = render_body(seq_body, lead_data)
+        body = render_body(seq_body, lead_data, html_escape_values=is_html)
         if is_html and seq_preview_text:
-            rendered_preview = render_body(seq_preview_text, lead_data)
+            rendered_preview = render_body(seq_preview_text, lead_data, html_escape_values=True)
             preheader = (
                 '<div style="display:none !important; visibility:hidden; '
                 'font-size:1px; overflow:hidden; max-height:0; mso-hide:all;">'
