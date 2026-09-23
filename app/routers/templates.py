@@ -19,6 +19,7 @@ from app.schemas import (
 )
 from app.sender import SendFailure, SendResult, send_email
 from app.template_renderer import render_message
+from app.time import utcnow
 
 router = APIRouter(prefix="/api/templates", tags=["templates"])
 
@@ -146,7 +147,7 @@ async def create_template_version(
             is_html=bool(data.is_html),
         )
     )
-    row.updated_at = __import__("app.time", fromlist=["utcnow"]).utcnow()
+    row.updated_at = utcnow()
     await db.commit()
     return _template_response(await _get_template(db, template_id), include_versions=True)
 
