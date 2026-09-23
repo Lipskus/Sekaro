@@ -11,8 +11,9 @@ import re
 import secrets
 from datetime import datetime, date, time, timedelta
 from email.utils import make_msgid
-from sqlalchemy import select, func
+from sqlalchemy import select, func, delete
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 try:
     from zoneinfo import ZoneInfo
@@ -37,6 +38,7 @@ from app.models import (
     GmailMessage,
     Office365Message,
     CustomEmailOverride,
+    SendAttempt,
 )
 from app.sender import send_email, render_body, get_lead_data, SendResult, SendFailure, build_quote_html, build_quote_plain, _plain_to_quoted_html, _strip_html_tags
 from app.webhooks import fire_webhook_event
@@ -47,6 +49,40 @@ from app.campaign_lead_status import campaign_lead_may_receive_sends
 
 log = logging.getLogger(__name__)
 
+
+async def _claim_send_attempt(slot_id: int) -> str | None:
+    """Atomically claim a queue slot immediately before the external send.
+
+    The claim is committed in a separate transaction. A concurrent worker
+    racing for the same slot will hit the unique queue_slot_id constraint and
+    must not send. Claims intentionally survive process crashes to avoid an
+    automatic duplicate send when delivery state is uncertain.
+    """
+    token = secrets.token_urlsafe(24)
+    async with AsyncSessionLocal() as claim_session:
+        claim_session.add(
+            SendAttempt(
+                queue_slot_id=slot_id,
+                attempt_token=token,
+                started_at=time_provider.now(),
+            )
+        )
+        try:
+            await claim_session.commit()
+            return token
+        except IntegrityError:
+            await claim_session.rollback()
+            return None
+
+
+async def _release_send_attempt(slot_id: int, token: str | None = None) -> None:
+    """Release a claim after a known failed/non-delivered attempt."""
+    async with AsyncSessionLocal() as claim_session:
+        stmt = delete(SendAttempt).where(SendAttempt.queue_slot_id == slot_id)
+        if token:
+            stmt = stmt.where(SendAttempt.attempt_token == token)
+        await claim_session.execute(stmt)
+        await claim_session.commit()
 
 async def _update_enrollment_after_send(session: AsyncSession, cl: CampaignLead, campaign: Campaign, sequence: Sequence) -> None:
     n_seq = (
@@ -1548,6 +1584,16 @@ async def send_slot_job(slot_id: int) -> None:
 
         list_unsub_url = unsub_url if getattr(campaign, "add_unsubscribe_header", True) else None
 
+        # ── Durable send claim ───────────────────────────────────────────
+        attempt_token = await _claim_send_attempt(slot_id)
+        if not attempt_token:
+            log.warning(
+                "send_slot_job: slot %d already has an active/uncertain send attempt; not sending again",
+                slot_id,
+            )
+            await session.rollback()
+            return
+
         # ── Send ──────────────────────────────────────────────────────────
         if simulate_send:
             fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
@@ -1614,12 +1660,14 @@ async def send_slot_job(slot_id: int) -> None:
                     "inbox_id": inbox.id, "inbox_email": inbox.email, "error": result.message,
                 })
             await session.commit()
+            await _release_send_attempt(slot_id, attempt_token)
             return
 
         if not result:
             # Transient failure – roll back the pre-created log; slot stays for retry
             await session.delete(email_log_entry)
             await session.commit()
+            await _release_send_attempt(slot_id, attempt_token)
             log.warning("send_slot_job: transient failure for slot %d, slot retained for retry", slot_id)
             return
 
