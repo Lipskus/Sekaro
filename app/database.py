@@ -138,6 +138,38 @@ async def _run_migrations(conn) -> None:
         "CREATE INDEX IF NOT EXISTS ix_notification_user_read ON notification (user_id, read_at)",
         "CREATE INDEX IF NOT EXISTS ix_notification_event ON notification (event_type)",
         # 2026-09-04: generic SMTP / IMAP provider (per-inbox credentials + mirrors)
+        # 2026-09-23 Sekaro 0.4: user-defined contact fields and reusable templates.
+        """
+        CREATE TABLE IF NOT EXISTS contact_field_definition (
+            id SERIAL PRIMARY KEY,
+            key VARCHAR(64) NOT NULL UNIQUE,
+            label VARCHAR(255) NOT NULL DEFAULT '',
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+        )
+        """,
+        "CREATE UNIQUE INDEX IF NOT EXISTS ix_contact_field_definition_key ON contact_field_definition (key)",
+        """
+        CREATE TABLE IF NOT EXISTS message_template (
+            id SERIAL PRIMARY KEY,
+            name VARCHAR(255) NOT NULL UNIQUE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+            updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+        )
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS message_template_version (
+            id SERIAL PRIMARY KEY,
+            template_id INTEGER NOT NULL REFERENCES message_template(id) ON DELETE CASCADE,
+            version INTEGER NOT NULL,
+            subject VARCHAR(512) NOT NULL DEFAULT '',
+            body TEXT NOT NULL DEFAULT '',
+            is_html BOOLEAN NOT NULL DEFAULT FALSE,
+            created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+            CONSTRAINT uq_message_template_version UNIQUE (template_id, version)
+        )
+        """,
+        "CREATE INDEX IF NOT EXISTS ix_message_template_version_template ON message_template_version (template_id)",
         # 2026-09-22 Sekaro 0.3: named global contact lists.
         """
         CREATE TABLE IF NOT EXISTS contact_list (

@@ -123,6 +123,75 @@ class LeadBulkRecoverRequest(BaseModel):
     verify_email: bool = True
 
 
+class ContactFieldCreate(BaseModel):
+    key: str = Field(..., min_length=1, max_length=64)
+    label: str = Field(default="", max_length=255)
+
+
+class ContactFieldUpdate(BaseModel):
+    label: str = Field(default="", max_length=255)
+
+
+class ContactFieldResponse(BaseModel):
+    id: Optional[int] = None
+    key: str
+    label: str
+    system: bool = False
+    defined: bool = True
+    created_at: Optional[datetime] = None
+
+
+class MessageTemplateCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+
+
+class MessageTemplateRename(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+
+
+class MessageTemplateVersionCreate(BaseModel):
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+
+
+class MessageTemplateVersionResponse(BaseModel):
+    id: int
+    template_id: int
+    version: int
+    subject: str
+    body: str
+    is_html: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MessageTemplateResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    latest_version: Optional[MessageTemplateVersionResponse] = None
+    versions: List[MessageTemplateVersionResponse] = []
+
+
+class TemplatePreviewRequest(BaseModel):
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+    lead_id: Optional[int] = None
+
+
+class TemplateTestSendRequest(TemplatePreviewRequest):
+    inbox_id: int = Field(..., ge=1)
+    to_email: EmailStr
+
+
 class InboxCreate(BaseModel):
     email: str
     display_name: str = ""

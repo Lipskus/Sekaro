@@ -13,6 +13,7 @@ import {
   RiHeartPulseLine,
   RiContactsLine,
   RiNotification3Line,
+  RiFileTextLine,
 } from 'react-icons/ri';
 import { useUniboxNotifications } from '../../context/UniboxNotificationsContext';
 import { useNotifications } from '../../context/NotificationsContext';
@@ -25,6 +26,7 @@ const links = [
   { to: '/analytics', key: 'analytics', icon: <RiLineChartLine size={20} /> },
   { to: '/campaigns', key: 'campaigns', icon: <RiSendPlaneLine size={20} /> },
   { to: '/leads', key: 'leads', icon: <RiContactsLine size={20} /> },
+  { to: '/templates', key: 'templates', icon: <RiFileTextLine size={20} /> },
   { to: '/inboxes', key: 'inboxes', icon: <RiMailLine size={20} /> },
   { to: '/unibox', key: 'unibox', icon: <RiInboxLine size={20} /> },
   { to: '/schedule', key: 'schedule', icon: <RiCalendarScheduleLine size={20} /> },
@@ -32,7 +34,7 @@ const links = [
   { to: '/settings#general', key: 'settings', icon: <RiSettingsLine size={20} /> },
 ];
 
-const APP_VERSION = '0.3.0';
+const APP_VERSION = '0.4.0';
 
 function getOS() {
   const ua = navigator.userAgent;

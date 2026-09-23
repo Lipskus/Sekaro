@@ -42,12 +42,18 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 - [ ] Optional merge tool for duplicate contacts already present in legacy databases
 
 ## 0.4 — Messages & templates
-- Plain-text messages
-- HTML messages
-- Template variables
-- Template versioning
-- Per-contact preview
-- Test sends
+- [x] Plain-text messages
+- [x] HTML messages
+- [x] User-defined dynamic template variables
+- [x] Contact-field definitions managed inside Sekaro
+- [x] Spreadsheet custom fields registered as template variables
+- [x] Template versioning
+- [x] Reusable templates loadable into campaign sequence steps
+- [x] Per-contact preview
+- [x] Missing-variable diagnostics
+- [x] SMTP test sends
+- [x] Editable variable values on contact profiles
+- [ ] Optional variable fallbacks/default values
 
 ## 0.5 — Campaigns & scheduler
 - Daily/hourly limits

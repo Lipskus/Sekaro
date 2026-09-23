@@ -158,6 +158,55 @@ class Lead(Base):
     )
 
 
+class ContactFieldDefinition(Base):
+    """User-defined contact field available as a template variable."""
+    __tablename__ = "contact_field_definition"
+
+    id = Column(Integer, primary_key=True, index=True)
+    key = Column(String(64), nullable=False, unique=True, index=True)
+    label = Column(String(255), nullable=False, default="")
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
+
+
+class MessageTemplate(Base):
+    """Reusable email template. Content history lives in MessageTemplateVersion."""
+    __tablename__ = "message_template"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(255), nullable=False, unique=True, index=True)
+    created_at = Column(DateTime, default=_utcnow)
+    updated_at = Column(DateTime, default=_utcnow, onupdate=_utcnow)
+    versions = relationship(
+        "MessageTemplateVersion",
+        back_populates="template",
+        cascade="all, delete-orphan",
+        order_by="MessageTemplateVersion.version.desc()",
+    )
+
+
+class MessageTemplateVersion(Base):
+    """Immutable content snapshot for a message template."""
+    __tablename__ = "message_template_version"
+    __table_args__ = (
+        UniqueConstraint("template_id", "version", name="uq_message_template_version"),
+        Index("ix_message_template_version_template", "template_id"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    template_id = Column(
+        Integer,
+        ForeignKey("message_template.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    version = Column(Integer, nullable=False)
+    subject = Column(String(512), nullable=False, default="")
+    body = Column(Text, nullable=False, default="")
+    is_html = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime, default=_utcnow)
+    template = relationship("MessageTemplate", back_populates="versions")
+
+
 class Campaign(Base):
     __tablename__ = "campaign"
     id = Column(Integer, primary_key=True, index=True)

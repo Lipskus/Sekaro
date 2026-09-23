@@ -95,12 +95,25 @@ def _log_gmail_call(
         log.warning("Could not write to gmail log file at %s", _GMAIL_LOG_PATH)
 
 
-def render_body(body: str, lead_data: Dict[str, Any]) -> str:
-    """Replace {{field}} with lead_data[field]. Supports {{name}}, {{email}}, {{company}}, etc."""
-    def repl(match: re.Match) -> str:
-        key = match.group(1).strip()
-        return str(lead_data.get(key, match.group(0)))
-    return re.sub(r"\{\{\s*(\w+)\s*\}\}", repl, body)
+def render_body(
+    body: str,
+    lead_data: Dict[str, Any],
+    *,
+    html_escape_values: bool = False,
+) -> str:
+    """Render arbitrary Sekaro variables from the supplied contact context.
+
+    Business-specific variables are never hardcoded here. Any key present in
+    lead_data can be used as a template variable. Missing values stay visible.
+    """
+    from app.template_renderer import render_template_value
+
+    rendered, _missing = render_template_value(
+        body,
+        lead_data,
+        html_escape_values=html_escape_values,
+    )
+    return rendered
 
 
 def get_lead_data(lead) -> Dict[str, Any]:

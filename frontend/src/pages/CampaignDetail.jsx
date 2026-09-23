@@ -2092,36 +2092,48 @@ const QUILL_FORMATS = [
 
 function VariablesGuide() {
   const [copiedVar, setCopiedVar] = useState(null);
+  const [fields, setFields] = useState([]);
   const notify = useNotify();
+
+  useEffect(() => {
+    api.get('/contact-fields')
+      .then(rows => setFields(Array.isArray(rows) ? rows : []))
+      .catch(() => setFields([]));
+  }, []);
 
   const copyVar = (v) => {
     navigator.clipboard?.writeText(v);
     setCopiedVar(v);
-    notify({ type: 'success', message: `Copied ${v}`, duration: 1500 });
+    notify({ type: 'success', message: `Skopiowano ${v}`, duration: 1500 });
     setTimeout(() => setCopiedVar(null), 1500);
   };
 
+  const vars = [
+    ...fields.map(field => `{{${field.key}}}`),
+    '{{unsubscribe_link}}',
+  ];
+
   return (
-    <p className="mt-1 text-xs text-gray-500 flex flex-wrap items-center gap-1">
-      <span>Variables:</span>
-      {['{{name}}','{{email}}','{{unsubscribe_link}}'].map(v => (
+    <div className="mt-1 text-xs text-gray-500 flex flex-wrap items-center gap-1">
+      <span>Zmienne:</span>
+      {vars.map(v => (
         <span key={v} className="relative inline-flex items-center">
           <code
             className="px-1 bg-gray-100 rounded cursor-pointer hover:bg-teal-100 transition-colors select-none"
-            title="Click to copy"
+            title="Kliknij, aby skopiować"
             onClick={() => copyVar(v)}
           >
             {v}
           </code>
           {copiedVar === v && (
-            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-1.5 py-0.5 whitespace-nowrap pointer-events-none z-10 animate-pulse">
-              Copied!
+            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-1.5 py-0.5 whitespace-nowrap pointer-events-none z-10">
+              Skopiowano
             </span>
           )}
         </span>
       ))}
-      <span className="text-gray-400">+ custom fields like <code className="px-1 bg-gray-100 rounded">{'{{company}}'}</code></span>
-    </p>
+      <a href="/templates" className="ml-1 text-teal-600 hover:underline">zarządzaj polami</a>
+    </div>
   );
 }
 
@@ -2812,6 +2824,13 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   const [editingVariant, setEditingVariant] = useState(null);
   const [showVariantForm, setShowVariantForm] = useState(false);
   const [variantForm, setVariantForm] = useState({ label: '', subject: '', body: '', is_html: false, preview_text: '' });
+  const [messageTemplates, setMessageTemplates] = useState([]);
+
+  useEffect(() => {
+    api.get('/templates')
+      .then(rows => setMessageTemplates(Array.isArray(rows) ? rows : []))
+      .catch(() => setMessageTemplates([]));
+  }, []);
 
   useEffect(() => { setPos(sequences.length); }, [sequences]);
   useEffect(() => {
@@ -2928,6 +2947,23 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     setEditingVariant(v);
     setVariantForm({ label: v.label || '', subject: v.subject || '', body: v.body || '', is_html: v.is_html ?? false, preview_text: v.preview_text || '' });
     setShowVariantForm(true);
+  };
+
+  const applyMessageTemplate = (templateId, target) => {
+    const tpl = messageTemplates.find(t => String(t.id) === String(templateId));
+    const version = tpl?.latest_version;
+    if (!version) return;
+    const patch = {
+      subject: version.subject || '',
+      body: version.body || '',
+      is_html: Boolean(version.is_html),
+      preview_text: '',
+    };
+    if (target === 'edit') {
+      updateEditing(patch);
+    } else {
+      setForm(prev => ({ ...prev, ...patch }));
+    }
   };
 
   const getCumulativeDay = (idx) => {
@@ -3054,6 +3090,24 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                 </>
               ) : (
                 <>
+                  {messageTemplates.length > 0 && (
+                    <div className="rounded-lg border border-teal-100 bg-teal-50/40 p-3">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Wczytaj z szablonu</label>
+                      <select
+                        defaultValue=""
+                        onChange={e => {
+                          if (e.target.value) applyMessageTemplate(e.target.value, 'edit');
+                          e.target.value = '';
+                        }}
+                        className="w-full rounded-lg border-gray-300 bg-white text-sm"
+                      >
+                        <option value="">Wybierz szablon…</option>
+                        {messageTemplates.map(t => (
+                          <option key={t.id} value={t.id}>{t.name} · v{t.latest_version?.version || 1}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                     <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder="Leave blank to reply in same thread" />
@@ -3267,6 +3321,24 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                 </>
               ) : (
                 <>
+                  {messageTemplates.length > 0 && (
+                    <div className="rounded-lg border border-teal-100 bg-teal-50/40 p-3">
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Wczytaj z szablonu</label>
+                      <select
+                        defaultValue=""
+                        onChange={e => {
+                          if (e.target.value) applyMessageTemplate(e.target.value, 'new');
+                          e.target.value = '';
+                        }}
+                        className="w-full rounded-lg border-gray-300 bg-white text-sm"
+                      >
+                        <option value="">Wybierz szablon…</option>
+                        {messageTemplates.map(t => (
+                          <option key={t.id} value={t.id}>{t.name} · v{t.latest_version?.version || 1}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
                     <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="Leave blank to reply in same thread" />
