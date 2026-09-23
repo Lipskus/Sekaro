@@ -17,6 +17,21 @@ from app.models import Campaign, Sequence, CampaignLead, QueueSlot, Inbox, Email
 log = logging.getLogger("quickly.queue")
 
 
+def compute_effective_wait_minutes(inbox) -> int:
+    """Return the minimum safe spacing between sends for this inbox.
+
+    wait_minutes_between is the operator minimum. When an hourly cap is
+    configured, Sekaro derives an additional spacing floor so queued
+    messages are naturally distributed instead of repeatedly hitting the
+    send-time hourly guard.
+    """
+    base = max(1, int(getattr(inbox, "wait_minutes_between", 1) or 1))
+    hourly = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+    if hourly <= 0:
+        return base
+    hourly_spacing = max(1, (60 + hourly - 1) // hourly)
+    return max(base, hourly_spacing)
+
 def compute_effective_daily_limit(inbox, for_date: Optional[date] = None) -> int:
     """Return the effective daily send limit for an inbox on a given date.
 
@@ -905,7 +920,7 @@ async def _fetch_campaign_scheduling_data(
     rows = result.all()
     # Store the full inbox object at index 1 so callers can compute the
     # date-specific warmup limit via compute_effective_daily_limit(inbox_obj, date).
-    inboxes = [(row[1].id, row[1], row[1].wait_minutes_between) for row in rows]
+    inboxes = [(row[1].id, row[1], compute_effective_wait_minutes(row[1])) for row in rows]
 
     result = await session.execute(
         select(Sequence).where(Sequence.campaign_id == campaign_id).order_by(Sequence.position)
