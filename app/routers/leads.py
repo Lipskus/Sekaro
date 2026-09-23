@@ -18,6 +18,7 @@ from app.lead_inbox_resolution import from_inbox_email_by_lead_campaign
 from app.models import (
     Campaign,
     CampaignLead,
+    ContactFieldDefinition,
     ContactList,
     ContactListMember,
     EmailLog,
@@ -1096,6 +1097,16 @@ async def import_contacts_file(
             list_member_ids.add(lead.id)
             list_members_added += 1
         added += 1
+
+    if custom_fields:
+        existing_defs_res = await db.execute(
+            select(ContactFieldDefinition.key).where(
+                ContactFieldDefinition.key.in_(sorted(custom_fields))
+            )
+        )
+        existing_defs = {row[0] for row in existing_defs_res.all()}
+        for key in sorted(custom_fields - existing_defs):
+            db.add(ContactFieldDefinition(key=key, label=key))
 
     await db.commit()
 
