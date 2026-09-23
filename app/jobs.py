@@ -57,7 +57,9 @@ async def _claim_send_attempt(slot_id: int) -> str | None:
     and therefore blocks an automatic duplicate when delivery is uncertain.
     """
     token = secrets.token_urlsafe(24)
-    async with AsyncSessionLocal() as claim_session:
+    from app import database as _database
+
+    async with _database.AsyncSessionLocal() as claim_session:
         result = await claim_session.execute(
             text(
                 """
@@ -80,7 +82,9 @@ async def _claim_send_attempt(slot_id: int) -> str | None:
 
 async def _release_send_attempt(slot_id: int, token: str | None = None) -> None:
     """Release a claim after a known failed/non-delivered attempt."""
-    async with AsyncSessionLocal() as claim_session:
+    from app import database as _database
+
+    async with _database.AsyncSessionLocal() as claim_session:
         stmt = delete(SendAttempt).where(SendAttempt.queue_slot_id == slot_id)
         if token:
             stmt = stmt.where(SendAttempt.attempt_token == token)
