@@ -46,6 +46,7 @@ async def _get_template(db: AsyncSession, template_id: int) -> MessageTemplate:
         select(MessageTemplate)
         .options(selectinload(MessageTemplate.versions))
         .where(MessageTemplate.id == template_id)
+        .execution_options(populate_existing=True)
     )
     row = result.scalar_one_or_none()
     if row is None:
