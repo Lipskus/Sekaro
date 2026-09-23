@@ -11,9 +11,8 @@ import re
 import secrets
 from datetime import datetime, date, time, timedelta
 from email.utils import make_msgid
-from sqlalchemy import select, func, delete
+from sqlalchemy import select, func, delete, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import selectinload
 try:
     from zoneinfo import ZoneInfo
@@ -53,26 +52,30 @@ log = logging.getLogger(__name__)
 async def _claim_send_attempt(slot_id: int) -> str | None:
     """Atomically claim a queue slot immediately before the external send.
 
-    The claim is committed in a separate transaction. A concurrent worker
-    racing for the same slot will hit the unique queue_slot_id constraint and
-    must not send. Claims intentionally survive process crashes to avoid an
-    automatic duplicate send when delivery state is uncertain.
+    Uses INSERT .. ON CONFLICT DO NOTHING so racing workers never need an
+    exception/rollback path. The committed claim survives process crashes
+    and therefore blocks an automatic duplicate when delivery is uncertain.
     """
     token = secrets.token_urlsafe(24)
     async with AsyncSessionLocal() as claim_session:
-        claim_session.add(
-            SendAttempt(
-                queue_slot_id=slot_id,
-                attempt_token=token,
-                started_at=time_provider.now(),
-            )
+        result = await claim_session.execute(
+            text(
+                """
+                INSERT INTO send_attempt (queue_slot_id, attempt_token, started_at)
+                VALUES (:slot_id, :token, :started_at)
+                ON CONFLICT DO NOTHING
+                RETURNING attempt_token
+                """
+            ),
+            {
+                "slot_id": slot_id,
+                "token": token,
+                "started_at": time_provider.now(),
+            },
         )
-        try:
-            await claim_session.commit()
-            return token
-        except IntegrityError:
-            await claim_session.rollback()
-            return None
+        claimed = result.scalar_one_or_none()
+        await claim_session.commit()
+        return token if claimed else None
 
 
 async def _release_send_attempt(slot_id: int, token: str | None = None) -> None:
