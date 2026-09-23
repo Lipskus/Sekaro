@@ -7,7 +7,7 @@ from app.routers.templates import (
     create_template,
     create_template_version,
     preview_template,
-    test_send_template,
+    test_send_template as send_template_test_email,
 )
 from app.schemas import (
     ContactFieldCreate,
@@ -195,7 +195,7 @@ async def test_template_test_send_renders_contact_and_uses_smtp(session, monkeyp
 
     monkeypatch.setattr("app.routers.templates.send_email", fake_send_email)
 
-    result = await test_send_template(
+    result = await send_template_test_email(
         TemplateTestSendRequest(
             inbox_id=inbox.id,
             to_email="test-recipient@example.com",
