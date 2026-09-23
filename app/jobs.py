@@ -42,7 +42,7 @@ from app.sender import send_email, render_body, get_lead_data, SendResult, SendF
 from app.webhooks import fire_webhook_event
 from app.app_settings import get_google_oauth_credentials, get_office365_oauth_credentials
 from app import time as time_provider
-from app.queue_logic import _parse_time, compute_effective_daily_limit
+from app.queue_logic import _parse_time, compute_effective_daily_limit, compute_effective_wait_minutes
 from app.campaign_lead_status import campaign_lead_may_receive_sends
 
 log = logging.getLogger(__name__)
@@ -255,7 +255,26 @@ async def run_send_job():
             # Use the warmup-aware effective limit as the per-inbox rate cap.
             max_per_day = compute_effective_daily_limit(inbox)
 
-            # compute last sent timestamp so we can enforce the wait-minutes
+            # Hard rolling-hour cap, separate from the daily quota.
+            max_per_hour = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+            if max_per_hour > 0:
+                hour_start = now - timedelta(hours=1)
+                hour_count_res = await session.execute(
+                    select(func.count(EmailLog.id)).where(
+                        EmailLog.inbox_id == inbox.id,
+                        EmailLog.sent_at >= hour_start,
+                        EmailLog.sent_at <= now,
+                    )
+                )
+                sent_last_hour = int(hour_count_res.scalar() or 0)
+                if sent_last_hour >= max_per_hour:
+                    log.info(
+                        "Hourly limit reached for inbox %s (%d/%d); skipping this run",
+                        inbox.email, sent_last_hour, max_per_hour,
+                    )
+                    continue
+
+            # compute last sent timestamp so we can enforce the effective wait
             last_sent_time = None
 
             # Per-inbox tracking base URL — custom domain takes priority
@@ -281,7 +300,7 @@ async def run_send_job():
                 # HARD LIMIT: rate/minutes between messages
                 if last_sent_time is not None:
                     delta = now - last_sent_time
-                    required = timedelta(minutes=inbox.wait_minutes_between)
+                    required = timedelta(minutes=compute_effective_wait_minutes(inbox))
                     # allow up to 20 second of slack before firing rate_limit
                     if delta + timedelta(seconds=20) < required:
                         # Try recalculation to spread slots out
@@ -303,7 +322,7 @@ async def run_send_job():
                                     {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                      "last_sent": (new_last or last_sent_time).isoformat(),
                                      "now": now.isoformat(),
-                                     "wait_minutes": inbox.wait_minutes_between,
+                                     "wait_minutes": compute_effective_wait_minutes(inbox),
                                      "recalculated": True, "resolved": False},
                                 )
                             else:
@@ -312,7 +331,7 @@ async def run_send_job():
                                     {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                      "last_sent": (new_last or last_sent_time).isoformat(),
                                      "now": now.isoformat(),
-                                     "wait_minutes": inbox.wait_minutes_between,
+                                     "wait_minutes": compute_effective_wait_minutes(inbox),
                                      "recalculated": True, "resolved": True,
                                      "message": "Rate limit was hit but resolved after recalculation"},
                                 )
@@ -325,7 +344,7 @@ async def run_send_job():
                                 {"inbox_id": inbox.id, "inbox_email": inbox.email,
                                  "last_sent": last_sent_time.isoformat(),
                                  "now": now.isoformat(),
-                                 "wait_minutes": inbox.wait_minutes_between},
+                                 "wait_minutes": compute_effective_wait_minutes(inbox)},
                             )
                         break
                 if getattr(campaign, 'paused', False):
@@ -1083,6 +1102,25 @@ async def send_slot_job(slot_id: int) -> None:
             await session.commit()
             return
 
+        # ── Rolling hourly cap ───────────────────────────────────────────
+        max_per_hour = max(0, int(getattr(inbox, "max_emails_per_hour", 0) or 0))
+        if max_per_hour > 0:
+            hour_start = now - timedelta(hours=1)
+            hour_count_res = await session.execute(
+                select(func.count(EmailLog.id)).where(
+                    EmailLog.inbox_id == inbox.id,
+                    EmailLog.sent_at >= hour_start,
+                    EmailLog.sent_at <= now,
+                )
+            )
+            sent_last_hour = int(hour_count_res.scalar() or 0)
+            if sent_last_hour >= max_per_hour:
+                log.info(
+                    "send_slot_job: hourly limit hit for inbox %s (%d/%d), skipping slot %d",
+                    inbox.email, sent_last_hour, max_per_hour, slot_id,
+                )
+                return
+
         # ── Rate-limit check ─────────────────────────────────────────────
         last_sent_res = await session.execute(
             select(EmailLog.sent_at)
@@ -1093,7 +1131,7 @@ async def send_slot_job(slot_id: int) -> None:
         last_sent_time = last_sent_res.scalar_one_or_none()
         if last_sent_time is not None:
             delta = now - last_sent_time
-            required = timedelta(minutes=inbox.wait_minutes_between)
+            required = timedelta(minutes=compute_effective_wait_minutes(inbox))
             if delta + timedelta(seconds=20) < required:
                 log.info(
                     "send_slot_job: rate limit for inbox %s – "
@@ -1106,7 +1144,7 @@ async def send_slot_job(slot_id: int) -> None:
                         "inbox_id": inbox.id, "inbox_email": inbox.email,
                         "last_sent": last_sent_time.isoformat(),
                         "now": now.isoformat(),
-                        "wait_minutes": inbox.wait_minutes_between,
+                        "wait_minutes": compute_effective_wait_minutes(inbox),
                     },
                 )
                 await session.commit()
