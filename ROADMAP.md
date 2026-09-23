@@ -53,6 +53,9 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 - [x] Missing-variable diagnostics
 - [x] SMTP test sends
 - [x] Editable variable values on contact profiles
+- [x] User-defined fields displayed as separate configurable columns in Contacts
+- [x] Per-browser column visibility preferences
+- [ ] Dedicated "Pola własne" management screen for create/rename/delete workflows
 - [ ] Optional variable fallbacks/default values
 
 ## 0.5 — Campaigns & scheduler
