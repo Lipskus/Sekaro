@@ -167,14 +167,14 @@ export default function Settings() {
       if (!backupMeta.backup_encryption_configured && pw.length < BACKUP_MIN_PASSWORD_LEN) {
         notify({
           type: 'error',
-          message: `Enter a backup password (at least ${BACKUP_MIN_PASSWORD_LEN} characters) or turn off encryption.`,
+          message: `Podaj hasło kopii (co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków) albo wyłącz szyfrowanie.`,
         });
         return;
       }
       if (pw.length > 0 && pw.length < BACKUP_MIN_PASSWORD_LEN) {
         notify({
           type: 'error',
-          message: `Backup password must be at least ${BACKUP_MIN_PASSWORD_LEN} characters.`,
+          message: `Hasło kopii musi mieć co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków.`,
         });
         return;
       }
@@ -218,7 +218,7 @@ export default function Settings() {
         encrypt_backups: !!r.encrypt_backups,
         backup_encryption_hint: r.backup_encryption_hint ?? prev.backup_encryption_hint,
       }));
-      notify({ type: 'success', message: 'Ustawienia kopii saved' });
+      notify({ type: 'success', message: 'Ustawienia kopii zostały zapisane.' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -391,7 +391,7 @@ export default function Settings() {
         const { has_leads } = await api.get('/campaigns/has-leads');
         if (has_leads) {
           const ok = await confirm(
-            'Changing the scheduling strategy will recalculate all campaigns. Continue?',
+            'Zmiana strategii planowania przeliczy wszystkie kampanie. Kontynuować?',
           );
           if (!ok) return;
         }
@@ -400,7 +400,7 @@ export default function Settings() {
     try {
       await api.post('/settings/scheduling-strategy', { scheduling_strategy: val });
       setStrategy(val);
-      notify({ type: 'success', message: 'Strategy saved' });
+      notify({ type: 'success', message: 'Strategia została zapisana.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -409,18 +409,18 @@ export default function Settings() {
     try {
       await api.post('/settings/test-mode', { test_mode: val });
       setTestMode(val);
-      notify({ type: 'success', message: 'Tryb testowy saved' });
+      notify({ type: 'success', message: 'Tryb testowy został zapisany.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   /* ── webhook CRUD helpers ── */
   const createWebhook = async () => {
-    if (!newWh.url.trim()) return notify({ type: 'error', message: 'URL is required' });
+    if (!newWh.url.trim()) return notify({ type: 'error', message: 'Adres URL jest wymagany.' });
     try {
       const wh = await api.post('/settings/webhooks', newWh);
       setWebhooks(prev => [wh, ...prev]);
       setNewWh({ url: '', secret: '', description: '', events: eventTypes, active: true });
-      notify({ type: 'success', message: 'Webhook created' });
+      notify({ type: 'success', message: 'Webhook został utworzony.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -435,33 +435,33 @@ export default function Settings() {
       const updated = await api.patch(`/settings/webhooks/${id}`, editForm);
       setWebhooks(prev => prev.map(w => (w.id === id ? updated : w)));
       setEditingId(null);
-      notify({ type: 'success', message: 'Webhook updated' });
+      notify({ type: 'success', message: 'Webhook został zaktualizowany.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const deleteWebhook = async id => {
-    const ok = await confirm('Delete this webhook?');
+    const ok = await confirm('Usunąć ten webhook?');
     if (!ok) return;
     try {
       await api.del(`/settings/webhooks/${id}`);
       setWebhooks(prev => prev.filter(w => w.id !== id));
-      notify({ type: 'success', message: 'Webhook deleted' });
+      notify({ type: 'success', message: 'Webhook został usunięty.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const testWebhook = async id => {
     try {
       await api.post(`/settings/webhooks/${id}/test`);
-      notify({ type: 'success', message: 'Test event sent' });
+      notify({ type: 'success', message: 'Zdarzenie testowe zostało wysłane.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const testWebhookEvent = async (id, event) => {
-    if (!event) return notify({ type: 'error', message: 'Select an event type' });
+    if (!event) return notify({ type: 'error', message: 'Wybierz typ zdarzenia.' });
     try {
       const res = await api.post(`/settings/webhooks/${id}/test-event`, { event });
       setTestEventResult(res.payload_preview);
-      notify({ type: 'success', message: `Simulated ${event} event sent` });
+      notify({ type: 'success', message: `Wysłano symulowane zdarzenie: ${event}` });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -523,7 +523,7 @@ export default function Settings() {
         model: f.model,
         api_key: f.api_key,
       });
-      notify({ type: 'success', message: 'AI settings saved' });
+      notify({ type: 'success', message: 'Ustawienia AI zostały zapisane.' });
       loadAll();
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
@@ -538,7 +538,7 @@ export default function Settings() {
     if (!hasModel) missing.push('model');
     if (!hasKey) missing.push('API key');
     if (missing.length) {
-      return notify({ type: 'error', message: `Please provide: ${missing.join(', ')}` });
+      return notify({ type: 'error', message: `Uzupełnij: ${missing.join(', ')}` });
     }
     setAiVerifying(prev => ({ ...prev, [featureId]: true }));
     setAiVerifyResult(prev => ({ ...prev, [featureId]: null }));
@@ -557,7 +557,7 @@ export default function Settings() {
         }));
         notify({ type: 'success', message: 'Credentials verified ✓' });
       } else {
-        notify({ type: 'error', message: `Verification failed: ${res.error}` });
+        notify({ type: 'error', message: `Weryfikacja nie powiodła się: ${res.error}` });
       }
     } catch (e) {
       setAiVerifyResult(prev => ({ ...prev, [featureId]: { ok: false, error: e.message } }));
@@ -589,21 +589,21 @@ export default function Settings() {
 
   /* ── event sections for grouped display ─────────────────────────────── */
   const EVENT_SECTIONS = [
-    { label: 'Email Events', events: eventTypes.filter(e => e.startsWith('email.')) },
-    { label: 'Lead Events',  events: eventTypes.filter(e => e.startsWith('lead.')) },
-    { label: 'System Events', events: eventTypes.filter(e => !e.startsWith('email.') && !e.startsWith('lead.')) },
+    { label: 'Zdarzenia e-mail', events: eventTypes.filter(e => e.startsWith('email.')) },
+    { label: 'Zdarzenia kontaktów',  events: eventTypes.filter(e => e.startsWith('lead.')) },
+    { label: 'Zdarzenia systemowe', events: eventTypes.filter(e => !e.startsWith('email.') && !e.startsWith('lead.')) },
   ].filter(s => s.events.length > 0);
 
   const EVENT_LABELS = {
-    'email.sent': 'Email Sent',
-    'email.opened': 'Email Opened',
-    'email.clicked': 'Link Clicked',
-    'email.bounced': 'Email Bounced',
-    'lead.replied': 'Lead Replied',
-    'lead.unsubscribed': 'Lead Unsubscribed',
-    'lead.status_changed': 'Status Changed',
-    'lead.interested': 'Lead Interested (AI)',
-    'lead.not_interested': 'Lead Not Interested (AI)',
+    'email.sent': 'Wiadomość wysłana',
+    'email.opened': 'Wiadomość otwarta',
+    'email.clicked': 'Kliknięto link',
+    'email.bounced': 'Wiadomość odbita',
+    'lead.replied': 'Kontakt odpowiedział',
+    'lead.unsubscribed': 'Kontakt się wypisał',
+    'lead.status_changed': 'Zmieniono status',
+    'lead.interested': 'Kontakt zainteresowany (AI)',
+    'lead.not_interested': 'Kontakt niezainteresowany (AI)',
     'daily_limit': 'Daily Limit Hit',
     'rate_limit': 'Rate Limit',
     'token_expired': 'Token Expired',
@@ -627,7 +627,7 @@ export default function Settings() {
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-600">Events:</span>
+          <span className="text-xs font-medium text-gray-600">Zdarzenia:</span>
           <select
             className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300"
             value={mode}
@@ -636,8 +636,8 @@ export default function Settings() {
               else onChange([]);
             }}
           >
-            <option value="all">All Events</option>
-            <option value="specific">Specific Events</option>
+            <option value="all">Wszystkie zdarzenia</option>
+            <option value="specific">Wybrane zdarzenia</option>
           </select>
         </div>
         {mode === 'specific' && (
@@ -675,12 +675,12 @@ export default function Settings() {
               );
             })}
             {events.length === 0 && (
-              <p className="text-xs text-amber-600">Select at least one event, or switch to "All Events".</p>
+              <p className="text-xs text-amber-600">Wybierz co najmniej jedno zdarzenie albo przełącz na „Wszystkie zdarzenia”.</p>
             )}
           </div>
         )}
         {mode === 'all' && (
-          <p className="text-xs text-gray-400 pl-1">This webhook will receive all event types.</p>
+          <p className="text-xs text-gray-400 pl-1">Ten webhook będzie odbierał wszystkie typy zdarzeń.</p>
         )}
       </div>
     );
@@ -867,7 +867,7 @@ export default function Settings() {
           </p>
 
           <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-4">
-            <strong>Password loss:</strong> if you encrypt a backup and lose the password, the file cannot be decrypted — your data is
+            <strong>Utrata hasła:</strong> jeśli zaszyfrujesz kopię i utracisz hasło, pliku nie będzie można odszyfrować — dane są
             unrecoverable from that file. The optional hint is stored in the file in plain text; it is not a secret.
           </div>
 
@@ -910,7 +910,7 @@ export default function Settings() {
                     value={backupCfg.backup_encryption_password}
                     onChange={e => setBackupCfg(prev => ({ ...prev, backup_encryption_password: e.target.value }))}
                     autoComplete="new-password"
-                    placeholder={backupMeta.backup_encryption_configured ? 'Leave blank to keep existing password' : ''}
+                    placeholder={backupMeta.backup_encryption_configured ? 'Pozostaw puste, aby zachować obecne hasło' : ''}
                   />
                 </div>
                 <div>
@@ -968,7 +968,7 @@ export default function Settings() {
                       checked={backupCfg.save_local}
                       onChange={e => setBackupCfg(prev => ({ ...prev, save_local: e.target.checked }))}
                     />
-                    <span>Save to server disk (keeps 10 newest files; older ones are removed)</span>
+                    <span>Zapisuj na dysku serwera (10 najnowszych plików; starsze są usuwane)</span>
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -993,7 +993,7 @@ export default function Settings() {
                       checked={backupCfg.send_webhook}
                       onChange={e => setBackupCfg(prev => ({ ...prev, send_webhook: e.target.checked }))}
                     />
-                    <span>POST backup file to webhook URL</span>
+                    <span>Wyślij plik kopii metodą POST do webhooka</span>
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Webhook URL</label>
@@ -1025,7 +1025,7 @@ export default function Settings() {
             </div>
 
             <Button size="sm" disabled={backupSaving} onClick={saveBackupSettings}>
-              {backupSaving ? 'Saving…' : 'Zapisz ustawienia'}
+              {backupSaving ? 'Zapisywanie…' : 'Zapisz ustawienia'}
             </Button>
           </div>
 
@@ -1094,15 +1094,15 @@ export default function Settings() {
                     a.download = name;
                     a.click();
                     URL.revokeObjectURL(a.href);
-                    notify({ type: 'success', message: 'Backup downloaded' });
+                    notify({ type: 'success', message: 'Kopia została pobrana.' });
                   } catch (e) {
-                    notify({ type: 'error', message: e.message || 'Download failed' });
+                    notify({ type: 'error', message: e.message || 'Pobieranie nie powiodło się.' });
                   } finally {
                     setBackupDownloadBusy(false);
                   }
                 }}
               >
-                {backupDownloadBusy ? 'Preparing…' : 'Download backup'}
+                {backupDownloadBusy ? 'Przygotowywanie…' : 'Pobierz kopię'}
               </Button>
             </div>
 
@@ -1120,7 +1120,7 @@ export default function Settings() {
                     if (r.webhook_ok) parts.push('Webhook sent');
                     if (r.webhook_error) parts.push(`Webhook error: ${r.webhook_error}`);
                     if (r.local_skipped) parts.push(r.local_skipped);
-                    notify({ type: 'success', message: parts.join(' · ') || 'Backup completed' });
+                    notify({ type: 'success', message: parts.join(' · ') || 'Kopia została wykonana' });
                   } catch (e) {
                     notify({ type: 'error', message: e.message });
                   } finally {
@@ -1128,12 +1128,12 @@ export default function Settings() {
                   }
                 }}
               >
-                {backupRunning ? 'Running…' : 'Run backup now'}
+                {backupRunning ? 'Wykonywanie…' : 'Wykonaj kopię teraz'}
               </Button>
             </div>
 
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-              <p className="text-sm font-medium mb-2">Restore from file</p>
+              <p className="text-sm font-medium mb-2">Przywracanie z pliku</p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
                 Restoring replaces the entire database. After you choose a file, we show what is in the backup before you enter a password (if encrypted).
               </p>
@@ -1152,7 +1152,7 @@ export default function Settings() {
                   {restoreFile ? (
                     <span className="truncate text-gray-900 dark:text-gray-100">{restoreFile.name}</span>
                   ) : (
-                    <span className="text-gray-500 dark:text-gray-400">Choose backup file (.qbk)</span>
+                    <span className="text-gray-500 dark:text-gray-400">Wybierz plik kopii (.qbk)</span>
                   )}
                 </FileUploadArea>
                 {restoreFile ? (
@@ -1161,7 +1161,7 @@ export default function Settings() {
                     size="sm"
                     variant="outline"
                     className="shrink-0 px-3"
-                    title="Remove file"
+                    title="Usuń plik" aria-label="Usuń plik kopii"
                     disabled={restoreMetaBusy || restorePreviewBusy || restoreExecuteBusy}
                     onClick={clearRestoreWizard}
                   >
@@ -1171,7 +1171,7 @@ export default function Settings() {
               </div>
 
               {restoreMetaBusy && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Reading backup…</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Odczytywanie kopii…</p>
               )}
 
               {restoreMeta && !restoreMetaBusy && !restorePreview && (
@@ -1183,7 +1183,7 @@ export default function Settings() {
                   ) : null}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This backup</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Ta kopia</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
                         <li>Backed up: {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString() : '—'}</li>
                         <li>Leads: {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
@@ -1247,7 +1247,7 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restorePreviewBusy ? 'Checking…' : 'Verify backup'}
+                    {restorePreviewBusy ? 'Sprawdzanie…' : 'Sprawdź kopię'}
                   </Button>
                 )}
                 {restoreMeta && !restorePreview && restoreMeta.encrypted && (
@@ -1275,14 +1275,14 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restorePreviewBusy ? 'Checking…' : 'Verify password'}
+                    {restorePreviewBusy ? 'Sprawdzanie…' : 'Sprawdź hasło'}
                   </Button>
                 )}
               </div>
 
               {restorePreview && (
                 <div className="rounded-lg border border-gray-200 dark:border-gray-600 p-3 text-sm space-y-3 mb-3 bg-gray-50 dark:bg-gray-900/40">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">Verified — confirm restore</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Kopia zweryfikowana — potwierdź przywrócenie</p>
                   {restorePreview.password_hint ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
                       Hint: <span className="font-mono">{restorePreview.password_hint}</span>
@@ -1290,7 +1290,7 @@ export default function Settings() {
                   ) : null}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Backup snapshot</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Zawartość kopii</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
                         <li>Backed up: {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString() : '—'}</li>
                         <li>Leads: {restorePreview.backup?.lead_count ?? '—'}</li>
@@ -1298,7 +1298,7 @@ export default function Settings() {
                         <li>Campaigns: {restorePreview.backup?.campaign_count ?? '—'}</li>
                         <li>Users: {restorePreview.backup?.user_count ?? '—'}</li>
                         <li>Admins: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
-                        <li>Encrypted: {restorePreview.backup?.encrypted ? 'yes' : 'no'}</li>
+                        <li>Szyfrowana: {restorePreview.backup?.encrypted ? 'tak' : 'nie'}</li>
                       </ul>
                     </div>
                     <div>
@@ -1343,7 +1343,7 @@ export default function Settings() {
                         await api.post('/settings/backup/restore/execute', {
                           restore_token: restorePreview.restore_token,
                         });
-                        notify({ type: 'success', message: 'Restore completed. Reloading…' });
+                        notify({ type: 'success', message: 'Przywracanie zakończone. Ponowne ładowanie…' });
                       } catch (e) {
                         notify({ type: 'error', message: e.message });
                       } finally {
@@ -1351,7 +1351,7 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restoreExecuteBusy ? 'Restoring…' : 'Confirm and restore'}
+                    {restoreExecuteBusy ? 'Przywracanie…' : 'Potwierdź i przywróć'}
                   </Button>
                 </div>
               )}
@@ -1408,8 +1408,8 @@ export default function Settings() {
                     <span className={`text-gray-400 transition-transform text-xs ${isOpen ? 'rotate-90' : ''}`}>▶</span>
                     <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{feature.label}</h3>
                     {feature.enabled
-                      ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Enabled</span>
-                      : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
+                      ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączona</span>
+                      : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Wyłączona</span>
                     }
                   </div>
                   {/* Enable toggle — click doesn't propagate to collapse toggle */}
@@ -1424,7 +1424,7 @@ export default function Settings() {
                       onChange={e => {
                         const next = e.target.checked;
                         if (next && !feature.connection_tested) {
-                          notify({ type: 'error', message: 'Test the connection successfully before enabling this feature.' });
+                          notify({ type: 'error', message: 'Przed włączeniem tej funkcji wykonaj pomyślnie test połączenia.' });
                           return;
                         }
                         // update state without marking dirty — enabled auto-saves immediately
@@ -1452,7 +1452,7 @@ export default function Settings() {
                       <div className="relative">
                         <input
                           type="text"
-                          placeholder="Search providers…"
+                          placeholder="Szukaj dostawców…"
                           className="border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={provSearch !== null ? provSearch : selectedProviderLabel}
                           onChange={e => setProvSearch(e.target.value)}
@@ -1489,7 +1489,7 @@ export default function Settings() {
                       </label>
                       <input
                         type="password"
-                        placeholder={feature.api_key_set ? `Saved key: ${feature.api_key_masked}` : 'Enter your API key'}
+                        placeholder={feature.api_key_set ? `Zapisany klucz: ${feature.api_key_masked}` : 'Wprowadź klucz API'}
                         className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                         value={feature.api_key || ''}
                         onChange={e => setFeature({ api_key: e.target.value, connection_tested: false })}
@@ -1515,7 +1515,7 @@ export default function Settings() {
                       <div className="relative">
                         <input
                           type="text"
-                          placeholder={fm.loading ? 'Loading models…' : 'Search or type model name…'}
+                          placeholder={fm.loading ? 'Wczytywanie modeli…' : 'Szukaj lub wpisz nazwę modelu…'}
                           className="block w-full border rounded-lg p-2 text-sm bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={modSearch !== '' ? modSearch : (feature.model || '')}
                           onChange={e => {
@@ -1560,7 +1560,7 @@ export default function Settings() {
                         !!feature.api_key
                       );
                       return aiFeatDirty ? (
-                        <p className="text-xs text-amber-600 font-medium">⚠ Unsaved changes — click Save to apply</p>
+                        <p className="text-xs text-amber-600 font-medium">⚠ Niezapisane zmiany — kliknij Zapisz, aby zastosować</p>
                       ) : null;
                     })()}
                     <div className="flex items-center gap-3 flex-wrap">
@@ -1571,16 +1571,16 @@ export default function Settings() {
                         onClick={() => verifyAiFeature(fid)}
                         disabled={verifying}
                       >
-                        {verifying ? 'Testing…' : feature.connection_tested ? '✓ Connection Tested' : 'Test Connection'}
+                        {verifying ? 'Testowanie…' : feature.connection_tested ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
                       </Button>
-                      <Button size="sm" onClick={() => saveAiFeature(fid)}>Save</Button>
+                      <Button size="sm" onClick={() => saveAiFeature(fid)}>Zapisz</Button>
                       {verifyResult && !verifyResult.ok && (
                         <span className="text-sm font-medium text-red-500">
                           ✗ {verifyResult.error}
                         </span>
                       )}
                       {!feature.connection_tested && (
-                        <span className="text-xs text-amber-600">Test connection before enabling</span>
+                        <span className="text-xs text-amber-600">Przetestuj połączenie przed włączeniem</span>
                       )}
                     </div>
                     </div>
@@ -1591,7 +1591,7 @@ export default function Settings() {
           })}
 
           {Object.keys(aiFeatures).length === 0 && (
-            <p className="text-sm text-gray-400 italic">Loading AI features…</p>
+            <p className="text-sm text-gray-400 italic">Wczytywanie funkcji AI…</p>
           )}
 
         </section>
@@ -1613,7 +1613,7 @@ export default function Settings() {
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {notifConfig.enabled
                     ? 'Email notifications are enabled. Click to view history and preferences.'
-                    : 'Email notifications are disabled. Click to view history and preferences.'}
+                    : 'Powiadomienia e-mail są wyłączone. Kliknij, aby zobaczyć historię i preferencje.'}
                 </p>
               </div>
               <Button size="sm" variant="outline" onClick={() => window.location.href = '/notifications'}>
@@ -1645,11 +1645,11 @@ export default function Settings() {
           {/* One-time key display */}
           {createdKey && (
             <Card className="mb-4 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
-              <h3 className="text-sm font-semibold mb-1 text-green-700 dark:text-green-400">New API Key Created</h3>
-              <p className="text-xs text-gray-500 mb-2">Copy this key now — you won't be able to see it again.</p>
+              <h3 className="text-sm font-semibold mb-1 text-green-700 dark:text-green-400">Utworzono nowy klucz API</h3>
+              <p className="text-xs text-gray-500 mb-2">Skopiuj klucz teraz — później nie będzie można go ponownie wyświetlić.</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs bg-white dark:bg-gray-800 border rounded p-2 break-all select-all">{createdKey}</code>
-                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Copied!' }); }}>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Skopiowano!' }); }}>
                   Copy
                 </Button>
               </div>
@@ -1682,7 +1682,7 @@ export default function Settings() {
                   onChange={e => setNewKeyExpiry(e.target.value)}
                 />
               </div>
-              <Button size="sm" onClick={createApiKey} disabled={!newKeyName.trim()}>Create</Button>
+              <Button size="sm" onClick={createApiKey} disabled={!newKeyName.trim()}>Utwórz</Button>
             </div>
           </Card>
 
@@ -1719,7 +1719,7 @@ export default function Settings() {
 
           {/* New webhook form */}
           <Card className="mb-4">
-            <h3 className="text-sm font-semibold mb-3">Add Webhook</h3>
+            <h3 className="text-sm font-semibold mb-3">Dodaj webhook</h3>
             <div className="space-y-3">
               <input
                 type="text"
@@ -1731,14 +1731,14 @@ export default function Settings() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Bearer secret (optional)"
+                  placeholder="Sekret Bearer (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.secret}
                   onChange={e => setNewWh(p => ({ ...p, secret: e.target.value }))}
                 />
                 <input
                   type="text"
-                  placeholder="Description (optional)"
+                  placeholder="Opis (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.description}
                   onChange={e => setNewWh(p => ({ ...p, description: e.target.value }))}
@@ -1748,7 +1748,7 @@ export default function Settings() {
                 events={newWh.events}
                 onChange={evts => setNewWh(p => ({ ...p, events: evts }))}
               />
-              <Button size="sm" onClick={createWebhook}>Add Webhook</Button>
+              <Button size="sm" onClick={createWebhook}>Dodaj webhook</Button>
             </div>
           </Card>
 
@@ -1770,14 +1770,14 @@ export default function Settings() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Bearer secret"
+                      placeholder="Sekret Bearer"
                       className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                       value={editForm.secret}
                       onChange={e => setEditForm(p => ({ ...p, secret: e.target.value }))}
                     />
                     <input
                       type="text"
-                      placeholder="Description"
+                      placeholder="Opis"
                       className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                       value={editForm.description}
                       onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
@@ -1788,8 +1788,8 @@ export default function Settings() {
                     onChange={evts => setEditForm(p => ({ ...p, events: evts }))}
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => saveEdit(wh.id)}>Save</Button>
-                    <Button size="sm" variant="outline" onClick={cancelEdit}>Cancel</Button>
+                    <Button size="sm" onClick={() => saveEdit(wh.id)}>Zapisz</Button>
+                    <Button size="sm" variant="outline" onClick={cancelEdit}>Anuluj</Button>
                   </div>
                 </div>
               ) : (
@@ -1799,7 +1799,7 @@ export default function Settings() {
                     <div className="flex items-center gap-2">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${wh.active ? 'bg-green-500' : 'bg-gray-300'}`}
-                        title={wh.active ? 'Active' : 'Inactive'}
+                        title={wh.active ? 'Aktywny' : 'Nieaktywny'}
                       />
                       <span className="text-sm font-medium truncate max-w-xs" title={wh.url}>{wh.url}</span>
                     </div>
@@ -1807,8 +1807,8 @@ export default function Settings() {
                       <Button size="sm" variant="ghost" onClick={() => toggleActive(wh.id, wh.active)}>
                         Enable
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edit</Button>
-                      <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Test</Button>
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edytuj</Button>
+                      <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Testuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => { setTestEventWh(testEventWh === wh.id ? null : wh.id); setTestEventType(''); setTestEventResult(null); }}>
                         Simulate Event
                       </Button>
@@ -1818,7 +1818,7 @@ export default function Settings() {
                   {wh.description && <p className="text-xs text-gray-500 mb-1">{wh.description}</p>}
                   <div className="flex flex-wrap gap-1">
                     {isAllEvents(wh.events || []) ? (
-                      <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded-full px-2 py-0.5 font-medium">All Events</span>
+                      <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded-full px-2 py-0.5 font-medium">Wszystkie zdarzenia</span>
                     ) : (
                       (wh.events || []).map(evt => (
                         <span key={evt} className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border rounded px-1.5 py-0.5">{EVENT_LABELS[evt] || evt}</span>
@@ -1828,14 +1828,14 @@ export default function Settings() {
                   {/* Simulate event panel */}
                   {testEventWh === wh.id && (
                     <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 border rounded-lg space-y-2">
-                      <p className="text-xs font-semibold text-gray-600">Simulate a specific event to see the exact payload:</p>
+                      <p className="text-xs font-semibold text-gray-600">Zasymuluj konkretne zdarzenie, aby zobaczyć dokładny payload:</p>
                       <div className="flex items-center gap-2">
                         <select
                           className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 flex-1"
                           value={testEventType}
                           onChange={e => { setTestEventType(e.target.value); setTestEventResult(null); }}
                         >
-                          <option value="">— Select event type —</option>
+                          <option value="">— Wybierz typ zdarzenia —</option>
                           {eventTypes.map(evt => (
                             <option key={evt} value={evt}>{EVENT_LABELS[evt] || evt}</option>
                           ))}
@@ -1876,7 +1876,7 @@ export default function Settings() {
             {mcpSetup?.mcp_http_url ? (
               <code className="block text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-2 break-all font-mono">{mcpSetup.mcp_http_url}</code>
             ) : (
-              <p className="text-xs text-amber-600">Could not load — use <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
+              <p className="text-xs text-amber-600">Nie udało się wczytać — użyj <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
             )}
             <p className="text-xs text-gray-500">
               For plain HTTP (local dev only), add
@@ -1903,7 +1903,7 @@ export default function Settings() {
               {mcpSetup?.api_base_url ? (
                 <span className="ml-1 font-mono text-[11px]">{mcpSetup.api_base_url}</span>
               ) : (
-                <span className="ml-1 text-amber-600">(load failed)</span>
+                <span className="ml-1 text-amber-600">(błąd ładowania)</span>
               )}
             </p>
             {mcpSetup?.cursor_mcp_fragment && (
@@ -1916,7 +1916,7 @@ export default function Settings() {
                   variant="outline"
                   onClick={() => {
                     navigator.clipboard.writeText(JSON.stringify(mcpSetup.cursor_mcp_fragment, null, 2));
-                    notify({ type: 'success', message: 'MCP fragment copied — merge into your mcp.json' });
+                    notify({ type: 'success', message: 'Fragment MCP skopiowany — połącz go ze swoim mcp.json' });
                   }}
                 >
                   Copy MCP fragment
@@ -1936,7 +1936,7 @@ export default function Settings() {
             </p>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={testMode} onChange={e => submitTestMode(e.target.checked)} />
-              <span className="text-sm">Enabled</span>
+              <span className="text-sm">Włączona</span>
             </label>
           </section>
         )}
@@ -1977,7 +1977,7 @@ export default function Settings() {
                   setKnownIps(d.known_ips || []);
                   notify('IP added', 'success');
                 } catch (e) { notify(e.message, 'error'); }
-              }}>Add Permanent</Button>
+              }}>Dodaj na stałe</Button>
             </div>
 
             {/* IP list */}
@@ -2021,7 +2021,7 @@ export default function Settings() {
                                 notify('IP removed', 'success');
                               } catch (e) { notify(e.message, 'error'); }
                             }}
-                          >Remove</button>
+                          >Usuń</button>
                         </td>
                       </tr>
                     ))}
