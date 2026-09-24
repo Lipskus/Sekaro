@@ -35,7 +35,9 @@ const Button = React.forwardRef(
   ({ className, variant, size, as: Component = 'button', ...props }, ref) => {
     return (
       <Component
-        className={cn(buttonVariants({ variant, size, class: className }))}
+        className={cn(buttonVariants({ variant, size, class: className }), "sk-legacy-button")}
+        data-sk-variant={variant || "default"}
+        data-sk-size={size || "default"}
         ref={ref}
         {...props}
       />

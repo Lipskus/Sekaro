@@ -39,7 +39,7 @@ const TAB_LABELS = {
 };
 
 // ─── Main page ────────────────────────────────────────────────────────────────
-export default function CampaignDetail() {
+export default function CampaignDetail({ embedded = false }) {
   const { id } = useParams();
   const [campaign, setCampaign] = useState(() => apiCache.get(`/campaigns/${id}`) || null);
   const [inboxes, setInboxes] = useState(() => apiCache.get('/inboxes') || []);
@@ -255,7 +255,7 @@ export default function CampaignDetail() {
   return (
     <div className="max-w-full min-h-0 min-w-0 flex-1 overflow-y-auto p-6">
       {/* header */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className={embedded ? "sk-legacy-header" : "flex items-center gap-3 mb-6"}>
         <h1 className="text-2xl font-bold flex-1 truncate">{campaign.name}</h1>
         {campaign.paused && (
           <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Paused</span>
@@ -263,7 +263,7 @@ export default function CampaignDetail() {
       </div>
 
       {/* tab bar */}
-      <div className="flex gap-1 mb-6 border-b border-gray-200">
+      <div className={embedded ? "sk-legacy-header" : "flex gap-1 mb-6 border-b border-gray-200"}>
         {TABS.map(tab => (
           <button
             key={tab}

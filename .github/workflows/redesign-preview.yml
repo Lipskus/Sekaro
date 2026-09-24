@@ -1,0 +1,39 @@
+name: Sekaro redesign preview
+on:
+  push:
+    branches: [feature/0.5.1-png-redesign]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: redesign-preview-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Preserve source checkpoint for interrupted review
+        run: |
+          git rev-parse HEAD > /tmp/source-commit.txt
+          git ls-files -z | tar --null -T - -czf /tmp/sekaro-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sekaro-source-checkpoint
+          retention-days: 3
+          compression-level: 0
+          path: |
+            /tmp/sekaro-source.tar.gz
+            /tmp/source-commit.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend

@@ -1,93 +1,19 @@
-import { createContext, useState, useEffect, useContext, useCallback } from 'react';
-import { enable, disable } from 'darkreader';
-
-const STORAGE_KEY = 'darkreader';
-
-// central configuration for dark mode appearance
-const DARKREADER_SETTINGS = { brightness: 150, contrast: 100, sepia: 0 };
-
-/** @returns {'system' | 'dark' | 'light'} */
-function readDarkThemePreference() {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s === 'on' || s === 'dark') return 'dark';
-    if (s === 'off' || s === 'light') return 'light';
-    return 'system';
-  } catch {
-    return 'system';
-  }
+import {createContext,useState,useLayoutEffect,useContext,useCallback} from 'react';
+const KEY='sekaro.theme';
+export function readThemePreference(){try{const p=localStorage.getItem(KEY)||localStorage.getItem('darkreader');return ['dark','on'].includes(p)?'dark':['light','off'].includes(p)?'light':'system';}catch{return 'system';}}
+function resolve(p){return p==='dark'||(p==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);}
+const Context=createContext({darkMode:false,themePreference:'system',setThemePreference:()=>{}});
+export function DarkModeProvider({children}){
+ const [themePreference,setPref]=useState(readThemePreference);
+ const [darkMode,setDark]=useState(()=>resolve(readThemePreference()));
+ const setThemePreference=useCallback(p=>{if(!['light','dark','system'].includes(p))return;try{localStorage.setItem(KEY,p);localStorage.setItem('darkreader',p);}catch{}setPref(p);},[]);
+ useLayoutEffect(()=>{
+  const media=window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(){const d=resolve(themePreference);document.documentElement.classList.add('sekaro-ui');document.documentElement.classList.toggle('dark',d);document.documentElement.dataset.theme=d?'dark':'light';document.documentElement.style.colorScheme=d?'dark':'light';setDark(d);}
+  function sync(e){if(e.key===KEY||e.key==='darkreader')setPref(readThemePreference());}
+  apply();media.addEventListener('change',apply);window.addEventListener('storage',sync);
+  return()=>{media.removeEventListener('change',apply);window.removeEventListener('storage',sync);};
+ },[themePreference]);
+ return <Context.Provider value={{darkMode,themePreference,setThemePreference}}>{children}</Context.Provider>;
 }
-
-function systemPrefersDark() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
-/** Effective dark state for a stored preference. */
-function effectiveDarkForPreference(pref) {
-  if (pref === 'dark') return true;
-  if (pref === 'light') return false;
-  return systemPrefersDark();
-}
-
-const DarkModeContext = createContext({
-  darkMode: false,
-  themePreference: 'system',
-  setThemePreference: () => {}
-});
-
-export function DarkModeProvider({ children }) {
-  const [themePreference, setThemePreferenceState] = useState(readDarkThemePreference);
-  const [darkMode, setDarkMode] = useState(() =>
-    typeof window !== 'undefined' ? effectiveDarkForPreference(readDarkThemePreference()) : false
-  );
-
-  const applyRootClass = on => {
-    const root = document.documentElement;
-    if (on) root.classList.add('dark');
-    else root.classList.remove('dark');
-  };
-
-  const applyEffectiveDark = useCallback(on => {
-    if (on) {
-      enable(DARKREADER_SETTINGS);
-      applyRootClass(true);
-    } else {
-      disable();
-      applyRootClass(false);
-    }
-    setDarkMode(on);
-  }, []);
-
-  const setThemePreference = useCallback(pref => {
-    if (pref !== 'system' && pref !== 'dark' && pref !== 'light') return;
-    setThemePreferenceState(pref);
-    localStorage.setItem(
-      STORAGE_KEY,
-      pref === 'dark' ? 'dark' : pref === 'light' ? 'light' : 'system'
-    );
-  }, []);
-
-  useEffect(() => {
-    const on = effectiveDarkForPreference(themePreference);
-    applyEffectiveDark(on);
-
-    if (themePreference !== 'system') return undefined;
-
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      applyEffectiveDark(mq.matches);
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [themePreference, applyEffectiveDark]);
-
-  return (
-    <DarkModeContext.Provider value={{ darkMode, themePreference, setThemePreference }}>
-      {children}
-    </DarkModeContext.Provider>
-  );
-}
-
-export function useDarkMode() {
-  return useContext(DarkModeContext);
-}
+export function useDarkMode(){return useContext(Context);}
