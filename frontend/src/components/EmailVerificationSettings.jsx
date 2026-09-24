@@ -7,10 +7,10 @@ import { Card } from './ui/Card';
 const MAX_TEST_EMAILS = 10;
 
 const STATUS_ICON = {
-  valid:   { icon: '✓', label: 'Send',          cls: 'text-green-600 font-semibold' },
-  invalid: { icon: '✗', label: 'Skip',          cls: 'text-red-500 font-semibold' },
-  risky:   { icon: '⚠', label: 'Skip (risky)',  cls: 'text-yellow-600 font-semibold' },
-  unknown: { icon: '?', label: 'Allow through', cls: 'text-gray-500' },
+  valid:   { icon: '✓', label: 'Wyślij',          cls: 'text-green-600 font-semibold' },
+  invalid: { icon: '✗', label: 'Pomiń',          cls: 'text-red-500 font-semibold' },
+  risky:   { icon: '⚠', label: 'Pomiń (ryzykowny)',  cls: 'text-yellow-600 font-semibold' },
+  unknown: { icon: '?', label: 'Przepuść', cls: 'text-gray-500' },
 };
 
 export default function EmailVerificationSettings() {
@@ -99,7 +99,7 @@ export default function EmailVerificationSettings() {
         setTestResult(null);
       }
       setCredsChanged(false);
-      notify({ type: 'success', message: 'Email verification settings saved' });
+      notify({ type: 'success', message: 'Ustawienia weryfikacji e-mail zostały zapisane.' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -128,7 +128,7 @@ export default function EmailVerificationSettings() {
 
   const probeUrl = async () => {
     if (!customUrl || !customUrl.includes('{email}')) {
-      return notify({ type: 'error', message: 'URL must contain {email}' });
+      return notify({ type: 'error', message: 'URL musi zawierać {email}' });
     }
     setProbing(true);
     setProbeResult(null);
@@ -153,7 +153,7 @@ export default function EmailVerificationSettings() {
 
   const runTest = async () => {
     if (!customUrl || !customUrl.includes('{email}')) {
-      return notify({ type: 'error', message: 'URL must contain {email}' });
+      return notify({ type: 'error', message: 'URL musi zawierać {email}' });
     }
     setCustomTesting(true);
     setCustomTestResults(null);
@@ -174,7 +174,7 @@ export default function EmailVerificationSettings() {
       setCustomTestResults(res.results || []);
       setConnectionTested(true);
       setCredsChanged(false);
-      notify({ type: 'success', message: `Tested ${res.results?.length ?? 0} emails` });
+      notify({ type: 'success', message: `Przetestowano adresy: ${res.results?.length ?? 0}` });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -189,14 +189,18 @@ export default function EmailVerificationSettings() {
       {/* ── header row ── */}
       <div
         className="flex items-center justify-between cursor-pointer select-none"
+        role="button"
+        tabIndex={0}
+        aria-expanded={expanded}
+        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpanded(v => !v); } }}
         onClick={() => setExpanded(v => !v)}
       >
         <div className="flex items-center gap-3 min-w-0">
           <span className={`text-gray-400 transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Email Verification</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Weryfikacja e-mail</h3>
           {enabled
-            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Enabled</span>
-            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
+            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączona</span>
+            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Wyłączona</span>
           }
         </div>
         <label className="flex items-center gap-1.5 cursor-pointer shrink-0 ml-4" onClick={e => e.stopPropagation()}>
@@ -207,7 +211,7 @@ export default function EmailVerificationSettings() {
             onChange={async e => {
               const next = e.target.checked;
               if (next && (!connectionTested || credsChanged)) {
-                notify({ type: 'error', message: 'Run "Test Connection" successfully before enabling email verification.' });
+                notify({ type: 'error', message: 'Przed włączeniem weryfikacji wykonaj pomyślnie test połączenia.' });
                 return;
               }
               setEnabled(next);
@@ -220,12 +224,12 @@ export default function EmailVerificationSettings() {
                   custom_method: customMethod,
                   ...(apiKey ? { api_key: apiKey } : {}),
                 });
-                notify({ type: 'success', message: `Email verification ${next ? 'enabled' : 'disabled'}` });
+                notify({ type: 'success', message: `Weryfikacja e-mail ${next ? 'włączona' : 'wyłączona'}` });
               } catch (err) { notify({ type: 'error', message: err.message }); }
             }}
           />
           <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-            Enable
+            Włącz
           </span>
         </label>
       </div>
@@ -236,14 +240,14 @@ export default function EmailVerificationSettings() {
           <div className="mt-4 space-y-5 border-t pt-4">
 
             <p className="text-sm text-gray-500">
-              Automatically check each lead's email address before sending. Addresses that look fake or
-              undeliverable are skipped so you don't waste sending quota.
+              Automatycznie sprawdzaj adres e-mail kontaktu przed wysyłką. Adresy uznane za nieprawidłowe
+              są pomijane, aby nie zużywać limitu wysyłki.
             </p>
 
             {/* ── Provider selector ── */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Verification service
+                Usługa weryfikacji
               </label>
               <select
                 className="border rounded-lg px-3 py-2 text-sm w-full max-w-xs dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -259,7 +263,7 @@ export default function EmailVerificationSettings() {
               >
                 {(providers.length > 0 ? providers : ['mailtester_ninja']).map(p => (
                   <option key={p} value={p}>
-                    {p === 'custom'           ? 'My own API (custom)'
+                    {p === 'custom'           ? 'Własne API'
                       : p === 'mailtester_ninja' ? 'Mailtester Ninja'
                       : p.replace(/_/g, ' ')}
                   </option>
@@ -270,11 +274,11 @@ export default function EmailVerificationSettings() {
             {/* ── API key (built-in providers) ── */}
             {provider !== 'custom' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Klucz API</label>
                 <input
                   type="password"
                   className="border rounded-lg px-3 py-2 text-sm w-full max-w-md dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  placeholder={apiKeyMasked || 'Enter API key'}
+                  placeholder={apiKeyMasked || 'Wprowadź klucz API'}
                   value={apiKey}
                   onChange={e => {
                     setApiKey(e.target.value);
@@ -286,7 +290,7 @@ export default function EmailVerificationSettings() {
                   }}
                 />
                 {apiKeyMasked && !apiKey && (
-                  <p className="text-xs text-gray-400 mt-1">Current key: {apiKeyMasked}</p>
+                  <p className="text-xs text-gray-400 mt-1">Aktualny klucz: {apiKeyMasked}</p>
                 )}
               </div>
             )}
@@ -299,16 +303,16 @@ export default function EmailVerificationSettings() {
 
                 {/* ── Step 1: URL ── */}
                 <div>
-                  <StepLabel n={1} title="Enter your API's web address" />
+                  <StepLabel n={1} title="Podaj adres API" />
                   <p className="text-xs text-gray-500 mb-2">
-                    Include <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">{'{email}'}</code> where
-                    the email should go. The system will replace it automatically for each address checked.
+                    Umieść <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">{'{email}'}</code> w miejscu adresu.
+                    Sekaro automatycznie podstawi sprawdzany e-mail.
                   </p>
                   <div className="flex gap-2 flex-wrap">
                     <input
                       type="text"
                       className="flex-1 min-w-0 border rounded-lg px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-600 font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
-                      placeholder="https://api.example.com/verify?email={email}"
+                      aria-label="Szablon URL API weryfikacji" placeholder="https://api.example.com/verify?email={email}"
                       value={customUrl}
                       onChange={e => {
                         setCustomUrl(e.target.value);
@@ -318,6 +322,7 @@ export default function EmailVerificationSettings() {
                     />
                     <select
                       className="border rounded-lg px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
+                      aria-label="Metoda HTTP"
                       value={customMethod}
                       onChange={e => setCustomMethod(e.target.value)}
                     >
@@ -329,27 +334,28 @@ export default function EmailVerificationSettings() {
 
                 {/* ── Step 2: Probe ── */}
                 <div>
-                  <StepLabel n={2} title="Preview the response" />
+                  <StepLabel n={2} title="Podejrzyj odpowiedź API" />
                   <p className="text-xs text-gray-500 mb-2">
-                    Send one request to see what your API actually returns. Use any email address you like.
+                    Wyślij jedno żądanie, aby zobaczyć odpowiedź API. Możesz użyć dowolnego adresu testowego.
                   </p>
                   <div className="flex gap-2 flex-wrap items-center">
                     <input
                       type="email"
                       className="border rounded-lg px-3 py-2 text-sm dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300 w-56"
+                      aria-label="Testowy adres e-mail"
                       placeholder="test@gmail.com"
                       value={probeEmail}
                       onChange={e => setProbeEmail(e.target.value)}
                     />
                     <Button size="sm" variant="outline" onClick={probeUrl} disabled={probing || !customUrl}>
-                      {probing ? 'Loading…' : 'Preview response'}
+                      {probing ? 'Wczytywanie…' : 'Podejrzyj odpowiedź'}
                     </Button>
                   </div>
 
                   {probeResult && (
                     <div className="mt-3 rounded-lg bg-gray-100 dark:bg-gray-900 border text-xs font-mono p-3 overflow-x-auto max-h-48">
                       <p className="text-gray-500 mb-1 font-sans font-medium not-italic">
-                        Response for <strong>{probeResult.email}</strong>:
+                        Odpowiedź dla <strong>{probeResult.email}</strong>:
                       </p>
                       <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">
                         {JSON.stringify(probeResult.response, null, 2)}
@@ -360,15 +366,16 @@ export default function EmailVerificationSettings() {
 
                 {/* ── Step 3: Field ── */}
                 <div>
-                  <StepLabel n={3} title="Which field shows the result?" />
+                  <StepLabel n={3} title="Które pole zawiera wynik?" />
                   <p className="text-xs text-gray-500 mb-2">
-                    Look at the response above and type the name of the field that tells you if the email is good
-                    or bad. If it's inside a nested object, use a dot — e.g.{' '}
+                    W odpowiedzi powyżej znajdź pole określające, czy adres jest prawidłowy.
+                    Dla zagnieżdżonych obiektów użyj notacji z kropką, np.{' '}
                     <code className="bg-gray-200 dark:bg-gray-700 px-0.5 rounded font-mono">data.status</code>.
                   </p>
                   <input
                     type="text"
                     className="border rounded-lg px-3 py-2 text-sm w-full max-w-sm dark:bg-gray-800 dark:border-gray-600 font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    aria-label="Pole odpowiedzi API"
                     placeholder="status"
                     value={customField}
                     onChange={e => setCustomField(e.target.value)}
@@ -377,19 +384,20 @@ export default function EmailVerificationSettings() {
 
                 {/* ── Step 4: Good / Bad values ── */}
                 <div>
-                  <StepLabel n={4} title="What do the values mean?" />
+                  <StepLabel n={4} title="Co oznaczają wartości?" />
                   <p className="text-xs text-gray-500 mb-3">
-                    Type the exact values your API uses and separate them with a comma.
-                    Anything not listed is treated as unknown — the email is still sent.
+                    Wpisz dokładne wartości zwracane przez API i oddziel je przecinkami.
+                    Wartości spoza listy są traktowane jako nieznane i wiadomość nadal może zostać wysłana.
                   </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="flex items-center gap-1.5 text-sm font-medium text-green-700 dark:text-green-400 mb-1">
-                        <span>✓</span> Good — email is valid, send it
+                        <span>✓</span > Poprawny — wyślij wiadomość
                       </label>
                       <input
                         type="text"
                         className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-300"
+                        aria-label="Wartości oznaczające poprawny adres"
                         placeholder="valid, ok, deliverable"
                         value={customValidValues}
                         onChange={e => setCustomValidValues(e.target.value)}
@@ -397,11 +405,12 @@ export default function EmailVerificationSettings() {
                     </div>
                     <div>
                       <label className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 mb-1">
-                        <span>✗</span> Bad — skip this email
+                        <span>✗</span > Niepoprawny — pomiń adres
                       </label>
                       <input
                         type="text"
                         className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-300"
+                        aria-label="Wartości oznaczające niepoprawny adres"
                         placeholder="invalid, blocked, risky"
                         value={customInvalidValues}
                         onChange={e => setCustomInvalidValues(e.target.value)}
@@ -412,27 +421,28 @@ export default function EmailVerificationSettings() {
 
                 {/* ── Step 5: Run test ── */}
                 <div>
-                  <StepLabel n={5} title="Run a test before saving" />
+                  <StepLabel n={5} title="Przetestuj przed zapisaniem" />
                   <p className="text-xs text-gray-500 mb-2">
-                    We'll automatically test a sample of your inboxes and leads. You can also add your own
-                    addresses below (up to {MAX_TEST_EMAILS}), one per line or separated by commas.
+                    Automatycznie przetestujemy próbkę skrzynek i kontaktów. Możesz też dodać własne
+                    adresy poniżej (maks. {MAX_TEST_EMAILS}), po jednym w wierszu lub oddzielone przecinkami.
                   </p>
                   <textarea
                     className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none font-mono"
                     rows={3}
-                    placeholder={`Optional — add up to ${MAX_TEST_EMAILS} emails\nexample@gmail.com\ntest@domain.com`}
+                    aria-label="Dodatkowe adresy testowe"
+                    placeholder={`Opcjonalnie — dodaj maks. ${MAX_TEST_EMAILS} adresów\nexample@gmail.com\ntest@domain.com`}
                     value={extraEmails}
                     onChange={e => setExtraEmails(e.target.value)}
                   />
                   {(() => {
                     const n = extraEmails.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).length;
                     return n > MAX_TEST_EMAILS
-                      ? <p className="text-xs text-amber-600 mt-1">Only the first {MAX_TEST_EMAILS} will be tested.</p>
+                      ? <p className="text-xs text-amber-600 mt-1">Przetestowane zostanie tylko pierwsze {MAX_TEST_EMAILS} adresów.</p>
                       : null;
                   })()}
                   <div className="mt-2">
                     <Button size="sm" variant="outline" onClick={runTest} disabled={customTesting || !customUrl}>
-                      {customTesting ? 'Testing…' : 'Run test'}
+                      {customTesting ? 'Testowanie…' : 'Uruchom test'}
                     </Button>
                   </div>
                 </div>
@@ -441,15 +451,15 @@ export default function EmailVerificationSettings() {
                 {customTestResults !== null && (
                   <div>
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Results — check the "Decision" column matches what you'd expect:
+                      Wyniki — sprawdź, czy kolumna „Decyzja” odpowiada oczekiwaniu:
                     </p>
                     <div className="overflow-x-auto rounded-lg border">
                       <table className="w-full text-xs">
                         <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">Email address</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">API returned</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">Decision</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">Adres e-mail</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">Odpowiedź API</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">Decyzja</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -474,12 +484,12 @@ export default function EmailVerificationSettings() {
                     </div>
                     {customTestResults.some(r => r.status === 'unknown') && (
                       <p className="text-xs text-amber-600 mt-2">
-                        ⚠ Some emails came back as unknown — the value your API returned isn't in your Good or Bad
-                        list. Add it above, or leave it to allow those emails through.
+                        ⚠ Część adresów ma wynik nieznany — wartość zwrócona przez API nie znajduje się na liście
+                        poprawnych ani niepoprawnych. Dodaj ją powyżej albo pozostaw jako przepuszczaną.
                       </p>
                     )}
                     <p className="text-xs text-gray-400 mt-1">
-                      Happy with the results? Click Save below.
+                      Wyniki są poprawne? Zapisz ustawienia poniżej.
                     </p>
                   </div>
                 )}
@@ -499,11 +509,11 @@ export default function EmailVerificationSettings() {
                 customMethod !== savedStateRef.current.customMethod ||
                 !!apiKey
               ) && (
-                <p className="text-xs text-amber-600 font-medium">⚠ Unsaved changes — click Save to apply</p>
+                <p className="text-xs text-amber-600 font-medium">⚠ Niezapisane zmiany — kliknij Zapisz, aby je zastosować</p>
               )}
               <div className="flex items-center gap-3 flex-wrap">
                 <Button size="sm" onClick={save} disabled={saving}>
-                  {saving ? 'Saving…' : 'Save'}
+                  {saving ? 'Zapisywanie…' : 'Zapisz'}
                 </Button>
                 {provider !== 'custom' && (
                   <Button
@@ -515,11 +525,11 @@ export default function EmailVerificationSettings() {
                     onClick={testApiKey}
                     disabled={testing}
                   >
-                    {testing ? 'Testing…' : (connectionTested && !credsChanged) ? '✓ Connection Tested' : 'Test Connection'}
+                    {testing ? 'Testowanie…' : (connectionTested && !credsChanged) ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
                   </Button>
                 )}
                 {(!connectionTested || credsChanged) && (
-                  <span className="text-xs text-amber-600">Test connection before enabling</span>
+                  <span className="text-xs text-amber-600">Przetestuj połączenie przed włączeniem</span>
                 )}
               </div>
             </div>
@@ -530,8 +540,8 @@ export default function EmailVerificationSettings() {
                 : 'bg-red-50 text-red-700 border border-red-200'}`}
               >
                 {testResult.ok
-                  ? <>Connection successful — status: <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
-                  : <>Test failed: {testResult.error}</>
+                  ? <>Połączenie działa — status: <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
+                  : <>Test nie powiódł się: {testResult.error}</>
                 }
               </div>
             )}
