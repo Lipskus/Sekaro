@@ -487,7 +487,7 @@ export default function Settings() {
   };
 
   const revokeApiKey = async id => {
-    const yes = await confirm('Revoke this API key? This cannot be undone.');
+    const yes = await confirm('Unieważnić ten klucz API? Tej operacji nie można cofnąć.');
     if (!yes) return;
     try {
       await api.del(`/auth/api-keys/${id}`);
@@ -944,7 +944,7 @@ export default function Settings() {
                 <div className="space-y-3 sm:border-l-2 border-gray-200 dark:border-gray-600 sm:pl-3">
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Cron (minute hour day month day-of-week, UTC)
+                      Cron (minuta godzina dzień miesiąc dzień-tygodnia, UTC)
                     </label>
                     <input
                       className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
@@ -955,10 +955,10 @@ export default function Settings() {
                   </div>
                   {!backupMeta.local_disk_available && (
                     <p className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
-                      Saving backups on the server requires the deployment to set{' '}
-                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> and a persistent{' '}
-                      <code className="text-[11px]">backups</code> folder (Docker Compose in this repo does). On hosts without that, use{' '}
-                      <strong>POST to webhook</strong> below.
+                      Zapisywanie kopii na serwerze wymaga ustawienia{' '}
+                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> oraz trwałego folderu{' '}
+                      <code className="text-[11px]">backups</code> (Docker Compose z tego repozytorium już to zapewnia). Na hostach bez tej opcji użyj poniżej{' '}
+                      <strong>POST do webhooka</strong>.
                     </p>
                   )}
                   <label className={`flex items-center gap-2 ${backupMeta.local_disk_available ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
@@ -972,7 +972,7 @@ export default function Settings() {
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Folder (under the app directory, default <code className="text-[11px]">backups</code>)
+                      Folder (w katalogu aplikacji; domyślnie <code className="text-[11px]">backups</code>)
                     </label>
                     <input
                       className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600 disabled:opacity-50"
@@ -983,7 +983,7 @@ export default function Settings() {
                     />
                     {backupMeta.local_disk_available && backupMeta.local_backup_resolved && (
                       <p className="text-xs text-gray-400 mt-1 break-all">
-                        Resolves to: {backupMeta.local_backup_resolved}
+                        Pełna ścieżka: {backupMeta.local_backup_resolved}
                       </p>
                     )}
                   </div>
@@ -996,7 +996,7 @@ export default function Settings() {
                     <span>Wyślij plik kopii metodą POST do webhooka</span>
                   </label>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Webhook URL</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Adres webhooka</label>
                     <input
                       type="url"
                       className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
@@ -1006,7 +1006,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Authorization header (optional)</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Nagłówek Authorization (opcjonalny)</label>
                     <input
                       type="text"
                       name="backup_webhook_authorization"
@@ -1017,7 +1017,7 @@ export default function Settings() {
                       className="w-full border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
                       value={backupCfg.webhook_auth_header}
                       onChange={e => setBackupCfg(prev => ({ ...prev, webhook_auth_header: e.target.value }))}
-                      placeholder={backupMeta.webhook_auth_configured ? `Leave blank to keep existing password` : 'Bearer …'}
+                      placeholder={backupMeta.webhook_auth_configured ? `Pozostaw puste, aby zachować obecne hasło` : 'Bearer …'}
                     />
                   </div>
                 </div>
@@ -1036,7 +1036,7 @@ export default function Settings() {
             Pobierz, uruchom lub przywróć
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Uses encryption and schedule options from <strong>Ustawienia kopii</strong> above. Zapisz ustawienia before downloading if you changed them.
+            Korzysta z ustawień szyfrowania i harmonogramu z sekcji <strong>Ustawienia kopii</strong> powyżej. Jeśli je zmieniłeś, zapisz ustawienia przed pobraniem.
           </p>
           <div className="space-y-4 mb-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -1597,35 +1597,35 @@ export default function Settings() {
         </section>
 
         <section id="settings-other" className="mb-10 scroll-mt-6">
-          <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">Other</h2>
+          <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">Pozostałe</h2>
           <p className="mb-6 text-xs text-gray-500 dark:text-gray-400">
-            Email notifications and lead verification — optional additions to your workflow.
+            Powiadomienia e-mail i weryfikacja kontaktów — opcjonalne elementy przepływu pracy.
           </p>
 
           <div className="mb-8">
-            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Notifications</h3>
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Powiadomienia</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
-              View your in-app notification history and manage email delivery preferences.
+              Przeglądaj historię powiadomień w aplikacji i zarządzaj preferencjami wysyłki e-mail.
             </p>
             <Card className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notification center</h4>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Centrum powiadomień</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {notifConfig.enabled
-                    ? 'Email notifications are enabled. Click to view history and preferences.'
+                    ? 'Powiadomienia e-mail są włączone. Kliknij, aby zobaczyć historię i preferencje.'
                     : 'Powiadomienia e-mail są wyłączone. Kliknij, aby zobaczyć historię i preferencje.'}
                 </p>
               </div>
               <Button size="sm" variant="outline" onClick={() => window.location.href = '/notifications'}>
-                Open notifications
+                Otwórz powiadomienia
               </Button>
             </Card>
           </div>
 
           <div>
-            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Email verification</h3>
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Weryfikacja e-mail</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
-              Verify new leads automatically when they are added to a campaign.
+              Automatycznie weryfikuj nowe kontakty po dodaniu ich do kampanii.
             </p>
             <EmailVerificationSettings />
           </div>
@@ -1637,9 +1637,9 @@ export default function Settings() {
           <>
         {/* ──────────────── API Keys ──────────────── */}
         <section id="settings-api-keys" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">API Keys</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Klucze API</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Create keys to access the API programmatically. The full key is shown only once — copy it immediately.
+            Twórz klucze do programowego dostępu do API. Pełny klucz jest wyświetlany tylko raz — skopiuj go od razu.
           </p>
 
           {/* One-time key display */}
@@ -1650,32 +1650,32 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs bg-white dark:bg-gray-800 border rounded p-2 break-all select-all">{createdKey}</code>
                 <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Skopiowano!' }); }}>
-                  Copy
+                  Kopiuj
                 </Button>
               </div>
-              <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>Dismiss</Button>
+              <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>Zamknij</Button>
             </Card>
           )}
 
           {/* Create key form */}
           <Card className="mb-4">
-            <h3 className="text-sm font-semibold mb-3">Create API Key</h3>
+            <h3 className="text-sm font-semibold mb-3">Utwórz klucz API</h3>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label className="text-xs text-gray-500">Name</label>
+                <label className="text-xs text-gray-500">Nazwa</label>
                 <input
                   type="text"
-                  placeholder="e.g. CI/CD Pipeline"
+                  placeholder="np. CI/CD Pipeline"
                   className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newKeyName}
                   onChange={e => setNewKeyName(e.target.value)}
                 />
               </div>
               <div className="w-32">
-                <label className="text-xs text-gray-500">Expires (days)</label>
+                <label className="text-xs text-gray-500">Wygasa po (dniach)</label>
                 <input
                   type="number"
-                  placeholder="Never"
+                  placeholder="Nigdy"
                   min="1"
                   className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newKeyExpiry}
@@ -1688,7 +1688,7 @@ export default function Settings() {
 
           {/* Existing keys */}
           {apiKeys.length === 0 && (
-            <p className="text-sm text-gray-400 italic">No API keys yet.</p>
+            <p className="text-sm text-gray-400 italic">Brak kluczy API.</p>
           )}
           {apiKeys.length > 0 && (
             <div className="space-y-2">
@@ -1698,11 +1698,11 @@ export default function Settings() {
                     <span className="text-sm font-medium">{k.name}</span>
                     <span className="ml-2 text-xs text-gray-400">{k.prefix}•••</span>
                     <span className="ml-2 text-xs text-gray-400">
-                      Created {new Date(k.created_at).toLocaleDateString()}
-                      {k.expires_at && <> · Expires {new Date(k.expires_at).toLocaleDateString()}</>}
+                      Utworzono {new Date(k.created_at).toLocaleDateString()}
+                      {k.expires_at && <> · Wygasa {new Date(k.expires_at).toLocaleDateString()}</>}
                     </span>
                   </div>
-                  <Button size="sm" variant="danger" onClick={() => revokeApiKey(k.id)}>Revoke</Button>
+                  <Button size="sm" variant="danger" onClick={() => revokeApiKey(k.id)}>Unieważnij</Button>
                 </Card>
               ))}
             </div>
@@ -1711,10 +1711,10 @@ export default function Settings() {
 
         {/* ──────────────── Webhooks ──────────────── */}
         <section id="settings-webhooks" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooks</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooki</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Register one or more outbound webhook endpoints. Each webhook can subscribe to specific event types.
-            When an event occurs every matching active webhook receives a POST request.
+            Zarejestruj jeden lub więcej wychodzących endpointów webhook. Każdy webhook może nasłuchiwać wybranych typów zdarzeń.
+            Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.
           </p>
 
           {/* New webhook form */}
@@ -1723,6 +1723,7 @@ export default function Settings() {
             <div className="space-y-3">
               <input
                 type="text"
+                aria-label="Adres webhooka"
                 placeholder="https://your-endpoint.example.com/hook"
                 className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                 value={newWh.url}
@@ -1754,7 +1755,7 @@ export default function Settings() {
 
           {/* Existing webhooks */}
           {webhooks.length === 0 && (
-            <p className="text-sm text-gray-400 italic">No webhooks configured yet.</p>
+            <p className="text-sm text-gray-400 italic">Nie skonfigurowano jeszcze webhooków.</p>
           )}
           {webhooks.map(wh => (
             <Card key={wh.id} className="mb-3">
@@ -1805,14 +1806,14 @@ export default function Settings() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Button size="sm" variant="ghost" onClick={() => toggleActive(wh.id, wh.active)}>
-                        Enable
+                        {wh.active ? 'Wyłącz' : 'Włącz'}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edytuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Testuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => { setTestEventWh(testEventWh === wh.id ? null : wh.id); setTestEventType(''); setTestEventResult(null); }}>
-                        Simulate Event
+                        Symuluj zdarzenie
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>Delete</Button>
+                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>Usuń</Button>
                     </div>
                   </div>
                   {wh.description && <p className="text-xs text-gray-500 mb-1">{wh.description}</p>}
@@ -1831,6 +1832,7 @@ export default function Settings() {
                       <p className="text-xs font-semibold text-gray-600">Zasymuluj konkretne zdarzenie, aby zobaczyć dokładny payload:</p>
                       <div className="flex items-center gap-2">
                         <select
+                          aria-label="Typ zdarzenia testowego"
                           className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 flex-1"
                           value={testEventType}
                           onChange={e => { setTestEventType(e.target.value); setTestEventResult(null); }}
@@ -1841,12 +1843,12 @@ export default function Settings() {
                           ))}
                         </select>
                         <Button size="sm" onClick={() => testWebhookEvent(wh.id, testEventType)}>
-                          Send
+                          Wyślij
                         </Button>
                       </div>
                       {testEventResult && (
                         <div className="mt-2">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Payload sent:</p>
+                          <p className="text-xs font-medium text-gray-500 mb-1">Wysłany payload:</p>
                           <pre className="text-xs bg-white dark:bg-gray-900 border rounded p-2 overflow-auto max-h-48 font-mono">
                             {JSON.stringify(testEventResult, null, 2)}
                           </pre>
@@ -1862,16 +1864,16 @@ export default function Settings() {
 
         {/* ──────────────── MCP (AI agents) ──────────────── */}
         <section id="settings-mcp" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (AI agents)</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (agenci AI)</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Create an API key under API keys, then point Cursor at it with
+            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Utwórz klucz w sekcji Klucze API, a następnie skonfiguruj Cursor przez
             <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">npx mcp-remote</code>
-            (Node 18+). No Python install on your machine.
+            (Node 18+). Lokalna instalacja Pythona nie jest wymagana.
           </p>
           <Card className="mb-4 space-y-3">
             <h3 className="text-sm font-semibold">1. Endpoint</h3>
             <p className="text-xs text-gray-500">
-              Streamable HTTP MCP URL (same auth as the REST API):
+              Adres Streamable HTTP MCP (to samo uwierzytelnianie co REST API):
             </p>
             {mcpSetup?.mcp_http_url ? (
               <code className="block text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-2 break-all font-mono">{mcpSetup.mcp_http_url}</code>
@@ -1879,27 +1881,27 @@ export default function Settings() {
               <p className="text-xs text-amber-600">Nie udało się wczytać — użyj <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
             )}
             <p className="text-xs text-gray-500">
-              For plain HTTP (local dev only), add
+              Dla zwykłego HTTP (tylko lokalny development) dodaj
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--allow-http</code>
-              to the <code className="text-[10px] font-mono">mcp-remote</code> args after the URL.
+              do argumentów <code className="text-[10px] font-mono">mcp-remote</code> po adresie URL.
             </p>
-            <h3 className="text-sm font-semibold pt-2">2. Tools exposed to the agent</h3>
+            <h3 className="text-sm font-semibold pt-2">2. Narzędzia udostępniane agentowi</h3>
             <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-5 space-y-1">
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">list_leads</code> — search / filter (q, status, bad_only, interest; stack)</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">get_lead</code> — one lead by id</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">update_lead</code> — patch name, status, custom_data</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">delete_lead</code> — remove a lead</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">add_campaign_leads</code> — bulk add to a campaign</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">list_leads</code> — wyszukiwanie / filtrowanie (q, status, bad_only, interest; stack)</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">get_lead</code> — jeden kontakt po ID</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">update_lead</code> — aktualizacja name, status, custom_data</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">delete_lead</code> — usunięcie kontaktu</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">add_campaign_leads</code> — zbiorcze dodanie do kampanii</li>
             </ul>
-            <h3 className="text-sm font-semibold pt-2">3. Cursor MCP config</h3>
+            <h3 className="text-sm font-semibold pt-2">3. Konfiguracja MCP w Cursor</h3>
             <p className="text-xs text-gray-500">
-              Merge the JSON into your MCP settings. Replace
+              Połącz ten JSON ze swoimi ustawieniami MCP. Zastąp
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">QUICKLY_MCP_API_KEY</code>
-              with a key from the API keys section. To use a JWT instead, use
+              kluczem z sekcji Klucze API. Aby zamiast tego użyć JWT, zastosuj
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--header</code>
               <code className="text-[10px] font-mono">{'Authorization:${QUICKLY_MCP_AUTH}'}</code>
-              {' '}and set the env value to <code className="text-[10px] font-mono">Bearer …</code>
-              (same as REST). App base URL:
+              {' '}i ustaw wartość zmiennej środowiskowej na <code className="text-[10px] font-mono">Bearer …</code>
+              (tak samo jak dla REST). Bazowy adres aplikacji:
               {mcpSetup?.api_base_url ? (
                 <span className="ml-1 font-mono text-[11px]">{mcpSetup.api_base_url}</span>
               ) : (
@@ -1919,7 +1921,7 @@ export default function Settings() {
                     notify({ type: 'success', message: 'Fragment MCP skopiowany — połącz go ze swoim mcp.json' });
                   }}
                 >
-                  Copy MCP fragment
+                  Kopiuj fragment MCP
                 </Button>
               </div>
             )}
@@ -1932,7 +1934,7 @@ export default function Settings() {
           <section id="settings-test-mode" className="mb-10 scroll-mt-6">
             <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Tryb testowy</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              When enabled emails are simulated — no real messages are sent.
+              Po włączeniu wiadomości są symulowane — żadne prawdziwe wiadomości nie są wysyłane.
             </p>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={testMode} onChange={e => submitTestMode(e.target.checked)} />
@@ -1951,18 +1953,19 @@ export default function Settings() {
               <h2 className="text-lg font-semibold">Znane adresy IP</h2>
               <button
                 onClick={() => setKnownIpsOpen(false)}
+                aria-label="Zamknij listę adresów IP"
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
               >✕</button>
             </div>
             <p className="text-xs text-gray-500 mb-4">
-              Opens and clicks from these IPs are ignored (self-open filtering). IPs from your browser sessions are collected automatically and expire after one week. You can also add permanent IPs manually.
+              Otwarcia i kliknięcia z tych adresów IP są ignorowane (filtrowanie własnej aktywności). Adresy z sesji przeglądarki są zbierane automatycznie i wygasają po tygodniu. Możesz też ręcznie dodać stałe adresy IP.
             </p>
 
             {/* Add new IP */}
             <div className="flex gap-2 mb-4">
               <input
                 type="text"
-                placeholder="e.g. 203.0.113.5"
+                aria-label="Adres IP" placeholder="np. 203.0.113.5"
                 value={newIpAddress}
                 onChange={e => setNewIpAddress(e.target.value)}
                 className="flex-1 border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
@@ -1975,7 +1978,7 @@ export default function Settings() {
                   setNewIpAddress('');
                   const d = await api.get('/settings/known-ips');
                   setKnownIps(d.known_ips || []);
-                  notify('IP added', 'success');
+                  notify('Adres IP został dodany.', 'success');
                 } catch (e) { notify(e.message, 'error'); }
               }}>Dodaj na stałe</Button>
             </div>
@@ -1983,15 +1986,15 @@ export default function Settings() {
             {/* IP list */}
             <div className="overflow-y-auto flex-1">
               {knownIps.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No known IPs yet. Your browser IP will be registered automatically.</p>
+                <p className="text-sm text-gray-400 italic">Brak znanych adresów IP. Adres Twojej przeglądarki zostanie zarejestrowany automatycznie.</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs text-gray-500 border-b">
-                      <th className="pb-1">IP Address</th>
-                      <th className="pb-1">Type</th>
-                      <th className="pb-1">Last Seen</th>
-                      <th className="pb-1">Expires</th>
+                      <th className="pb-1">Adres IP</th>
+                      <th className="pb-1">Typ</th>
+                      <th className="pb-1">Ostatnio widziany</th>
+                      <th className="pb-1">Wygasa</th>
                       <th className="pb-1"></th>
                     </tr>
                   </thead>
@@ -2000,11 +2003,11 @@ export default function Settings() {
                       <tr key={ip.id} className={`border-b ${ip.is_current ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
                         <td className="py-1.5">
                           {ip.ip_address}
-                          {ip.is_current && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">(you)</span>}
+                          {ip.is_current && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">(Ty)</span>}
                         </td>
                         <td className="py-1.5">
                           {ip.permanent
-                            ? <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">permanent</span>
+                            ? <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">stały</span>
                             : <span className="text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-1.5 py-0.5 rounded">auto</span>
                           }
                         </td>
@@ -2018,7 +2021,7 @@ export default function Settings() {
                                 await api.del(`/settings/known-ips/${ip.id}`);
                                 const d = await api.get('/settings/known-ips');
                                 setKnownIps(d.known_ips || []);
-                                notify('IP removed', 'success');
+                                notify('Adres IP został usunięty.', 'success');
                               } catch (e) { notify(e.message, 'error'); }
                             }}
                           >Usuń</button>
