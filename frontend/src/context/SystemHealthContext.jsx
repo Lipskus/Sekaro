@@ -7,6 +7,15 @@ const SystemHealthContext = createContext(null);
 const MUTE_KEY = 'sekaro_health_muted_v1';
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
+function formatBytes(value) {
+  const bytes = Number(value);
+  if (!Number.isFinite(bytes) || bytes < 0) return '—';
+  const gb = bytes / (1024 ** 3);
+  if (gb >= 1) return `${gb.toLocaleString('pl-PL', { maximumFractionDigits: gb >= 100 ? 0 : 1 })} GB`;
+  const mb = bytes / (1024 ** 2);
+  return `${mb.toLocaleString('pl-PL', { maximumFractionDigits: 0 })} MB`;
+}
+
 function loadMuted() {
   try {
     return new Set(JSON.parse(localStorage.getItem(MUTE_KEY) || '[]'));
@@ -34,6 +43,7 @@ function buildChecks(d) {
     ai_features: rawAi = [],
     email_verification: evData = null,
     flags,
+    storage = null,
     beacon_reconciliation: beaconReconciliation = null,
   } = d;
 
@@ -325,6 +335,31 @@ function buildChecks(d) {
         ? `Aktywna — ${evData.provider}`
         : 'Włączona, ale nieprzetestowana',
   });
+
+  /* ── Local storage ───────────────────────────────────────────── */
+  if (storage?.available && Number.isFinite(Number(storage.used_percent))) {
+    const usedPercent = Number(storage.used_percent);
+    const storageStatus = usedPercent >= 95 ? 'error' : usedPercent >= 85 ? 'warning' : 'ok';
+    const storageIssues = [];
+    if (storageStatus !== 'ok') {
+      storageIssues.push({
+        level: storageStatus,
+        text: storageStatus === 'error'
+          ? 'Na dysku pozostało bardzo mało wolnego miejsca.'
+          : 'Kończy się wolne miejsce na dysku.',
+        fix: 'Usuń niepotrzebne pliki lub zwiększ przestrzeń dostępną dla danych Sekaro.',
+      });
+    }
+    checks.push({
+      id: 'storage',
+      label: 'Miejsce na dane',
+      icon: 'storage',
+      status: storageStatus,
+      issues: storageIssues,
+      meta: { storage },
+      detail: `${formatBytes(storage.free_bytes)} wolne z ${formatBytes(storage.total_bytes)}`,
+    });
+  }
 
   /* ── Active settings ─────────────────────────────────────────── */
   const flagsIssues = [];
