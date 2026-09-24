@@ -868,7 +868,7 @@ export default function Settings() {
 
           <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-4">
             <strong>Utrata hasła:</strong> jeśli zaszyfrujesz kopię i utracisz hasło, pliku nie będzie można odszyfrować — dane są
-            unrecoverable from that file. The optional hint is stored in the file in plain text; it is not a secret.
+            bezpowrotnie utracone z tego pliku. Opcjonalna podpowiedź jest zapisywana w pliku jawnym tekstem i nie jest sekretem.
           </div>
 
           <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Ustawienia kopii</h3>
@@ -890,19 +890,19 @@ export default function Settings() {
             </label>
             {!backupCfg.encrypt_backups && (
               <p className="text-xs text-amber-700 dark:text-amber-400">
-                Unencrypted backups are readable by anyone with the file. Download, Run backup now, and scheduled backups will not use encryption.
+                Niezaszyfrowaną kopię może odczytać każdy, kto ma plik. Pobieranie, ręczne uruchomienie kopii i kopie zaplanowane nie będą używać szyfrowania.
               </p>
             )}
             {backupCfg.encrypt_backups && (
               <div className="space-y-2 max-w-md">
                 {backupMeta.backup_encryption_configured && (
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    A password is already saved. Leave the fields blank to keep it, or enter a new password to replace it.
+                    Hasło jest już zapisane. Pozostaw pola puste, aby je zachować, albo wpisz nowe hasło, aby je zastąpić.
                   </p>
                 )}
                 <div>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Backup password (min. {BACKUP_MIN_PASSWORD_LEN} characters)
+                    Hasło kopii (min. {BACKUP_MIN_PASSWORD_LEN} znaków)
                   </label>
                   <input
                     type="password"
@@ -915,7 +915,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Password hint (optional, stored in plain text in each .qbk)
+                    Podpowiedź hasła (opcjonalna, zapisywana jawnym tekstem w każdym pliku .qbk)
                   </label>
                   <input
                     type="text"
@@ -926,7 +926,7 @@ export default function Settings() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Applies to downloads, Run backup now, and scheduled backups when encryption is enabled.
+                  Dotyczy pobierania, ręcznego uruchamiania kopii i kopii zaplanowanych, gdy szyfrowanie jest włączone.
                 </p>
               </div>
             )}
@@ -1116,9 +1116,9 @@ export default function Settings() {
                   try {
                     const r = await api.post('/settings/backup/run', {});
                     const parts = [];
-                    if (r.local_path) parts.push(`Saved ${r.local_path}`);
-                    if (r.webhook_ok) parts.push('Webhook sent');
-                    if (r.webhook_error) parts.push(`Webhook error: ${r.webhook_error}`);
+                    if (r.local_path) parts.push(`Zapisano ${r.local_path}`);
+                    if (r.webhook_ok) parts.push('Webhook wysłany');
+                    if (r.webhook_error) parts.push(`Błąd webhooka: ${r.webhook_error}`);
                     if (r.local_skipped) parts.push(r.local_skipped);
                     notify({ type: 'success', message: parts.join(' · ') || 'Kopia została wykonana' });
                   } catch (e) {
@@ -1135,7 +1135,7 @@ export default function Settings() {
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
               <p className="text-sm font-medium mb-2">Przywracanie z pliku</p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
-                Restoring replaces the entire database. After you choose a file, we show what is in the backup before you enter a password (if encrypted).
+                Przywracanie zastępuje całą bazę danych. Po wybraniu pliku pokażemy zawartość kopii przed podaniem hasła (jeśli jest zaszyfrowana).
               </p>
               <div className="flex items-stretch gap-2 mb-2">
                 <FileUploadArea
@@ -1305,29 +1305,29 @@ export default function Settings() {
                       <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Current database (will be replaced)</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
                         <li>Leads: {restorePreview.current_database?.lead_count ?? '—'}</li>
-                        <li>Inboxes: {restorePreview.current_database?.inbox_count ?? '—'}</li>
-                        <li>Campaigns: {restorePreview.current_database?.campaign_count ?? '—'}</li>
-                        <li>Users: {restorePreview.current_database?.user_count ?? '—'}</li>
-                        <li>Admins: {(restorePreview.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>Skrzynki: {restorePreview.current_database?.inbox_count ?? '—'}</li>
+                        <li>Kampanie: {restorePreview.current_database?.campaign_count ?? '—'}</li>
+                        <li>Użytkownicy: {restorePreview.current_database?.user_count ?? '—'}</li>
+                        <li>Administratorzy: {(restorePreview.current_database?.admin_emails || []).join(', ') || '—'}</li>
                       </ul>
                     </div>
                   </div>
                   {(restorePreview.current_database?.lead_count > 0 ||
                     restorePreview.current_database?.user_count > 0) && (
                     <div className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded px-2 py-2">
-                      You are about to overwrite existing data. Download a backup of your current state first if you need to keep it.
+                      Za chwilę nadpiszesz istniejące dane. Jeśli chcesz je zachować, najpierw pobierz kopię obecnego stanu.
                       <Button
                         size="sm"
                         variant="outline"
                         className="mt-2"
                         onClick={() => document.getElementById('settings-backup-manual')?.scrollIntoView({ behavior: 'smooth' })}
                       >
-                        Jump to download
+                        Przejdź do pobierania
                       </Button>
                     </div>
                   )}
                   <p className="text-xs text-red-700 dark:text-red-400">
-                    This cannot be undone. Encrypted backups are useless without the password.
+                    Tej operacji nie można cofnąć. Zaszyfrowana kopia jest bezużyteczna bez hasła.
                   </p>
                   <Button
                     size="sm"
@@ -1335,7 +1335,7 @@ export default function Settings() {
                     disabled={restoreExecuteBusy}
                     onClick={async () => {
                       const ok = await confirm(
-                        'Replace the live database with this backup? This permanently deletes current data in the database.',
+                        'Zastąpić aktywną bazę danych tą kopią? Obecne dane w bazie zostaną trwale usunięte.',
                       );
                       if (!ok) return;
                       setRestoreExecuteBusy(true);
@@ -1365,10 +1365,10 @@ export default function Settings() {
         {activeTab === 'features' && (
           <>
         <section id="settings-ai" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">AI Features</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Funkcje AI</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Each AI feature can use a different provider and model. Configure the provider and
-            API key first — the available models will load automatically in the background.
+            Każda funkcja AI może używać innego dostawcy i modelu. Najpierw skonfiguruj dostawcę oraz
+            klucz API — dostępne modele zostaną automatycznie pobrane w tle.
           </p>
 
           {Object.values(aiFeatures).map(feature => {
