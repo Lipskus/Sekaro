@@ -492,7 +492,7 @@ export default function Settings() {
     try {
       await api.del(`/auth/api-keys/${id}`);
       setApiKeys(prev => prev.filter(k => k.id !== id));
-      notify({ type: 'success', message: 'API key revoked.' });
+      notify({ type: 'success', message: 'Klucz API został unieważniony.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -534,9 +534,9 @@ export default function Settings() {
     const hasModel = f.model;
     const hasKey = f.api_key || f.api_key_set;
     const missing = [];
-    if (!hasProvider) missing.push('provider');
+    if (!hasProvider) missing.push('dostawca');
     if (!hasModel) missing.push('model');
-    if (!hasKey) missing.push('API key');
+    if (!hasKey) missing.push('klucz API');
     if (missing.length) {
       return notify({ type: 'error', message: `Uzupełnij: ${missing.join(', ')}` });
     }
@@ -555,7 +555,7 @@ export default function Settings() {
           ...prev,
           [featureId]: { ...prev[featureId], connection_tested: true, last_error: '' },
         }));
-        notify({ type: 'success', message: 'Credentials verified ✓' });
+        notify({ type: 'success', message: 'Dane dostępowe zweryfikowane ✓' });
       } else {
         notify({ type: 'error', message: `Weryfikacja nie powiodła się: ${res.error}` });
       }
@@ -1402,6 +1402,16 @@ export default function Settings() {
                 {/* ── Collapsed header (always visible) ── */}
                 <div
                   className="flex items-center justify-between cursor-pointer select-none"
+                  role="button"
+                  tabIndex={0}
+                  aria-expanded={isOpen}
+                  onKeyDown={e => {
+                    if (e.target !== e.currentTarget) return;
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] }));
+                    }
+                  }}
                   onClick={() => setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] }))}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -1433,7 +1443,7 @@ export default function Settings() {
                       }}
                     />
                     <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-                      Enable
+                      Włącz
                     </span>
                   </label>
                 </div>
@@ -1447,11 +1457,12 @@ export default function Settings() {
                     {/* Step 1 — Provider */}
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">
-                        <span className="text-gray-400 mr-1">1.</span> Provider
+                        <span className="text-gray-400 mr-1">1.</span> Dostawca
                       </label>
                       <div className="relative">
                         <input
                           type="text"
+                          aria-label="Szukaj dostawcy AI"
                           placeholder="Szukaj dostawców…"
                           className="border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={provSearch !== null ? provSearch : selectedProviderLabel}
@@ -1485,10 +1496,11 @@ export default function Settings() {
                     {/* Step 2 — API Key */}
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">
-                        <span className="text-gray-400 mr-1">2.</span> API Key
+                        <span className="text-gray-400 mr-1">2.</span> Klucz API
                       </label>
                       <input
                         type="password"
+                        aria-label="Klucz API dostawcy AI"
                         placeholder={feature.api_key_set ? `Zapisany klucz: ${feature.api_key_masked}` : 'Wprowadź klucz API'}
                         className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                         value={feature.api_key || ''}
@@ -1497,11 +1509,11 @@ export default function Settings() {
                       {feature.provider && (feature.api_key || feature.api_key_set) && (
                         <p className="text-[10px] mt-1 text-teal-600">
                           {fm.loading
-                            ? '⏳ Loading available models…'
+                            ? '⏳ Wczytywanie dostępnych modeli…'
                             : fm.error
-                              ? `⚠️ Could not fetch models: ${fm.error}`
+                              ? `⚠️ Nie udało się pobrać modeli: ${fm.error}`
                               : fm.models.length > 0
-                                ? `✓ ${fm.models.length} models available — select below or type a custom name`
+                                ? `✓ Dostępne modele: ${fm.models.length} — wybierz poniżej lub wpisz własną nazwę`
                                 : ''}
                         </p>
                       )}
@@ -1515,6 +1527,7 @@ export default function Settings() {
                       <div className="relative">
                         <input
                           type="text"
+                          aria-label="Model AI"
                           placeholder={fm.loading ? 'Wczytywanie modeli…' : 'Szukaj lub wpisz nazwę modelu…'}
                           className="block w-full border rounded-lg p-2 text-sm bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={modSearch !== '' ? modSearch : (feature.model || '')}
@@ -1546,7 +1559,7 @@ export default function Settings() {
                       </div>
                       {!fm.loading && fm.models.length === 0 && (
                         <p className="text-[10px] text-gray-400 mt-1">
-                          Type the model name as recognized by the provider (e.g. gpt-4o, claude-sonnet-4-20250514)
+                          Wpisz nazwę modelu rozpoznawaną przez dostawcę (np. gpt-4o, claude-sonnet-4-20250514)
                         </p>
                       )}
                     </div>
@@ -1732,6 +1745,7 @@ export default function Settings() {
               <div className="flex gap-2">
                 <input
                   type="text"
+                  aria-label="Sekret Bearer webhooka"
                   placeholder="Sekret Bearer (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.secret}
@@ -1739,6 +1753,7 @@ export default function Settings() {
                 />
                 <input
                   type="text"
+                  aria-label="Opis webhooka"
                   placeholder="Opis (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.description}
@@ -1948,9 +1963,9 @@ export default function Settings() {
       {/* ──────────────── Known IPs Dialog ──────────────── */}
       {knownIpsOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[80vh] flex flex-col">
+          <div role="dialog" aria-modal="true" aria-labelledby="known-ips-title" className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[80vh] flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Znane adresy IP</h2>
+              <h2 id="known-ips-title" className="text-lg font-semibold">Znane adresy IP</h2>
               <button
                 onClick={() => setKnownIpsOpen(false)}
                 aria-label="Zamknij listę adresów IP"
