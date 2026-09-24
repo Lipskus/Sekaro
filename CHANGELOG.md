@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.4 — UI cleanup baseline
+
+- added a dedicated UI consolidation and remaining-screen design phase to the roadmap
+- started the pre-PNG cleanup pass across active redesigned screens
+- removed stale routed-page imports
+- refreshed the visible shell version to 0.5.4
+
 ## 0.5.0 — Campaign scheduler safety
 
 - added optional per-inbox rolling hourly sending limits
