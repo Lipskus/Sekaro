@@ -55,6 +55,10 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-system-card dd{text-align:right;font-weight:600;margin:0}
 .sk-status-rule{height:7px;background:var(--sk-neutral-soft);border-radius:5px;overflow:hidden}
 .sk-status-rule:before{content:'';display:block;width:16%;height:100%;background:var(--sk-accent);border-radius:5px}
+.sk-status-rule[data-tone=red]:before{background:var(--sk-red-text)}
+.sk-status-rule[data-tone=amber]:before{background:var(--sk-amber-text)}
+.sk-status-rule[data-tone=green]:before{background:var(--sk-accent)}
+.sk-status-rule[data-tone=neutral]:before{background:var(--sk-muted)}
 .sk-selfhost{display:flex;align-items:center;gap:16px;padding:23px 17px}
 .sk-selfhost svg{color:var(--sk-green-text)}
 .sk-selfhost strong,.sk-selfhost small{display:block;font-size:12px}
@@ -415,6 +419,12 @@ html.sekaro-ui body,html.sekaro-ui #root{height:auto;min-height:100dvh;overflow:
 .sk-dashboard .sk-metric-detail{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sk-dashboard .sk-metric{min-height:174px}
 .sk-dashboard .sk-metric-value{margin-top:7px;margin-bottom:3px}
+.sk-dashboard-range{width:130px!important;font-size:11px!important;padding:5px 22px 5px 9px!important}
+.sk-dashboard-snippet{max-width:220px}
+.sk-campaign-status-value{font-size:17px}
+.sk-form-actions-between{align-items:center;justify-content:space-between}
+.sk-panel-body-compact{padding:15px}
+.sk-top-gap{margin-top:15px}
 .sk-dashboard .sk-two-col:last-child{margin-bottom:0}
 .sk-dashboard .sk-two-col:last-child .sk-panel{min-height:263px}
 .sk-dashboard .sk-two-col:last-child .sk-table td{height:43px;padding:8px 9px}
