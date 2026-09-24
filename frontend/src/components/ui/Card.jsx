@@ -8,7 +8,7 @@ import classNames from 'classnames';
 export function Card({ className, children, ...props }) {
   return (
     <div
-      className={classNames('bg-white rounded-lg shadow p-4', className)}
+      className={classNames('bg-white rounded-lg shadow p-4 sk-legacy-card', className)}
       {...props}
     >
       {children}
