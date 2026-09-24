@@ -183,7 +183,7 @@ export default function Leads() {
         return next;
       });
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Failed to load leads' });
+      notify({ type: 'error', message: e.message || 'Nie udało się wczytać kontaktów.' });
     } finally {
       loading.stop();
     }
@@ -262,17 +262,17 @@ export default function Leads() {
   const handleBulkDelete = async () => {
     if (!selected.size) return;
     const ok = await confirm(
-      `Permanently delete ${selected.size} lead(s)? This removes enrollments and email history for those leads.`,
+      `Trwale usunąć ${selected.size} kontaktów? Zostaną usunięte przypisania do kampanii i historia wiadomości tych kontaktów.`,
     );
     if (!ok) return;
     loading.start();
     try {
       const res = await api.post('/leads/bulk-delete', { lead_ids: [...selected] });
       const n = res.deleted ?? selected.size;
-      notify({ type: 'success', message: `Deleted ${n} lead(s).` });
+      notify({ type: 'success', message: `Usunięto kontakty: ${n}.` });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Delete failed' });
+      notify({ type: 'error', message: e.message || 'Usuwanie nie powiodło się.' });
     } finally {
       loading.stop();
     }
@@ -281,16 +281,16 @@ export default function Leads() {
   const handleBulkStatus = async () => {
     if (!selected.size) return;
     const ok = await confirm(
-      `Set enrollment to “${bulkEnrollmentStatus}” on every campaign for ${selected.size} lead(s)? The send queue will be recalculated.`,
+      `Ustawić status „${bulkEnrollmentStatus}” we wszystkich kampaniach dla ${selected.size} kontaktów? Kolejka wysyłki zostanie przeliczona.`,
     );
     if (!ok) return;
     loading.start();
     try {
       await api.post('/leads/bulk-status', { lead_ids: [...selected], enrollment_status: bulkEnrollmentStatus });
-      notify({ type: 'success', message: 'Status updated.' });
+      notify({ type: 'success', message: 'Status został zaktualizowany.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Update failed' });
+      notify({ type: 'error', message: e.message || 'Aktualizacja nie powiodła się.' });
     } finally {
       loading.stop();
     }
@@ -307,11 +307,11 @@ export default function Leads() {
           (l.campaigns || []).some((c) => c.status === 'bounced'),
       );
     if (!targets.length) {
-      notify({ type: 'info', message: 'Select bounced or invalid leads to re-enroll with a corrected email.' });
+      notify({ type: 'info', message: 'Wybierz odbite lub niepoprawne kontakty, aby ponownie je zapisać z poprawionym adresem.' });
       return;
     }
     const ok = await confirm(
-      `Re-enroll ${targets.length} lead(s) using the “New email” values? Status becomes active; verification runs when enabled on your account.`,
+      `Ponownie zapisać ${targets.length} kontaktów z użyciem wartości „Nowy e-mail”? Status stanie się aktywny, a weryfikacja uruchomi się zgodnie z ustawieniami konta.`,
     );
     if (!ok) return;
     loading.start();
@@ -323,7 +323,7 @@ export default function Leads() {
         }))
         .filter((row) => row.email);
       if (!items.length) {
-        notify({ type: 'error', message: 'Enter an email for each selected lead.' });
+        notify({ type: 'error', message: 'Podaj adres e-mail dla każdego wybranego kontaktu.' });
         return;
       }
       const res = await api.post('/leads/bulk-recover', { items, verify_email: true });
@@ -331,11 +331,11 @@ export default function Leads() {
       const errN = res.errors?.length ?? 0;
       notify({
         type: errN ? 'info' : 'success',
-        message: `Recovery started for ${n} lead(s).${errN ? ` ${errN} skipped (see API errors).` : ''}`,
+        message: `Rozpoczęto odzyskiwanie ${n} kontaktów.${errN ? ` Pominięto: ${errN} (sprawdź błędy API).` : ''}`,
       });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Re-enroll failed' });
+      notify({ type: 'error', message: e.message || 'Ponowne zapisanie nie powiodło się.' });
     } finally {
       loading.stop();
     }
@@ -344,16 +344,16 @@ export default function Leads() {
   const recoverOne = async (lead) => {
     const email = (emailDrafts[lead.id] ?? lead.email).trim();
     if (!email) {
-      notify({ type: 'error', message: 'Enter an email address.' });
+      notify({ type: 'error', message: 'Podaj adres e-mail.' });
       return;
     }
     loading.start();
     try {
       await api.post(`/leads/${lead.id}/recover`, { email, verify_email: true });
-      notify({ type: 'success', message: 'Lead updated. Verification or scheduling will follow your account settings.' });
+      notify({ type: 'success', message: 'Kontakt zaktualizowany. Weryfikacja lub harmonogram zostaną zastosowane zgodnie z ustawieniami konta.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Recovery failed' });
+      notify({ type: 'error', message: e.message || 'Odzyskiwanie nie powiodło się.' });
     } finally {
       loading.stop();
     }
@@ -363,10 +363,10 @@ export default function Leads() {
     loading.start();
     try {
       await api.patch(`/leads/${lead.id}`, { enrollment_status: 'active' });
-      notify({ type: 'success', message: 'All enrollments set to active; queue recalculated.' });
+      notify({ type: 'success', message: 'Wszystkie przypisania ustawiono jako aktywne; kolejka została przeliczona.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Update failed' });
+      notify({ type: 'error', message: e.message || 'Aktualizacja nie powiodła się.' });
     } finally {
       loading.stop();
     }
@@ -393,7 +393,7 @@ export default function Leads() {
       URL.revokeObjectURL(url);
       notify({ type: 'success', message: 'CSV downloaded.' });
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Export failed' });
+      notify({ type: 'error', message: e.message || 'Eksport nie powiódł się.' });
     } finally {
       loading.stop();
     }
@@ -485,7 +485,7 @@ export default function Leads() {
       const rows = await api.get('/leads/suppression' + qs);
       setSuppressionRows(Array.isArray(rows) ? rows : []);
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się wczytać suppression list.' });
+      notify({ type: 'error', message: e.message || 'Nie udało się wczytać listy wykluczeń.' });
     } finally {
       setSuppressionBusy(false);
     }
@@ -509,7 +509,7 @@ export default function Leads() {
         note: '',
       });
       setSuppressionEmail('');
-      notify({ type: 'success', message: `${email} dodano do suppression list.` });
+      notify({ type: 'success', message: `${email} dodano do listy wykluczeń.` });
       await loadSuppression('');
       await loadLeads();
     } catch (err) {
@@ -527,7 +527,7 @@ export default function Leads() {
     setSuppressionBusy(true);
     try {
       await api.del(`/leads/suppression/${row.id}`);
-      notify({ type: 'success', message: `${row.email} usunięto z suppression list.` });
+      notify({ type: 'success', message: `${row.email} usunięto z listy wykluczeń.` });
       await loadSuppression('');
     } catch (err) {
       notify({ type: 'error', message: err.message || 'Nie udało się usunąć wpisu.' });
@@ -548,11 +548,11 @@ export default function Leads() {
       const errN = res.errors?.length ?? 0;
       notify({
         type: errN ? 'info' : 'success',
-        message: `Recovered ${n} lead(s).${errN ? ` ${errN} row(s) skipped.` : ''}`,
+        message: `Odzyskano ${n} kontaktów.${errN ? ` Pominięto wiersze: ${errN}.` : ''}`,
       });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Import failed — check CSV format and IDs.' });
+      notify({ type: 'error', message: e.message || 'Import nie powiódł się — sprawdź format CSV i identyfikatory.' });
       await loadLeads();
     } finally {
       loading.stop();
@@ -633,6 +633,7 @@ export default function Leads() {
       <div className="flex flex-wrap items-center gap-2">
         <span className="text-sm text-gray-500">Lista:</span>
         <select
+          aria-label="Filtr listy kontaktów"
           value={listFilter}
           onChange={(e) => setListFilter(e.target.value)}
           className="rounded-md border-gray-300 text-sm"
@@ -668,7 +669,7 @@ export default function Leads() {
       )}
 
       <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-sm text-gray-500">Interest:</span>
+        <span className="text-sm text-gray-500">Reakcja:</span>
         {INTEREST_FILTER_OPTIONS.map((o) => (
           <button
             key={o.value}
@@ -689,9 +690,9 @@ export default function Leads() {
       {tab === TAB_BOUNCED && (
         <Card className="p-4 bg-amber-50/80 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
           <p className="text-sm text-gray-800 dark:text-gray-200">
-            Edit the email for each row, then <strong className="font-medium">Save &amp; recover</strong>. That updates the
-            lead record (all campaigns), sets status to active, and either queues verification or reschedules immediately.
-            Export bad addresses to clean them elsewhere, then import a CSV with columns <code className="font-mono text-xs">id,email</code>.
+            Popraw adres e-mail w każdym wierszu, a następnie wybierz <strong className="font-medium">Zapisz i odzyskaj</strong>.
+            Zaktualizuje to kontakt we wszystkich kampaniach, ustawi status aktywny i uruchomi weryfikację albo ponowne planowanie.
+            Możesz też wyeksportować błędne adresy, poprawić je poza Sekaro i zaimportować CSV z kolumnami <code className="font-mono text-xs">id,email</code>.
           </p>
         </Card>
       )}
@@ -789,16 +790,17 @@ export default function Leads() {
           </Button>
           <div className="flex flex-wrap items-center gap-2">
             <select
+              aria-label="Zmień status zaznaczonych kontaktów"
               className="rounded-md border-gray-300 text-sm shadow-sm focus:ring-2 focus:ring-teal-300"
               value={bulkEnrollmentStatus}
               onChange={(e) => setBulkEnrollmentStatus(e.target.value)}
             >
-              <option value="active">active</option>
-              <option value="contacted">contacted</option>
-              <option value="completed">completed</option>
-              <option value="bounced">bounced</option>
-              <option value="unsubscribed">unsubscribed</option>
-              <option value="wrong_person">wrong_person</option>
+              <option value="active">aktywny</option>
+              <option value="contacted">skontaktowano</option>
+              <option value="completed">zakończony</option>
+              <option value="bounced">odbity</option>
+              <option value="unsubscribed">wypisany</option>
+              <option value="wrong_person">niewłaściwa osoba</option>
             </select>
             <Button type="button" variant="outline" size="sm" onClick={handleBulkStatus}>
               Apply enrollment
@@ -826,7 +828,7 @@ export default function Leads() {
                   className="rounded"
                   checked={visibleIds.length > 0 && selected.size === visibleIds.length}
                   onChange={toggleAll}
-                  aria-label="Select all"
+                  aria-label="Zaznacz wszystkie kontakty"
                 />
               </th>
               <th className="p-2">E-mail</th>
@@ -860,7 +862,7 @@ export default function Leads() {
                       className="rounded"
                       checked={selected.has(l.id)}
                       onChange={() => toggleOne(l.id)}
-                      aria-label={`Select ${l.email}`}
+                      aria-label={`Zaznacz ${l.email}`}
                     />
                   </td>
                   <td className="p-2 align-top font-mono text-xs">
