@@ -803,12 +803,12 @@ export default function Leads() {
               <option value="wrong_person">niewłaściwa osoba</option>
             </select>
             <Button type="button" variant="outline" size="sm" onClick={handleBulkStatus}>
-              Apply enrollment
+              Zastosuj status
             </Button>
           </div>
           {(tab === TAB_BOUNCED || tab === TAB_ALL) && (
             <Button type="button" variant="default" size="sm" onClick={handleBulkReenroll}>
-              Re-enroll (recover)
+              Ponownie zapisz (odzyskaj)
             </Button>
           )}
         </Card>
