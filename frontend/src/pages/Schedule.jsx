@@ -14,7 +14,7 @@ import {
   normalizeTimeZone,
 } from '../utils/datetime';
 
-const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAY_NAMES = ['Pon','Wt','Śr','Czw','Pt','Sob','Nd'];
 const SCHEDULE_DAYS_BACK = 7;
 const SCHEDULE_DAYS_AHEAD = 3;
 const SCHEDULE_LIMIT = 5000;
@@ -27,7 +27,7 @@ function buildQuery(path, params) {
 // ── Email Preview Modal for schedule items ────────────────────────────────────
 function ScheduleEmailPreviewModal({ item, onClose }) {
   const isHtml = item.sequence_is_html || (item.sequence_body || '').trim().startsWith('<');
-  const subject = item.subject || '(no subject)';
+  const subject = item.subject || '(brak tematu)';
   const body = item.sequence_body || '';
   const backdropDown = useRef(false);
 
@@ -40,6 +40,9 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Podgląd wiadomości"
       onMouseDown={e => { backdropDown.current = e.target === e.currentTarget; }}
       onClick={() => { if (backdropDown.current) onClose(); }}
     >
@@ -52,25 +55,25 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
           <div>
-            <h2 className="font-semibold text-gray-800">Email Preview</h2>
+            <h2 className="font-semibold text-gray-800">Podgląd wiadomości</h2>
             <p className="text-xs text-gray-400 mt-0.5">
               {item.type === 'sent' ? `Wysłano do ${item.lead_email}` : `Zaplanowano dla ${item.lead_email}`}
             </p>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
+          <button onClick={onClose} aria-label="Zamknij podgląd" className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
         </div>
 
         {/* Meta */}
         <div className="px-6 py-3 border-b bg-gray-50 flex flex-wrap gap-x-6 gap-y-1 text-sm">
           <span className="text-gray-500">
-            <span className="font-medium text-gray-700">Campaign:</span> {item.campaign_name}
+            <span className="font-medium text-gray-700">Kampania:</span> {item.campaign_name}
           </span>
           <span className="text-gray-500">
-            <span className="font-medium text-gray-700">Sequence:</span> #{(item.sequence_index ?? 0) + 1}
+            <span className="font-medium text-gray-700">Krok sekwencji:</span> #{(item.sequence_index ?? 0) + 1}
           </span>
           {item.type === 'sent' && item.sent_at && (
             <span className="text-gray-500">
-              <span className="font-medium text-gray-700">Sent:</span> {new Date(item.sent_at).toLocaleString()}
+              <span className="font-medium text-gray-700">Wysłano:</span> {new Date(item.sent_at).toLocaleString()}
             </span>
           )}
           {item.type === 'scheduled' && item.scheduled_at && (
@@ -84,16 +87,16 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {/* Subject */}
           <div className="bg-gray-50 rounded-lg px-4 py-3">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Subject</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Temat</span>
             <p className="font-medium text-gray-800">
               {!item.subject || item.subject === '(reply in thread)'
-                ? <em className="text-gray-400 font-normal">Reply in thread</em>
+                ? <em className="text-gray-400 font-normal">Odpowiedź w wątku</em>
                 : item.subject}
             </p>
           </div>
           {/* Body */}
           <div>
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Body</span>
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Treść</span>
             {body ? (
               isHtml ? (
                 <div
@@ -106,13 +109,13 @@ function ScheduleEmailPreviewModal({ item, onClose }) {
                 </pre>
               )
             ) : (
-              <p className="text-gray-400 italic text-sm">No body available</p>
+              <p className="text-gray-400 italic text-sm">Brak treści wiadomości</p>
             )}
           </div>
         </div>
 
         <div className="px-6 py-3 border-t flex justify-end">
-          <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>Zamknij</Button>
         </div>
       </div>
     </div>
@@ -154,7 +157,7 @@ export default function Schedule() {
 
   // button states for recalc/validate so React can re-render correctly
   const [recalcState, setRecalcState] = useState({ busy: false, text: '⚡ Przelicz kampanie' });
-  const [validateState, setValidateState] = useState({ busy: false, text: '🔍 Validate Queue' });
+  const [validateState, setValidateState] = useState({ busy: false, text: '🔍 Sprawdź kolejkę' });
 
   const filterCampaignOptions = useRef([]);
 
@@ -175,7 +178,7 @@ export default function Schedule() {
         return merged;
       }
     } catch (e) {
-      notify({ type: 'error', message: 'Failed to load email details' });
+      notify({ type: 'error', message: 'Nie udało się wczytać szczegółów wiadomości.' });
     }
     return item;
   };
@@ -234,7 +237,7 @@ export default function Schedule() {
       });
       filterCampaignOptions.current = [...camps.entries()].sort((a,b) => a[1].localeCompare(b[1]));
     } catch (e) {
-      notify({ type: 'error', message: 'Failed to load schedule data' });
+      notify({ type: 'error', message: 'Nie udało się wczytać harmonogramu.' });
     } finally {
       // loading.stop();
     }
@@ -298,18 +301,18 @@ export default function Schedule() {
   const renderLastRun = iso => {
     if (!iso) return '—';
     const d = new Date(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
-    return diff < 1 ? 'Przed chwilą' : diff + 'm ago';
+    return diff < 1 ? 'Przed chwilą' : diff + ' min temu';
   };
   const recalculateAll = async () => {
-    setRecalcState({ busy: true, text: '⚡ Recalculating...' });
+    setRecalcState({ busy: true, text: '⚡ Przeliczanie…' });
     const baselineStats = await api.get('/schedule/stats').catch(() => ({}));
     try {
       const res = await fetch('/api/schedule/recalculate-all',{method:'POST'});
       if (res.ok) {
         const data = await res.json();
-        const stratLabel = strategy==='priority'?'Priority':'Round-Robin';
+        const stratLabel = strategy==='priority'?'Priorytet':'Równomiernie';
         if (data.accepted) {
-          setRecalcState({ busy: true, text: '⚡ Recalculation running…' });
+          setRecalcState({ busy: true, text: '⚡ Trwa przeliczanie…' });
           // Server sets global_recalc_finished_at when the job completes; polling
           // slot counts is unreliable (same total as before, or no visible "empty" window).
           const baselineToken = baselineStats?.global_recalc_finished_at ?? null;
@@ -324,20 +327,20 @@ export default function Schedule() {
           }
           await loadData();
           const finalStats = await api.get('/schedule/stats').catch(() => ({}));
-          const message = `✓ Done! [${stratLabel}] (${finalStats.total_campaigns ?? '—'} campaigns, ${finalStats.total_scheduled ?? '—'} scheduled)`;
+          const message = `✓ Gotowe! [${stratLabel}] (${finalStats.total_campaigns ?? '—'} kampanii, ${finalStats.total_scheduled ?? '—'} zaplanowanych)`;
           setRecalcState({ busy: true, text: message });
         } else {
-          const message = `✓ Done! [${stratLabel}] (${data.campaigns_processed} campaigns, ${data.total_slots} slots)`;
+          const message = `✓ Gotowe! [${stratLabel}] (${data.campaigns_processed} kampanii, ${data.total_slots} pozycji)`;
           setRecalcState({ busy: true, text: message });
           setTimeout(loadData, 100);
         }
       } else {
         const t = await res.text();
-        notify({ type: 'error', message: 'Error recalculating: ' + t });
+        notify({ type: 'error', message: 'Błąd przeliczania: ' + t });
         setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
       }
     } catch(err) {
-      notify({ type: 'error', message: 'Error: ' + err.message });
+      notify({ type: 'error', message: 'Błąd: ' + err.message });
       setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
     } finally {
       setTimeout(()=>{
@@ -346,31 +349,31 @@ export default function Schedule() {
     }
   };
   const validateQueue = async () => {
-    setValidateState({ busy: true, text: '🔍 Validating...' });
+    setValidateState({ busy: true, text: '🔍 Sprawdzanie…' });
     try {
       const res = await fetch('/api/schedule/validate-queue',{method:'POST'});
       if (res.ok) {
         const data = await res.json();
         const issues = data.issues||[];
-        const txt = `✓ Validated (${data.total_slots_checked} slots, ${issues.length} issue${issues.length!==1?'s':''})`;
+        const txt = `✓ Sprawdzono (${data.total_slots_checked} pozycji, problemy: ${issues.length})`;
         setValidateState({ busy: true, text: txt });
         if (issues.length) {
-          notify({ type: 'error', message: `Validation completed — ${issues.length} issue(s) found. Open console for details.` });
+          notify({ type: 'error', message: `Sprawdzanie zakończone — znaleziono problemy: ${issues.length}. Szczegóły są w konsoli.` });
           console.log('Validation result:', data);
         }
         loadData();
       } else {
         const t = await res.text();
-        notify({ type: 'error', message: 'Validation failed: ' + t });
-        setValidateState({ busy: false, text: '🔍 Validate Queue' });
+        notify({ type: 'error', message: 'Sprawdzanie kolejki nie powiodło się: ' + t });
+        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
       }
     } catch(err){
-      notify({ type: 'error', message: 'Error: ' + err.message });
-      setValidateState({ busy: false, text: '🔍 Validate Queue' });
+      notify({ type: 'error', message: 'Błąd: ' + err.message });
+      setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
     }
     finally {
       setTimeout(()=>{
-        setValidateState({ busy: false, text: '🔍 Validate Queue' });
+        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
       },2000);
     }
   };
@@ -399,13 +402,17 @@ export default function Schedule() {
     const time = isSent ? fmtTime(item.sent_at, tz) : fmtTime(item.scheduled_at, tz);
     const statusCls = isSent ? 'sent' : 'scheduled';
     const statusLabel = isSent ? 'Wysłano' : 'Zaplanowano';
-    const subject = item.subject || '(no subject)';
+    const subject = item.subject || '(brak tematu)';
     const inboxLabel = item.inbox_email || '—';
     const isExpanded = expandedId === uid;
     return (
       <div key={uid}>
         <div
           className={`email-row${isExpanded?' expanded':''}`}
+          role="button"
+          tabIndex={0}
+          aria-expanded={isExpanded}
+          onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.currentTarget.click(); } }}
           onClick={async () => {
             if (isExpanded) {
               setExpandedId(null);
@@ -429,34 +436,34 @@ export default function Schedule() {
             <div className="dp-grid">
               <div><span className="dp-label">Status</span><br/><span className={`badge-status ${statusCls}`} style={{fontSize:'0.8rem'}}>{statusLabel}</span></div>
               {isSent ? (
-                <div><span className="dp-label">Sent at</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
+                <div><span className="dp-label">Wysłano</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
               ) : (
                 <div><span className="dp-label">Zaplanowano na</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
               )}
-              <div><span className="dp-label">Lead</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
-              <div><span className="dp-label">Campaign</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
-              <div><span className="dp-label">Sequence step</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
-              <div><span className="dp-label">Wait after previous</span><br/><span className="dp-val">{item.sequence_wait_days??0} day(s)</span></div>
-              <div className="dp-full"><span className="dp-label">Subject</span><br/><span className="dp-val">{subject}</span></div>
+              <div><span className="dp-label">Kontakt</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
+              <div><span className="dp-label">Kampania</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
+              <div><span className="dp-label">Krok sekwencji</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
+              <div><span className="dp-label">Odstęp po poprzedniej</span><br/><span className="dp-val">{item.sequence_wait_days??0} dni</span></div>
+              <div className="dp-full"><span className="dp-label">Temat</span><br/><span className="dp-val">{subject}</span></div>
               {!isSent && (
                 <>
-                  <div><span className="dp-label">Inbox</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
-                  <div><span className="dp-label">Send method</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
-                  <div><span className="dp-label">Inbox max/day</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
-                  <div><span className="dp-label">Position in day</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
+                  <div><span className="dp-label">Skrzynka</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
+                  <div><span className="dp-label">Metoda wysyłki</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
+                  <div><span className="dp-label">Limit skrzynki / dzień</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
+                  <div><span className="dp-label">Pozycja w dniu</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
                 </>
               )}
               {item.has_variants && (
-                <div><span className="dp-label">A/B variant</span><br/><span className="dp-val">{item.variant_id ? `Variant #${item.variant_id}` : 'Default'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B active</span> : ''}</span></div>
+                <div><span className="dp-label">A/B variant</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
               )}
               {isSent && item.message_id && (
                 <div className="dp-full"><span className="dp-label">Message ID</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
               )}
-              <div><span className="dp-label">Sending window</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
-              <div><span className="dp-label">Sending days</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
-              <div><span className="dp-label">Stop on reply</span><br/><span className="dp-val">{item.campaign_stop_on_reply?'Yes':'No'}</span></div>
+              <div><span className="dp-label">Okno wysyłki</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
+              <div><span className="dp-label">Dni wysyłki</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
+              <div><span className="dp-label">Zatrzymaj po odpowiedzi</span><br/><span className="dp-val">{item.campaign_stop_on_reply?'Tak':'Nie'}</span></div>
               {item.sequence_body && (
-                <div className="dp-full"><span className="dp-label">Email body</span>
+                <div className="dp-full"><span className="dp-label">Treść wiadomości</span>
                   <div className="flex items-center gap-2 mt-1 mb-1">
                     <Button
                       size="sm"
@@ -484,12 +491,12 @@ export default function Schedule() {
     // add header row before items
     const header = (
       <div className="email-row header" key="header">
-        <div className="time-col">Time</div>
+        <div className="time-col">Czas</div>
         <div className="status-col">Status</div>
-        <div className="lead-col">Lead</div>
-        <div className="subj-col">Subject</div>
-        <div className="camp-col">Campaign</div>
-        <div className="inbox-col">Inbox</div>
+        <div className="lead-col">Kontakt</div>
+        <div className="subj-col">Temat</div>
+        <div className="camp-col">Kampania</div>
+        <div className="inbox-col">Skrzynka</div>
       </div>
     );
     const todayByTz = new Map();
@@ -535,10 +542,10 @@ export default function Schedule() {
                   {group.dateKey}
                   <span className="ml-2 text-xs text-gray-400">{group.tz}</span>
                   {group.dateKey === todayKey && (
-                    <span style={{color:'var(--success)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>today</span>
+                    <span style={{color:'var(--success)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>dzisiaj</span>
                   )}
                   {group.dateKey === tomorrowKey && (
-                    <span style={{color:'var(--info)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>tomorrow</span>
+                    <span style={{color:'var(--info)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>jutro</span>
                   )}
                 </div>
                 {group.items
@@ -554,15 +561,16 @@ export default function Schedule() {
       // add header bar at top of list
       parts.unshift(header);
     }
-    if (!parts.length) return <p style={{color:'var(--muted)',padding:'1rem 0'}}>No emails match your filters.</p>;
+    if (!initialLoaded) return <p style={{color:'var(--muted)',padding:'1rem 0'}}>Wczytywanie harmonogramu…</p>;
+    if (!parts.length) return <p style={{color:'var(--muted)',padding:'1rem 0'}}>Brak wiadomości pasujących do filtrów.</p>;
     return parts;
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8">
+    <div className="min-h-0 flex-1 overflow-y-auto p-8" aria-busy={!initialLoaded||isLoadingMore}>
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold">Harmonogram</h1>
-        <span className="text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5" title="Times are stored in UTC and displayed in each campaign's timezone below">
+        <span className="text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5" title="Czasy są przechowywane w UTC i wyświetlane poniżej w strefie czasowej każdej kampanii">
           🕐 Times in campaign timezone
         </span>
       </div>
@@ -571,10 +579,10 @@ export default function Schedule() {
           {!isProduction && (
             <>
               <div>
-                <span className="text-sm text-gray-500">Test Mode:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'ON':'OFF'}</span>
+                <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
               </div>
-              <div title="Backend server clock (UTC). Campaign sending windows are interpreted in their configured timezone and stored as UTC, then displayed here in your browser's local time.">
-                <span className="text-sm text-gray-500">Server (UTC):</span>{' '}
+              <div title="Zegar serwera (UTC). Okna wysyłki kampanii są interpretowane w skonfigurowanej strefie, zapisywane w UTC, a tutaj wyświetlane w lokalnym czasie przeglądarki.">
+                <span className="text-sm text-gray-500">Serwer (UTC):</span>{' '}
                 <span className="font-mono text-xs">
                   {serverStatus.server_time
                     ? new Date(serverStatus.server_time).toISOString().replace('T',' ').slice(0,19) + ' UTC'
@@ -586,8 +594,8 @@ export default function Schedule() {
                   </span>
                 )}
               </div>
-              <div title="Time until the next scheduled email fires (calculated from server UTC time)">
-                <span className="text-sm text-gray-500">Next email in:</span>{' '}
+              <div title="Czas do następnej zaplanowanej wiadomości, obliczony na podstawie czasu serwera UTC">
+                <span className="text-sm text-gray-500">Następna wiadomość za:</span>{' '}
                 <span className="font-semibold">{timeToNext || '—'}</span>
               </div>
             </>
@@ -616,16 +624,16 @@ export default function Schedule() {
         <div className="stat-card"><div className="num" id="stat-camps">{stats.total_campaigns||0}</div><div className="lbl">Kampanie</div></div>
       </div>
       <div className="cal-toolbar mb-4 flex flex-wrap gap-2 items-center">
-        <select value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
+        <select aria-label="Filtr kampanii" value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
           <option value="">Wszystkie kampanie</option>
           {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
         </select>
-        <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
+        <select aria-label="Filtr statusu" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
           <option value="">Wszystkie statusy</option>
           <option value="sent">Wysłane</option>
           <option value="scheduled">Zaplanowane</option>
         </select>
-        <input type="text" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
+        <input aria-label="Szukaj w harmonogramie" type="text" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
         <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
         {!isProduction && (
           <>
