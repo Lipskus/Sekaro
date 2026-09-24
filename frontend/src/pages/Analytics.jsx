@@ -58,6 +58,7 @@ export default function Analytics() {
   const [currentChoice, setCurrentChoice] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(campaigns.length === 0);
   const [analyticsData, setAnalyticsData] = useState([]);
   const [serverToday, setServerToday] = useState(null);
 
@@ -85,6 +86,7 @@ export default function Analytics() {
   useEffect(() => {
     (async () => {
       try {
+        setError(null);
         const [camps, offsetData] = await Promise.all([
           api.get('/campaigns'),
           api.get('/settings/time-offset').catch(() => ({ time_offset_days: 0 })),
@@ -103,7 +105,9 @@ export default function Analytics() {
         setEndDate(last7.end);
         setActivePreset('Ostatnie 7 dni');
       } catch (e) {
-        setError('Failed to load analytics');
+        setError('Nie udało się wczytać analityki.');
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
@@ -245,7 +249,7 @@ export default function Analytics() {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
+    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6" aria-busy={loading}>
       <h1 className="text-2xl font-semibold mb-4">Analityka</h1>
       {error && <div className="text-red-600">{error}</div>}
 
@@ -351,7 +355,7 @@ export default function Analytics() {
               onChange={e => setCurrentChoice(e.target.value)}
               className="border rounded px-2 py-1"
             >
-              <option value="">Add a campaign…</option>
+              <option value="">Dodaj kampanię…</option>
               {campaigns
                 .filter(c => !selectedIds.includes(String(c.id)))
                 .map(c => (
@@ -401,9 +405,9 @@ export default function Analytics() {
       {filtered.length === 0 ? (
         <Card>
           {campaigns.length === 0 ? (
-            'No campaigns to analyze.'
+            'Brak kampanii do analizy.'
           ) : (
-            'No matching campaigns.'
+            'Brak pasujących kampanii.'
           )}
         </Card>
       ) : (
