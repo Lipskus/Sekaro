@@ -368,7 +368,7 @@ function InboxTrackingOptions({
                   type="url"
                   disabled={beaconInputDisabled}
                   className="w-full min-w-0 max-w-full box-border border rounded px-2 py-1.5 font-mono text-xs bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                  placeholder="https://track.example.com/?token=…"
+                  aria-label="Adres konfiguracji Beacon" placeholder="https://track.example.com/?token=…"
                   value={beaconSetupUrl}
                   onChange={e => onBeaconSetupUrlChange(e.target.value)}
                 />
@@ -430,7 +430,7 @@ function InboxTrackingOptions({
                 type="text"
                 disabled={dnsInputDisabled}
                 className="w-full min-w-0 max-w-full box-border border rounded px-2 py-1.5 font-mono text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                placeholder="mail.yourdomain.com"
+                aria-label="Domena śledząca DNS" placeholder="mail.yourdomain.com"
                 value={trackingDomain || ''}
                 onChange={e => handleDnsValue(e.target.value)}
                 onFocus={() => {
@@ -476,7 +476,7 @@ function InboxTrackingOptions({
         <div className="text-xs text-amber-800 space-y-2 bg-amber-50 border border-amber-200 rounded p-2">
           <p>
             Zapisano starszą domenę śledzącą CNAME:{' '}
-            <code className="font-mono">{(trackingDomain || '').trim()}</code>. Prefer Beacon for new setups.
+            <code className="font-mono">{(trackingDomain || '').trim()}</code>. Dla nowych konfiguracji zalecany jest Beacon.
           </p>
           <button
             type="button"
@@ -1537,8 +1537,8 @@ export default function Inboxes() {
           onMouseDown={e => { addBackdropDown.current = e.target === e.currentTarget; }}
           onClick={() => { if (addBackdropDown.current) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); } }}
         >
-          <div data-darkreader-ignore className="p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" style={{ backgroundColor: 'white' }} onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold mb-2">Dodaj skrzynkę</h2>
+          <div data-darkreader-ignore role="dialog" aria-modal="true" aria-labelledby="add-inbox-title" className="p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" style={{ backgroundColor: 'white' }} onClick={e => e.stopPropagation()}>
+            <h2 id="add-inbox-title" className="text-xl font-semibold mb-2">Dodaj skrzynkę</h2>
             {message && <div role={message.type === 'error' ? 'alert' : 'status'} className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{message.text}</div>}
             <form onSubmit={submit} className="space-y-4 min-w-0 max-w-full">
               <div>
