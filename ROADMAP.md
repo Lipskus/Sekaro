@@ -90,7 +90,7 @@ Before new product features are added, the current UI must be consolidated into 
 - [x] Refresh the visible Sekaro UI version for this cleanup baseline
 - [ ] Audit Dashboard spacing, empty states, status hierarchy and responsive behavior
 - [ ] Audit Contacts table, drawers, bulk actions, filters and responsive behavior
-- [ ] Audit Campaign Workspace and isolate remaining embedded legacy campaign surfaces
+- [ ] Audit Campaign Workspace and isolate remaining embedded legacy campaign surfaces (legacy tabs identified: sequences, recipients, settings, analytics, queue)
 - [ ] Audit Inbox/Wątki list, conversation view, composer, empty/error states and mobile behavior
 - [ ] Audit Domains states and diagnostics presentation
 - [ ] Final Login/first-run/restore visual polish in both light and dark themes
@@ -99,20 +99,42 @@ Before new product features are added, the current UI must be consolidated into 
 - [ ] Verify loading, empty, error, disabled and destructive states across all active screens (first cleanup pass completed for redesigned screens)
 - [ ] Verify keyboard focus, labels, contrast and reduced-motion behavior
 - [ ] Verify light/dark parity and responsive layouts before approving new screen designs
-- [ ] Complete Polish copy cleanup on all active screens touched by the redesign (redesigned core and first-run restore pass completed)
+- [ ] Complete Polish copy cleanup on all active screens touched by the redesign (redesigned core and first-run restore pass completed; legacy screens will be translated during their approved redesign)
 
 ### Phase B — reference PNGs for screens not yet redesigned
-Each screen is designed in dark mode first as the reference, then mirrored 1:1 into light mode. Implementation begins only after the reference is approved.
+Each screen is designed in dark mode first as the reference, then mirrored 1:1 into light mode. Implementation begins only after the reference is approved. Large functional areas are split into explicit references so no legacy subview is accidentally carried forward.
 
 - [ ] Settings
+  - [ ] General / schedule / appearance
+  - [ ] Account & security / known IPs
+  - [ ] Backup & restore
+  - [ ] Features: AI, notifications and email verification
+  - [ ] Integrations: API keys, webhooks and MCP
+  - [ ] Test mode / development-only settings
 - [ ] Campaigns list
 - [ ] New campaign / campaign builder
+- [ ] Campaign Workspace — remaining legacy tabs
+  - [ ] Sequence editor
+  - [ ] Recipients / add & review contacts
+  - [ ] Campaign settings
+  - [ ] Campaign analytics
+  - [ ] Queue / activity
 - [ ] Inboxes / mailbox configuration
+  - [ ] Mailbox list and states
+  - [ ] Add/edit SMTP + IMAP
+  - [ ] Tracking configuration: app URL, Beacon and DNS/CNAME
 - [ ] Templates
+  - [ ] Template list + editor/version history
+  - [ ] Contact preview, variables and test send
 - [ ] Analytics
 - [ ] Schedule / sending queue
+  - [ ] Queue/calendar view and filters
+  - [ ] Message preview
 - [ ] Notifications
+  - [ ] Notification center
+  - [ ] Email notification preferences and event types
 - [ ] Lead / contact detail
+- [ ] Contact tools — bounced/invalid address recovery (do not duplicate the main Contacts screen)
 - [ ] Deliverability tips
 - [ ] Final System Health reference only if Phase A shows that layout changes are still needed
 
@@ -128,17 +150,18 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 
 ### Design and implementation order
 1. Finish Phase A cleanup and regression review.
-2. Design Settings (dark, then light).
+2. Design Settings (dark, then light; split into the references above).
 3. Design Campaigns list.
 4. Design New Campaign.
-5. Design Inboxes.
-6. Design Templates.
-7. Design Analytics.
-8. Design Schedule.
-9. Design Notifications.
-10. Design Lead Detail.
-11. Design Deliverability Tips.
-12. Implement approved PNGs one screen at a time and re-run the cross-screen consistency audit.
+5. Design remaining Campaign Workspace tabs.
+6. Design Inboxes.
+7. Design Templates.
+8. Design Analytics.
+9. Design Schedule.
+10. Design Notifications.
+11. Design Lead Detail and the dedicated bounced/invalid recovery tools view.
+12. Design Deliverability Tips.
+13. Implement approved PNGs one screen at a time and re-run the cross-screen consistency audit.
 
 **Gate:** no new feature milestone work should take priority over this consolidation until Phase A is complete and the remaining core screens have approved references.
 

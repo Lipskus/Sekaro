@@ -22,6 +22,8 @@
 - normalized Contact Import and custom-field manager layout classes
 - localized and themed the test-mode banner
 - removed the last obvious unused imports found in the redesigned frontend audit
+- expanded the redesign inventory to include legacy Campaign Workspace tabs and the active bounced/invalid contact-recovery tools route
+- split Settings, Inboxes, Templates, Schedule and Notifications into explicit PNG reference scopes so large legacy screens are not treated as a single design
 
 ## 0.5.0 — Campaign scheduler safety
 
