@@ -6,6 +6,16 @@ import { Card } from '../components/ui/Card';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
 
+const INTERACTION_KIND_LABELS = {
+  sent: 'wysłano',
+  reply: 'odpowiedź',
+  received: 'odebrano',
+  open: 'otwarcie',
+  click: 'kliknięcie',
+  bounce: 'odbicie',
+  unsubscribe: 'wypisanie',
+};
+
 function formatDt(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
@@ -230,7 +240,7 @@ export default function LeadDetail() {
           Historia
         </h2>
         <p className="text-xs text-gray-500 mb-3">
-          Outbound sends and inbound messages we can associate (mirrored mail + reply markers). Full threads: Unibox.
+          Wysyłki wychodzące i wiadomości przychodzące, które udało się powiązać. Pełne wątki są dostępne w Wątkach.
         </p>
         {lead.interactions?.length ? (
           <ul className="space-y-3 text-sm">
@@ -243,7 +253,7 @@ export default function LeadDetail() {
               >
                 <div className="font-medium">
                   {row.direction === 'outbound' ? 'Wysłano' : 'Odebrano'}{' '}
-                  {row.kind && row.kind !== 'sent' ? `· ${row.kind.replace(/_/g, ' ')}` : ''}
+                  {row.kind && row.kind !== 'sent' ? `· ${INTERACTION_KIND_LABELS[row.kind] || row.kind.replace(/_/g, ' ')}` : ''}
                 </div>
                 <div className="text-gray-500 text-xs mt-0.5">
                   {row.campaign_name && <span>{row.campaign_name} · </span>}
