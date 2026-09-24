@@ -417,7 +417,7 @@ export default function Login() {
                             }
                             setRestorePreview(data);
                           } catch (e) {
-                            setRestoreMsg({ type: 'err', text: e.message || 'Could not verify backup' });
+                            setRestoreMsg({ type: 'err', text: e.message || 'Nie udało się zweryfikować kopii zapasowej' });
                           } finally {
                             setRestorePreviewBusy(false);
                           }

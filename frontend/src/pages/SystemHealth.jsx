@@ -273,13 +273,13 @@ function CheckMeta({ check }) {
                   ? 'bg-gray-100 text-gray-500'
                   : !f.api_key_set
                     ? 'bg-yellow-100 text-yellow-700'
-                    : !f.connection_tested
-                      ? 'bg-orange-100 text-orange-700'
-                      : f.last_error
-                        ? 'bg-red-100 text-red-700'
+                    : f.last_error
+                      ? 'bg-red-100 text-red-700'
+                      : !f.connection_tested
+                        ? 'bg-orange-100 text-orange-700'
                         : 'bg-green-100 text-green-700'
               }`}>
-                {!f.enabled ? 'Wyłączona' : !f.api_key_set ? 'Brak klucza' : !f.connection_tested ? 'Nieprzetestowana' : f.last_error ? 'Błąd' : 'OK'}
+                {!f.enabled ? 'Wyłączona' : !f.api_key_set ? 'Brak klucza' : f.last_error ? 'Błąd' : !f.connection_tested ? 'Nieprzetestowana' : 'OK'}
               </span>
             </div>
             {f.enabled && f.last_error && (

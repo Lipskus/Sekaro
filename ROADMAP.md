@@ -79,14 +79,14 @@ Sekaro is a self-hosted outreach and correspondence platform focused on provider
 Before new product features are added, the current UI must be consolidated into one Sekaro design system. Existing redesigned screens are polished first; only then are the remaining legacy screens designed as approved PNG references and implemented.
 
 ### Phase A — cleanup and polish before new PNGs
-- [ ] Treat a missing SMTP/IMAP mailbox as a blocking System Health error, not a warning
-- [ ] Remove the contradictory green "OK / Brak skrzynek" health card when no mailbox exists
-- [ ] Keep normal mailbox synchronization informational instead of raising a warning
-- [ ] Make System Health severity surfaces use Sekaro light/dark theme tokens
-- [ ] Polish and translate the remaining System Health diagnostics copy to Polish
+- [x] Treat a missing SMTP/IMAP mailbox as a blocking System Health error, not a warning
+- [x] Remove the contradictory green "OK / Brak skrzynek" health card when no mailbox exists
+- [x] Keep normal mailbox synchronization informational instead of raising a warning
+- [x] Make System Health severity surfaces use Sekaro light/dark theme tokens
+- [x] Polish and translate the remaining System Health diagnostics copy to Polish
 - [x] Remove stale routed-page imports
-- [ ] Remove obvious dead login-screen variables and polish first-run/restore copy
-- [ ] Fix the Dashboard health badge so warnings are not presented as green/healthy
+- [x] Remove obvious dead login-screen variables and polish first-run/restore copy
+- [x] Fix the Dashboard health badge so warnings are not presented as green/healthy
 - [x] Refresh the visible Sekaro UI version for this cleanup baseline
 - [ ] Audit Dashboard spacing, empty states, status hierarchy and responsive behavior
 - [ ] Audit Contacts table, drawers, bulk actions, filters and responsive behavior
@@ -124,7 +124,7 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 - [x] Campaign Workspace shell
 - [x] Inbox / Wątki
 - [x] Domains
-- [ ] System Health — visual/semantic cleanup in progress
+- [x] System Health — semantic/status baseline cleaned; final layout review remains part of Phase A
 
 ### Design and implementation order
 1. Finish Phase A cleanup and regression review.
