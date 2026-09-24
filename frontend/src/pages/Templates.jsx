@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useEffect, useMemo, useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -32,9 +33,6 @@ export default function Templates() {
   const [isHtml, setIsHtml] = useState(false);
   const [htmlSourceMode, setHtmlSourceMode] = useState(false);
   const [busy, setBusy] = useState(false);
-
-  const [fieldKey, setFieldKey] = useState('');
-  const [fieldLabel, setFieldLabel] = useState('');
 
   const [contactSearch, setContactSearch] = useState('');
   const [contactMatches, setContactMatches] = useState([]);
@@ -181,39 +179,6 @@ export default function Templates() {
     }
   };
 
-  const createField = async (e) => {
-    e.preventDefault();
-    if (!fieldKey.trim()) return;
-    try {
-      await api.post('/contact-fields', {
-        key: fieldKey.trim(),
-        label: fieldLabel.trim(),
-      });
-      setFieldKey('');
-      setFieldLabel('');
-      const rows = await api.get('/contact-fields');
-      setFields(Array.isArray(rows) ? rows : []);
-      notify({ type: 'success', message: 'Pole kontaktu utworzone.' });
-    } catch (e2) {
-      notify({ type: 'error', message: e2.message || 'Nie udało się utworzyć pola.' });
-    }
-  };
-
-  const deleteField = async (field) => {
-    if (!field.id || field.system) return;
-    const ok = await confirm(
-      `Usunąć definicję pola „${field.label || field.key}”? Dane zapisane przy kontaktach pozostaną.`,
-    );
-    if (!ok) return;
-    try {
-      await api.del(`/contact-fields/${field.id}`);
-      const rows = await api.get('/contact-fields');
-      setFields(Array.isArray(rows) ? rows : []);
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się usunąć pola.' });
-    }
-  };
-
   const searchContacts = async () => {
     if (!contactSearch.trim()) {
       setContactMatches([]);
@@ -293,7 +258,7 @@ export default function Templates() {
                 key={tpl.id}
                 type="button"
                 onClick={() => loadTemplate(tpl.id)}
-                className={`mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
+                className={`sk-template-list-item mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
                   selectedId === tpl.id ? 'bg-teal-50 text-teal-800' : 'hover:bg-gray-50 text-gray-700'
                 }`}
               >
@@ -534,15 +499,7 @@ export default function Templates() {
                       <div className="truncate text-sm font-medium text-gray-800">{field.label || field.key}</div>
                       <code className="text-[11px] text-teal-700">{variableToken(field.key)}</code>
                     </div>
-                    {!field.system && field.id && (
-                      <button
-                        type="button"
-                        onClick={() => deleteField(field)}
-                        className="text-[11px] text-red-500 hover:underline"
-                      >
-                        usuń definicję
-                      </button>
-                    )}
+
                   </div>
                   <div className="mt-2 flex gap-1">
                     <button
@@ -566,27 +523,9 @@ export default function Templates() {
           </Card>
 
           <Card className="p-4">
-            <h2 className="font-semibold text-gray-900">Nowe pole kontaktu</h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Klucz jest techniczną nazwą używaną w szablonie. Nie jest związany z żadną konkretną branżą.
-            </p>
-            <form onSubmit={createField} className="mt-3 space-y-2">
-              <input
-                value={fieldKey}
-                onChange={(e) => setFieldKey(e.target.value)}
-                className="w-full rounded-lg border-gray-300 font-mono text-sm"
-                placeholder="klucz_pola"
-                maxLength={64}
-              />
-              <input
-                value={fieldLabel}
-                onChange={(e) => setFieldLabel(e.target.value)}
-                className="w-full rounded-lg border-gray-300 text-sm"
-                placeholder="Nazwa widoczna w UI"
-                maxLength={255}
-              />
-              <Button type="submit" variant="outline" size="sm">Dodaj pole</Button>
-            </form>
+            <h2 className="font-semibold text-gray-900">Własne pola kontaktów</h2>
+            <p className="mt-1 text-xs text-gray-500">Dodawaj, edytuj i usuwaj pola w Kontaktach. Tutaj są automatycznie dostępne jako zmienne szablonu.</p>
+            <Link to="/leads?fields=1" className="sk-btn sk-full-width" style={{marginTop:12}}>Zarządzaj polami</Link>
           </Card>
         </div>
       </div>
