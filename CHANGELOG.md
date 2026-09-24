@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.5.6 — Phase A core-screen polish
+
+- audited the redesigned Dashboard, Contacts, Campaign Workspace shell, Inbox, Domains and Login surfaces before new PNG work
+- aligned Dashboard system-health labels with the sidebar severity wording
+- Contacts and Inbox no longer show a misleading empty-state message at the same time as a load error
+- added accessible loading, active-tab and pagination semantics across the redesigned core screens
+- blocking campaign pre-flight issues now surface as a red "Wymaga poprawek" campaign state
+- hardened campaign jitter display and added an explicit empty state when no mailbox is assigned
+- Inbox now explains when reply sending is disabled because the selected mailbox is paused
+- finished login/first-run restore keyboard focus, dark-theme semantic colors, password labelling and reduced-motion behaviour
+- kept the five embedded legacy Campaign Workspace tabs isolated for dedicated Phase B PNG references instead of restyling them without an approved design
+
+
 ## 0.5.5 — Sidebar storage status
 
 - fixed the System sidebar badge so error/warning severity colors are not overridden by a forced green dot
