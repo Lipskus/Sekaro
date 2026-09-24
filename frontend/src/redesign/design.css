@@ -48,17 +48,21 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-sidebar-bottom{margin-top:auto;padding:16px 13px 28px;display:grid;gap:22px}
 .sk-system-card,.sk-selfhost{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:10px;padding:16px 14px}
 .sk-system-card>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:5px}
-.sk-system-card .sk-badge{font-size:10px;background:transparent;padding:0;color:var(--sk-muted)}
-.sk-system-card .sk-dot{color:var(--sk-accent)}
+.sk-system-card .sk-badge{font-size:10px;background:transparent;padding:0}
+.sk-system-card .sk-dot{color:inherit}
 .sk-system-card dl{display:grid;grid-template-columns:1fr auto;font-size:11px;gap:11px;margin:20px 0 12px}
 .sk-system-card dt{color:var(--sk-muted)}
 .sk-system-card dd{text-align:right;font-weight:600;margin:0}
-.sk-status-rule{height:7px;background:var(--sk-neutral-soft);border-radius:5px;overflow:hidden}
-.sk-status-rule:before{content:'';display:block;width:16%;height:100%;background:var(--sk-accent);border-radius:5px}
-.sk-status-rule[data-tone=red]:before{background:var(--sk-red-text)}
-.sk-status-rule[data-tone=amber]:before{background:var(--sk-amber-text)}
-.sk-status-rule[data-tone=green]:before{background:var(--sk-accent)}
-.sk-status-rule[data-tone=neutral]:before{background:var(--sk-muted)}
+.sk-storage-progress{display:block;width:100%;height:7px;border:0;border-radius:5px;overflow:hidden;background:var(--sk-neutral-soft);appearance:none;-webkit-appearance:none}
+.sk-storage-progress::-webkit-progress-bar{background:var(--sk-neutral-soft);border-radius:5px}
+.sk-storage-progress::-webkit-progress-value{background:var(--sk-accent);border-radius:5px}
+.sk-storage-progress::-moz-progress-bar{background:var(--sk-accent);border-radius:5px}
+.sk-storage-progress[data-tone=amber]::-webkit-progress-value{background:var(--sk-amber-text)}
+.sk-storage-progress[data-tone=amber]::-moz-progress-bar{background:var(--sk-amber-text)}
+.sk-storage-progress[data-tone=red]::-webkit-progress-value{background:var(--sk-red-text)}
+.sk-storage-progress[data-tone=red]::-moz-progress-bar{background:var(--sk-red-text)}
+.sk-storage-progress[data-tone=neutral]::-webkit-progress-value{background:var(--sk-muted)}
+.sk-storage-progress[data-tone=neutral]::-moz-progress-bar{background:var(--sk-muted)}
 .sk-selfhost{display:flex;align-items:center;gap:16px;padding:23px 17px}
 .sk-selfhost svg{color:var(--sk-green-text)}
 .sk-selfhost strong,.sk-selfhost small{display:block;font-size:12px}
