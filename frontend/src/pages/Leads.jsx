@@ -538,7 +538,7 @@ export default function Leads() {
 
   const importRecoverCsv = async (file) => {
     const ok = await confirm(
-      'Recover leads from this CSV? The server reads id and email columns (header row or first two columns).',
+      'Odzyskać kontakty z tego pliku CSV? Serwer odczytuje kolumny id i email (z nagłówka lub pierwsze dwie kolumny).',
     );
     if (!ok) return;
     loading.start();
