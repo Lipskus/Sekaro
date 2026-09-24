@@ -131,6 +131,18 @@ html[data-theme=dark] .sk-btn-primary{background:linear-gradient(110deg,#008763,
 .sk-inline-contact small{font-size:10px;color:var(--sk-muted)}
 .sk-muted{color:var(--sk-muted)}
 .sk-small{font-size:12px}
+.sk-heading-count{color:var(--sk-text);font-size:16px}
+.sk-hidden-file{display:none!important}
+.sk-inline-hint{margin-top:10px!important}
+.sk-filter-chip-row{margin-bottom:10px}
+.sk-contact-tools-row{margin-top:12px;justify-content:space-between}
+.sk-form-note{margin-top:15px!important}
+.sk-form-single{grid-template-columns:1fr!important}
+.sk-suppression-form{margin:16px 0}
+.sk-mailbox-select-body{flex:1;min-width:0}
+.sk-pagination-centered{justify-content:center;padding-top:14px}
+.sk-inline-error{color:var(--sk-red-text);margin-top:5px!important}
+.sk-inline-status{margin-top:5px!important}
 .sk-ellipsis{display:block;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
 .sk-full-width{width:100%}
 .sk-panel{background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:11px;box-shadow:var(--sk-shadow);min-width:0;overflow:hidden}
