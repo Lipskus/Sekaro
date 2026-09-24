@@ -151,7 +151,7 @@ export default function LeadDetail() {
                     {c.replied ? 'yes' : 'no'}
                   </span>
                   {c.sending_paused && (
-                    <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">paused</span>
+                    <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">wstrzymana</span>
                   )}
                 </div>
                 <span className="text-sm text-gray-500">enrolled {formatDt(c.enrolled_at)}</span>
