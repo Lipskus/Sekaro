@@ -19,7 +19,7 @@ export default function Campaigns() {
   const notify = useNotify();
 
   const load = useCallback(async () => {
-    if (campaigns.length === 0) setLoading(true);
+    setLoading(true);
     setError(null);
     try {
       const [camp, strat] = await Promise.all([
@@ -34,7 +34,7 @@ export default function Campaigns() {
     } finally {
       setLoading(false);
     }
-  }, [campaigns.length]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -100,7 +100,7 @@ export default function Campaigns() {
   };
 
   if (error) {
-    return <div className="p-8 text-red-600">{error}</div>;
+    return <div role="alert" className="p-8 text-red-600">{error}</div>;
   }
 
   const isPriority = strategy === 'priority';
