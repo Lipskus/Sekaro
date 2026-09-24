@@ -246,14 +246,14 @@ function CheckMeta({ check }) {
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500">Tryb synchronizacji</span>
           {check.meta.pushEnabled
-            ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Enabled</span>
-            : <span className="text-xs bg-gray-100  text-gray-600  px-1.5 py-0.5 rounded-full font-medium">Polling</span>
+            ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Włączony</span>
+            : <span className="text-xs bg-gray-100  text-gray-600  px-1.5 py-0.5 rounded-full font-medium">Odpytywanie</span>
           }
         </div>
         {check.meta.syncInProgress && (
           <div className="flex items-center gap-1.5 text-xs text-blue-600">
             <RiRefreshLine size={13} className="animate-spin" />
-            <span>Sync in progress for {check.meta.inflightIds.length} inbox{check.meta.inflightIds.length !== 1 ? 'es' : ''}</span>
+            <span>Trwa synchronizacja skrzynek: {check.meta.inflightIds.length}</span>
           </div>
         )}
       </div>
@@ -263,7 +263,7 @@ function CheckMeta({ check }) {
   if (check.id === 'ai_features' && check.meta.allFeatures?.length > 0) {
     return (
       <div className="mt-1 space-y-1.5 border-t border-gray-100 pt-2">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Features</p>
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Funkcje</p>
         {check.meta.allFeatures.map(f => (
           <div key={f.id} className="flex flex-col gap-0.5">
             <div className="flex items-center justify-between gap-2 text-sm">
@@ -279,7 +279,7 @@ function CheckMeta({ check }) {
                         ? 'bg-red-100 text-red-700'
                         : 'bg-green-100 text-green-700'
               }`}>
-                {!f.enabled ? 'Disabled' : !f.api_key_set ? 'Missing key' : !f.connection_tested ? 'Not tested' : f.last_error ? 'Error' : 'Healthy'}
+                {!f.enabled ? 'Wyłączona' : !f.api_key_set ? 'Brak klucza' : !f.connection_tested ? 'Nieprzetestowana' : f.last_error ? 'Błąd' : 'OK'}
               </span>
             </div>
             {f.enabled && f.last_error && (
@@ -301,15 +301,15 @@ function CheckMeta({ check }) {
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-500">Status</span>
           {!ev.enabled
-            ? <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-medium">Disabled</span>
+            ? <span className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full font-medium">Wyłączona</span>
             : ev.connection_tested
-              ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Tested ✓</span>
-              : <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">Not tested</span>
+              ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Przetestowano ✓</span>
+              : <span className="text-xs bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded-full font-medium">Nieprzetestowano</span>
           }
         </div>
         {ev.enabled && (
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-500">Provider</span>
+            <span className="text-gray-500">Dostawca</span>
             <span className="text-gray-700 text-xs font-medium">{ev.provider}</span>
           </div>
         )}
@@ -327,10 +327,10 @@ function CheckMeta({ check }) {
     return (
       <div className="mt-1 border-t border-gray-100 pt-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-500">Test Mode</span>
+          <span className="text-gray-500">Tryb testowy</span>
           {check.meta.testMode
-            ? <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-medium">Active</span>
-            : <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Off</span>
+            ? <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded-full font-medium">Aktywny</span>
+            : <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Wyłączony</span>
           }
         </div>
       </div>
@@ -340,14 +340,14 @@ function CheckMeta({ check }) {
   if (check.id === 'tracking_domains' && check.meta.inboxesWithDomains?.length > 0) {
     return (
       <div className="mt-1 space-y-2 border-t border-gray-100 pt-2">
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Domains</p>
+        <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Domeny</p>
         {check.meta.inboxesWithDomains.map(inbox => (
           <div key={inbox.id} className="flex flex-col gap-0.5">
             <div className="flex items-center justify-between gap-2 text-sm">
               <span className="text-gray-700 truncate">{inbox.display_name || inbox.email}</span>
               {inbox.tracking_domain_status === 'ok'
-                ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Connected</span>
-                : <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-medium">Not connected</span>
+                ? <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-medium">Połączona</span>
+                : <span className="text-xs bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full font-medium">Niepołączona</span>
               }
             </div>
             <p className="text-xs text-gray-400 ml-1">{inbox.tracking_domain}</p>
@@ -435,14 +435,14 @@ export default function SystemHealth() {
       ) : loading ? (
         <div className="text-center py-16 text-gray-400">
           <RiRefreshLine size={32} className="animate-spin mx-auto mb-3" />
-          <p>Loading health data…</p>
+          <p>Wczytywanie danych diagnostycznych…</p>
         </div>
       ) : null}
 
       {/* Footer note */}
       <p className="text-xs text-center text-gray-400 pb-4">
-        Health data refreshes automatically every 5 minutes and when you click Refresh. 
-        Muted checks are stored locally and do not affect other users.
+        Dane diagnostyczne odświeżają się automatycznie co 5 minut oraz po kliknięciu „Odśwież”. 
+        Wyciszone kontrole są zapisywane lokalnie i nie wpływają na innych użytkowników.
       </p>
     </div>
   );

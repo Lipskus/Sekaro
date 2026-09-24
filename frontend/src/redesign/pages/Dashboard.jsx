@@ -23,9 +23,10 @@ export default function Dashboard(){
  const today=new Date().toISOString().slice(0,10),replies=daily.filter(d=>d.date===today).reduce((a,d)=>a+(d.total_replies||0),0);
  const domains=[...new Set(inboxes.map(i=>i.email?.split('@')[1]).filter(Boolean))];
  const name=(user?.display_name||user?.name||user?.username||'Administratorze').split(' ')[0];
+ const health=({error:['red','Wymaga uwagi'],warning:['amber','Wymaga uwagi'],ok:['green','Panel prywatny']})[overallStatus]||['neutral','Sprawdzanie…'];
  return <div className="sk-page sk-dashboard">
   <ErrorNotice error={error} onRetry={load}/>
-  <div className="sk-page-heading"><div><h1>Witaj, {name}! <span aria-hidden="true">👋</span></h1><p>Oto podsumowanie Twoich działań outreachowych.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="server" size={24}/><div>Self-hosted<small><Badge tone={overallStatus==='error'?'red':'green'} dot>{overallStatus==='error'?'Wymaga uwagi':'Panel prywatny'}</Badge></small></div></div><div className="sk-heading-meta"><Icon name="calendar" size={24}/><div>{new Date().toLocaleDateString('pl-PL',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}<small>{new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</small></div></div><Button to="/campaigns/add" icon="plus" variant="primary">Nowa kampania</Button></div></div>
+  <div className="sk-page-heading"><div><h1>Witaj, {name}! <span aria-hidden="true">👋</span></h1><p>Oto podsumowanie Twoich działań outreachowych.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="server" size={24}/><div>Self-hosted<small><Badge tone={health[0]} dot>{health[1]}</Badge></small></div></div><div className="sk-heading-meta"><Icon name="calendar" size={24}/><div>{new Date().toLocaleDateString('pl-PL',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}<small>{new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</small></div></div><Button to="/campaigns/add" icon="plus" variant="primary">Nowa kampania</Button></div></div>
   <div className="sk-metrics">
    <Metric icon="send" title="Wysłane dziś" value={data?sent:'—'} detail={`z limitu ${limit.toLocaleString('pl-PL')}`}/>
    <Metric icon="reply" title="Odpowiedzi" value={data?replies:'—'} detail="Dzisiaj · według raportu" tone="blue"/>

@@ -24,7 +24,7 @@ function parseDetailMessage(text) {
 export default function Login() {
   const { setupComplete, login, registerAdmin } = useAuth();
   const { t, language, setLanguage, languages } = useLanguage();
-  const { darkMode, themePreference, setThemePreference } = useDarkMode();
+  const { themePreference, setThemePreference } = useDarkMode();
   const [restoreExpanded, setRestoreExpanded] = useState(false);
   const [restoreFile, setRestoreFile] = useState(null);
   const [restoreFileKey, setRestoreFileKey] = useState(0);
@@ -120,7 +120,7 @@ export default function Login() {
         }
       } catch (e) {
         if (!cancelled) {
-          setRestoreMsg({ type: 'err', text: e.message || 'Could not read backup file' });
+          setRestoreMsg({ type: 'err', text: e.message || 'Nie udało się odczytać pliku kopii zapasowej' });
         }
       } finally {
         if (!cancelled) {
@@ -141,10 +141,6 @@ export default function Login() {
     setRestorePreview(null);
     setRestoreMsg(null);
   };
-
-  const heading = isFirstUser
-    ? t('auth.createAdminTitle')
-    : t('auth.signInTitle');
 
   return (
     <div className="sk-login-page">
@@ -300,13 +296,13 @@ export default function Login() {
                       onClick={() => setRestoreExpanded(true)}
                       className="text-sm font-medium text-blue-700 hover:text-blue-800 underline underline-offset-2"
                     >
-                      Want to restore from a backup?
+                      Przywrócić dane z kopii zapasowej?
                     </button>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-medium text-gray-800">Restore from backup</p>
+                      <p className="text-sm font-medium text-gray-800">Przywracanie z kopii zapasowej</p>
                       <button
                         type="button"
                         onClick={() => {
@@ -315,12 +311,11 @@ export default function Login() {
                         }}
                         className="text-xs text-gray-500 hover:text-gray-700 underline"
                       >
-                        Hide
+                        Ukryj
                       </button>
                     </div>
                     <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                      Użyj pliku kopii Sekaro (<code className="text-[11px]">.qbk</code>). If the backup is encrypted, you need the password — losing it
-                      means the data in that file is unrecoverable. The optional hint is stored in plain text in the file.
+                      Użyj pliku kopii Sekaro (<code className="text-[11px]">.qbk</code>). Jeśli kopia jest zaszyfrowana, potrzebujesz hasła — bez niego danych z tego pliku nie da się odzyskać. Opcjonalna podpowiedź jest zapisana w pliku jako zwykły tekst.
                     </p>
                     <div className="flex items-stretch gap-2">
                       <FileUploadArea
@@ -339,13 +334,13 @@ export default function Login() {
                         {restoreFile ? (
                           <span className="truncate text-gray-800">{restoreFile.name}</span>
                         ) : (
-                          <span className="text-gray-500">Choose backup file (.qbk)</span>
+                          <span className="text-gray-500">Wybierz plik kopii (.qbk)</span>
                         )}
                       </FileUploadArea>
                       {restoreFile ? (
                         <button
                           type="button"
-                          title="Remove file"
+                          title="Usuń plik"
                           onClick={clearRestoreWizard}
                           className="shrink-0 px-3 rounded-lg border border-gray-300 text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
                           disabled={restoreMetaBusy || restorePreviewBusy || restoreExecuteBusy}
@@ -356,42 +351,42 @@ export default function Login() {
                     </div>
 
                     {restoreMetaBusy && (
-                      <p className="text-center text-xs text-gray-500">Reading backup…</p>
+                      <p className="text-center text-xs text-gray-500">Odczytywanie kopii…</p>
                     )}
 
                     {restoreMeta && !restoreMetaBusy && (
                       <div className="rounded-lg border border-gray-200 bg-white p-3 text-xs space-y-2 text-left">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <p className="font-semibold text-gray-800">This backup</p>
+                            <p className="font-semibold text-gray-800">Wybrana kopia</p>
                             <ul className="text-gray-600 space-y-0.5">
-                              <li>When: {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString() : '—'}</li>
-                              <li>Leads: {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
-                              <li>Inboxes: {restoreMeta.backup_preview?.inbox_count ?? '—'}</li>
-                              <li>Campaigns: {restoreMeta.backup_preview?.campaign_count ?? '—'}</li>
-                              <li>Users: {restoreMeta.backup_preview?.user_count ?? '—'}</li>
-                              <li>Admins: {(restoreMeta.backup_preview?.admin_emails || []).join(', ') || '—'}</li>
-                              <li>Encrypted: {restoreMeta.encrypted ? 'yes' : 'no'}</li>
+                              <li>Data: {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString() : '—'}</li>
+                              <li>Kontakty: {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
+                              <li>Skrzynki: {restoreMeta.backup_preview?.inbox_count ?? '—'}</li>
+                              <li>Kampanie: {restoreMeta.backup_preview?.campaign_count ?? '—'}</li>
+                              <li>Użytkownicy: {restoreMeta.backup_preview?.user_count ?? '—'}</li>
+                              <li>Administratorzy: {(restoreMeta.backup_preview?.admin_emails || []).join(', ') || '—'}</li>
+                              <li>Szyfrowana: {restoreMeta.encrypted ? 'tak' : 'nie'}</li>
                             </ul>
                           </div>
                           <div>
-                            <p className="font-semibold text-gray-800">Current database (will be replaced)</p>
+                            <p className="font-semibold text-gray-800">Obecna baza danych (zostanie zastąpiona)</p>
                             <ul className="text-gray-600 space-y-0.5">
-                              <li>Leads: {restoreMeta.current_database?.lead_count ?? '—'}</li>
-                              <li>Inboxes: {restoreMeta.current_database?.inbox_count ?? '—'}</li>
-                              <li>Campaigns: {restoreMeta.current_database?.campaign_count ?? '—'}</li>
-                              <li>Users: {restoreMeta.current_database?.user_count ?? '—'}</li>
-                              <li>Admins: {(restoreMeta.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                              <li>Kontakty: {restoreMeta.current_database?.lead_count ?? '—'}</li>
+                              <li>Skrzynki: {restoreMeta.current_database?.inbox_count ?? '—'}</li>
+                              <li>Kampanie: {restoreMeta.current_database?.campaign_count ?? '—'}</li>
+                              <li>Użytkownicy: {restoreMeta.current_database?.user_count ?? '—'}</li>
+                              <li>Administratorzy: {(restoreMeta.current_database?.admin_emails || []).join(', ') || '—'}</li>
                             </ul>
                           </div>
                         </div>
                         {restoreMeta.password_hint ? (
                           <p className="text-gray-500">
-                            Hint: <span className="font-mono">{restoreMeta.password_hint}</span>
+                            Podpowiedź: <span className="font-mono">{restoreMeta.password_hint}</span>
                           </p>
                         ) : null}
                         <p className="text-amber-800 border-t border-amber-100 pt-2 mt-2">
-                          Confirm only if this is the correct backup.
+                          Kontynuuj tylko wtedy, gdy to właściwa kopia zapasowa.
                         </p>
                       </div>
                     )}
@@ -428,7 +423,7 @@ export default function Login() {
                           }
                         }}
                       >
-                        {restorePreviewBusy ? 'Checking…' : 'Verify backup'}
+                        {restorePreviewBusy ? 'Sprawdzanie…' : 'Zweryfikuj kopię'}
                       </button>
                     )}
 
@@ -436,7 +431,7 @@ export default function Login() {
                       <>
                         <input
                           type="password"
-                          placeholder={`Backup password (at least ${BACKUP_MIN_PASSWORD_LEN} characters)`}
+                          placeholder={`Hasło kopii (co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków)`}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                           value={restorePassword}
                           onChange={e => setRestorePassword(e.target.value)}
@@ -473,27 +468,27 @@ export default function Login() {
                               }
                               setRestorePreview(data);
                             } catch (e) {
-                              setRestoreMsg({ type: 'err', text: e.message || 'Wrong password or invalid backup' });
+                              setRestoreMsg({ type: 'err', text: e.message || 'Nieprawidłowe hasło lub uszkodzona kopia' });
                             } finally {
                               setRestorePreviewBusy(false);
                             }
                           }}
                         >
-                          {restorePreviewBusy ? 'Checking…' : 'Verify password'}
+                          {restorePreviewBusy ? 'Sprawdzanie…' : 'Zweryfikuj hasło'}
                         </button>
                       </>
                     )}
 
                     {restorePreview && (
                       <div className="rounded-lg border border-gray-200 bg-white p-3 text-xs space-y-2 text-left">
-                        <p className="font-semibold text-gray-800">Verified — full details</p>
+                        <p className="font-semibold text-gray-800">Zweryfikowano — pełne informacje</p>
                         <ul className="text-gray-600 space-y-0.5">
-                          <li>When: {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString() : '—'}</li>
-                          <li>Leads: {restorePreview.backup?.lead_count ?? '—'}</li>
-                          <li>Inboxes: {restorePreview.backup?.inbox_count ?? '—'}</li>
-                          <li>Campaigns: {restorePreview.backup?.campaign_count ?? '—'}</li>
-                          <li>Users: {restorePreview.backup?.user_count ?? '—'}</li>
-                          <li>Admins: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
+                          <li>Data: {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString() : '—'}</li>
+                          <li>Kontakty: {restorePreview.backup?.lead_count ?? '—'}</li>
+                          <li>Skrzynki: {restorePreview.backup?.inbox_count ?? '—'}</li>
+                          <li>Kampanie: {restorePreview.backup?.campaign_count ?? '—'}</li>
+                          <li>Użytkownicy: {restorePreview.backup?.user_count ?? '—'}</li>
+                          <li>Administratorzy: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
                         </ul>
                         <button
                           type="button"
@@ -502,7 +497,7 @@ export default function Login() {
                           onClick={async () => {
                             if (
                               !window.confirm(
-                                'Replace the database with this backup? This cannot be undone.',
+                                'Zastąpić obecną bazę danych tą kopią? Tej operacji nie można cofnąć.',
                               )
                             ) {
                               return;
@@ -525,19 +520,19 @@ export default function Login() {
                               if (!res.ok) {
                                 throw new Error(parseDetailMessage(text) || res.statusText);
                               }
-                              setRestoreMsg({ type: 'ok', text: data.detail || 'Restore complete. Reloading…' });
+                              setRestoreMsg({ type: 'ok', text: data.detail || 'Przywracanie zakończone. Ponowne ładowanie…' });
                               setRestorePreview(null);
                               if (res.headers.get('X-Quickly-Reload') === '1') {
                                 setTimeout(() => window.location.reload(), 300);
                               }
                             } catch (e) {
-                              setRestoreMsg({ type: 'err', text: e.message || 'Restore failed' });
+                              setRestoreMsg({ type: 'err', text: e.message || 'Przywracanie nie powiodło się' });
                             } finally {
                               setRestoreExecuteBusy(false);
                             }
                           }}
                         >
-                          {restoreExecuteBusy ? 'Restoring…' : 'Confirm and restore'}
+                          {restoreExecuteBusy ? 'Przywracanie…' : 'Potwierdź i przywróć'}
                         </button>
                       </div>
                     )}

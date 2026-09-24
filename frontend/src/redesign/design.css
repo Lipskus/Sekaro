@@ -358,15 +358,27 @@ html[data-theme=dark] .sk-btn-primary{background:linear-gradient(110deg,#008763,
 .sk-mobile-menu,.sk-nav-backdrop{display:none}
 .sk-skip{position:fixed;top:-100px;left:20px;z-index:1000;background:var(--sk-primary);color:white!important;padding:12px}
 .sk-skip:focus{top:10px}
-/* System health summary stays theme-native; severity is an accent instead of a full warning fill. */
+/* System Health uses the same semantic surfaces in light and dark themes. */
 .sk-health-summary{
   background:var(--sk-surface)!important;
   border-color:var(--sk-line)!important;
   box-shadow:var(--sk-shadow);
 }
-.sk-health-summary-warning{box-shadow:inset 3px 0 0 var(--sk-amber-text),var(--sk-shadow)}
-.sk-health-summary-error{box-shadow:inset 3px 0 0 var(--sk-red-text),var(--sk-shadow)}
-.sk-health-summary-ok{box-shadow:inset 3px 0 0 var(--sk-accent),var(--sk-shadow)}
+.sk-health-summary-warning{
+  background:var(--sk-amber-soft)!important;
+  border-color:color-mix(in srgb,var(--sk-amber-text) 36%,var(--sk-line))!important;
+  box-shadow:inset 3px 0 0 var(--sk-amber-text),var(--sk-shadow);
+}
+.sk-health-summary-error{
+  background:var(--sk-red-soft)!important;
+  border-color:color-mix(in srgb,var(--sk-red-text) 38%,var(--sk-line))!important;
+  box-shadow:inset 3px 0 0 var(--sk-red-text),var(--sk-shadow);
+}
+.sk-health-summary-ok{
+  background:var(--sk-green-soft)!important;
+  border-color:color-mix(in srgb,var(--sk-green-text) 28%,var(--sk-line))!important;
+  box-shadow:inset 3px 0 0 var(--sk-accent),var(--sk-shadow);
+}
 
 /* Make retained functional screens native to the same theme (no DarkReader). */
 .sekaro-ui .sk-main>.min-h-0,.sekaro-ui .sk-main>[class*='space-y']{padding:24px 25px;max-width:none}
@@ -375,8 +387,14 @@ html[data-theme=dark] .sk-btn-primary{background:linear-gradient(110deg,#008763,
 .sekaro-ui .sk-main [class*='border-gray-'],.sekaro-ui .sk-main .border{border-color:var(--sk-line)}
 .sekaro-ui .sk-main .text-gray-900,.sekaro-ui .sk-main .text-gray-800,.sekaro-ui .sk-main .text-gray-700,.sekaro-ui .sk-main .dark\:text-white,.sekaro-ui .sk-main .dark\:text-gray-100{color:var(--sk-text)}
 .sekaro-ui .sk-main .text-gray-600,.sekaro-ui .sk-main .text-gray-500,.sekaro-ui .sk-main .text-gray-400{color:var(--sk-muted)}
-.sekaro-ui .sk-main .bg-teal-50,.sekaro-ui .sk-main .bg-green-50{background-color:var(--sk-green-soft)}
-.sekaro-ui .sk-main .text-teal-600,.sekaro-ui .sk-main .text-teal-700{color:var(--sk-green-text)}
+.sekaro-ui .sk-main .bg-teal-50,.sekaro-ui .sk-main .bg-teal-100,.sekaro-ui .sk-main .bg-green-50,.sekaro-ui .sk-main .bg-green-100{background-color:var(--sk-green-soft)}
+.sekaro-ui .sk-main .text-teal-600,.sekaro-ui .sk-main .text-teal-700,.sekaro-ui .sk-main .text-green-500,.sekaro-ui .sk-main .text-green-600,.sekaro-ui .sk-main .text-green-700{color:var(--sk-green-text)}
+.sekaro-ui .sk-main .bg-red-50,.sekaro-ui .sk-main .bg-red-100{background-color:var(--sk-red-soft)}
+.sekaro-ui .sk-main .text-red-400,.sekaro-ui .sk-main .text-red-500,.sekaro-ui .sk-main .text-red-600,.sekaro-ui .sk-main .text-red-700{color:var(--sk-red-text)}
+.sekaro-ui .sk-main .border-red-200{border-color:color-mix(in srgb,var(--sk-red-text) 38%,var(--sk-line))}
+.sekaro-ui .sk-main .bg-yellow-50,.sekaro-ui .sk-main .bg-yellow-100,.sekaro-ui .sk-main .bg-orange-50,.sekaro-ui .sk-main .bg-orange-100{background-color:var(--sk-amber-soft)}
+.sekaro-ui .sk-main .text-yellow-500,.sekaro-ui .sk-main .text-yellow-600,.sekaro-ui .sk-main .text-yellow-700,.sekaro-ui .sk-main .text-orange-600,.sekaro-ui .sk-main .text-orange-700{color:var(--sk-amber-text)}
+.sekaro-ui .sk-main .border-yellow-200{border-color:color-mix(in srgb,var(--sk-amber-text) 34%,var(--sk-line))}
 .sekaro-ui .sk-main .ql-toolbar,.sekaro-ui .sk-main .ql-container{border-color:var(--sk-line);background:var(--sk-surface);color:var(--sk-text)}
 .sekaro-ui .sk-main .ql-snow .ql-stroke{stroke:var(--sk-muted)}
 .sekaro-ui .sk-main .ql-snow .ql-fill{fill:var(--sk-muted)}

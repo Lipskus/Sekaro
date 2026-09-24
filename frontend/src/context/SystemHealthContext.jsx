@@ -68,9 +68,9 @@ function buildChecks(d) {
   const smtpIssues = [];
 
   if (smtpAccounts.length === 0) {
-    smtpStatus = 'warning';
+    smtpStatus = 'error';
     smtpIssues.push({
-      level: 'warning',
+      level: 'error',
       text: 'Nie skonfigurowano jeszcze żadnej skrzynki SMTP/IMAP.',
       fix: 'Dodaj skrzynkę, aby Sekaro mogło wysyłać wiadomości i synchronizować odpowiedzi.',
       action: { label: 'Dodaj skrzynkę', to: '/inboxes' },
@@ -138,17 +138,17 @@ function buildChecks(d) {
     }
   });
 
-  checks.push({
-    id: 'inbox_status',
-    label: 'Stan skrzynek',
-    icon: 'inbox',
-    status: inboxStatLvl,
-    issues: inboxIssues,
-    meta: { inboxList },
-    detail: inboxList.length === 0
-      ? 'Brak skrzynek'
-      : `${inboxList.length} skrzynek — ${inboxList.filter(i => !i.paused).length} aktywnych`,
-  });
+  if (inboxList.length > 0) {
+    checks.push({
+      id: 'inbox_status',
+      label: 'Stan skrzynek',
+      icon: 'inbox',
+      status: inboxStatLvl,
+      issues: inboxIssues,
+      meta: { inboxList },
+      detail: `${inboxList.length} skrzynek — ${inboxList.filter(i => !i.paused).length} aktywnych`,
+    });
+  }
 
   /* ── Custom Tracking Domains ─────────────────────────────────── */
   const inboxesWithDomains = inboxList.filter(i => i.tracking_domain);
@@ -230,16 +230,11 @@ function buildChecks(d) {
     id: 'unibox_sync',
     label: 'Synchronizacja poczty',
     icon: 'sync',
-    status: syncInProgress ? 'warning' : 'ok',
-    issues: syncInProgress
-      ? [{
-          level: 'warning',
-          text: 'Trwa synchronizacja wiadomości.',
-          fix: 'Poczekaj na zakończenie synchronizacji.',
-        }]
-      : [],
+    status: 'ok',
+    issues: [],
     meta: {
       syncInProgress,
+      pushEnabled: Boolean(unibox_sync?.push_enabled),
       inflightIds: unibox_sync?.inflight_inbox_ids || [],
       syncIntervalMinutes: unibox_sync?.sync_interval_minutes ?? 5,
     },
@@ -262,20 +257,20 @@ function buildChecks(d) {
         fix: 'Uzupełnij konfigurację w Ustawienia → Funkcje.',
         action: { label: 'Otwórz ustawienia', to: '/settings#features' },
       });
-    } else if (!f.connection_tested) {
-      if (aiStatus === 'ok') aiStatus = 'warning';
-      aiIssues.push({
-        level: 'warning',
-        text: `Połączenie dla „${f.label}” nie zostało przetestowane.`,
-        fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
-        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
-      });
     } else if (f.last_error) {
       aiStatus = 'error';
       aiIssues.push({
         level: 'error',
         text: `„${f.label}” zgłosiło błąd: ${f.last_error}`,
         fix: 'Sprawdź klucz API, limity i konfigurację dostawcy.',
+        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+      });
+    } else if (!f.connection_tested) {
+      if (aiStatus === 'ok') aiStatus = 'warning';
+      aiIssues.push({
+        level: 'warning',
+        text: `Połączenie dla „${f.label}” nie zostało przetestowane.`,
+        fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
         action: { label: 'Otwórz ustawienia', to: '/settings#features' },
       });
     }
@@ -297,20 +292,20 @@ function buildChecks(d) {
   let evStatus = 'ok';
   const evIssues = [];
 
-  if (evData?.enabled && !evData.connection_tested) {
-    evStatus = 'warning';
-    evIssues.push({
-      level: 'warning',
-      text: 'Weryfikacja adresów jest włączona, ale połączenie nie zostało przetestowane.',
-      fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
-      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
-    });
-  } else if (evData?.enabled && evData.last_error) {
+  if (evData?.enabled && evData.last_error) {
     evStatus = 'error';
     evIssues.push({
       level: 'error',
       text: `Weryfikacja adresów zgłosiła błąd: ${evData.last_error}`,
       fix: 'Sprawdź konfigurację dostawcy weryfikacji.',
+      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+    });
+  } else if (evData?.enabled && !evData.connection_tested) {
+    evStatus = 'warning';
+    evIssues.push({
+      level: 'warning',
+      text: 'Weryfikacja adresów jest włączona, ale połączenie nie zostało przetestowane.',
+      fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
       action: { label: 'Otwórz ustawienia', to: '/settings#features' },
     });
   }
