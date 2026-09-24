@@ -89,17 +89,18 @@ Before new product features are added, the current UI must be consolidated into 
 - [x] Fix the Dashboard health badge so warnings are not presented as green/healthy
 - [x] Replace the decorative sidebar meter with real disk-capacity data and correct severity colors
 - [x] Refresh the visible Sekaro UI version for this cleanup baseline
-- [ ] Audit Dashboard spacing, empty states, status hierarchy and responsive behavior
-- [ ] Audit Contacts table, drawers, bulk actions, filters and responsive behavior
-- [ ] Audit Campaign Workspace and isolate remaining embedded legacy campaign surfaces (legacy tabs identified: sequences, recipients, settings, analytics, queue)
-- [ ] Audit Inbox/Wątki list, conversation view, composer, empty/error states and mobile behavior
-- [ ] Audit Domains states and diagnostics presentation
-- [ ] Final Login/first-run/restore visual polish in both light and dark themes
+- [x] Audit Dashboard spacing, empty states, status hierarchy and responsive behavior
+- [x] Audit Contacts table, drawers, bulk actions, filters and responsive behavior
+- [x] Audit Campaign Workspace and isolate remaining embedded legacy campaign surfaces (legacy tabs identified: sequences, recipients, settings, analytics, queue)
+- [x] Audit Inbox/Wątki list, conversation view, composer, empty/error states and mobile behavior
+- [x] Audit Domains states and diagnostics presentation
+- [x] Final Login/first-run/restore visual polish in both light and dark themes
 - [x] Remove remaining one-off inline layout styles from redesigned screens where reusable classes should exist
-- [ ] Verify consistent buttons, inputs, cards, badges, alerts, tables, headings and spacing across redesigned screens
+- [x] Verify consistent buttons, inputs, cards, badges, alerts, tables, headings and spacing across redesigned screens
 - [ ] Verify loading, empty, error, disabled and destructive states across all active screens (first cleanup pass completed for redesigned screens)
+  - Redesigned core screens audited in 0.5.6; legacy screens remain open until their Phase B references are implemented.
 - [ ] Verify keyboard focus, labels, contrast and reduced-motion behavior
-- [ ] Verify light/dark parity and responsive layouts before approving new screen designs
+- [x] Verify light/dark parity and responsive layouts before approving new screen designs
 - [ ] Complete Polish copy cleanup on all active screens touched by the redesign (redesigned core and first-run restore pass completed; legacy screens will be translated during their approved redesign)
 
 ### Phase B — reference PNGs for screens not yet redesigned
