@@ -232,6 +232,14 @@ html[data-theme=dark] .sk-btn-primary{background:linear-gradient(110deg,#008763,
 .sk-field-row .sk-icon-button{width:22px;height:26px}
 .sk-field-form{border-top:1px solid var(--sk-line);padding-top:16px}
 .sk-field-form h3{font-size:14px;font-weight:650}
+.sk-field-key-preview{margin-top:7px!important}
+.sk-import-result{margin-top:20px}
+.sk-import-stats{margin:16px 0}
+.sk-import-summary{margin:14px 0!important}
+.sk-import-preview-title{margin:18px 0 10px!important}
+.sk-import-note{margin-top:12px!important}
+.sk-test-mode-banner{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;padding:9px 14px;background:var(--sk-amber-soft);color:var(--sk-amber-text);border-bottom:1px solid color-mix(in srgb,var(--sk-amber-text) 28%,var(--sk-line));font-size:12px}
+.sk-test-mode-banner a{color:inherit!important;font-weight:650;text-decoration:underline}
 .sk-field-form label{display:block;font-size:12px;margin:12px 0 5px}
 .sk-field-form input,.sk-field-form select,.sk-field-form textarea{width:100%;font-size:12px}
 .sk-form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
