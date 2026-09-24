@@ -220,6 +220,8 @@ app.include_router(system_health_router.router, dependencies=_auth_deps)
 app.include_router(analytics_router.router, dependencies=_auth_deps)
 app.include_router(templates_router.router, dependencies=_auth_deps)
 app.include_router(contact_fields_router.router, dependencies=_auth_deps)
+from app.routers import ui as ui_router
+app.include_router(ui_router.router, dependencies=_auth_deps)
 
 # lightweight public utility for MX-based provider detection
 app.include_router(email_provider_router.router)
