@@ -97,11 +97,13 @@ Before new product features are added, the current UI must be consolidated into 
 - [x] Final Login/first-run/restore visual polish in both light and dark themes
 - [x] Remove remaining one-off inline layout styles from redesigned screens where reusable classes should exist
 - [x] Verify consistent buttons, inputs, cards, badges, alerts, tables, headings and spacing across redesigned screens
-- [ ] Verify loading, empty, error, disabled and destructive states across all active screens (first cleanup pass completed for redesigned screens)
-  - Redesigned core screens audited in 0.5.6; legacy screens remain open until their Phase B references are implemented.
-- [ ] Verify keyboard focus, labels, contrast and reduced-motion behavior
+- [x] Verify loading, empty, error, disabled and destructive states across all active screens
+  - Redesigned core screens were audited in 0.5.6; active legacy screens received state/semantic cleanup in 0.5.7. Their visual redesign remains Phase B.
+- [x] Verify keyboard focus, labels, contrast and reduced-motion behavior
+  - 0.5.7 completed the active-control keyboard/label audit, retained the shared reduced-motion baseline and raised light/dark form, focus and semantic-token contrast where needed.
 - [x] Verify light/dark parity and responsive layouts before approving new screen designs
-- [ ] Complete Polish copy cleanup on all active screens touched by the redesign (redesigned core and first-run restore pass completed; legacy screens will be translated during their approved redesign)
+- [x] Complete Polish copy cleanup on all active screens touched by the redesign
+  - Active routed screens were completed in 0.5.7; protocol names, API/MCP identifiers and other technical names remain unchanged where they are part of the interface contract.
 
 ### Phase B — reference PNGs for screens not yet redesigned
 Each screen is designed in dark mode first as the reference, then mirrored 1:1 into light mode. Implementation begins only after the reference is approved. Large functional areas are split into explicit references so no legacy subview is accidentally carried forward.
@@ -148,10 +150,10 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 - [x] Campaign Workspace shell
 - [x] Inbox / Wątki
 - [x] Domains
-- [x] System Health — semantic/status baseline cleaned; final layout review remains part of Phase A
+- [x] System Health — semantic/status baseline complete; create a Phase B reference only if later layout work is actually needed
 
 ### Design and implementation order
-1. Finish Phase A cleanup and regression review.
+1. Phase A cleanup and regression review — completed in 0.5.7.
 2. Design Settings (dark, then light; split into the references above).
 3. Design Campaigns list.
 4. Design New Campaign.
@@ -165,7 +167,7 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 12. Design Deliverability Tips.
 13. Implement approved PNGs one screen at a time and re-run the cross-screen consistency audit.
 
-**Gate:** no new feature milestone work should take priority over this consolidation until Phase A is complete and the remaining core screens have approved references.
+**Gate:** Phase A is complete. The remaining consolidation gate is approval and implementation of the Phase B references for legacy core screens before new feature milestones take priority.
 
 ## 0.6 — Sequences
 - Multi-step follow-ups
