@@ -1195,7 +1195,7 @@ export default function Settings() {
                       </ul>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Current database (will be replaced)</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Obecna baza danych (zostanie zastąpiona)</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
                         <li>Leads: {restoreMeta.current_database?.lead_count ?? '—'}</li>
                         <li>Inboxes: {restoreMeta.current_database?.inbox_count ?? '—'}</li>
@@ -1302,7 +1302,7 @@ export default function Settings() {
                       </ul>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Current database (will be replaced)</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Obecna baza danych (zostanie zastąpiona)</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
                         <li>Leads: {restorePreview.current_database?.lead_count ?? '—'}</li>
                         <li>Skrzynki: {restorePreview.current_database?.inbox_count ?? '—'}</li>
