@@ -624,7 +624,15 @@ export default function Schedule() {
             <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count??0}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Strategia:</span> <span className={strategy==='round_robin'?'text-teal-500':'text-gray-900'} style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}} title="Zmień w ustawieniach" onClick={() => { window.location = '/settings#general'; }}>{strategy==='priority'?'Priorytet':'Równomiernie'}</span>
+            <span className="text-sm text-gray-500">Strategia:</span> <span
+            className={strategy==='round_robin'?'text-teal-500':'text-gray-900'}
+            role="link"
+            tabIndex={0}
+            style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}}
+            title="Zmień w ustawieniach"
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); window.location = '/settings#general'; } }}
+            onClick={() => { window.location = '/settings#general'; }}
+          >{strategy==='priority'?'Priorytet':'Równomiernie'}</span>
           </div>
         </div>
         <div className="flex items-center gap-2">
