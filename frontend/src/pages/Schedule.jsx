@@ -454,7 +454,7 @@ export default function Schedule() {
                 </>
               )}
               {item.has_variants && (
-                <div><span className="dp-label">A/B variant</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
+                <div><span className="dp-label">Wariant A/B</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
               )}
               {isSent && item.message_id && (
                 <div className="dp-full"><span className="dp-label">Message ID</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
@@ -474,7 +474,7 @@ export default function Schedule() {
                         setPreviewItem(full);
                       }}
                     >
-                      View full preview
+                      Pełny podgląd
                     </Button>
                   </div>
                   <div className="body-preview" dangerouslySetInnerHTML={{__html:item.sequence_body.trim().startsWith('<')?item.sequence_body:escapeHtml(item.sequence_body)}} />
@@ -506,8 +506,15 @@ export default function Schedule() {
       const totalSent = stats.total_sent ?? filteredSent.length;
       parts.push(
         <div key="past">
-          <div className="section-hdr" onClick={() => setPastExpanded(pe=>!pe)}>
-            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości{totalSent!==1?'s':''})
+          <div
+            className="section-hdr"
+            role="button"
+            tabIndex={0}
+            aria-expanded={pastExpanded}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setPastExpanded(pe=>!pe); } }}
+            onClick={() => setPastExpanded(pe=>!pe)}
+          >
+            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości)
           </div>
           {pastExpanded && groupByDate(filteredSent,true).map(group => (
             <div key={`${group.tz}-${group.dateKey}`}>
@@ -525,8 +532,15 @@ export default function Schedule() {
       const totalScheduled = stats.total_scheduled ?? filteredScheduled.length;
       parts.push(
         <div key="upcoming">
-          <div className="section-hdr" onClick={() => setScheduledExpanded(se => !se)}>
-            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości{totalScheduled!==1?'s':''})
+          <div
+            className="section-hdr"
+            role="button"
+            tabIndex={0}
+            aria-expanded={scheduledExpanded}
+            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setScheduledExpanded(se=>!se); } }}
+            onClick={() => setScheduledExpanded(se => !se)}
+          >
+            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości)
           </div>
           {scheduledExpanded && groupByDate(filteredScheduled,false).map(group => {
             if (!todayByTz.has(group.tz)) {
@@ -571,7 +585,7 @@ export default function Schedule() {
       <div className="flex items-center gap-3">
         <h1 className="text-2xl font-bold">Harmonogram</h1>
         <span className="text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5" title="Czasy są przechowywane w UTC i wyświetlane poniżej w strefie czasowej każdej kampanii">
-          🕐 Times in campaign timezone
+          🕐 Czas w strefie kampanii
         </span>
       </div>
       <Card className="flex flex-wrap justify-between items-center mb-4 p-2">
@@ -590,7 +604,7 @@ export default function Schedule() {
                 </span>
                 {serverStatus.server_time && (
                   <span className="ml-1 text-xs text-gray-400">
-                    = {new Date(serverStatus.server_time).toLocaleTimeString()} local
+                    = {new Date(serverStatus.server_time).toLocaleTimeString()} lokalnie
                   </span>
                 )}
               </div>
