@@ -13,6 +13,15 @@
 - fixed Dashboard warning-state presentation
 - removed stale routed-page imports and dead login variables
 - refreshed the visible shell version to 0.5.4
+- aligned sidebar health severity with red/amber/green status colors
+- improved Dashboard terminology and removed one-off inline layout styling
+- corrected Campaign Workspace paused/preflight status semantics, including red blocking states
+- polished Contacts destructive actions, field-filter labels and field terminology
+- improved Inbox unknown-mailbox status handling and removed one-off inline layout styling
+- improved Domains loading, empty and retry/error states
+- normalized Contact Import and custom-field manager layout classes
+- localized and themed the test-mode banner
+- removed the last obvious unused imports found in the redesigned frontend audit
 
 ## 0.5.0 — Campaign scheduler safety
 

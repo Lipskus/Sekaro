@@ -1,7 +1,7 @@
 import {useState,useRef} from 'react';
 import {api} from '../api';
 import {useConfirm} from '../context/ConfirmContext';
-import {Button,Icon,Empty,ErrorNotice} from './ui';
+import {Button,Icon,ErrorNotice} from './ui';
 export const fieldTypes={text:'Tekst',textarea:'Tekst (wiele linii)',number:'Liczba',date:'Data',select:'Lista (jednokrotny wybór)'};
 export function FieldInput({field,value,onChange,...props}){if(field.field_type==='textarea')return <textarea {...props} value={value??''} onChange={e=>onChange(e.target.value)}/>;if(field.field_type==='select')return <select {...props} value={value??''} onChange={e=>onChange(e.target.value)}><option value="">Brak wartości</option>{value&&!(field.options||[]).includes(String(value))&&<option value={value}>{value} (wcześniejsza wartość)</option>}{(field.options||[]).map(v=><option key={v}>{v}</option>)}</select>;return <input {...props} type={['date','number'].includes(field.field_type)?field.field_type:'text'} step={field.field_type==='number'?'any':undefined} value={typeof value==='object'?JSON.stringify(value):value??''} onChange={e=>onChange(e.target.value)}/>;}
 export default function FieldManager({fields,onRefresh,onClose}){

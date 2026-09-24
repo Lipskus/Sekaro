@@ -94,12 +94,12 @@ Before new product features are added, the current UI must be consolidated into 
 - [ ] Audit Inbox/Wątki list, conversation view, composer, empty/error states and mobile behavior
 - [ ] Audit Domains states and diagnostics presentation
 - [ ] Final Login/first-run/restore visual polish in both light and dark themes
-- [ ] Remove remaining one-off inline layout styles from redesigned screens where reusable classes should exist
+- [x] Remove remaining one-off inline layout styles from redesigned screens where reusable classes should exist
 - [ ] Verify consistent buttons, inputs, cards, badges, alerts, tables, headings and spacing across redesigned screens
-- [ ] Verify loading, empty, error, disabled and destructive states across all active screens
+- [ ] Verify loading, empty, error, disabled and destructive states across all active screens (first cleanup pass completed for redesigned screens)
 - [ ] Verify keyboard focus, labels, contrast and reduced-motion behavior
 - [ ] Verify light/dark parity and responsive layouts before approving new screen designs
-- [ ] Complete Polish copy cleanup on all active screens touched by the redesign
+- [ ] Complete Polish copy cleanup on all active screens touched by the redesign (redesigned core and first-run restore pass completed)
 
 ### Phase B — reference PNGs for screens not yet redesigned
 Each screen is designed in dark mode first as the reference, then mirrored 1:1 into light mode. Implementation begins only after the reference is approved.
