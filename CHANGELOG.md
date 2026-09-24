@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.7 — Phase A complete
+
+- completed the cross-screen Phase A audit across both redesigned and still-legacy active routes
+- cleaned loading, empty, error, disabled and destructive states so API failures do not masquerade as empty data
+- completed Polish user-facing copy across active UI surfaces while preserving protocol/API/MCP names and other technical identifiers
+- added keyboard and ARIA semantics to previously mouse-only controls in Schedule, Notifications, Settings, Deliverability and verification flows
+- polished legacy Campaigns, Inboxes, Settings, Schedule, Analytics, Notifications, contact tools, Lead Detail and Deliverability without visually redesigning them ahead of approved Phase B references
+- fixed redundant campaign-list reload behaviour introduced by result-count-dependent loading
+- finished SMTP/IMAP/Beacon/DNS, backup/restore, webhook, AI and email-verification state/copy cleanup
+- raised the shared light-theme muted, red, amber and blue text tokens to a 4.5:1 normal-text contrast baseline on their intended surfaces
+- added dedicated high-contrast focus and form-control border tokens; shared controls now meet the 3:1 non-text contrast baseline in light and dark themes
+- kept the existing global reduced-motion handling for the full Sekaro shell and login/first-run surface
+- Phase A is now closed; remaining UI work starts with Phase B dark-first/light-mirrored PNG references, beginning with Settings
+
+
 ## 0.5.6 — Phase A core-screen polish
 
 - audited the redesigned Dashboard, Contacts, Campaign Workspace shell, Inbox, Domains and Login surfaces before new PNG work
