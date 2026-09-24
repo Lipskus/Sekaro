@@ -68,6 +68,7 @@ function AppRoutes() {
               <Route path="/campaigns/add" element={<AddCampaign />} />
               <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
               <Route path="/leads" element={<ContactsView />} />
+              <Route path="/contacts-tools" element={<Leads />} />
               <Route path="/leads/:id" element={<LeadDetail />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/inboxes" element={<Inboxes />} />
