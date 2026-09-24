@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import shutil
 import urllib.error
 import urllib.request
 from collections import defaultdict
@@ -30,6 +31,45 @@ router = APIRouter(prefix="/api/system-health", tags=["system-health"])
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+def _storage_snapshot() -> dict:
+    """Return capacity information for Sekaro's local data filesystem.
+
+    Production Compose bind-mounts ./backups at /app/backups, so disk_usage on
+    that path reflects the host filesystem that stores local Sekaro backups.
+    SEKARO_STORAGE_PATH can override the probe location for custom deployments.
+    """
+    preferred = os.getenv("SEKARO_STORAGE_PATH", "").strip()
+    if preferred:
+        path = preferred
+    elif os.path.isdir("/app/backups"):
+        path = "/app/backups"
+    else:
+        path = os.getcwd()
+
+    try:
+        usage = shutil.disk_usage(path)
+        total = int(usage.total)
+        used = int(usage.used)
+        free = int(usage.free)
+        used_percent = round((used / total) * 100, 1) if total > 0 else 0.0
+        return {
+            "available": True,
+            "total_bytes": total,
+            "used_bytes": used,
+            "free_bytes": free,
+            "used_percent": used_percent,
+        }
+    except OSError as exc:
+        log.warning("storage health probe failed for %s: %s", path, exc)
+        return {
+            "available": False,
+            "total_bytes": None,
+            "used_bytes": None,
+            "free_bytes": None,
+            "used_percent": None,
+        }
+
 
 def _gmail_token_status(token_expiry: datetime | None) -> str:
     if not token_expiry:
@@ -470,9 +510,10 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
     sync_interval = int((gmail_sync_cfg or {}).get("sync_interval_minutes", 5))
 
     # ------------------------------------------------------------------
-    # Active flags
+    # Active flags / local storage
     # ------------------------------------------------------------------
     test_mode = bool(test_mode_val)
+    storage = _storage_snapshot()
 
     return {
         "security": {
@@ -505,6 +546,7 @@ async def get_system_health(db: AsyncSession = Depends(get_db)):
         "flags": {
             "test_mode": test_mode,
         },
+        "storage": storage,
         "beacon_reconciliation": {
             "repaired_inbox_ids": beacon_repaired_ids,
         },
