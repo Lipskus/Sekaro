@@ -16,6 +16,18 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Preserve source checkpoint for interrupted review
+        run: |
+          git rev-parse HEAD > /tmp/source-commit.txt
+          git ls-files -z | tar --null -T - -czf /tmp/sekaro-source.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sekaro-source-checkpoint
+          retention-days: 3
+          compression-level: 0
+          path: |
+            /tmp/sekaro-source.tar.gz
+            /tmp/source-commit.txt
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -25,18 +37,3 @@ jobs:
         working-directory: frontend
       - run: npm run build
         working-directory: frontend
-      - name: Package isolated working copy for visual review
-        run: |
-          git rev-parse HEAD > /tmp/source-commit.txt
-          git ls-files -z | tar --null -T - -czf /tmp/sekaro-source.tar.gz
-          tar -czf /tmp/sekaro-frontend-deps.tar.gz frontend/node_modules
-          cp /tmp/sekaro-source.tar.gz /tmp/sekaro-frontend-deps.tar.gz /tmp/source-commit.txt .
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sekaro-redesign-review
-          retention-days: 3
-          compression-level: 0
-          path: |
-            sekaro-source.tar.gz
-            sekaro-frontend-deps.tar.gz
-            source-commit.txt

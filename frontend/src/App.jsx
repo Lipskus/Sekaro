@@ -16,6 +16,11 @@ import LeadDetail from './pages/LeadDetail';
 import Templates from './pages/Templates';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
+import Dashboard from './redesign/pages/Dashboard';
+import ContactsView from './redesign/pages/Contacts';
+import CampaignWorkspace from './redesign/pages/CampaignWorkspace';
+import InboxView from './redesign/pages/Inbox';
+import Domains from './redesign/pages/Domains';
 import { api } from './api';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import SplashScreen from './components/SplashScreen';
@@ -58,15 +63,16 @@ function AppRoutes() {
         <ProtectedRoute>
           <Layout>
             <Routes>
-              <Route path="/" element={<Analytics />} />
+              <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaigns/add" element={<AddCampaign />} />
-              <Route path="/campaigns/:id" element={<CampaignDetail />} />
-              <Route path="/leads" element={<Leads />} />
+              <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
+              <Route path="/leads" element={<ContactsView />} />
               <Route path="/leads/:id" element={<LeadDetail />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/inboxes" element={<Inboxes />} />
-              <Route path="/unibox" element={<Unibox />} />
+              <Route path="/unibox" element={<InboxView />} />
+              <Route path="/domains" element={<Domains />} />
               <Route path="/schedule" element={<Schedule />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/settings" element={<Settings />} />
