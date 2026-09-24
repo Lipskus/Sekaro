@@ -136,7 +136,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
 
 function CheckCard({ check, muted, onToggleMute }) {
   const isMuted = muted.has(check.id);
-  const displayStatus = isMuted ? 'ok' : check.status;
+  const displayStatus = check.status;
   const col = statusColor(displayStatus);
   const isHealthy = check.status === 'ok';
 
@@ -206,9 +206,9 @@ function CheckCard({ check, muted, onToggleMute }) {
             ))}
           </ul>
         ) : isHealthy || isMuted ? (
-          <div className="flex items-center gap-1.5 text-green-600 text-xs font-medium">
-            <RiCheckboxCircleLine size={14} />
-            <span>{isMuted ? 'Ostrzeżenia dla tej kategorii są wyciszone' : 'Nie wykryto problemów'}</span>
+          <div className={`flex items-center gap-1.5 text-xs font-medium ${isMuted ? 'text-gray-500' : 'text-green-600'}`}>
+            {isMuted ? <RiNotificationOffLine size={14} /> : <RiCheckboxCircleLine size={14} />}
+            <span>{isMuted ? 'Powiadomienia dla tej kategorii są wyciszone; stan nadal wpływa na ocenę systemu.' : 'Nie wykryto problemów'}</span>
           </div>
         ) : null}
 
@@ -365,10 +365,7 @@ function CheckMeta({ check }) {
 export default function SystemHealth() {
   const { checks, loading, lastChecked, fetchError, refresh, muted, toggleMute, overallStatus } = useSystemHealth();
 
-  const issueCount = checks.reduce((n, c) => {
-    if (muted.has(c.id)) return n;
-    return n + c.issues.length;
-  }, 0);
+  const issueCount = checks.reduce((n, c) => n + c.issues.length, 0);
 
   const mutedCount = checks.filter(c => muted.has(c.id)).length;
 
@@ -399,7 +396,7 @@ export default function SystemHealth() {
             onClick={unmuteAll}
             className="text-xs text-teal-600 hover:text-teal-700 border border-teal-200 rounded-lg px-3 py-1.5 transition-colors"
           >
-            Włącz wszystkie ostrzeżenia ({mutedCount})
+            Wyłącz wyciszenie ({mutedCount})
           </button>
         )}
       </div>
@@ -442,7 +439,7 @@ export default function SystemHealth() {
       {/* Footer note */}
       <p className="text-xs text-center text-gray-400 pb-4">
         Dane diagnostyczne odświeżają się automatycznie co 5 minut oraz po kliknięciu „Odśwież”. 
-        Wyciszone kontrole są zapisywane lokalnie i nie wpływają na innych użytkowników.
+        Wyciszenie jest zapisywane lokalnie i ukrywa szczegóły kategorii, ale nie zmienia rzeczywistej oceny stanu systemu.
       </p>
     </div>
   );

@@ -7,6 +7,8 @@
 - missing SMTP/IMAP configuration is now a blocking red System Health error
 - removed the contradictory healthy mailbox-status card when no mailbox exists
 - normal IMAP synchronization no longer raises a warning by itself
+- System Health no longer shows a healthy IMAP synchronization card before any mailbox exists
+- muting a health category no longer hides its severity from the overall system status
 - System Health severity colors now use Sekaro light/dark theme tokens
 - real AI / verification errors take precedence over "not tested" warnings
 - translated remaining System Health diagnostics and first-run restore copy to Polish

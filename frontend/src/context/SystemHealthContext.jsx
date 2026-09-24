@@ -226,22 +226,24 @@ function buildChecks(d) {
 
   /* ── Inbox synchronization ───────────────────────────────────── */
   const syncInProgress = Boolean(unibox_sync?.initial_list_sync_in_progress);
-  checks.push({
-    id: 'unibox_sync',
-    label: 'Synchronizacja poczty',
-    icon: 'sync',
-    status: 'ok',
-    issues: [],
-    meta: {
-      syncInProgress,
-      pushEnabled: Boolean(unibox_sync?.push_enabled),
-      inflightIds: unibox_sync?.inflight_inbox_ids || [],
-      syncIntervalMinutes: unibox_sync?.sync_interval_minutes ?? 5,
-    },
-    detail: syncInProgress
-      ? 'Synchronizacja w toku'
-      : `IMAP polling co około ${unibox_sync?.sync_interval_minutes ?? 5} min`,
-  });
+  if (inboxList.length > 0 || smtpAccounts.length > 0) {
+    checks.push({
+      id: 'unibox_sync',
+      label: 'Synchronizacja poczty',
+      icon: 'sync',
+      status: 'ok',
+      issues: [],
+      meta: {
+        syncInProgress,
+        pushEnabled: Boolean(unibox_sync?.push_enabled),
+        inflightIds: unibox_sync?.inflight_inbox_ids || [],
+        syncIntervalMinutes: unibox_sync?.sync_interval_minutes ?? 5,
+      },
+      detail: syncInProgress
+        ? 'Synchronizacja w toku'
+        : `Odpytywanie IMAP co około ${unibox_sync?.sync_interval_minutes ?? 5} min`,
+    });
+  }
 
   /* ── AI Features ─────────────────────────────────────────────── */
   const enabledAiFeatures = rawAi.filter(f => f.enabled);
@@ -352,9 +354,8 @@ function buildChecks(d) {
 
 const STATUS_RANK = { error: 3, warning: 2, ok: 1, unknown: 0 };
 
-function computeOverall(checks, muted) {
+function computeOverall(checks) {
   return checks.reduce((worst, check) => {
-    if (muted.has(check.id)) return worst;
     const rank = STATUS_RANK[check.status] ?? 0;
     if (rank > (STATUS_RANK[worst] ?? 0)) return check.status;
     return worst;
@@ -421,7 +422,7 @@ export function SystemHealthProvider({ children }) {
     });
   }, []);
 
-  const overallStatus = computeOverall(checks, muted);
+  const overallStatus = computeOverall(checks);
 
   return (
     <SystemHealthContext.Provider
