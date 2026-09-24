@@ -292,14 +292,14 @@ export default function Analytics() {
               : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
           }`}
         >
-          Custom
+          Własny zakres
         </button>
       </div>
 
       {activePreset === 'custom' && (
         <div className="flex items-center gap-4">
-          <label className="text-sm flex items-center gap-1">From <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
-          <label className="text-sm flex items-center gap-1">To <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
+          <label className="text-sm flex items-center gap-1">Od <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
+          <label className="text-sm flex items-center gap-1">Do <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
         </div>
       )}
 
@@ -331,6 +331,10 @@ export default function Analytics() {
                     {seriesList.map(s => (
                       <span
                         key={s.key}
+                        role="button"
+                        tabIndex={0}
+                        aria-pressed={!hideSeries[s.key]}
+                        onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleSeries(s.key); } }}
                         onClick={() => toggleSeries(s.key)}
                         className={`flex items-center gap-1 cursor-pointer select-none text-xs transition-opacity ${hideSeries[s.key] ? 'opacity-40' : ''}`}
                       >
@@ -373,7 +377,7 @@ export default function Analytics() {
               }}
               disabled={!currentChoice}
             >
-              Add
+              Dodaj
             </Button>
           </div>
           {selectedIds.length > 0 && (
@@ -389,6 +393,7 @@ export default function Analytics() {
                     <button
                       className="ml-1 text-gray-500 hover:text-gray-700"
                       onClick={() => setSelectedIds(selectedIds.filter(x => x !== id))}
+                      aria-label={`Usuń kampanię ${camp?.name || id} z analizy`}
                     >
                       ×
                     </button>
@@ -415,11 +420,11 @@ export default function Analytics() {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr>
-                <th>Name</th>
-                <th className="text-center">Leads</th>
+                <th>Nazwa</th>
+                <th className="text-center">Kontakty</th>
                 <th className="text-center">Wysłane</th>
-                <th className="text-center">Pending</th>
-                <th className="text-center">Progress</th>
+                <th className="text-center">Oczekujące</th>
+                <th className="text-center">Postęp</th>
                 <th className="text-center">Odpowiedzi</th>
                 <th className="text-center">Odpowiedzi %</th>
                 <th className="text-center">Otwarcia %</th>
