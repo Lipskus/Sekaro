@@ -11,10 +11,16 @@ import {Icon,Avatar,Badge} from './ui';
 import Logo from './Logo';
 const nav=[['/','home','Dashboard'],['/campaigns','campaign','Kampanie'],['/inboxes','mail','Skrzynki (SMTP/IMAP)'],['/leads','contacts','Kontakty'],['/templates','template','Szablony'],['/unibox','chat','Wątki (Inbox)'],['/analytics','chart','Analityka'],['/domains','globe','Domeny'],['/settings','settings','Ustawienia']];
 export default function Shell({children}){
- const {user,logout}=useAuth();const {themePreference,setThemePreference}=useDarkMode();const {overallStatus}=useSystemHealth();const {count}=useNotifications();const {isProduction}=useAppMode();const {language,setLanguage,languages}=useLanguage();
+ const {user,logout}=useAuth();const {themePreference,setThemePreference}=useDarkMode();const {overallStatus,rawData}=useSystemHealth();const {count}=useNotifications();const {isProduction}=useAppMode();const {language,setLanguage,languages}=useLanguage();
  const [menu,setMenu]=useState(false),[profile,setProfile]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState([]),[searchBusy,setSearchBusy]=useState(false),[searchError,setSearchError]=useState(''),[showSearch,setShowSearch]=useState(false);
  const location=useLocation(),navigate=useNavigate(),searchRef=useRef(null),searchBoxRef=useRef(null),profileRef=useRef(null);
  const userName=user?.display_name||user?.name||user?.username||user?.email||'Administrator';
+ const storage=rawData?.storage;
+ const diskUsed=storage?.available?Math.max(0,Math.min(100,Number(storage.used_percent)||0)):0;
+ const diskTone=!storage?.available?'neutral':diskUsed>=95?'red':diskUsed>=85?'amber':'green';
+ const diskFree=storage?.available
+  ? `${(Number(storage.free_bytes)/(1024**3)).toLocaleString('pl-PL',{maximumFractionDigits:1})} GB wolne`
+  : 'Brak danych';
  useEffect(()=>{setMenu(false);setProfile(false);setShowSearch(false);window.scrollTo(0,0);},[location.pathname]);
  useEffect(()=>{const key=e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();searchRef.current?.focus();}if(e.key==='Escape'){setShowSearch(false);setProfile(false);setMenu(false);}};const click=e=>{if(!searchBoxRef.current?.contains(e.target))setShowSearch(false);if(!profileRef.current?.contains(e.target))setProfile(false);};document.addEventListener('keydown',key);document.addEventListener('pointerdown',click);return()=>{document.removeEventListener('keydown',key);document.removeEventListener('pointerdown',click);};},[]);
  useEffect(()=>{let active=true;if(q.trim().length<2){setResults([]);setSearchBusy(false);return;}const t=setTimeout(async()=>{setSearchBusy(true);setSearchError('');try{const [leads,campaigns,templates]=await Promise.all([api.get('/leads?q='+encodeURIComponent(q.trim())),api.get('/campaigns'),api.get('/templates')]);if(active)setResults([...(leads||[]).slice(0,5).map(l=>({label:l.name||l.email,detail:l.email,to:'/leads/'+l.id,icon:'contacts'})),...(campaigns||[]).filter(c=>c.name.toLowerCase().includes(q.toLowerCase())).slice(0,3).map(c=>({label:c.name,detail:'Kampania',to:'/campaigns/'+c.id,icon:'campaign'})),...(templates||[]).filter(c=>c.name.toLowerCase().includes(q.toLowerCase())).slice(0,3).map(c=>({label:c.name,detail:'Szablon',to:'/templates',icon:'template'}))]);}catch{if(active)setSearchError('Nie udało się wyszukać danych.');}finally{if(active)setSearchBusy(false);}},300);return()=>{active=false;clearTimeout(t);};},[q]);
@@ -25,7 +31,7 @@ export default function Shell({children}){
   <aside className={`sk-sidebar ${menu?'is-open':''}`}>
    <Link to="/" className="sk-brand"><Logo/><div><strong>Sekaro</strong><small>Self-hosted outreach</small></div></Link>
    <nav aria-label="Nawigacja główna">{nav.map(([to,icon,label])=><NavLink key={to} to={to} end={to==='/'} className={({isActive})=>`sk-nav-item ${isActive?'active':''}`}><Icon name={icon}/><span>{label}</span></NavLink>)}</nav>
-   <div className="sk-sidebar-bottom"><Link to="/system-health" className="sk-system-card"><div><strong>System</strong><Badge tone={state[1]} dot>{state[0]}</Badge></div><dl><dt>Wersja</dt><dd>0.5.4</dd><dt>Środowisko</dt><dd>{isProduction?'Produkcja':'Testowe'}</dd><dt>Dostęp</dt><dd>Panel prywatny</dd></dl><div className="sk-status-rule" data-tone={state[1]}/></Link><Link to="/settings" className="sk-selfhost"><Icon name="server" size={31}/><div><strong>Self-hosted</strong><small>Twoje dane. Twoje zasady.</small></div></Link></div>
+   <div className="sk-sidebar-bottom"><Link to="/system-health" className="sk-system-card"><div><strong>System</strong><Badge tone={state[1]} dot>{state[0]}</Badge></div><dl><dt>Wersja</dt><dd>0.5.5</dd><dt>Środowisko</dt><dd>{isProduction?'Produkcja':'Testowe'}</dd><dt>Dysk</dt><dd>{diskFree}</dd></dl><progress className="sk-storage-progress" data-tone={diskTone} max="100" value={diskUsed} aria-label="Wykorzystanie dysku" title={storage?.available?`Wykorzystano ${diskUsed}% przestrzeni`:'Brak danych o dysku'}/></Link><Link to="/settings" className="sk-selfhost"><Icon name="server" size={31}/><div><strong>Self-hosted</strong><small>Twoje dane. Twoje zasady.</small></div></Link></div>
   </aside>
   <div className="sk-workspace">
    <header className="sk-topbar">
