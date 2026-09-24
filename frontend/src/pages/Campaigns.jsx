@@ -9,6 +9,7 @@ import { useNotify } from '../context/NotificationContext';
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState(() => apiCache.get('/campaigns') || []);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(campaigns.length === 0);
 
   // scheduling strategy from server ("priority" or other)
   const [strategy, setStrategy] = useState('priority');
@@ -18,6 +19,8 @@ export default function Campaigns() {
   const notify = useNotify();
 
   const load = useCallback(async () => {
+    if (campaigns.length === 0) setLoading(true);
+    setError(null);
     try {
       const [camp, strat] = await Promise.all([
         api.get('/campaigns'),
@@ -27,9 +30,11 @@ export default function Campaigns() {
       setStrategy(strat.scheduling_strategy || 'priority');
       setOrderChanged(false);
     } catch (e) {
-      setError('Failed to load campaigns');
+      setError('Nie udało się wczytać kampanii.');
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  }, [campaigns.length]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -68,9 +73,9 @@ export default function Campaigns() {
     try {
       await api.post('/campaigns/reorder', { campaign_ids: campaigns.map(c => c.id) });
       setOrderChanged(false);
-      notify({ type: 'success', message: 'Order saved' });
+      notify({ type: 'success', message: 'Kolejność priorytetów została zapisana.' });
     } catch (e) {
-      notify({ type: 'error', message: 'Error saving order' });
+      notify({ type: 'error', message: 'Nie udało się zapisać kolejności priorytetów.' });
     }
   };
 
@@ -110,7 +115,7 @@ export default function Campaigns() {
   ) : null;
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
+    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6" aria-busy={loading}>
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold mb-4">Kampanie</h1>
         <Button as={Link} to="/analytics" variant="outline" size="sm">
@@ -120,7 +125,9 @@ export default function Campaigns() {
 
       {banner}
 
-      {campaigns.length === 0 && (
+      {loading && campaigns.length === 0 && <Card>Wczytywanie kampanii…</Card>}
+
+      {!loading && campaigns.length === 0 && (
         <Card>Brak kampanii. <Link className="text-teal-500" to="/campaigns/add">Utwórz kampanię</Link>.</Card>
       )}
 
@@ -247,7 +254,7 @@ export default function Campaigns() {
                       </div>
                       <div className="text-xs mt-1">
                         {isPaused ? (
-                          <span className="text-amber-700">{emailsSent} wysłano z {totalLeads} lead{totalLeads !== 1 ? 's' : ''}</span>
+                          <span className="text-amber-700">{emailsSent} wysłano z {totalLeads} kontaktów</span>
                         ) : isCompleted ? (
                           <span className="text-blue-600">{emailsSent} wysłano — zakończono</span>
                         ) : (
@@ -263,7 +270,7 @@ export default function Campaigns() {
                     </td>
                     <td className="py-2">
                       <div className="flex flex-wrap gap-2">
-                        <Button as={Link} to={`/campaigns/${c.id}`} variant="outline" size="sm">View</Button>
+                        <Button as={Link} to={`/campaigns/${c.id}`} variant="outline" size="sm">Otwórz</Button>
                         <Button variant="outline" size="sm" onClick={() => togglePause(c.id, c.paused, c.name)}>
                           {c.paused ? 'Wznów' : 'Wstrzymaj'}
                         </Button>
@@ -285,9 +292,9 @@ export default function Campaigns() {
                 size="md"
                 onClick={saveOrder}
               >
-                Save priority order
+                Zapisz kolejność priorytetów
               </Button>
-              <span className="text-green-600 text-sm">Unsaved changes</span>
+              <span className="text-green-600 text-sm">Niezapisane zmiany</span>
             </div>
           )}
         </>
