@@ -1,15 +1,15 @@
-/* Sekaro 0.5.1 — native theme tokens shared by all application surfaces. */
+/* Sekaro 0.5.7 — native theme tokens shared by all application surfaces. */
 :root {
- --sk-bg:#f8fbfd;--sk-surface:#fff;--sk-surface-alt:#f4f7fa;--sk-text:#131d36;--sk-muted:#73809a;
- --sk-line:#e5edf3;--sk-primary:#006955;--sk-accent:#00be87;--sk-blue:#1483ff;
+ --sk-bg:#f8fbfd;--sk-surface:#fff;--sk-surface-alt:#f4f7fa;--sk-text:#131d36;--sk-muted:#667289;
+ --sk-line:#e5edf3;--sk-control-line:#8793a3;--sk-primary:#006955;--sk-accent:#00be87;--sk-focus:#007b60;--sk-blue:#116dd4;
  --sk-green-soft:#e6f8f2;--sk-green-text:#007b60;--sk-shadow:0 4px 18px #19395805;
  --sk-blue-soft:#eaf3ff;--sk-purple-soft:#f0e9ff;--sk-purple-text:#794cd1;
- --sk-red-soft:#fff0f2;--sk-red-text:#df3b54;--sk-amber-soft:#fff5df;--sk-amber-text:#a9740a;
+ --sk-red-soft:#fff0f2;--sk-red-text:#cc364d;--sk-amber-soft:#fff5df;--sk-amber-text:#976809;
  --sk-neutral-soft:#eff2f6;--sk-logo-top:#00b580;--sk-sidebar:250px;--sk-header:72px;
 }
 html[data-theme=dark]{
  --sk-bg:#0a1115;--sk-surface:#10191e;--sk-surface-alt:#172228;--sk-text:#eaf0fa;--sk-muted:#a0b1c5;
- --sk-line:#25323a;--sk-primary:#009c74;--sk-accent:#00dea1;--sk-blue:#39a9ff;
+ --sk-line:#25323a;--sk-control-line:#5e6e78;--sk-primary:#009c74;--sk-accent:#00dea1;--sk-focus:#40edbd;--sk-blue:#39a9ff;
  --sk-green-soft:#072e25;--sk-green-text:#40edbd;--sk-shadow:0 4px 18px #00000010;
  --sk-blue-soft:#08284b;--sk-purple-soft:#352256;--sk-purple-text:#d2acff;
  --sk-red-soft:#42202b;--sk-red-text:#ff92a0;--sk-amber-soft:#392c0b;--sk-amber-text:#f6ca67;
@@ -24,13 +24,13 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-shell button{font:inherit;cursor:pointer}
 .sk-shell button:disabled{opacity:.45;cursor:not-allowed}
 .sk-shell input:not([type=checkbox]):not([type=radio]),.sk-shell select,.sk-shell textarea{
- font:inherit;font-size:13px;color:var(--sk-text);background-color:var(--sk-surface);border:1px solid var(--sk-line);border-radius:7px;padding:8px 11px;box-shadow:none;min-width:0;
+ font:inherit;font-size:13px;color:var(--sk-text);background-color:var(--sk-surface);border:1px solid var(--sk-control-line);border-radius:7px;padding:8px 11px;box-shadow:none;min-width:0;
 }
 .sk-shell input::placeholder,.sk-shell textarea::placeholder{color:var(--sk-muted);opacity:.95}
 .sk-shell select{padding-right:30px;color-scheme:inherit}
-.sk-shell input[type=checkbox],.sk-shell input[type=radio]{accent-color:var(--sk-primary);color:var(--sk-primary);width:15px;height:15px;border-color:var(--sk-line);border-radius:3px;background-color:var(--sk-surface);flex-shrink:0}
+.sk-shell input[type=checkbox],.sk-shell input[type=radio]{accent-color:var(--sk-primary);color:var(--sk-primary);width:15px;height:15px;border-color:var(--sk-control-line);border-radius:3px;background-color:var(--sk-surface);flex-shrink:0}
 .sk-shell input[type=checkbox]:checked{background-color:var(--sk-primary)}
-.sk-shell :focus-visible{outline:2px solid var(--sk-accent)!important;outline-offset:3px}
+.sk-shell :focus-visible{outline:2px solid var(--sk-focus)!important;outline-offset:3px}
 .sk-shell input:focus-visible,.sk-shell textarea:focus-visible{outline-offset:1px}
 .sk-shell svg{flex-shrink:0;vertical-align:middle}
 .sk-shell code{font-size:12px;color:var(--sk-green-text);overflow-wrap:anywhere}
@@ -489,7 +489,7 @@ html[data-theme=dark] .sk-main [data-darkreader-ignore]{background:var(--sk-surf
     linear-gradient(135deg,var(--sk-bg) 0%,color-mix(in srgb,var(--sk-surface) 92%,var(--sk-accent) 8%) 100%);
   color:var(--sk-text);
 }
-.sk-login-page :focus-visible{outline:2px solid var(--sk-accent)!important;outline-offset:3px}
+.sk-login-page :focus-visible{outline:2px solid var(--sk-focus)!important;outline-offset:3px}
 .sk-login-page input:focus-visible,.sk-login-page textarea:focus-visible{outline-offset:1px}
 .sk-login-page button:disabled{opacity:.5;cursor:not-allowed}
 .sk-login-page:before{
