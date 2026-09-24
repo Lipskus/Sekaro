@@ -94,7 +94,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
   const msg = heroMessages[status] || heroMessages.unknown;
 
   return (
-    <div className={`rounded-xl border ${col.border} ${col.bg} p-6 flex items-center justify-between gap-4`}>
+    <div className={`sk-health-summary sk-health-summary-${status} rounded-xl border p-6 flex items-center justify-between gap-4`}>
       <div className="flex items-center gap-4">
         {/* animated dot */}
         <div className="relative flex-shrink-0">
