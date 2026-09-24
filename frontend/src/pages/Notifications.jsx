@@ -92,6 +92,16 @@ function NotificationItem({ n, onRead, onDelete, navigate }) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-label={n.title || 'Otwórz powiadomienie'}
+      onKeyDown={e => {
+        if (e.target !== e.currentTarget) return;
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
       onClick={handleClick}
       className={`group flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
         n.read_at
@@ -265,7 +275,7 @@ export default function Notifications() {
 
   const filterCategories = [
     { key: null, label: 'Wszystkie' },
-    { key: 'email', label: 'Email' },
+    { key: 'email', label: 'E-mail' },
     { key: 'lead', label: 'Kontakty' },
     { key: 'system', label: 'System' },
   ];
