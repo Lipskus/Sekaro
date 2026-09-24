@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.5 — Sidebar storage status
+
+- fixed the System sidebar badge so error/warning severity colors are not overridden by a forced green dot
+- replaced the decorative sidebar meter with real disk-usage data
+- the sidebar now shows free disk space instead of the static "Panel prywatny" access row
+- disk usage is measured on /app/backups by default in production Compose, which maps to the host ./backups filesystem
+- added storage capacity to System Health with warning at 85% usage and error at 95%
+- storage progress remains green under normal capacity and changes only when the disk is genuinely filling up
+
 ## 0.5.4 — UI cleanup baseline
 
 - added a dedicated UI consolidation and remaining-screen design phase to the roadmap
