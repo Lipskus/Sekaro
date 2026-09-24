@@ -11,7 +11,7 @@ export default function Domains(){
  useEffect(()=>{load();},[load]);
  const domains=[...new Set(inboxes.map(i=>i.email?.split('@')[1]).filter(Boolean))];
 
- return <div className="sk-page">
+ return <div className="sk-page" aria-busy={loading}>
   <div className="sk-page-heading"><div><h1>Domeny</h1><p>Domeny nadawcze i stan konfiguracji skrzynek.</p></div><Button to="/system-health" icon="shield">Stan systemu</Button></div>
   <ErrorNotice error={error} onRetry={load}/>
   <div className="sk-notice tone-blue"><Icon name="info"/><span>Analiza DNS i reputacji jest zaplanowanym modułem. Brak pomiaru nie jest potwierdzeniem poprawnej konfiguracji ani dostarczalności.</span></div>
