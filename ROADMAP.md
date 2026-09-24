@@ -87,6 +87,7 @@ Before new product features are added, the current UI must be consolidated into 
 - [x] Remove stale routed-page imports
 - [x] Remove obvious dead login-screen variables and polish first-run/restore copy
 - [x] Fix the Dashboard health badge so warnings are not presented as green/healthy
+- [x] Replace the decorative sidebar meter with real disk-capacity data and correct severity colors
 - [x] Refresh the visible Sekaro UI version for this cleanup baseline
 - [ ] Audit Dashboard spacing, empty states, status hierarchy and responsive behavior
 - [ ] Audit Contacts table, drawers, bulk actions, filters and responsive behavior
