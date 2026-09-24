@@ -64,7 +64,7 @@ function formatJitterMinutesLabel(seconds) {
   if (s <= 0) return null;
   const min = s / 60;
   const t = Number.isInteger(min) ? String(min) : (Math.round(min * 10) / 10).toString();
-  return `up to ${t} min random`;
+  return `do ${t} min losowo`;
 }
 
 /**
@@ -172,7 +172,7 @@ function InboxTrackingOptions({
     if (abortRef.current) return;
     const MAX_ATTEMPTS = 5;
     const RETRY_DELAY_MS = 8000;
-    let lastError = 'Timed out waiting for SSL certificate to be provisioned';
+    let lastError = 'Przekroczono czas oczekiwania na certyfikat SSL';
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       if (abortRef.current) return;
       setVerifyMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
@@ -187,7 +187,7 @@ function InboxTrackingOptions({
           onDnsVerifyChange?.(true);
           return;
         }
-        lastError = data.error || 'Unknown error';
+        lastError = data.error || 'Nieznany błąd';
       } catch (e) {
         if (abortRef.current) return;
         lastError = e.message;
