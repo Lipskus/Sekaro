@@ -18,6 +18,7 @@ import {
   RiTimeLine,
   RiCheckLine,
   RiGlobalLine,
+  RiHardDrive2Line,
 } from 'react-icons/ri';
 
 /* ─── helpers ───────────────────────────────────────────────────────────── */
@@ -64,7 +65,8 @@ function CategoryIcon({ icon, size = 20 }) {
     case 'ai':          return <RiRobot2Line     size={size} className={cls} />;
     case 'settings':    return <RiSettings3Line  size={size} className={cls} />;
     case 'verify':      return <RiShieldCheckLine size={size} className={cls} />;
-    case 'domain':      return <RiGlobalLine     size={size} className={cls} />;
+    case 'domain':      return <RiGlobalLine      size={size} className={cls} />;
+    case 'storage':     return <RiHardDrive2Line size={size} className={cls} />;
     default:            return <RiShieldCheckLine size={size} className={cls} />;
   }
 }
