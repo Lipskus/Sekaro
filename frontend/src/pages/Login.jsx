@@ -143,7 +143,7 @@ export default function Login() {
   };
 
   return (
-    <div className="sk-login-page">
+    <div className="sk-login-page" aria-busy={authBusy||restoreMetaBusy||restorePreviewBusy||restoreExecuteBusy}>
       <div className="sk-login-controls" aria-label="Ustawienia logowania">
         <select
           value={language}
@@ -429,9 +429,11 @@ export default function Login() {
 
                     {restoreMeta && restoreMeta.encrypted && !restorePreview && (
                       <>
+                        <label htmlFor="restore-password" className="block text-xs font-medium text-gray-700">Hasło kopii zapasowej</label>
                         <input
+                          id="restore-password"
                           type="password"
-                          placeholder={`Hasło kopii (co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków)`}
+                          placeholder={`Co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków`}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                           value={restorePassword}
                           onChange={e => setRestorePassword(e.target.value)}
@@ -540,6 +542,7 @@ export default function Login() {
                     {restoreMsg && (
                       <p
                         className={`text-center text-xs ${restoreMsg.type === 'ok' ? 'text-green-700' : 'text-red-600'}`}
+                        role={restoreMsg.type === 'ok' ? 'status' : 'alert'}
                       >
                         {restoreMsg.text}
                       </p>
