@@ -36,8 +36,8 @@ export default function LeadDetail() {
       setEditName(l.name || '');
       setEditCustom({ ...(l.custom_data || {}) });
     } catch (e) {
-      setError(e.message || 'Failed to load lead');
-      notify({ type: 'error', message: 'Could not load lead' });
+      setError(e.message || 'Nie udało się wczytać kontaktu.');
+      notify({ type: 'error', message: 'Nie udało się wczytać kontaktu.' });
     } finally {
       loading.stop();
     }
@@ -74,7 +74,7 @@ export default function LeadDetail() {
   if (error && !lead) {
     return (
       <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-8">
-        <h1 className="text-2xl font-semibold mb-4">Lead</h1>
+        <h1 className="text-2xl font-semibold mb-4">Kontakt</h1>
         <p className="text-red-600">{error}</p>
         <Button as={Link} to="/leads" variant="outline">Wróć do kontaktów</Button>
       </div>
@@ -94,7 +94,7 @@ export default function LeadDetail() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="text-sm text-gray-500 mb-1">
-            <Link to="/leads" className="text-teal-500 hover:underline">Leads</Link>
+            <Link to="/leads" className="text-teal-500 hover:underline">Kontakty</Link>
             <span className="mx-2">/</span>
             <span className="font-mono text-xs">#{lead.id}</span>
           </div>
@@ -242,7 +242,7 @@ export default function LeadDetail() {
                 }`}
               >
                 <div className="font-medium">
-                  {row.direction === 'outbound' ? 'Sent' : 'Received'}{' '}
+                  {row.direction === 'outbound' ? 'Wysłano' : 'Odebrano'}{' '}
                   {row.kind && row.kind !== 'sent' ? `· ${row.kind.replace(/_/g, ' ')}` : ''}
                 </div>
                 <div className="text-gray-500 text-xs mt-0.5">
