@@ -90,7 +90,7 @@ export default function AddCampaign() {
     <div className="min-h-0 max-w-xl flex-1 overflow-y-auto p-8">
       <h1 className="text-2xl font-bold mb-4">Nowa kampania</h1>
       {message && (
-        <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>
+        <div role={message.type === 'error' ? 'alert' : 'status'} className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>
           {message.text}
         </div>
       )}
@@ -139,7 +139,7 @@ export default function AddCampaign() {
                   onChange={handleCheckboxChange}
                 />
                 <span className="text-sm">
-                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]}
+                  {['Pon','Wt','Śr','Czw','Pt','Sob','Nd'][d]}
                 </span>
               </label>
             ))}
@@ -147,7 +147,7 @@ export default function AddCampaign() {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sending window start</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Początek okna wysyłki</label>
             <input
               type="time"
               name="sending_hours_start"
@@ -157,7 +157,7 @@ export default function AddCampaign() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sending window end</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Koniec okna wysyłki</label>
             <input
               type="time"
               name="sending_hours_end"
@@ -193,11 +193,11 @@ export default function AddCampaign() {
                     {t.label}
                   </li>
                 ))}
-                {filteredTz.length === 0 && <li className="px-3 py-2 text-sm text-gray-400">No match</li>}
+                {filteredTz.length === 0 && <li className="px-3 py-2 text-sm text-gray-400">Brak pasujących stref</li>}
               </ul>
             )}
           </div>
-          <p className="text-xs text-gray-400 mt-1">Godziny wysyłki above are interpreted in this timezone</p>
+          <p className="text-xs text-gray-400 mt-1">Godziny wysyłki są interpretowane w tej strefie czasowej</p>
         </div>
         <div>
           <label className="flex items-center gap-2">
@@ -213,7 +213,7 @@ export default function AddCampaign() {
 
         {/* Tracking */}
         <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Tracking</p>
+          <p className="text-sm font-semibold text-gray-700 mb-1">Śledzenie</p>
           <div className="space-y-1 pl-1">
             <label className="flex items-center gap-2">
               <input type="checkbox" name="track_opens" checked={form.track_opens} onChange={handleChange} />
@@ -228,18 +228,18 @@ export default function AddCampaign() {
 
         {/* Unsubscribe */}
         <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Unsubscribe</p>
+          <p className="text-sm font-semibold text-gray-700 mb-1">Wypisywanie</p>
           <div className="space-y-1 pl-1">
             <label className="flex items-center gap-2">
               <input type="checkbox" name="add_unsubscribe_header" checked={form.add_unsubscribe_header} onChange={handleChange} />
-              <span className="text-sm">Dodaj nagłówek List-Unsubscribe (recommended)</span>
+              <span className="text-sm">Dodaj nagłówek List-Unsubscribe (zalecane)</span>
             </label>
           </div>
         </div>
 
         {/* Sending format */}
         <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Sending format</p>
+          <p className="text-sm font-semibold text-gray-700 mb-1">Format wysyłki</p>
           <div className="space-y-1 pl-1">
             <label className="flex items-center gap-2">
               <input
