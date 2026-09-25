@@ -65,7 +65,7 @@ export default function Campaigns() {
       setStrategy(strat.scheduling_strategy || 'priority');
       setOrderChanged(false);
     } catch (e) {
-      setError('Failed to load campaigns');
+      setError('Nie udało się wczytać kampanii.');
     }
   }, []);
 
@@ -106,9 +106,9 @@ export default function Campaigns() {
     try {
       await api.post('/campaigns/reorder', { campaign_ids: campaigns.map(c => c.id) });
       setOrderChanged(false);
-      notify({ type: 'success', message: 'Order saved' });
+      notify({ type: 'success', message: 'Kolejność zapisana.' });
     } catch (e) {
-      notify({ type: 'error', message: 'Error saving order' });
+      notify({ type: 'error', message: 'Nie udało się zapisać kolejności.' });
     }
   };
 
