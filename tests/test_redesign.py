@@ -136,6 +136,9 @@ def test_frontend_redesign_has_no_obsolete_theme_hooks():
     assert "var(--success)" not in source
     assert "var(--info)" not in source
     assert "var(--muted)" not in source
+    assert "window.confirm(" not in source
+    assert "window.alert(" not in source
+    assert "window.prompt(" not in source
 
 
 def test_system_health_storage_snapshot_exposes_capacity_fields():
