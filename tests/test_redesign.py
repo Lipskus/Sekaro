@@ -1,5 +1,6 @@
 """Native redesign API tests: no SMTP connections, no demonstration data in production."""
 from datetime import datetime, timedelta
+from pathlib import Path
 import pytest
 from fastapi import HTTPException
 from sqlalchemy import select, func
@@ -117,3 +118,34 @@ async def test_reply_checks_suppression_before_calling_sender(session,monkeypatc
     inbox.paused=False;await session.commit()
     assert await reply_from_inbox(payload,session)=={"ok":True}
     assert len(calls)==1
+
+
+def test_frontend_redesign_has_no_obsolete_theme_hooks():
+    repo_root = Path(__file__).resolve().parents[1]
+    frontend = repo_root / "frontend"
+    package_json = (frontend / "package.json").read_text(encoding="utf-8")
+    package_lock = (frontend / "package-lock.json").read_text(encoding="utf-8")
+
+    assert '"darkreader"' not in package_json.lower()
+    assert '"node_modules/darkreader"' not in package_lock.lower()
+
+    source_files = list((frontend / "src").rglob("*.jsx")) + list((frontend / "src").rglob("*.css"))
+    source = "\n".join(path.read_text(encoding="utf-8") for path in source_files)
+
+    assert "data-darkreader-ignore" not in source
+    assert "var(--success)" not in source
+    assert "var(--info)" not in source
+    assert "var(--muted)" not in source
+
+
+def test_system_health_storage_snapshot_exposes_capacity_fields():
+    from app.routers.system_health import _storage_snapshot
+
+    snapshot = _storage_snapshot()
+    assert "available" in snapshot
+    assert {"total_bytes", "used_bytes", "free_bytes", "used_percent"} <= set(snapshot)
+    if snapshot["available"]:
+        assert snapshot["total_bytes"] >= 0
+        assert snapshot["used_bytes"] >= 0
+        assert snapshot["free_bytes"] >= 0
+        assert 0 <= snapshot["used_percent"] <= 100
