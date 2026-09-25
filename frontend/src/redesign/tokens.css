@@ -1389,6 +1389,9 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   .sk-schedule-metrics{grid-template-columns:1fr}
   .sk-schedule-toolbar{align-items:stretch;flex-direction:column}
   .sk-schedule-toolbar>*{width:100%!important;max-width:none!important}
+  .sk-schedule-list{overflow-x:auto;overflow-y:hidden}
+  .sk-schedule-list .email-row,
+  .sk-schedule-list .detail-panel{min-width:760px}
 }
 
 
