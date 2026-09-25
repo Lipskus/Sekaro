@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { api } from '../api';
+import { formatDateKey, formatTimeKey } from '../utils/datetime';
 import Campaigns from './Campaigns';
+import Dashboard from '../redesign/pages/Dashboard';
 import LeadDetail from './LeadDetail';
 import Inbox from '../redesign/pages/Inbox';
 import ScheduleMessagePreview from '../redesign/ScheduleMessagePreview';
@@ -56,6 +58,37 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('reference board loading / empty / error states', () => {
+  it('uses the same completed, draft and active states on the dashboard and campaign list', async () => {
+    mocks.health = { overallStatus: 'ok' };
+    api.get.mockImplementation(async path => {
+      if (path === '/campaigns') return [
+        { id: 1, name: 'Zakończona QA', stats: { emails_sent: 5, scheduled: 0 } },
+        { id: 2, name: 'Szkic QA', stats: {} },
+        { id: 3, name: 'Aktywna QA', stats: { total_leads: 3, scheduled: 3 } },
+      ];
+      if (path.startsWith('/ui/unibox')) return { items: [] };
+      return [];
+    });
+    const { container } = mount(Dashboard);
+    await screen.findByRole('link', { name: 'Zakończona QA' });
+    expect(screen.getByText('Zakończona', { selector: '.sk-badge' })).toBeTruthy();
+    expect(screen.getByText('Szkic', { selector: '.sk-badge' })).toBeTruthy();
+    const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Aktywne kampanie'));
+    expect(metric.querySelector('.sk-metric-value').textContent).toBe('1');
+  });
+
+  it('categorizes legacy demo bounce notifications and gives them an error tone', async () => {
+    const base = api.get.getMockImplementation();
+    api.get.mockImplementation(path => path.startsWith('/notifications?') ? Promise.resolve({
+      items: [{ id: 1, title: 'Odbicie QA', message: 'Niedostarczona', event_type: 'email_bounced', created_at: '2026-09-25T10:00:00Z', read_at: '2026-09-25T10:00:00Z' }], total: 1, unread: 0,
+    }) : base(path));
+    const { container } = mount(Notifications);
+    await screen.findByRole('button', { name: /Odbicie QA/ });
+    fireEvent.click(screen.getByRole('button', { name: 'E-mail', exact: true }));
+    expect(screen.getByRole('button', { name: /Odbicie QA/ })).toBeTruthy();
+    expect(container.querySelector('.sk-notification-event-icon.tone-red')).toBeTruthy();
+  });
+
   it.each([0, 12])('shows missing custom content instead of draft/completed after %s sends', async emailsSent => {
     api.get.mockImplementation(async path => path === '/campaigns' ? [{
       id: 6, name: 'Personalizacja', paused: false,
@@ -336,4 +369,42 @@ it('shows a real queued message, blocks remote email content and links to existi
   expect(screen.getByRole('link', { name: 'Harmonogram kampanii' }).getAttribute('href')).toBe('/campaigns/4#overview');
   expect(screen.getByRole('link', { name: 'Otwórz kontakt' }).getAttribute('href')).toBe('/leads/8');
   expect(api.post).not.toHaveBeenCalled();
+});
+
+
+it('renders the contact activity timestamp supplied as at by the API', async () => {
+  const thread = { inbox_id: 1, thread_id: 'thread-qa', lead_id: 8, lead_email: 'qa@example.test', lead_name: 'Kontakt osi QA', subject: 'Rozmowa QA' };
+  api.get.mockImplementation(async path => {
+    if (path.startsWith('/ui/unibox?')) return { items: [thread], total: 1, counts: {} };
+    if (path.startsWith('/unibox/threads/')) return { messages: [], subject: 'Rozmowa QA' };
+    if (path === '/leads/8') return { id: 8, name: 'Kontakt osi QA', email: 'qa@example.test', interactions: [{ direction: 'inbound', kind: 'reply_marker', at: '2026-09-25T10:00:00' }] };
+    return [];
+  });
+  api.post.mockResolvedValue({});
+  const { container } = mount(Inbox);
+  fireEvent.click(await screen.findByRole('button', { name: /Kontakt osi QA/ }));
+  await screen.findByText('Odpowiedź kontaktu');
+  expect(container.querySelector('.sk-timeline-row time').textContent).not.toBe('—');
+});
+
+
+it('calculates the analytics reply rate from the selected period, not lifetime totals', async () => {
+  api.get.mockImplementation(async path => {
+    if (path === '/campaigns') return [{ id: 1, name: 'Okres QA', stats: { emails_sent: 1000, replies: 10 } }];
+    if (path.startsWith('/analytics/daily')) return [{ campaign_id: 1, date: new Date().toISOString().slice(0,10), sent: 20, total_replies: 4, total_opens: 0, unique_opens: 0, total_clicks: 0, unique_clicks: 0 }];
+    return {};
+  });
+  const { container } = mount(Analytics);
+  await screen.findByRole('link', { name: 'Okres QA' });
+  const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Wskaźnik odpowiedzi'));
+  expect(metric.querySelector('.sk-metric-value').textContent).toBe('20%');
+  expect(screen.getByTitle('Brak danych o unikalnych kontaktach w wybranym okresie').textContent).toBe('—');
+});
+
+
+it('interprets backend timestamps without offsets as UTC across the Warsaw DST change', () => {
+  expect(formatDateKey('2026-03-28T23:30:00', 'Europe/Warsaw')).toBe('2026-03-29');
+  expect(formatTimeKey('2026-03-29T00:30:00', 'Europe/Warsaw')).toBe('01:30');
+  expect(formatTimeKey('2026-03-29T01:30:00', 'Europe/Warsaw')).toBe('03:30');
+  expect(formatTimeKey('2026-03-29T03:30:00+02:00', 'Europe/Warsaw')).toBe('03:30');
 });

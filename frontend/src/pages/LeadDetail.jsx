@@ -3,15 +3,11 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, Badge, ErrorNotice, StatePanel, SectionTabs } from '../redesign/ui';
+import { PageFrame, Metric, Badge, ErrorNotice, StatePanel, SectionTabs, statusLabels, dateTime } from '../redesign/ui';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
 
-function formatDt(iso) {
-  if (!iso) return '—';
-  const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleString();
-}
+const formatDt = iso => dateTime(iso);
 
 export default function LeadDetail() {
   const { id } = useParams();
@@ -111,7 +107,7 @@ export default function LeadDetail() {
         <span className="sk-contact-detail-id">Kontakt #{lead.id}</span>
         {lead.email_verification_status && (
           <Badge dot tone={lead.email_verification_status === 'invalid' ? 'red' : lead.email_verification_status === 'valid' ? 'green' : 'neutral'}>
-            {lead.email_verification_status}
+            {statusLabels[lead.email_verification_status] || lead.email_verification_status}
           </Badge>
         )}
         {lead.provider && <Badge tone="blue">{lead.provider}</Badge>}
@@ -119,7 +115,7 @@ export default function LeadDetail() {
 
       <div className="sk-contact-detail-metrics">
         <Metric icon="campaign" title="Kampanie" value={campaignsCount} detail="powiązane kampanie" tone="green" />
-        <Metric icon="send" title="Wysłane" value={outboundCount} detail="zdarzenia outbound" tone="blue" />
+        <Metric icon="send" title="Wysłane" value={outboundCount} detail="wysłane wiadomości" tone="blue" />
         <Metric icon="reply" title="Odebrane" value={inboundCount} detail="odpowiedzi i wiadomości" tone="purple" />
         <Metric icon="history" title="Historia" value={interactions.length} detail="zarejestrowane zdarzenia" tone="green" />
       </div>
@@ -149,10 +145,10 @@ export default function LeadDetail() {
                   <span className="text-xs text-gray-400 font-mono ml-2">{c.campaign_public_id}</span>
                 </div>
                 <div className="text-xs text-gray-600 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5">status: {c.status || 'active'}</span>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5">{statusLabels[c.status || 'active'] || c.status}</span>
                   {c.interest && (
                     <span className="rounded-full bg-violet-50 text-violet-800 px-2 py-0.5">
-                      interest: {c.interest}
+                      {statusLabels[c.interest] || c.interest}
                     </span>
                   )}
                   <span className="rounded-full bg-gray-50 px-2 py-0.5">
@@ -255,7 +251,7 @@ export default function LeadDetail() {
               >
                 <div className="font-medium">
                   {row.direction === 'outbound' ? 'Wysłano' : 'Odebrano'}{' '}
-                  {row.kind && row.kind !== 'sent' ? `· ${row.kind.replace(/_/g, ' ')}` : ''}
+                  {row.kind === 'reply_marker' ? '· Potwierdzona odpowiedź' : ''}
                 </div>
                 <div className="text-gray-500 text-xs mt-0.5">
                   {row.campaign_name && <span>{row.campaign_name} · </span>}

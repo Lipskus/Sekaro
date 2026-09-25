@@ -3155,7 +3155,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                     <button
                       type="button"
                       onClick={() => { setSelectedIdx(idx); setEditing(null); setShowAddForm(false); }}
-                      className={`flex-1 min-w-0 text-left rounded-lg px-3 py-2.5 transition-all border cursor-pointer ${
+                      className={`sk-sequence-step-choice flex-1 min-w-0 text-left rounded-lg px-3 py-2.5 transition-all border cursor-pointer ${
                         isActive ? 'bg-teal-50 border-teal-300 shadow-sm' : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-50/30'
                       }`}
                     >
@@ -3175,7 +3175,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                   {/* Connector between kroks — rendered as its own row so it never affects card width */}
                   {idx < sequences.length - 1 && (
                     <div className="flex gap-3">
-                      <div className="w-8 shrink-0 flex flex-col items-center">
+                      <div className="sk-sequence-delay flex flex-col items-start">
                         <div className="w-0.5 h-4 bg-gray-300" />
                         <div className="text-[10px] font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5 my-0.5 whitespace-nowrap">
                           {sequences[idx + 1]?.wait_days_after_previous || 0} dni przerwy
