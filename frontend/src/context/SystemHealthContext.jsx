@@ -458,7 +458,7 @@ export function SystemHealthProvider({ children }) {
     });
   }, []);
 
-  const overallStatus = computeOverall(checks);
+  const overallStatus = fetchError ? 'unknown' : computeOverall(checks);
 
   return (
     <SystemHealthContext.Provider
