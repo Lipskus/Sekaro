@@ -39,7 +39,7 @@ const TAB_LABELS = {
 };
 
 // ─── Main page ────────────────────────────────────────────────────────────────
-export default function CampaignDetail({ embedded = false }) {
+export default function CampaignDetail({ embedded = false, onQueueContact }) {
   const { id } = useParams();
   const [campaign, setCampaign] = useState(() => apiCache.get(`/campaigns/${id}`) || null);
   const [inboxes, setInboxes] = useState(() => apiCache.get('/inboxes') || []);
@@ -298,6 +298,7 @@ export default function CampaignDetail({ embedded = false }) {
           campaignId={id}
           refresh={loadAll}
           onViewQueue={email => {
+            if (onQueueContact) { onQueueContact(email); return; }
             setQueueFilter(email);
             setActiveTab('queue');
             setTimeout(() => queueRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
