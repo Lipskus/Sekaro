@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, Badge, Icon, Empty, Button as SkButton } from '../redesign/ui';
+import { PageFrame, Metric, Badge, Icon, Empty, ErrorNotice, StatePanel, Button as SkButton } from '../redesign/ui';
 import { useAppMode } from '../context/AppModeContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
@@ -582,17 +582,23 @@ export default function Inboxes() {
 
   // ---- Detail panel state ----
   const [selectedInbox, setSelectedInbox] = useState(null);
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState(null);
 
   // Auto-open inbox detail panel when ?inbox=<id> is in the URL
   const autoOpenHandledRef = useRef(false);
 
   const load = async () => {
+    setListLoading(true);
+    setListError(null);
     try {
       const data = await api.get('/inboxes');
       setInboxes(data);
       setSelectedInbox(prev => prev ? (data.find(i => i.id === prev.id) || null) : null);
     } catch (e) {
-      console.error(e);
+      setListError(e);
+    } finally {
+      setListLoading(false);
     }
   };
   useEffect(() => {
@@ -1077,14 +1083,16 @@ export default function Inboxes() {
         </SkButton>
       }
     >
-      <div className="sk-inbox-summary">
+      <ErrorNotice error={listError} onRetry={load} />
+      {listLoading && inboxes.length === 0 && <StatePanel icon="refresh" title="Ładowanie skrzynek" description="Pobieramy konfigurację skrzynek." />}
+      {!listLoading && !listError && <div className="sk-inbox-summary">
         <Metric icon="mail" title="Skrzynki" value={inboxes.length} detail={`${activeInboxCount} aktywnych`} tone="blue" />
-        <Metric icon="success" title="Aktywne" value={activeInboxCount} detail={pausedInboxCount ? `${pausedInboxCount} wstrzymanych` : 'Wszystkie online'} tone="green" />
+        <Metric icon="success" title="Aktywne" value={activeInboxCount} detail={pausedInboxCount ? `${pausedInboxCount} wstrzymanych` : 'bez wstrzymania wysyłki'} tone="green" />
         <Metric icon="send" title="Wysłano dziś" value={sentTodayTotal.toLocaleString('pl-PL')} detail="ze wszystkich skrzynek" tone="green" />
         <Metric icon="chart" title="Dzienny limit" value={dailyCapacity.toLocaleString('pl-PL')} detail="łączna bieżąca pojemność" tone="purple" />
-      </div>
+      </div>}
 
-      {inboxes.length === 0 && (
+      {!listLoading && !listError && inboxes.length === 0 && (
         <div className="sk-inboxes-empty">
           <Empty icon="mail">Brak skrzynek. Dodaj pierwszą skrzynkę SMTP/IMAP, aby rozpocząć wysyłkę.</Empty>
           <SkButton

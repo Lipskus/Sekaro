@@ -10,7 +10,7 @@ import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
-import { SectionTabs, SettingsCard, Field } from '../redesign/ui';
+import { SectionTabs, SettingsCard, Field, PageFrame, StatePanel, ErrorNotice } from '../redesign/ui';
 import Modal from '../redesign/Modal';
 
 const SETTINGS_TABS = [
@@ -57,6 +57,8 @@ export default function Settings() {
   /* ── state ── */
   const [strategy, setStrategy] = useState('priority');
   const [testMode, setTestMode] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsError, setSettingsError] = useState(null);
 
   // Account & Security
   // API Keys
@@ -242,6 +244,8 @@ export default function Settings() {
 
   /* ── load data ── */
   const loadAll = useCallback(async () => {
+    setSettingsLoading(true);
+    setSettingsError(null);
     try {
       const [stratData, tmData, whList, evtData, aiData, provData, ipData, keysData, notifData, mcpData] = await Promise.all([
         api.get('/settings/scheduling-strategy'),
@@ -303,7 +307,11 @@ export default function Settings() {
         }
       }
       setMcpSetup(mcpData || null);
-    } catch {}
+    } catch (e) {
+      setSettingsError(e);
+    } finally {
+      setSettingsLoading(false);
+    }
   }, [user]);
 
   useEffect(() => { loadAll(); }, [loadAll]);
@@ -332,7 +340,7 @@ export default function Settings() {
 
   useEffect(() => {
     tabContentRef.current?.scrollTo(0, 0);
-  }, [activeTab]);
+  }, [activeTab, settingsLoading, settingsError]);
 
   useEffect(() => {
     const ids = (SECTIONS_BY_TAB[activeTab] || []).map(s => `settings-${s.id}`);
@@ -372,7 +380,7 @@ export default function Settings() {
       ro?.disconnect();
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [activeTab]);
+  }, [activeTab, settingsLoading, settingsError]);
 
   const selectTab = id => {
     if (!visibleTabs.some(t => t.id === id)) return;
@@ -691,6 +699,12 @@ export default function Settings() {
   };
 
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+  if (settingsLoading || settingsError) return (
+    <PageFrame title="Ustawienia" description="Dostosuj działanie systemu do swoich potrzeb.">
+      {settingsLoading ? <StatePanel icon="refresh" title="Ładowanie ustawień" description="Pobieramy zapisaną konfigurację." /> : <ErrorNotice error={settingsError} onRetry={loadAll} />}
+    </PageFrame>
+  );
 
   return (
     <div className="sk-settings-page relative flex min-h-0 flex-1 flex-col overflow-hidden">

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
-import { PageFrame, Panel, Metric, Badge, Button, ErrorNotice, Empty, Icon } from '../redesign/ui';
+import { PageFrame, Panel, Metric, Badge, Button, ErrorNotice, Empty, StatePanel, Icon } from '../redesign/ui';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
 
@@ -44,6 +44,7 @@ function campaignView(c) {
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState(() => apiCache.get('/campaigns') || []);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -55,6 +56,8 @@ export default function Campaigns() {
   const notify = useNotify();
 
   const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const [camp, strat] = await Promise.all([
         api.get('/campaigns'),
@@ -66,6 +69,8 @@ export default function Campaigns() {
       setOrderChanged(false);
     } catch (e) {
       setError('Nie udało się wczytać kampanii.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -148,7 +153,7 @@ export default function Campaigns() {
     return acc;
   }, { contacts: 0, sent: 0, scheduled: 0, replies: 0, bounced: 0, active: 0 });
   const replyRateTotal = totals.sent > 0 ? ((totals.replies / totals.sent) * 100).toFixed(1) : '0.0';
-  const deliverability = totals.sent > 0 ? Math.max(0, 100 - (totals.bounced / totals.sent) * 100).toFixed(1) : '100.0';
+  const deliverability = totals.sent > 0 ? Math.max(0, 100 - (totals.bounced / totals.sent) * 100).toFixed(1) : null;
   const isPriority = strategy === 'priority';
   const filtersActive = query.trim().length > 0 || statusFilter !== 'all';
   const canReorder = isPriority && !filtersActive;
@@ -167,12 +172,12 @@ export default function Campaigns() {
     >
       <ErrorNotice error={error} onRetry={load} />
 
-      <div className="sk-campaign-summary">
+      {!loading && !error && <div className="sk-campaign-summary">
         <Metric icon="campaign" title="Aktywne kampanie" value={totals.active} detail={`z ${campaigns.length} wszystkich`} tone="green" />
         <Metric icon="calendar" title="Zaplanowane wysyłki" value={totals.scheduled.toLocaleString('pl-PL')} detail="oczekujące w kolejce" tone="blue" />
         <Metric icon="reply" title="Odpowiedzi" value={`${replyRateTotal}%`} detail={`${totals.replies.toLocaleString('pl-PL')} odpowiedzi`} tone="green" />
-        <Metric icon="shield" title="Dostarczalność" value={`${deliverability}%`} detail={`${totals.sent.toLocaleString('pl-PL')} wysłanych`} tone="green" />
-      </div>
+        <Metric icon="shield" title="Dostarczalność" value={deliverability == null ? '—' : `${deliverability}%`} detail={totals.sent ? `${totals.sent.toLocaleString('pl-PL')} wysłanych` : 'brak wysłanych wiadomości'} tone={deliverability == null ? 'neutral' : 'green'} />
+      </div>}
 
       <div className="sk-campaign-filterbar">
         <div className="sk-search-input">
@@ -216,7 +221,9 @@ export default function Campaigns() {
         </div>
       )}
 
-      {campaigns.length === 0 ? (
+      {loading && campaigns.length === 0 ? (
+        <StatePanel icon="refresh" title="Ładowanie kampanii" description="Pobieramy listę kampanii." />
+      ) : error && campaigns.length === 0 ? null : campaigns.length === 0 ? (
         <Panel>
           <Empty icon="campaign">
             Brak kampanii. Utwórz pierwszą kampanię, aby rozpocząć outreach.

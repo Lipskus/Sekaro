@@ -46,7 +46,7 @@ export default function AddCampaign() {
 
   useEffect(() => {
     api.get('/inboxes').then(setInboxes).catch(() => {
-      setMessage({ type: 'error', text: 'Nie udało się wczytać skrzynek. Najpierw dodaj skrzynkę SMTP/IMAP.' });
+      setMessage({ type: 'error', text: 'Nie udało się wczytać skrzynek. Odśwież stronę i spróbuj ponownie.' });
     });
   }, []);
 
@@ -79,7 +79,7 @@ export default function AddCampaign() {
     try {
       const data = await api.post('/campaigns', form);
       setMessage({ type: 'success', text: 'Kampania została utworzona jako wstrzymana. Uruchom ją po przejściu pre-flight.' });
-      navigate(`/campaigns/${data.id}#analytics`);
+      navigate(`/campaigns/${data.id}#overview`);
     } catch (err) {
       setMessage({ type: 'error', text: err.message });
     }

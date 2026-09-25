@@ -174,7 +174,7 @@ export default function LeadDetail() {
           <div>
             <h2 className="text-lg font-semibold">Dane kontaktu i zmienne</h2>
             <p className="mt-1 text-xs text-gray-500">
-              Wartości poniżej są używane przez szablony. Pola tworzysz samodzielnie w sekcji Szablony.
+              Wartości poniżej są używane przez szablony. Pola tworzysz samodzielnie w sekcji Kontakty.
             </p>
           </div>
           <Button type="button" size="sm" variant="default" onClick={saveContactFields} disabled={savingFields}>
@@ -226,7 +226,7 @@ export default function LeadDetail() {
 
         {fields.filter((field) => !field.system).length === 0 && (
           <p className="mt-3 text-sm text-gray-500">
-            Nie masz jeszcze własnych pól. Utwórz je w <Link to="/templates" className="text-teal-600 hover:underline">Szablonach</Link>.
+            Nie masz jeszcze własnych pól. Utwórz je w <Link to="/leads?fields=1" className="text-teal-600 hover:underline">Kontaktach</Link>.
           </p>
         )}
       </Card>

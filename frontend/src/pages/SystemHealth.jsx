@@ -375,6 +375,7 @@ export default function SystemHealth() {
   const errorChecks = checks.filter(check => check.status === 'error').length;
   const warningChecks = checks.filter(check => check.status === 'warning').length;
   const okChecks = checks.filter(check => check.status === 'ok').length;
+  const diagnosticsAvailable = !!rawData && !fetchError;
   const mailboxCount = rawData?.inboxes?.length || rawData?.smtp?.accounts?.length || 0;
   const storageUsed = rawData?.storage?.available
     ? Math.max(0, Math.min(100, Number(rawData.storage.used_percent) || 0))
@@ -408,11 +409,11 @@ export default function SystemHealth() {
           icon="shield"
           title="Status systemu"
           value={overallStatus === 'error' ? 'Błąd' : overallStatus === 'warning' ? 'Ostrzeżenie' : overallStatus === 'ok' ? 'Dostępny' : 'Nieznany'}
-          detail={issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
+          detail={!diagnosticsAvailable ? 'Oczekiwanie na dane diagnostyczne' : issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
           tone={overallStatus === 'error' ? 'red' : overallStatus === 'warning' ? 'amber' : overallStatus === 'ok' ? 'green' : 'neutral'}
         />
-        <Metric icon="mail" title="SMTP / IMAP" value={mailboxCount} detail={mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={mailboxCount ? 'green' : 'red'} />
-        <Metric icon="server" title="Kontrole" value={checks.length} detail={`${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów`} tone={errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
+        <Metric icon="mail" title="SMTP / IMAP" value={diagnosticsAvailable ? mailboxCount : '—'} detail={!diagnosticsAvailable ? 'brak danych o skrzynkach' : mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={!diagnosticsAvailable ? 'neutral' : mailboxCount ? 'green' : 'red'} />
+        <Metric icon="server" title="Kontrole" value={diagnosticsAvailable ? checks.length : '—'} detail={diagnosticsAvailable ? `${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów` : 'brak wyników kontroli'} tone={!diagnosticsAvailable ? 'neutral' : errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
         <Metric icon="chart" title="Dysk" value={storageUsed == null ? '—' : `${storageUsed.toFixed(0)}%`} detail={rawData?.storage?.available ? 'wykorzystanie magazynu danych' : 'brak danych o pojemności'} tone={storageUsed == null ? 'neutral' : storageUsed >= 95 ? 'red' : storageUsed >= 85 ? 'amber' : 'green'} />
       </div>
 

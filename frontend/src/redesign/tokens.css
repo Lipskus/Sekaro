@@ -1114,7 +1114,7 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 /* Templates workspace */
 .sk-template-layout {
   display:grid;
-  grid-template-columns:270px minmax(0,1fr) 340px;
+  grid-template-columns:minmax(220px,1fr) minmax(0,2fr) minmax(240px,.9fr);
   gap:var(--sk-space-5);
   align-items:start;
 }
@@ -2121,3 +2121,50 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-legacy-campaign .text-teal-600,
 .sk-legacy-campaign .text-teal-700,
 .sk-legacy-campaign .text-teal-800 {color:var(--sk-green-text)!important}
+
+/* Reference boards 037–040: visible, read-only version history. */
+.sk-template-search {width:100%;margin-top:12px}
+.sk-template-history {min-width:0}
+.sk-template-history h2 {font-size:16px;font-weight:650;margin-bottom:12px}
+.sk-template-history>p {font-size:12px;color:var(--sk-muted)}
+.sk-template-history ol {list-style:none;margin:0;padding:0;display:grid;gap:10px;max-height:420px;overflow:auto}
+.sk-template-history button {width:100%;padding:12px;text-align:left;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface-alt);color:var(--sk-text)}
+.sk-template-history button[aria-pressed=true] {border-color:var(--sk-accent)}
+.sk-template-history button>span {display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sk-template-history button small {font-size:10px;background:var(--sk-green-soft);color:var(--sk-green-text);padding:3px 7px;border-radius:12px}
+.sk-template-history time {display:block;margin-top:5px;font-size:11px;color:var(--sk-muted)}
+.sk-template-email {background:var(--sk-surface-alt);overflow-wrap:anywhere}
+.sk-template-preview pre {overflow-wrap:anywhere;max-width:100%}
+
+/* Reference boards 045–046: list and detail share the workspace. */
+.sk-notification-workspace {display:grid;grid-template-columns:minmax(0,2.3fr) minmax(280px,1fr);gap:16px;align-items:start}
+.sk-notification-workspace .sk-notification-list {min-width:0;max-width:none;gap:0;border:1px solid var(--sk-line);border-radius:var(--sk-radius-lg);overflow:hidden}
+.sk-notification-workspace .sk-notification-list>div {border-bottom:1px solid var(--sk-line);border-radius:0;padding:18px 16px}
+.sk-notification-workspace .sk-notification-list>div:last-child {border-bottom:0}
+.sk-notification-workspace .sk-notification-list>div[aria-pressed=true] {background:var(--sk-surface-alt)!important;box-shadow:inset 3px 0 var(--sk-accent)}
+.sk-notification-detail {min-width:0;border:1px solid var(--sk-line);border-radius:var(--sk-radius-lg);background:var(--sk-surface);padding:18px;position:sticky;top:calc(var(--sk-header) + 16px)}
+.sk-notification-detail h2 {font-size:20px;line-height:1.35;margin:16px 0 8px;overflow-wrap:anywhere}
+.sk-notification-detail time {display:block;color:var(--sk-muted);font-size:11px}
+.sk-notification-detail>p {margin:20px 0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.65}
+.sk-notification-detail .sk-state-panel {border:0;box-shadow:none;padding:12px}
+.sk-notification-detail button {max-width:100%;white-space:normal}
+@media(max-width:1100px){
+ .sk-notification-workspace{grid-template-columns:minmax(0,1fr)}
+ .sk-notification-detail{position:static;grid-row:1}
+}
+@media(pointer:coarse){
+ .sk-notification-list button[aria-label="Usuń powiadomienie"]{opacity:1;min-width:36px;min-height:36px}
+}
+
+/* Four-column summaries in boards 063–080 use the icon beside the figures. */
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric {
+ display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto auto;
+ column-gap:10px;row-gap:3px;align-content:start;min-height:106px;padding:14px;
+}
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric-icon {
+ grid-row:1/4;width:34px;height:34px;margin:0;border-radius:8px;
+}
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric-icon svg{width:21px;height:21px}
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric-title {margin:0;font-size:14px;line-height:1.3;overflow-wrap:anywhere}
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric-value {grid-column:2;margin:0;font-size:25px;line-height:1.2;min-width:0;flex-wrap:wrap}
+:is(.sk-campaign-summary,.sk-inbox-summary,.sk-analytics-metrics) .sk-metric-detail {grid-column:2;font-size:11px;overflow-wrap:anywhere}

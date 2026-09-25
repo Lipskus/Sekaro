@@ -114,7 +114,7 @@ export function ComingSoon({children='Wkrótce'}) {
 }
 
 export function StatePanel({title,description,icon='info',tone='neutral',actions,children,className=''}) {
- return <section className={`sk-state-panel tone-${tone} ${className}`}>
+ return <section role={tone === 'error' ? 'alert' : 'status'} aria-live="polite" className={`sk-state-panel tone-${tone} ${className}`}>
   <span className="sk-state-panel-icon"><Icon name={icon} size={25}/></span>
   {title&&<h3>{title}</h3>}
   {description&&<p>{description}</p>}

@@ -6,7 +6,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { PageFrame, Metric, Icon, StatePanel } from '../redesign/ui';
+import { PageFrame, Metric, Icon, StatePanel, ErrorNotice } from '../redesign/ui';
 import Modal from '../redesign/Modal';
 import {
   addDaysToDateKey,
@@ -108,6 +108,7 @@ export default function Schedule() {
   const [daysAhead, setDaysAhead] = useState(SCHEDULE_DAYS_AHEAD);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const sentinelRef = useRef(null);
   const isLoadingMoreRef = useRef(false);
 
@@ -140,7 +141,7 @@ export default function Schedule() {
   };
 
   const loadData = async (opts = {}) => {
-    // loading.start();
+    setFetchError(null);
     try {
       const effectiveBack = opts.daysBack ?? daysBack;
       const effectiveAhead = opts.daysAhead ?? daysAhead;
@@ -151,14 +152,14 @@ export default function Schedule() {
         offset: 0,
         include_body: true,
         include_events: false,
-      })).catch(() => []),
+      })),
       api.get(buildQuery('/schedule/scheduled', {
         days_ahead: effectiveAhead,
         limit: SCHEDULE_LIMIT,
         offset: 0,
         include_body: true,
-      })).catch(() => []),
-        api.get('/schedule/stats').catch(() => ({})),
+      })),
+        api.get('/schedule/stats'),
         api.get('/status').catch(() => ({})),
         api.get('/settings/scheduling-strategy').catch(() => ({})),
       ]);
@@ -193,7 +194,7 @@ export default function Schedule() {
       });
       filterCampaignOptions.current = [...camps.entries()].sort((a,b) => a[1].localeCompare(b[1]));
     } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się wczytać harmonogramu.' });
+      setFetchError('Nie udało się wczytać harmonogramu. Spróbuj ponownie.');
     } finally {
       // loading.stop();
     }
@@ -619,7 +620,8 @@ export default function Schedule() {
         )}
       </div>
       <Card className="sk-schedule-list p-4" id="schedule-body">
-        {renderSection()}
+        <ErrorNotice error={fetchError} onRetry={() => loadData()} />
+        {!initialLoaded ? <StatePanel icon="refresh" title="Ładowanie harmonogramu" description="Pobieramy kolejkę wysyłki." /> : !fetchError && renderSection()}
         <div ref={sentinelRef} style={{ height: 1 }} />
         {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--sk-muted)' }}>Wczytywanie…</p>}
       </Card>
