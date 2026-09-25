@@ -865,7 +865,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               onChange={e => setVerifyEmails(e.target.checked)}
               className="rounded"
             />
-            Verify emails after adding
+            Weryfikuj e-maile po dodaniu
           </label>
         )}
         {msg && <div className={`mb-2 text-sm ${msg.type==='error'?'text-red-600':'text-green-600'}`}>{msg.text}</div>}
