@@ -1792,6 +1792,39 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   border-color:var(--sk-line)!important;
   background:var(--sk-surface-alt)!important;
 }
+.sk-health-check-error {
+  border-color:color-mix(in srgb,var(--sk-red-text) 46%,var(--sk-line))!important;
+}
+.sk-health-check-warning {
+  border-color:color-mix(in srgb,var(--sk-amber-text) 46%,var(--sk-line))!important;
+}
+.sk-health-check-ok {
+  border-color:color-mix(in srgb,var(--sk-accent) 30%,var(--sk-line))!important;
+}
+.sk-health-check-error>.sk-health-check-head {
+  background:color-mix(in srgb,var(--sk-red-soft) 62%,var(--sk-surface))!important;
+}
+.sk-health-check-warning>.sk-health-check-head {
+  background:color-mix(in srgb,var(--sk-amber-soft) 62%,var(--sk-surface))!important;
+}
+.sk-health-check-ok>.sk-health-check-head {
+  background:color-mix(in srgb,var(--sk-green-soft) 55%,var(--sk-surface))!important;
+}
+.sk-system-health-page .text-red-500,
+.sk-system-health-page .text-red-600,
+.sk-system-health-page .text-red-700 {color:var(--sk-red-text)!important}
+.sk-system-health-page .text-yellow-500,
+.sk-system-health-page .text-yellow-600,
+.sk-system-health-page .text-yellow-700 {color:var(--sk-amber-text)!important}
+.sk-system-health-page .text-green-500,
+.sk-system-health-page .text-green-600,
+.sk-system-health-page .text-green-700 {color:var(--sk-green-text)!important}
+.sk-system-health-page .bg-red-50,
+.sk-system-health-page .bg-red-100 {background:var(--sk-red-soft)!important}
+.sk-system-health-page .bg-yellow-50,
+.sk-system-health-page .bg-yellow-100 {background:var(--sk-amber-soft)!important}
+.sk-system-health-page .bg-green-50,
+.sk-system-health-page .bg-green-100 {background:var(--sk-green-soft)!important}
 .sk-health-grid [class*="text-gray-800"],
 .sk-health-grid [class*="text-gray-700"] {color:var(--sk-text)!important}
 .sk-health-grid [class*="text-gray-500"],
