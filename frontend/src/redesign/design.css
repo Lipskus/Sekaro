@@ -1001,3 +1001,13 @@ html[data-theme=dark] .sk-login-submit{
 @media(prefers-reduced-motion:reduce){
  .sk-splash-spinner,.sk-loading-spinner{animation:none;border-right-color:var(--sk-accent)}
 }
+
+
+/* Mobile safety net for global overlays and legacy workspace content. */
+@media(max-width:760px){
+ .sk-toasts{left:12px;right:12px;bottom:12px;max-width:none}
+ .sk-toast{min-width:0}
+ .sk-modal-footer,.sk-form-actions{flex-wrap:wrap}
+ .sk-modal-footer>*{min-width:0}
+ .sk-legacy-campaign{overflow-x:auto;overflow-y:visible}
+}
