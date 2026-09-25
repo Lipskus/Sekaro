@@ -9,6 +9,7 @@ import { useNotify } from '../context/NotificationContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useLoading } from '../context/LoadingContext';
 import { cn } from '../utils/cn';
+import { PageFrame, Metric, SectionTabs, Icon } from '../redesign/ui';
 
 const STATUS_OPTIONS = [
   { value: 'all', label: 'Wszystkie statusy' },
@@ -536,6 +537,21 @@ export default function Leads() {
     }
   };
 
+  const invalidVisible = useMemo(
+    () => leads.filter(lead => lead.email_verification_status === 'invalid').length,
+    [leads],
+  );
+  const bouncedVisible = useMemo(
+    () => leads.filter(lead => (lead.campaigns || []).some(campaign => campaign.status === 'bounced')).length,
+    [leads],
+  );
+  const recoverableVisible = useMemo(
+    () => leads.filter(
+      lead => lead.email_verification_status === 'invalid' || (lead.campaigns || []).some(campaign => campaign.status === 'bounced'),
+    ).length,
+    [leads],
+  );
+
   const importRecoverCsv = async (file) => {
     const ok = await confirm(
       'Recover leads from this CSV? The server reads id and email columns (header row or first two columns).',
@@ -560,74 +576,59 @@ export default function Leads() {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold mb-1">Kontakty</h1>
-          <p className="text-sm text-gray-500 max-w-2xl">
-            Zarządzaj kontaktami ze wszystkich kampanii. W widoku{' '}
-            <strong className="font-medium text-gray-700">Odbite i niepoprawne</strong>{' '}
-            możesz poprawić adres i ponownie włączyć kontakt do wysyłki.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <FileUploadArea
-            size="sm"
-            accept=".xlsx,.xlsm,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
-            disabled={contactImportBusy}
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              e.target.value = '';
-              if (file) previewContactImport(file);
-            }}
-          >
-            {contactImportBusy && !contactImportPreview ? 'Wczytywanie…' : 'Importuj kontakty'}
-          </FileUploadArea>
-          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>
-            Suppression list
-          </Button>
-          <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>
-            Eksport CSV
-          </Button>
+    <PageFrame
+      className="sk-contact-tools-page"
+      title="Narzędzia kontaktów"
+      description="Weryfikuj, naprawiaj i odzyskuj odbite lub niepoprawne adresy bez dublowania głównego widoku Kontaktów."
+      actions={
+        <>
+          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>Suppression list</Button>
+          <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>Eksport CSV</Button>
           <FileUploadArea
             size="sm"
             accept=".csv,text/csv"
             onChange={(e) => {
-              const f = e.target.files?.[0];
+              const file = e.target.files?.[0];
               e.target.value = '';
-              if (f) importRecoverCsv(f);
+              if (file) importRecoverCsv(file);
             }}
           >
             Import CSV do naprawy
           </FileUploadArea>
-        </div>
+        </>
+      }
+    >
+      <div className="sk-contact-tools-metrics">
+        <Metric icon="contacts" title="Widoczne kontakty" value={leads.length} detail={tab === TAB_BOUNCED ? 'wymagające weryfikacji' : 'zgodne z filtrami'} tone="blue" />
+        <Metric icon="warning" title="Invalid" value={invalidVisible} detail="niepoprawne adresy" tone="red" />
+        <Metric icon="block" title="Bounce" value={bouncedVisible} detail="odbite w kampaniach" tone="amber" />
+        <Metric icon="refresh" title="Do odzyskania" value={recoverableVisible} detail={selected.size ? `${selected.size} zaznaczonych` : 'gotowe do działania'} tone="green" />
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setTab(TAB_ALL)}
-          className={cn(
-            'rounded-full border text-xs font-medium px-3 py-1.5 transition-colors',
-            tab === TAB_ALL
-              ? 'bg-teal-500 text-white border-teal-500'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50',
-          )}
+      <SectionTabs
+        value={tab}
+        onChange={setTab}
+        ariaLabel="Widok narzędzi kontaktów"
+        items={[
+          { id: TAB_ALL, label: 'Wszystkie kontakty', icon: 'contacts' },
+          { id: TAB_BOUNCED, label: 'Odbite i niepoprawne', icon: 'warning' },
+        ]}
+      />
+
+      <div className="sk-contact-tools-actions">
+        <FileUploadArea
+          size="sm"
+          accept=".xlsx,.xlsm,.csv,.tsv,.txt,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"
+          disabled={contactImportBusy}
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            e.target.value = '';
+            if (file) previewContactImport(file);
+          }}
         >
-          Wszystkie kontakty
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab(TAB_BOUNCED)}
-          className={cn(
-            'rounded-full border text-xs font-medium px-3 py-1.5 transition-colors',
-            tab === TAB_BOUNCED
-              ? 'bg-teal-500 text-white border-teal-500'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50',
-          )}
-        >
-          Odbite i niepoprawne
-        </button>
+          {contactImportBusy && !contactImportPreview ? 'Wczytywanie…' : 'Importuj kontakty'}
+        </FileUploadArea>
+        <span>Import ogólny pozostaje dostępny pomocniczo; główny widok kontaktów znajduje się w sekcji Kontakty.</span>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -687,16 +688,16 @@ export default function Leads() {
       </div>
 
       {tab === TAB_BOUNCED && (
-        <Card className="p-4 bg-amber-50/80 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800">
-          <p className="text-sm text-gray-800 dark:text-gray-200">
-            Edit the email for each row, then <strong className="font-medium">Save &amp; recover</strong>. That updates the
-            lead record (all campaigns), sets status to active, and either queues verification or reschedules immediately.
-            Export bad addresses to clean them elsewhere, then import a CSV with columns <code className="font-mono text-xs">id,email</code>.
+        <Card className="sk-contact-tools-guide p-4">
+          <Icon name="info" size={20} />
+          <p>
+            Popraw adres w kolumnie <strong>Nowy e-mail</strong>, a następnie wybierz <strong>Zapisz i przywróć</strong>.
+            Sekaro aktualizuje rekord we wszystkich kampaniach i uruchamia weryfikację lub ponowne planowanie zgodnie z konfiguracją.
           </p>
         </Card>
       )}
 
-      <div className="flex flex-wrap gap-4 items-end">
+      <div className="sk-contact-tools-searchbar">
         <div className="flex-1 min-w-[200px] max-w-md">
           <Input
             label="Szukaj"
@@ -782,7 +783,7 @@ export default function Leads() {
       </div>
 
       {selected.size > 0 && (
-        <Card className="p-4 flex flex-wrap gap-3 items-center">
+        <Card className="sk-contact-tools-bulk p-4 flex flex-wrap gap-3 items-center">
           <span className="text-sm font-medium text-gray-700">{selected.size} zaznaczono</span>
           <Button type="button" variant="destructive" size="sm" onClick={handleBulkDelete}>
             Usuń
@@ -812,7 +813,7 @@ export default function Leads() {
         </Card>
       )}
 
-      <Card className="overflow-x-auto max-w-full min-w-0">
+      <Card className="sk-contact-tools-table overflow-x-auto max-w-full min-w-0">
         <div className="px-4 py-2 text-sm text-gray-500 border-b border-gray-100">
           {leads.length} kontakt{leads.length === 1 ? '' : 'ów'}
           {tab === TAB_BOUNCED ? ' (odbite lub niepoprawne)' : ''}
@@ -989,7 +990,7 @@ export default function Leads() {
 
       {suppressionOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+          <div className="sk-contact-tools-modal w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl flex flex-col">
             <div className="flex items-center justify-between border-b px-6 py-4">
               <div>
                 <h2 className="text-xl font-semibold">Suppression list</h2>
@@ -1083,7 +1084,7 @@ export default function Leads() {
 
       {contactImportPreview && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-xl bg-white shadow-2xl flex flex-col">
+          <div className="sk-contact-tools-modal w-full max-w-6xl max-h-[92vh] overflow-hidden rounded-xl shadow-2xl flex flex-col">
             <div className="flex items-start justify-between gap-4 border-b px-6 py-4">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Import kontaktów</h2>
@@ -1272,6 +1273,6 @@ export default function Leads() {
           </div>
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }
