@@ -397,18 +397,9 @@ export default function SystemHealth() {
   return (
     <PageFrame
       className="sk-system-health-page"
-      title="System Health"
-      description="Status usług, zasobów, skrzynek i najważniejszych incydentów Sekaro."
-      actions={
-        <>
-          {mutedCount > 0 && (
-            <Button variant="outline" onClick={unmuteAll}>Wyłącz wyciszenie ({mutedCount})</Button>
-          )}
-          <Button variant="outline" icon="refresh" onClick={refresh} disabled={loading}>
-            {loading ? 'Sprawdzanie…' : 'Odśwież diagnostykę'}
-          </Button>
-        </>
-      }
+      title="Stan systemu"
+      description="Stan skrzynek SMTP/IMAP, synchronizacji, śledzenia i konfiguracji funkcji Sekaro."
+      actions={mutedCount > 0 ? <Button variant="outline" onClick={unmuteAll}>Wyłącz wyciszenie ({mutedCount})</Button> : null}
     >
       <ErrorNotice error={fetchError ? `Nie udało się pobrać diagnostyki: ${fetchError}` : null} onRetry={refresh} />
 
@@ -430,6 +421,7 @@ export default function SystemHealth() {
         loading={loading}
         lastChecked={lastChecked}
         issueCount={issueCount}
+        onRefresh={refresh}
       />
 
       {checks.length > 0 ? (
