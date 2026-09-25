@@ -32,6 +32,8 @@ services:
       QUICKLY_ENCRYPTION_KEY: ${DEMO_ENCRYPTION_KEY:?Missing demo encryption key}
       QUICKLY_MODE: production
       QUICKLY_PREBUILT_IMAGE: '1'
+    ports:
+      - '127.0.0.1:5050:8000'
     volumes:
       - ./app/demo:/app/app/demo:ro
     networks: [demo-only]
@@ -41,26 +43,9 @@ services:
       timeout: 6s
       retries: 30
       start_period: 20s
-  demo-gateway:
-    image: nginx:1.28-alpine
-    restart: unless-stopped
-    depends_on:
-      demo-app:
-        condition: service_healthy
-    ports:
-      - '127.0.0.1:5050:8080'
-    volumes:
-      - ./app/demo/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks: [demo-ingress, demo-only]
-    healthcheck:
-      test: [CMD, wget, -q, -O, /dev/null, 'http://127.0.0.1:8080/api/demo/status']
-      interval: 5s
-      timeout: 6s
-      retries: 20
 networks:
-  demo-ingress:
-    driver: bridge
   demo-only:
-    internal: true
+    driver: bridge
+    internal: false
 volumes:
   demo_pgdata:

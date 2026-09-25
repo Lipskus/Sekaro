@@ -114,28 +114,28 @@ def test_banner_and_forbidden_actions_are_visible_without_running_real_handlers(
 def test_compose_does_not_share_production_resources():
     import yaml
     config = yaml.safe_load(Path("docker-compose.demo.yml").read_text())
-    assert config["networks"]["demo-only"]["internal"] is True
+    assert config["networks"]["demo-only"]["internal"] is False
+    assert set(config["services"]) == {"demo-app", "demo-db"}
     assert set(config["volumes"]) == {"demo_pgdata"}
     app = config["services"]["demo-app"]
-    assert "ports" not in app
+    assert app["ports"] == ["127.0.0.1:5050:8000"]
     assert app["networks"] == ["demo-only"]
     assert config["services"]["demo-db"]["networks"] == ["demo-only"]
-    gateway = config["services"]["demo-gateway"]
-    assert gateway["ports"] == ["127.0.0.1:5050:8080"]
-    assert set(gateway["networks"]) == {"demo-only", "demo-ingress"}
+    assert "ports" not in config["services"]["demo-db"]
     assert "env_file" not in app
     assert app["volumes"] == ["./app/demo:/app/app/demo:ro"]
     assert "app.demo.server:create_app" in app["command"]
     assert "app/demo" not in Path("app/main.py").read_text()
 
 
-@pytest.mark.parametrize("command,production_running,image_missing", [
-    ("replace-production", True, False),
-    ("replace-production", True, True),
-    ("up", True, False),
-    ("reset", True, False),
+@pytest.mark.parametrize("command,production_running,image_missing,legacy_network", [
+    ("replace-production", True, False, False),
+    ("replace-production", True, True, False),
+    ("up", True, False, False),
+    ("reset", True, False, False),
+    ("up", False, False, True),
 ])
-def test_demo_script_replacement_boundary(tmp_path, monkeypatch, command, production_running, image_missing):
+def test_demo_script_replacement_boundary(tmp_path, monkeypatch, command, production_running, image_missing, legacy_network):
     """Exercise the real shell script without touching a Docker installation."""
     import json
     import os
@@ -158,6 +158,8 @@ if args[:2] == ["image", "inspect"] and os.environ["DEMO_TEST_IMAGE_MISSING"] ==
     sys.exit(1)
 if args[:2] == ["ps", "-q"] and os.environ["DEMO_TEST_PRODUCTION_RUNNING"] == "1":
     print("existing-production-container")
+if args[:2] == ["network", "inspect"]:
+    print(os.environ["DEMO_TEST_LEGACY_NETWORK"])
 ''')
     docker.chmod(0o700)
     # reset requires initialized credentials; keep fixture values synthetic.
@@ -168,9 +170,17 @@ if args[:2] == ["ps", "-q"] and os.environ["DEMO_TEST_PRODUCTION_RUNNING"] == "1
     monkeypatch.setenv("DEMO_TEST_CALLS", str(log_path))
     monkeypatch.setenv("DEMO_TEST_IMAGE_MISSING", str(int(image_missing)))
     monkeypatch.setenv("DEMO_TEST_PRODUCTION_RUNNING", str(int(production_running)))
+    monkeypatch.setenv("DEMO_TEST_LEGACY_NETWORK", "true" if legacy_network else "false")
     result = subprocess.run(["bash", str(scripts / "sekaro-demo.sh"), command], capture_output=True, text=True)
     calls = [json.loads(line) for line in log_path.read_text().splitlines()]
-    if command != "replace-production" or image_missing:
+    if legacy_network:
+        assert result.returncode == 0
+        stops = [call for call in calls if "down" in call]
+        assert len(stops) == 1 and "sekaro-demo" in stops[0]
+        assert "--remove-orphans" in stops[0]
+        assert "--volumes" not in stops[0] and "-v" not in stops[0]
+        assert calls.index(stops[0]) < next(i for i, call in enumerate(calls) if "up" in call)
+    elif command != "replace-production" or image_missing:
         assert result.returncode != 0
         assert not any("down" in call or "up" in call for call in calls)
     else:

@@ -32,10 +32,14 @@ preflight() {
   docker image inspect sekaro:local >/dev/null
   docker image inspect postgres:15-alpine >/dev/null
   "${compose[@]}" config --quiet
-  docker image inspect nginx:1.28-alpine >/dev/null 2>&1 || docker pull nginx:1.28-alpine
 }
 start_demo() {
-  "${compose[@]}" up -d --wait --wait-timeout 180
+  # Docker cannot change Internal in place. Recreate the old network without
+  # deleting volumes; remove a gateway left by the previous configuration.
+  if [[ "$(docker network inspect sekaro-demo_demo-only --format '{{.Internal}}' 2>/dev/null || true)" == true ]]; then
+    "${compose[@]}" down --remove-orphans
+  fi
+  "${compose[@]}" up -d --remove-orphans --wait --wait-timeout 180
   show_login
 }
 show_login() {
@@ -60,7 +64,7 @@ case "$demo_command" in
     "${production[@]}" down --volumes
     start_demo;;
   status) "${compose[@]}" ps;;
-  logs) "${compose[@]}" logs --tail=100 demo-app demo-gateway;;
+  logs) "${compose[@]}" logs --tail=100 demo-app;;
   login) show_login;;
   stop) "${compose[@]}" stop;;
   reset)

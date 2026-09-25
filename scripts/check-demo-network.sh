@@ -31,13 +31,24 @@ cleanup() {
 }
 trap cleanup EXIT
 docker pull nginx:1.28-alpine
+# Start with the previous internal network and persist a database marker.
+cat > "$network_test_dir/legacy.yml" <<'YAML'
+networks:
+  demo-only:
+    internal: true
+YAML
+"${compose[@]}" -f "$network_test_dir/legacy.yml" up -d --wait --wait-timeout 120
+"${compose[@]}" exec -T demo-db psql -U sekaro_demo -d sekaro_demo -c 'CREATE TABLE migration_probe AS SELECT 42 AS marker;'
+# Same non-destructive migration used by sekaro-demo.sh.
+"${compose[@]}" down --remove-orphans
 "${compose[@]}" up -d --wait --wait-timeout 120
+test "$("${compose[@]}" exec -T demo-db psql -U sekaro_demo -d sekaro_demo -Atc 'SELECT marker FROM migration_probe')" = 42
 check_host() {
   curl --fail --silent --show-error --retry 10 --retry-all-errors --retry-delay 2 \
     http://127.0.0.1:5050/api/demo/status | python3 -c 'import json,sys; assert json.load(sys.stdin)["network_test"] is True'
 }
 check_host
-# Recreate the app to exercise the proxy's runtime DNS resolution.
+# Recreate the app to verify that host publication remains operational.
 "${compose[@]}" up -d --no-deps --force-recreate --wait demo-app
 check_host
 docker inspect "$("${compose[@]}" ps -q demo-app)" | python3 -c '
@@ -45,6 +56,6 @@ import json,sys
 container=json.load(sys.stdin)[0]
 assert len(container["NetworkSettings"]["Networks"]) == 1
 assert next(iter(container["NetworkSettings"]["Networks"])).endswith("_demo-only")
-assert not any(container["NetworkSettings"]["Ports"].values())
+assert container["NetworkSettings"]["Ports"]["8000/tcp"] == [{"HostIp":"127.0.0.1", "HostPort":"5050"}]
 '
-echo 'Demo host port and proxy after app recreation: OK'
+echo 'Demo network migration, data preservation and direct host port: OK'
