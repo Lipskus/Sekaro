@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { PageFrame, Metric, Badge, Icon, Empty, Button as SkButton } from '../redesign/ui';
 import { useAppMode } from '../context/AppModeContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
@@ -39,7 +40,7 @@ function CollapsibleInfo({ children }) {
           {children}
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }
 
@@ -1047,30 +1048,64 @@ export default function Inboxes() {
     }
   };
 
+  const activeInboxCount = inboxes.filter(inbox => !inbox.paused).length;
+  const pausedInboxCount = inboxes.length - activeInboxCount;
+  const sentTodayTotal = inboxes.reduce((sum, inbox) => sum + (Number(inbox.sent_today) || 0), 0);
+  const dailyCapacity = inboxes.reduce(
+    (sum, inbox) => sum + (Number(inbox.effective_max_per_day || inbox.max_emails_per_day) || 0),
+    0,
+  );
+
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8">
-      {/* header with add button */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Skrzynki</h1>
-        <Button variant="default" onClick={() => { setForm(initialForm); setSmtpForm(initialSmtpForm); setAddTrackingMode('app'); setMessage(null); setShowAdd(true); }}>
+    <PageFrame
+      className="sk-inboxes-page"
+      title="Skrzynki"
+      description="Zarządzaj skrzynkami SMTP/IMAP, limitami, synchronizacją i trackingiem."
+      actions={
+        <SkButton
+          variant="primary"
+          icon="plus"
+          onClick={() => {
+            setForm(initialForm);
+            setSmtpForm(initialSmtpForm);
+            setAddTrackingMode('app');
+            setMessage(null);
+            setShowAdd(true);
+          }}
+        >
           Dodaj skrzynkę
-        </Button>
+        </SkButton>
+      }
+    >
+      <div className="sk-inbox-summary">
+        <Metric icon="mail" title="Skrzynki" value={inboxes.length} detail={`${activeInboxCount} aktywnych`} tone="blue" />
+        <Metric icon="success" title="Aktywne" value={activeInboxCount} detail={pausedInboxCount ? `${pausedInboxCount} wstrzymanych` : 'Wszystkie online'} tone="green" />
+        <Metric icon="send" title="Wysłano dziś" value={sentTodayTotal.toLocaleString('pl-PL')} detail="ze wszystkich skrzynek" tone="green" />
+        <Metric icon="chart" title="Dzienny limit" value={dailyCapacity.toLocaleString('pl-PL')} detail="łączna bieżąca pojemność" tone="purple" />
       </div>
 
       {inboxes.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-            <svg className="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <p className="text-gray-500 text-sm">No inboxes yet. Click <span className="font-medium text-gray-700">Add Inbox</span> to get started.</p>
+        <div className="sk-inboxes-empty">
+          <Empty icon="mail">Brak skrzynek. Dodaj pierwszą skrzynkę SMTP/IMAP, aby rozpocząć wysyłkę.</Empty>
+          <SkButton
+            variant="primary"
+            icon="plus"
+            onClick={() => {
+              setForm(initialForm);
+              setSmtpForm(initialSmtpForm);
+              setAddTrackingMode('app');
+              setMessage(null);
+              setShowAdd(true);
+            }}
+          >
+            Dodaj skrzynkę
+          </SkButton>
         </div>
       )}
       {inboxes.length > 0 && (
-        <div className="flex gap-5 items-start" style={{ alignItems: 'flex-start' }}>
+        <div className="sk-inbox-layout">
           {/* ── Inbox card list ── */}
-          <div className="flex-1 min-w-0 space-y-2">
+          <div className="sk-inbox-list">
             {inboxes.map(inbox => {
               const isSelected = selectedInbox?.id === inbox.id;
               const sentDzisiaj = inbox.sent_today || 0;
@@ -1081,11 +1116,7 @@ export default function Inboxes() {
                 <button
                   key={inbox.id}
                   onClick={() => { if (isSelected) { tryCloseSidebar(); } else { setSelectedInbox(inbox); } }}
-                  className={`w-full text-left rounded-xl border px-5 py-4 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-                    isSelected
-                      ? 'border-blue-400 bg-blue-50 shadow-sm'
-                      : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
-                  }`}
+                  className={`sk-inbox-card ${isSelected ? 'is-selected' : ''}`}
                 >
                   <div className="flex items-center justify-between gap-4">
                     {/* Left: avatar + email */}
@@ -1114,8 +1145,8 @@ export default function Inboxes() {
                         <span className="text-gray-400"> / {maxDzisiaj} sent</span>
                       </span>
                       {inbox.paused
-                        ? <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-medium">Paused</span>
-                        : <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Aktywna</span>
+                        ? <Badge dot tone="amber">Wstrzymana</Badge>
+                        : <Badge dot tone="green">Aktywna</Badge>
                       }
                       <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isSelected ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
@@ -1129,7 +1160,7 @@ export default function Inboxes() {
 
           {/* ── Detail panel ── */}
           {selectedInbox && (
-            <div className="w-[min(28rem,calc(100vw-2.5rem))] shrink-0 bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden sticky top-4" style={{ maxHeight: 'calc(100vh - 8rem)' }}>
+            <div className="sk-inbox-detail-panel">
               {editing && editing.id === selectedInbox.id ? (
                 <>
                   {/* Edit panel header */}
