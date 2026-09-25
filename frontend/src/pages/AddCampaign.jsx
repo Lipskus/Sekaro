@@ -261,7 +261,7 @@ export default function AddCampaign() {
                 checked={form.track_opens}
                 onChange={value => setForm(prev => ({ ...prev, track_opens: value }))}
                 label="Śledź otwarcia wiadomości"
-                description="Rejestruj zdarzenia open dla wiadomości kampanii."
+                description="Rejestruj otwarcia wiadomości kampanii."
               />
               <Switch
                 checked={form.track_clicks}
@@ -305,8 +305,8 @@ export default function AddCampaign() {
               <div><dt>Dni wysyłki</dt><dd>{form.sending_days.length ? form.sending_days.map(day => dayLabels[day]).join(', ') : 'Brak'}</dd></div>
               <div><dt>Okno wysyłki</dt><dd>{form.sending_hours_start}–{form.sending_hours_end}</dd></div>
               <div><dt>Strefa</dt><dd>{form.timezone}</dd></div>
-              <div><dt>Stop on reply</dt><dd>{form.stop_on_reply ? 'Tak' : 'Nie'}</dd></div>
-              <div><dt>Tracking</dt><dd>{form.track_opens || form.track_clicks ? 'Włączony' : 'Wyłączony'}</dd></div>
+              <div><dt>Zatrzymaj po odpowiedzi</dt><dd>{form.stop_on_reply ? 'Tak' : 'Nie'}</dd></div>
+              <div><dt>Śledzenie</dt><dd>{form.track_opens || form.track_clicks ? 'Włączony' : 'Wyłączony'}</dd></div>
             </dl>
           </Panel>
 
