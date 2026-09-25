@@ -45,6 +45,11 @@ export default function Campaigns() {
   const [campaigns, setCampaigns] = useState(() => apiCache.get('/campaigns') || []);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selected, setSelected] = useState([]);
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState(null);
+  const [sortOrder, setSortOrder] = useState('priority');
+  const [createdAfter, setCreatedAfter] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
@@ -117,32 +122,59 @@ export default function Campaigns() {
     }
   };
 
-  const togglePause = async (id, paused, name) => {
-    const ok = await confirm(`${paused ? 'Wznowić' : 'Wstrzymać'} kampanię "${name}"?`);
-    if (!ok) return;
-    await api.patch(`/campaigns/${id}`, { paused: !paused });
-    load();
+  const runAction = async (question, action, successMessage) => {
+    if (actionBusy || !(await confirm(question))) return;
+    setActionBusy(true);
+    setActionError(null);
+    try {
+      await action();
+      if (successMessage) notify({ type: 'success', message: successMessage });
+      await load();
+    } catch {
+      setActionError('Nie udało się wykonać operacji. Sprawdź stan kampanii i spróbuj ponownie.');
+    } finally { setActionBusy(false); }
   };
-  const deleteCampaign = async (id, name) => {
-    const ok = await confirm(`Usunąć kampanię "${name}"? Tej operacji nie można cofnąć.`);
-    if (!ok) return;
-    await api.del(`/campaigns/${id}`);
-    load();
-  };
-  const duplicateCampaign = async (id, name) => {
-    const ok = await confirm(`Zduplikować kampanię "${name}"?`);
-    if (!ok) return;
-    const c = await api.post(`/campaigns/${id}/duplicate`);
-    notify({ type: 'success', message: 'Kampania zduplikowana: ' + c.name });
-    load();
+  const togglePause = (id, paused, name) => runAction(
+    `${paused ? 'Wznowić' : 'Wstrzymać'} kampanię "${name}"?`,
+    () => api.patch(`/campaigns/${id}`, { paused: !paused }),
+  );
+  const deleteCampaign = (id, name) => runAction(
+    `Usunąć kampanię "${name}"? Tej operacji nie można cofnąć.`,
+    async () => { await api.del(`/campaigns/${id}`); setSelected(ids => ids.filter(value => value !== id)); },
+  );
+  const duplicateCampaign = (id, name) => runAction(
+    `Zduplikować kampanię "${name}"?`, () => api.post(`/campaigns/${id}/duplicate`), 'Kampania zduplikowana.',
+  );
+  const bulkAction = async (kind) => {
+    const ids = [...selected];
+    const label = { pause: 'Wstrzymać', resume: 'Wznowić', delete: 'Usunąć' }[kind];
+    if (!ids.length || actionBusy || !(await confirm(`${label} zaznaczone kampanie (${ids.length})?${kind === 'delete' ? ' Tej operacji nie można cofnąć.' : ''}`))) return;
+    setActionBusy(true);
+    setActionError(null);
+    const failed = [];
+    // Sequential requests avoid overwhelming a small self-hosted instance.
+    for (const id of ids) {
+      try {
+        if (kind === 'delete') await api.del(`/campaigns/${id}`);
+        else await api.patch(`/campaigns/${id}`, { paused: kind === 'pause' });
+      } catch { failed.push(id); }
+    }
+    await load();
+    setSelected(failed);
+    if (failed.length) setActionError(`Wykonano ${ids.length - failed.length} z ${ids.length} operacji. Nieudane kampanie pozostają zaznaczone — możesz ponowić operację.`);
+    else notify({ type: 'success', message: `Zaktualizowano ${ids.length} kampanii.` });
+    setActionBusy(false);
   };
 
   const rows = campaigns.map(c => ({ campaign: c, ...campaignView(c) }));
   const filteredRows = rows.filter(row => {
     const matchesQuery = !query.trim() || row.campaign.name.toLowerCase().includes(query.trim().toLowerCase());
     const matchesStatus = statusFilter === 'all' || row.statusKey === statusFilter;
-    return matchesQuery && matchesStatus;
-  });
+    return matchesQuery && matchesStatus && (!createdAfter || (row.campaign.created_at || '').slice(0, 10) >= createdAfter);
+  }).sort((a, b) => sortOrder === 'name' ? a.campaign.name.localeCompare(b.campaign.name, 'pl') : sortOrder === 'newest' ? (b.campaign.created_at || '').localeCompare(a.campaign.created_at || '') : 0);
+  const visibleIds = filteredRows.map(row => row.campaign.id);
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.includes(id));
+  const toggleVisible = () => setSelected(ids => allVisibleSelected ? ids.filter(id => !visibleIds.includes(id)) : [...new Set([...ids, ...visibleIds])]);
   const totals = rows.reduce((acc, row) => {
     acc.contacts += row.totalLeads;
     acc.sent += row.emailsSent;
@@ -155,8 +187,8 @@ export default function Campaigns() {
   const replyRateTotal = totals.sent > 0 ? ((totals.replies / totals.sent) * 100).toFixed(1) : '0.0';
   const deliverability = totals.sent > 0 ? Math.max(0, 100 - (totals.bounced / totals.sent) * 100).toFixed(1) : null;
   const isPriority = strategy === 'priority';
-  const filtersActive = query.trim().length > 0 || statusFilter !== 'all';
-  const canReorder = isPriority && !filtersActive;
+  const filtersActive = query.trim().length > 0 || statusFilter !== 'all' || !!createdAfter || sortOrder !== 'priority';
+  const canReorder = isPriority && !filtersActive && !actionBusy && !loading;
 
   return (
     <PageFrame
@@ -171,6 +203,7 @@ export default function Campaigns() {
       }
     >
       <ErrorNotice error={error} onRetry={load} />
+      <ErrorNotice error={actionError} />
 
       {!loading && !error && <div className="sk-campaign-summary">
         <Metric icon="campaign" title="Aktywne kampanie" value={totals.active} detail={`z ${campaigns.length} wszystkich`} tone="green" />
@@ -187,7 +220,7 @@ export default function Campaigns() {
             placeholder="Szukaj kampanii…"
             aria-label="Szukaj kampanii"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => { setQuery(e.target.value); setSelected([]); }}
           />
         </div>
         <div className="sk-campaign-filter-tabs" role="group" aria-label="Status kampanii">
@@ -202,13 +235,27 @@ export default function Campaigns() {
               type="button"
               key={key}
               className={statusFilter === key ? 'is-active' : ''}
-              onClick={() => setStatusFilter(key)}
+              aria-pressed={statusFilter === key}
+              onClick={() => { setStatusFilter(key); setSelected([]); }}
             >
               {label}
             </button>
           ))}
         </div>
       </div>
+
+      <div className="sk-campaign-secondary-filters">
+        <label>Utworzone od<input type="date" value={createdAfter} onChange={e => { setCreatedAfter(e.target.value); setSelected([]); }} /></label>
+        <label>Sortowanie<select value={sortOrder} onChange={e => setSortOrder(e.target.value)}><option value="priority">Priorytet</option><option value="newest">Najnowsze</option><option value="name">Nazwa A–Z</option></select></label>
+        {filtersActive && <Button onClick={() => { setQuery(''); setStatusFilter('all'); setCreatedAfter(''); setSortOrder('priority'); setSelected([]); }}>Wyczyść filtry</Button>}
+      </div>
+      {selected.length > 0 && <div className="sk-campaign-bulkbar" aria-busy={actionBusy}>
+        <strong>Zaznaczono: {selected.length}</strong>
+        <Button icon="pause" disabled={actionBusy} onClick={() => bulkAction('pause')}>Wstrzymaj zaznaczone</Button>
+        <Button icon="play" disabled={actionBusy} onClick={() => bulkAction('resume')}>Wznów zaznaczone</Button>
+        <Button variant="danger" icon="delete" disabled={actionBusy} onClick={() => bulkAction('delete')}>Usuń zaznaczone</Button>
+        <Button variant="ghost" disabled={actionBusy} onClick={() => setSelected([])}>Odznacz</Button>
+      </div>}
 
       {isPriority && (
         <div className="sk-campaign-priority-note">
@@ -242,10 +289,13 @@ export default function Campaigns() {
             <table className="sk-table sk-campaign-table">
               <thead>
                 <tr>
+                  <th><input type="checkbox" aria-label="Zaznacz widoczne kampanie" checked={allVisibleSelected} disabled={actionBusy || loading} onChange={toggleVisible} /></th>
                   {isPriority && <><th aria-label="Przeciągnij"/><th>#</th></>}
                   <th>Nazwa kampanii</th>
                   <th>Status</th>
                   <th>Kontakty</th>
+                  <th>Skrzynki</th>
+                  <th>Utworzono</th>
                   <th>Postęp</th>
                   <th>Odpowiedzi</th>
                   <th aria-label="Akcje"/>
@@ -271,6 +321,7 @@ export default function Campaigns() {
                       onDrop={e => canReorder && onDrop(e, idx)}
                       onDragEnd={e => canReorder && onDragEnd(e)}
                     >
+                      <td><input type="checkbox" aria-label={`Zaznacz kampanię ${c.name}`} checked={selected.includes(c.id)} disabled={actionBusy || loading} onChange={() => setSelected(ids => ids.includes(c.id) ? ids.filter(id => id !== c.id) : [...ids, c.id])} /></td>
                       {isPriority && (
                         <>
                           <td className="sk-campaign-drag">
@@ -288,6 +339,8 @@ export default function Campaigns() {
                         <strong>{row.totalLeads.toLocaleString('pl-PL')}</strong>
                         <small className="sk-campaign-cell-detail">{row.scheduled.toLocaleString('pl-PL')} w kolejce</small>
                       </td>
+                      <td>{c.inbox_ids?.length ?? '—'}</td>
+                      <td className="sk-campaign-created">{c.created_at ? new Date(c.created_at).toLocaleDateString('pl-PL') : '—'}</td>
                       <td className="sk-campaign-progress-cell">
                         <div className="sk-campaign-progress">
                           <span style={{width:`${Math.min(100,progress)}%`}} data-tone={row.tone}/>
@@ -301,11 +354,11 @@ export default function Campaigns() {
                       <td>
                         <div className="sk-campaign-row-actions">
                           <Button variant="outline" to={`/campaigns/${c.id}`}>Otwórz</Button>
-                          <Button variant="outline" onClick={() => togglePause(c.id, c.paused, c.name)}>
+                          <Button variant="outline" disabled={actionBusy || loading} onClick={() => togglePause(c.id, c.paused, c.name)}>
                             {c.paused ? 'Wznów' : 'Wstrzymaj'}
                           </Button>
-                          <Button variant="ghost" onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
-                          <Button variant="danger" onClick={() => deleteCampaign(c.id, c.name)}>Usuń</Button>
+                          <Button variant="ghost" disabled={actionBusy || loading} onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
+                          <Button variant="danger" disabled={actionBusy || loading} onClick={() => deleteCampaign(c.id, c.name)}>Usuń</Button>
                         </div>
                       </td>
                     </tr>
@@ -323,7 +376,7 @@ export default function Campaigns() {
             <strong>Niezapisana kolejność kampanii</strong>
             <small>Zapisz, aby scheduler używał nowego priorytetu.</small>
           </div>
-          <Button variant="primary" onClick={saveOrder} icon="check">Zapisz kolejność</Button>
+          <Button variant="primary" disabled={actionBusy || loading} onClick={saveOrder} icon="check">Zapisz kolejność</Button>
         </div>
       )}
     </PageFrame>

@@ -12,12 +12,14 @@ const threadKey=t=>t?`${t.inbox_id}:${t.thread_id}`:'';
 export default function Inbox(){
  const [params]=useSearchParams(),notify=useNotify(),confirm=useConfirm();
  const [inboxes,setInboxes]=useState([]),[templates,setTemplates]=useState([]),[fields,setFields]=useState([]),[items,setItems]=useState([]),[counts,setCounts]=useState({}),[total,setTotal]=useState(0);
+ const [inboxLoading,setInboxLoading]=useState(true),[inboxError,setInboxError]=useState(null);
  const [inboxId,setInboxId]=useState(params.get('inbox')||''),[q,setQ]=useState(params.get('q')||''),[query,setQuery]=useState(params.get('q')||''),[tab,setTab]=useState('all'),[page,setPage]=useState(1);
  const [selected,setSelected]=useState(null),[thread,setThread]=useState(null),[contact,setContact]=useState(null),[blocked,setBlocked]=useState(null),[selectionError,setSelectionError]=useState('');
  const [error,setError]=useState(''),[loading,setLoading]=useState(true),[syncing,setSyncing]=useState(false),[sending,setSending]=useState(false),[body,setBody]=useState('');
  const drafts=useRef({}),activeRef=useRef(null),requestId=useRef(0),listRequest=useRef(0),deepOpened=useRef(false),bodyRef=useRef('');
  const key=threadKey(selected);
- useEffect(()=>{api.get('/inboxes').then(setInboxes).catch(setError);api.get('/templates').then(setTemplates).catch(setError);api.get('/contact-fields').then(setFields).catch(setError);},[]);
+ const loadInboxes=useCallback(async()=>{setInboxLoading(true);setInboxError(null);try{setInboxes(await api.get('/inboxes'));}catch(e){setInboxError(e);}finally{setInboxLoading(false);}},[]);
+ useEffect(()=>{loadInboxes();api.get('/templates').then(setTemplates).catch(setError);api.get('/contact-fields').then(setFields).catch(setError);},[]);
  const loadList=useCallback(async()=>{const request=++listRequest.current;setLoading(true);try{
   const p=new URLSearchParams({page:String(page),page_size:'30',tab,q:query});if(inboxId)p.set('inbox_id',inboxId);
   const result=await api.get('/ui/unibox?'+p);if(request!==listRequest.current)return;setItems(result.items);setTotal(result.total);setCounts(result.counts||{});setError('');
@@ -47,9 +49,9 @@ export default function Inbox(){
  const editBody=value=>{bodyRef.current=value;drafts.current[key]=value;setBody(value);};
  const box=inboxes.find(i=>i.id===selected?.inbox_id);
  const headerBox=inboxes.find(i=>String(i.id)===String(inboxId));
- const headerHealth=headerBox
-  ? (headerBox.paused?['amber','Wstrzymana']:['green','Online'])
-  : (inboxes.some(i=>i.paused)?['amber','Wymaga uwagi']:['green','Wszystkie online']);
+ const headerHealth=inboxLoading?['neutral','Wczytywanie…']:inboxError?['neutral','Brak danych']:!inboxes.length?['neutral','Brak skrzynek']:headerBox
+  ? (headerBox.paused?['amber','Wstrzymana']:['green','Aktywna'])
+  : (inboxes.some(i=>i.paused)?['amber','Część wstrzymana']:['green','Wszystkie aktywne']);
  const recipient=contact?.email||selected?.lead_email||address([...(thread?.messages||[])].reverse().find(m=>m.direction==='received')?.from)||address([...(thread?.messages||[])].reverse().find(m=>m.direction==='sent')?.to);
  const title=contact?.name||selected?.lead_name||recipient||'Rozmowa';
  const sync=async()=>{setSyncing(true);try{await api.post('/unibox/sync',inboxId?{inbox_id:Number(inboxId)}:{});notify({type:'success',message:'Synchronizacja IMAP zlecona. Odśwież listę po jej zakończeniu.'});await loadList();}catch(e){setError(e);}finally{setSyncing(false);}};
@@ -69,7 +71,8 @@ export default function Inbox(){
  const block=async reason=>{if(!recipient||!await confirm(`Dodać ${recipient} do globalnej listy wykluczeń? Kolejne wysyłki do tego adresu zostaną zablokowane.`))return;try{const r=await api.post('/leads/suppression',{email:recipient,reason,source:'inbox'});setBlocked(r);notify({type:'success',message:'Adres został wykluczony z wysyłki.'});}catch(e){setSelectionError(e);}};
  const interactions=contact?.interactions||[];
  return <div className="sk-page sk-inbox-page" aria-busy={loading||syncing}>
-  <div className="sk-page-heading"><div><h1>Wątki (Inbox)</h1><p>Prowadź rozmowy i odpowiadaj na wiadomości bezpośrednio w Sekaro.</p></div><div className="sk-heading-actions"><div className="sk-mailbox-select"><Icon name="mail" size={23}/><div className="sk-mailbox-select-body"><label htmlFor="inbox-picker">Skrzynka</label><select id="inbox-picker" value={inboxId} onChange={e=>setInboxId(e.target.value)}><option value="">Wszystkie skrzynki</option>{inboxes.map(i=><option key={i.id} value={i.id}>{i.email}</option>)}</select></div></div><div className={`sk-inbox-health tone-${headerHealth[0]}`}><i className="sk-dot"/><div><small>Zdrowie skrzynki</small><strong>{headerHealth[1]}</strong></div></div></div></div>
+  <div className="sk-page-heading"><div><h1>Wątki (Inbox)</h1><p>Prowadź rozmowy i odpowiadaj na wiadomości bezpośrednio w Sekaro.</p></div><div className="sk-heading-actions"><div className="sk-mailbox-select"><Icon name="mail" size={23}/><div className="sk-mailbox-select-body"><label htmlFor="inbox-picker">Skrzynka</label><select id="inbox-picker" value={inboxId} onChange={e=>setInboxId(e.target.value)}><option value="">Wszystkie skrzynki</option>{inboxes.map(i=><option key={i.id} value={i.id}>{i.email}</option>)}</select></div></div><div className={`sk-inbox-health tone-${headerHealth[0]}`}><i className="sk-dot"/><div><small>Status wysyłki</small><strong>{headerHealth[1]}</strong></div></div></div></div>
+  <ErrorNotice error={inboxError} onRetry={loadInboxes}/>
   <ErrorNotice error={error} onRetry={loadList}/>
   <div className="sk-inbox-toolbar"><nav className="sk-tabs" aria-label="Filtry wiadomości">{tabs.map(([v,l])=><button className={`sk-tab ${v===tab?'active':''}`} aria-pressed={v===tab} key={v} onClick={()=>setTab(v)}>{l}<small>{counts[v]||0}</small></button>)}</nav><div className="sk-search-input"><Icon name="search" size={17}/><input aria-label="Szukaj w wątkach" placeholder="Szukaj w wątkach…" value={q} onChange={e=>setQ(e.target.value)}/></div><Button className="compact" icon="refresh" onClick={sync} disabled={syncing}>{syncing?'Synchronizacja…':'Synchronizuj'}</Button></div>
   <div className={`sk-inbox-columns ${selected?'has-thread':''}`}>

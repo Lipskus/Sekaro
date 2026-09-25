@@ -13,9 +13,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "General settings are grouped cards with secondary section navigation; reference tab structure, complete field set and spacing still differ."
+      "finding": "General settings are grouped cards with secondary section navigation; reference tab structure, complete field set and spacing still differ.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 2,
@@ -27,9 +28,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "General settings are grouped cards with secondary section navigation; reference tab structure, complete field set and spacing still differ."
+      "finding": "General settings are grouped cards with secondary section navigation; reference tab structure, complete field set and spacing still differ.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 3,
@@ -41,7 +43,7 @@
       "route": "/settings#features",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "AI settings and other features exist; arrangement and disabled/coming-soon controls require further parity work."
     },
@@ -55,7 +57,7 @@
       "route": "/settings#features",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "AI settings and other features exist; arrangement and disabled/coming-soon controls require further parity work."
     },
@@ -69,7 +71,7 @@
       "route": "/settings#setup",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Backup operations exist. Restore is embedded in the same long page; reference dashboard/history layout is not reproduced."
     },
@@ -83,9 +85,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Account section exists; separate security overview, session table and reference two-column composition are not complete."
+      "finding": "Account section exists; separate security overview, session table and reference two-column composition are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 7,
@@ -97,7 +100,7 @@
       "route": "/settings#setup",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Backup operations exist. Restore is embedded in the same long page; reference dashboard/history layout is not reproduced."
     },
@@ -111,9 +114,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Account section exists; separate security overview, session table and reference two-column composition are not complete."
+      "finding": "Account section exists; separate security overview, session table and reference two-column composition are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 9,
@@ -125,7 +129,7 @@
       "route": "/settings#integrating",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "API keys, webhooks and MCP exist as long sections; reference overview and right-hand guidance are not the same layout."
     },
@@ -139,7 +143,7 @@
       "route": "/settings#dev",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Test mode remains environment-gated. Reference diagnostics and controls must be checked against supported API capabilities."
     },
@@ -153,7 +157,7 @@
       "route": "/settings#integrating",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "API keys, webhooks and MCP exist as long sections; reference overview and right-hand guidance are not the same layout."
     },
@@ -167,7 +171,7 @@
       "route": "/settings#dev",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Test mode remains environment-gated. Reference diagnostics and controls must be checked against supported API capabilities."
     },
@@ -181,9 +185,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Earlier visual variant. Prefer 063–064 for current palette; earlier and final references are not pixel-identical."
+      "finding": "Earlier visual variant. Prefer 063–064 for current palette; earlier and final references are not pixel-identical.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 14,
@@ -195,9 +200,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Earlier visual variant. Prefer 063–064 for current palette; earlier and final references are not pixel-identical."
+      "finding": "Earlier visual variant. Prefer 063–064 for current palette; earlier and final references are not pixel-identical.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 15,
@@ -209,7 +215,7 @@
       "route": "/campaigns/add",
       "source": "frontend/src/pages/AddCampaign.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Single-page form and summary exist, not the multi-step header in the references. Creation now opens overview/preflight rather than analytics."
     },
@@ -223,7 +229,7 @@
       "route": "/campaigns/add",
       "source": "frontend/src/pages/AddCampaign.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Single-page form and summary exist, not the multi-step header in the references. Creation now opens overview/preflight rather than analytics."
     },
@@ -237,7 +243,7 @@
       "route": "/campaigns/:id#sequences",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Functional sequence editor is still embedded legacy markup. Two-column editor geometry, spacing and state parity remain unverified."
     },
@@ -251,7 +257,7 @@
       "route": "/campaigns/:id#sequences",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Functional sequence editor is still embedded legacy markup. Two-column editor geometry, spacing and state parity remain unverified."
     },
@@ -265,7 +271,7 @@
       "route": "/campaigns/:id#leads",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recipient management exists; add/review contacts use dialogs rather than the reference side panel."
     },
@@ -279,7 +285,7 @@
       "route": "/campaigns/:id#leads",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recipient management exists; add/review contacts use dialogs rather than the reference side panel."
     },
@@ -293,7 +299,7 @@
       "route": "/campaigns/:id#settings",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Functional settings exist; full grid and side-summary parity remain outstanding."
     },
@@ -307,7 +313,7 @@
       "route": "/campaigns/:id#analytics",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Existing analytics tab has not been demonstrated to match the funnel, tables and graph geometry of the PNG."
     },
@@ -321,7 +327,7 @@
       "route": "/campaigns/:id#analytics",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Existing analytics tab has not been demonstrated to match the funnel, tables and graph geometry of the PNG."
     },
@@ -335,7 +341,7 @@
       "route": "/campaigns/:id#queue",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Queue is embedded in the activity tab; reference two-column queue/activity composition remains outstanding."
     },
@@ -349,7 +355,7 @@
       "route": "/campaigns/:id#queue",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Queue is embedded in the activity tab; reference two-column queue/activity composition remains outstanding."
     },
@@ -363,7 +369,7 @@
       "route": "/campaigns/:id#settings",
       "source": "frontend/src/pages/CampaignDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Functional settings exist; full grid and side-summary parity remain outstanding."
     },
@@ -377,7 +383,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Edit is inside a mailbox detail panel; add is a modal. Full-page three-column reference editor is not implemented."
     },
@@ -391,7 +397,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Edit is inside a mailbox detail panel; add is a modal. Full-page three-column reference editor is not implemented."
     },
@@ -405,9 +411,10 @@
       "route": "/inboxes",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current card list and detail differ from reference table plus summary cards. Loading/error/empty states and metric composition were corrected."
+      "finding": "Searchable/status-filtered mailbox table added with actual limits, queue counts and warmup state. Detail panel retained; reference summary cards and after-fix rendering remain open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 30,
@@ -419,9 +426,10 @@
       "route": "/inboxes",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current card list and detail differ from reference table plus summary cards. Loading/error/empty states and metric composition were corrected."
+      "finding": "Searchable/status-filtered mailbox table added with actual limits, queue counts and warmup state. Detail panel retained; reference summary cards and after-fix rendering remain open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 31,
@@ -433,7 +441,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Tracking controls exist in mailbox details rather than a dedicated reference workspace."
     },
@@ -447,9 +455,10 @@
       "route": "/analytics",
       "source": "frontend/src/pages/Analytics.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Chart and results exist; funnel and segment panels are absent from the reference composition. Fetch states, chart theme and keyboard legend corrected."
+      "finding": "Chart and results exist; funnel and segment panels are absent from the reference composition. Fetch states, chart theme and keyboard legend corrected.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 33,
@@ -461,9 +470,10 @@
       "route": "/analytics",
       "source": "frontend/src/pages/Analytics.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Chart and results exist; funnel and segment panels are absent from the reference composition. Fetch states, chart theme and keyboard legend corrected."
+      "finding": "Chart and results exist; funnel and segment panels are absent from the reference composition. Fetch states, chart theme and keyboard legend corrected.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 34,
@@ -475,9 +485,10 @@
       "route": "/schedule",
       "source": "frontend/src/pages/Schedule.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current route is a chronological queue list, not the seven-day calendar with sidebar filters shown in the PNG."
+      "finding": "Weekly/monthly calendar, sidebar filters, timezone/weekend controls and agenda added. Data grouping/navigation have regression tests. After-deploy layout comparison remains open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 35,
@@ -489,9 +500,10 @@
       "route": "/schedule",
       "source": "frontend/src/pages/Schedule.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current route is a chronological queue list, not the seven-day calendar with sidebar filters shown in the PNG."
+      "finding": "Weekly/monthly calendar, sidebar filters, timezone/weekend controls and agenda added. Data grouping/navigation have regression tests. After-deploy layout comparison remains open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 36,
@@ -503,9 +515,10 @@
       "route": "/schedule",
       "source": "frontend/src/pages/Schedule.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Preview remains a shared modal rather than the reference list/message/details workspace. No screenshot parity claim."
+      "finding": "List/message/details workspace added with real queue data, SafeEmail and related links. API does not expose the reference per-message move/reassign/delete operations; those actions are not fabricated.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 37,
@@ -517,9 +530,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Added searchable template list and explicit version-history sidebar. Category/usage fields and exact editor layout are not complete."
+      "finding": "Added searchable template list and explicit version-history sidebar. Category/usage fields and exact editor layout are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 38,
@@ -531,9 +545,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Added searchable template list and explicit version-history sidebar. Category/usage fields and exact editor layout are not complete."
+      "finding": "Added searchable template list and explicit version-history sidebar. Category/usage fields and exact editor layout are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 39,
@@ -545,9 +560,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Preview and test-send remain stacked beneath the editor, not a dedicated three-column page. HTML preview now uses isolated themed SafeEmail."
+      "finding": "Editor/Preview/Test mode switch now keeps the active content in the central column with template list and variable/history sidebars. Unsaved input is preserved. Exact contact-preview geometry remains open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 40,
@@ -559,9 +575,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Preview and test-send remain stacked beneath the editor, not a dedicated three-column page. HTML preview now uses isolated themed SafeEmail."
+      "finding": "Editor/Preview/Test mode switch now keeps the active content in the central column with template list and variable/history sidebars. Unsaved input is preserved. Exact contact-preview geometry remains open.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 41,
@@ -573,7 +590,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Tracking controls exist in mailbox details rather than a dedicated reference workspace."
     },
@@ -587,9 +604,9 @@
       "route": "/leads/:id",
       "source": "frontend/src/pages/LeadDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "History exists; dedicated activity tab, timeline geometry and right-hand engagement summary are not the reference layout."
+      "finding": "Dedicated Activity tab added over real interaction history; Summary preserves unsaved fields. Reference timeline styling and engagement sidebar remain open."
     },
     {
       "id": 43,
@@ -601,9 +618,9 @@
       "route": "/leads/:id",
       "source": "frontend/src/pages/LeadDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Profile fields, campaign cards and history exist in a combined page. Reference overview/activity separation remains outstanding."
+      "finding": "Separate Summary and Activity views added; campaign membership and editable fields stay in Summary. Populated-profile screenshots remain pending."
     },
     {
       "id": 44,
@@ -615,9 +632,9 @@
       "route": "/leads/:id",
       "source": "frontend/src/pages/LeadDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Profile fields, campaign cards and history exist in a combined page. Reference overview/activity separation remains outstanding."
+      "finding": "Separate Summary and Activity views added; campaign membership and editable fields stay in Summary. Populated-profile screenshots remain pending."
     },
     {
       "id": 45,
@@ -629,9 +646,10 @@
       "route": "/notifications",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Added list/detail workspace with full selected message and related-record action; fixed mailbox navigation. Pixel geometry and exact categories need live verification."
+      "finding": "Added list/detail workspace with full selected message and related-record action; fixed mailbox navigation. Pixel geometry and exact categories need live verification.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 46,
@@ -643,9 +661,10 @@
       "route": "/notifications",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Added list/detail workspace with full selected message and related-record action; fixed mailbox navigation. Pixel geometry and exact categories need live verification."
+      "finding": "Added list/detail workspace with full selected message and related-record action; fixed mailbox navigation. Pixel geometry and exact categories need live verification.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 47,
@@ -657,7 +676,7 @@
       "route": "/notifications (Preferences tab)",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "E-mail preferences exist. Quiet hours/channel/history composition is not complete. API failure now blocks editing fallback defaults."
     },
@@ -671,7 +690,7 @@
       "route": "/notifications (Preferences tab)",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "E-mail preferences exist. Quiet hours/channel/history composition is not complete. API failure now blocks editing fallback defaults."
     },
@@ -685,9 +704,10 @@
       "route": "/notifications",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty surfaces exist. Pagination available on unread tab, failed mutations are visible. Modal and mobile screenshot checks pending."
+      "finding": "Loading/error/empty surfaces exist. Pagination available on unread tab, failed mutations are visible. Modal and mobile screenshot checks pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 50,
@@ -699,9 +719,10 @@
       "route": "/notifications",
       "source": "frontend/src/pages/Notifications.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty surfaces exist. Pagination available on unread tab, failed mutations are visible. Modal and mobile screenshot checks pending."
+      "finding": "Loading/error/empty surfaces exist. Pagination available on unread tab, failed mutations are visible. Modal and mobile screenshot checks pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 51,
@@ -713,9 +734,10 @@
       "route": "/schedule",
       "source": "frontend/src/pages/Schedule.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Preview remains a shared modal rather than the reference list/message/details workspace. No screenshot parity claim."
+      "finding": "List/message/details workspace added with real queue data, SafeEmail and related links. API does not expose the reference per-message move/reassign/delete operations; those actions are not fabricated.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 52,
@@ -727,9 +749,9 @@
       "route": "/leads/:id",
       "source": "frontend/src/pages/LeadDetail.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "History exists; dedicated activity tab, timeline geometry and right-hand engagement summary are not the reference layout."
+      "finding": "Dedicated Activity tab added over real interaction history; Summary preserves unsaved fields. Reference timeline styling and engagement sidebar remain open."
     },
     {
       "id": 53,
@@ -741,7 +763,7 @@
       "route": "/contacts-tools",
       "source": "frontend/src/pages/Leads.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recovery filters/actions exist. Reference dashboard charts and recommendations sidebar are absent."
     },
@@ -755,7 +777,7 @@
       "route": "/contacts-tools",
       "source": "frontend/src/pages/Leads.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recovery filters/actions exist. Reference dashboard charts and recommendations sidebar are absent."
     },
@@ -769,7 +791,7 @@
       "route": "/contacts-tools",
       "source": "frontend/src/pages/Leads.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recovery/import states exist in legacy panels/modals. No rendered verification of full state-board parity."
     },
@@ -783,7 +805,7 @@
       "route": "/contacts-tools",
       "source": "frontend/src/pages/Leads.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Recovery/import states exist in legacy panels/modals. No rendered verification of full state-board parity."
     },
@@ -797,7 +819,7 @@
       "route": "/deliverability-tips",
       "source": "frontend/src/pages/DeliverabilityTips.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Current page is an advice library with recommended thresholds, not a live deliverability/reputation dashboard. Requires real diagnostics data; do not fabricate scores."
     },
@@ -811,7 +833,7 @@
       "route": "/deliverability-tips",
       "source": "frontend/src/pages/DeliverabilityTips.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Current page is an advice library with recommended thresholds, not a live deliverability/reputation dashboard. Requires real diagnostics data; do not fabricate scores."
     },
@@ -825,9 +847,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty/search states corrected. Version-loading and save operations retain existing workflow; visual dialog verification pending."
+      "finding": "Loading/error/empty/search states corrected. Version-loading and save operations retain existing workflow; visual dialog verification pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 60,
@@ -839,9 +862,10 @@
       "route": "/templates",
       "source": "frontend/src/pages/Templates.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty/search states corrected. Version-loading and save operations retain existing workflow; visual dialog verification pending."
+      "finding": "Loading/error/empty/search states corrected. Version-loading and save operations retain existing workflow; visual dialog verification pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 61,
@@ -853,9 +877,10 @@
       "route": "/analytics",
       "source": "frontend/src/pages/Analytics.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Distinct loading/error/empty states with retry added. Old request results cannot overwrite a newer filter selection; invalid dates rejected."
+      "finding": "Distinct loading/error/empty states with retry added. Old request results cannot overwrite a newer filter selection; invalid dates rejected.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 62,
@@ -867,9 +892,10 @@
       "route": "/analytics",
       "source": "frontend/src/pages/Analytics.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Distinct loading/error/empty states with retry added. Old request results cannot overwrite a newer filter selection; invalid dates rejected."
+      "finding": "Distinct loading/error/empty states with retry added. Old request results cannot overwrite a newer filter selection; invalid dates rejected.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 63,
@@ -881,9 +907,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Palette and compact metrics aligned in code. Advanced tags/owner/date filters and several table columns are still missing."
+      "finding": "Shared geometry/palette, compact metrics, date/status/search filters, sorting, mailbox count and creation-date columns implemented. Tags/owner fields are not supported by the current campaign API. After-deploy pixel checks pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 64,
@@ -895,9 +922,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Palette and compact metrics aligned in code. Advanced tags/owner/date filters and several table columns are still missing."
+      "finding": "Shared geometry/palette, compact metrics, date/status/search filters, sorting, mailbox count and creation-date columns implemented. Tags/owner fields are not supported by the current campaign API. After-deploy pixel checks pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 65,
@@ -909,9 +937,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty states separated. No fake 100% delivery when no messages exist; exact destructive modal parity pending."
+      "finding": "Loading/error/empty states separated. No fake 100% delivery when no messages exist; exact destructive modal parity pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 66,
@@ -923,9 +952,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading/error/empty states separated. No fake 100% delivery when no messages exist; exact destructive modal parity pending."
+      "finding": "Loading/error/empty states separated. No fake 100% delivery when no messages exist; exact destructive modal parity pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 67,
@@ -937,7 +967,7 @@
       "route": "/campaigns/:id#overview",
       "source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Preflight exists after campaign creation, not as the final builder step. Creation opens it; stale successful checks are cleared on refresh."
     },
@@ -951,7 +981,7 @@
       "route": "/campaigns/:id#overview",
       "source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Preflight exists after campaign creation, not as the final builder step. Creation opens it; stale successful checks are cleared on refresh."
     },
@@ -965,7 +995,7 @@
       "route": "/campaigns/:id",
       "source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Error/retry and preflight state logic exists. Activity layouts and retry-uncertain-attempt modal need separate visual verification."
     },
@@ -979,7 +1009,7 @@
       "route": "/campaigns/:id",
       "source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Error/retry and preflight state logic exists. Activity layouts and retry-uncertain-attempt modal need separate visual verification."
     },
@@ -993,7 +1023,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Connection testing exists inside the detail editor; dedicated diagnostic overview is absent."
     },
@@ -1007,7 +1037,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Connection testing exists inside the detail editor; dedicated diagnostic overview is absent."
     },
@@ -1021,7 +1051,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Limits and mailbox status exist; reference reputation trend/history dashboard is absent. Real source data is required."
     },
@@ -1035,7 +1065,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Limits and mailbox status exist; reference reputation trend/history dashboard is absent. Real source data is required."
     },
@@ -1049,7 +1079,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Connection/test controls exist; dedicated test/log workspace is not present."
     },
@@ -1063,7 +1093,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Connection/test controls exist; dedicated test/log workspace is not present."
     },
@@ -1077,7 +1107,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "IMAP settings exist; separate synchronization-history page is absent."
     },
@@ -1091,7 +1121,7 @@
       "route": "/inboxes?inbox=:id",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "IMAP settings exist; separate synchronization-history page is absent."
     },
@@ -1105,9 +1135,10 @@
       "route": "/inboxes",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading and failed fetch no longer masquerade as no mailboxes. Active configuration no longer claims connectivity. Pause/delete modal screenshots pending."
+      "finding": "Loading and failed fetch no longer masquerade as no mailboxes. Active configuration no longer claims connectivity. Pause/delete modal screenshots pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 80,
@@ -1119,9 +1150,10 @@
       "route": "/inboxes",
       "source": "frontend/src/pages/Inboxes.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Loading and failed fetch no longer masquerade as no mailboxes. Active configuration no longer claims connectivity. Pause/delete modal screenshots pending."
+      "finding": "Loading and failed fetch no longer masquerade as no mailboxes. Active configuration no longer claims connectivity. Pause/delete modal screenshots pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 81,
@@ -1133,9 +1165,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "No campaign selection checkboxes or bulk-action toolbar in current implementation. Missing view, not a CSS-only discrepancy."
+      "finding": "Selection checkboxes and confirmed bulk pause/resume/delete toolbar implemented. Partial failure and cancellation are tested; final modal/toolbar screenshots pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 82,
@@ -1147,9 +1180,10 @@
       "route": "/campaigns",
       "source": "frontend/src/pages/Campaigns.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "No campaign selection checkboxes or bulk-action toolbar in current implementation. Missing view, not a CSS-only discrepancy."
+      "finding": "Selection checkboxes and confirmed bulk pause/resume/delete toolbar implemented. Partial failure and cancellation are tested; final modal/toolbar screenshots pending.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 83,
@@ -1161,9 +1195,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current default scheduling section selects strategy; reference day/hour/week-preview composition is not implemented globally."
+      "finding": "Current default scheduling section selects strategy; reference day/hour/week-preview composition is not implemented globally.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 84,
@@ -1175,9 +1210,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current default scheduling section selects strategy; reference day/hour/week-preview composition is not implemented globally."
+      "finding": "Current default scheduling section selects strategy; reference day/hour/week-preview composition is not implemented globally.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 85,
@@ -1189,9 +1225,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Theme picker exists. Reference density, visual preferences and typography preview are not complete."
+      "finding": "Theme picker exists. Reference density, visual preferences and typography preview are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 86,
@@ -1203,9 +1240,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Theme picker exists. Reference density, visual preferences and typography preview are not complete."
+      "finding": "Theme picker exists. Reference density, visual preferences and typography preview are not complete.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 87,
@@ -1217,9 +1255,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Known IPs use a shared modal. Reference full-page list/security/recent-login composition is absent."
+      "finding": "Known IPs use a shared modal. Reference full-page list/security/recent-login composition is absent.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 88,
@@ -1231,9 +1270,10 @@
       "route": "/settings#general",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Known IPs use a shared modal. Reference full-page list/security/recent-login composition is absent."
+      "finding": "Known IPs use a shared modal. Reference full-page list/security/recent-login composition is absent.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 89,
@@ -1245,7 +1285,7 @@
       "route": "/settings#setup",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Restore workflow exists within backup settings; reference dedicated restore layout is not present."
     },
@@ -1259,7 +1299,7 @@
       "route": "/settings#setup",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Restore workflow exists within backup settings; reference dedicated restore layout is not present."
     },
@@ -1273,7 +1313,7 @@
       "route": "/settings#features",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Settings links to/configures notification preferences; full reference quiet-hours and recent-delivery layout is not present."
     },
@@ -1287,7 +1327,7 @@
       "route": "/settings#features",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Settings links to/configures notification preferences; full reference quiet-hours and recent-delivery layout is not present."
     },
@@ -1301,7 +1341,7 @@
       "route": "/settings#features",
       "source": "frontend/src/components/EmailVerificationSettings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Provider and verification controls exist. Reference four-panel statistics layout requires further implementation."
     },
@@ -1315,7 +1355,7 @@
       "route": "/settings#features",
       "source": "frontend/src/components/EmailVerificationSettings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Provider and verification controls exist. Reference four-panel statistics layout requires further implementation."
     },
@@ -1329,7 +1369,7 @@
       "route": "/settings#integrating",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Webhook/MCP settings exist as long sections, not the four-panel workspace with integration logs."
     },
@@ -1343,7 +1383,7 @@
       "route": "/settings#integrating",
       "source": "frontend/src/pages/Settings.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
       "finding": "Webhook/MCP settings exist as long sections, not the four-panel workspace with integration logs."
     },
@@ -1357,9 +1397,10 @@
       "route": "/system-health",
       "source": "frontend/src/pages/SystemHealth.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current check-card layout differs from resources/logs/alerts dashboard. Unknown diagnostics now produce neutral metrics, not successful checks."
+      "finding": "Current check-card layout differs from resources/logs/alerts dashboard. Unknown diagnostics now produce neutral metrics, not successful checks.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     },
     {
       "id": 98,
@@ -1371,9 +1412,17 @@
       "route": "/system-health",
       "source": "frontend/src/pages/SystemHealth.jsx",
       "review": "reference/contact-sheet + source inspection",
-      "rendered_comparison": "blocked",
+      "rendered_comparison": "pending_after_fix_deployment",
       "pixel_parity": "not_verified",
-      "finding": "Current check-card layout differs from resources/logs/alerts dashboard. Unknown diagnostics now produce neutral metrics, not successful checks."
+      "finding": "Current check-card layout differs from resources/logs/alerts dashboard. Unknown diagnostics now produce neutral metrics, not successful checks.",
+      "baseline_browser_observation": "route inspected on authenticated deployment; empty/loading/general states only; not acceptance of every state in this PNG"
     }
-  ]
+  ],
+  "authenticated_baseline": "01ff445ca23e5fdbb50038cd783ea6feeb0ea527",
+  "acceptance_status": "incomplete; after-fix browser comparison pending deployment",
+  "canonical_desktop_shell": {
+    "sidebar_px": 216,
+    "header_px": 64,
+    "basis": "final deterministic reference series 063–096"
+  }
 }

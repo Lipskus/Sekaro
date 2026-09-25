@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { api, apiCache } from '../api';
-import { useLoading } from '../context/LoadingContext';
 import { useNotify } from '../context/NotificationContext';
-import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PageFrame, Metric, Icon, StatePanel, ErrorNotice } from '../redesign/ui';
-import Modal from '../redesign/Modal';
+import ScheduleMessagePreview from '../redesign/ScheduleMessagePreview';
+import ScheduleCalendar from '../redesign/ScheduleCalendar';
+import SafeEmail from '../redesign/SafeEmail';
 import {
   addDaysToDateKey,
   formatDateKey,
@@ -18,7 +18,7 @@ import {
 
 const DAY_NAMES = ['Pn','Wt','Śr','Cz','Pt','So','Nd'];
 const SCHEDULE_DAYS_BACK = 7;
-const SCHEDULE_DAYS_AHEAD = 3;
+const SCHEDULE_DAYS_AHEAD = 7;
 const SCHEDULE_LIMIT = 5000;
 
 function buildQuery(path, params) {
@@ -26,64 +26,7 @@ function buildQuery(path, params) {
   return query ? `${path}?${query}` : path;
 }
 
-// ── Email Preview Modal for schedule items ────────────────────────────────────
-function ScheduleEmailPreviewModal({ item, onClose }) {
-  const isHtml = item.sequence_is_html || (item.sequence_body || '').trim().startsWith('<');
-  const subject = item.subject || '(bez tematu)';
-  const body = item.sequence_body || '';
-
-  return (
-    <Modal title="Podgląd wiadomości" onClose={onClose}>
-      <div className="sk-schedule-preview-meta">
-        <span><strong>Odbiorca:</strong> {item.lead_email}</span>
-        <span><strong>Kampania:</strong> {item.campaign_name}</span>
-        <span><strong>Krok sekwencji:</strong> #{(item.sequence_index ?? 0) + 1}</span>
-        {item.type === 'sent' && item.sent_at && (
-          <span><strong>Wysłano:</strong> {new Date(item.sent_at).toLocaleString('pl-PL')}</span>
-        )}
-        {item.type === 'scheduled' && item.scheduled_at && (
-          <span><strong>Zaplanowano:</strong> {new Date(item.scheduled_at).toLocaleString('pl-PL')}</span>
-        )}
-      </div>
-
-      <section className="sk-schedule-preview-subject">
-        <small>Temat</small>
-        <p>
-          {!item.subject || item.subject === '(reply in thread)'
-            ? <em>Odpowiedź w wątku</em>
-            : subject}
-        </p>
-      </section>
-
-      <section className="sk-schedule-preview-content">
-        <small>Treść</small>
-        {body ? (
-          isHtml ? (
-            <div
-              className="sk-schedule-preview-body"
-              dangerouslySetInnerHTML={{ __html: body }}
-            />
-          ) : (
-            <pre className="sk-schedule-preview-body">{body}</pre>
-          )
-        ) : (
-          <p className="sk-muted">Brak treści wiadomości.</p>
-        )}
-      </section>
-
-      <div className="sk-form-actions">
-        <Button variant="outline" size="sm" onClick={onClose}>Zamknij</Button>
-      </div>
-    </Modal>
-  );
-}
-
-function escapeHtml(s){
-  return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
 export default function Schedule() {
-  const loading = useLoading();
   const notify = useNotify();
   const { isProduction } = useAppMode();
 
@@ -93,8 +36,11 @@ export default function Schedule() {
   const [serverStatus, setServerStatus] = useState(() => apiCache.get('/status') || {});
   const [strategy, setStrategy] = useState('priority');
   const [timeToNext, setTimeToNext] = useState('');
-  const confirm = useConfirm();
 
+  const [view, setView] = useState('calendar');
+  const [refreshing, setRefreshing] = useState(false);
+  const fetchGeneration = useRef(0);
+  const [inboxFilter, setInboxFilter] = useState('');
   const [campaignFilter, setCampaignFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [searchFilter, setSearchFilter] = useState('');
@@ -103,14 +49,13 @@ export default function Schedule() {
   const [scheduledExpanded, setScheduledExpanded] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [previewItem, setPreviewItem] = useState(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const previewRequest = useRef(0);
 
   const [daysBack, setDaysBack] = useState(SCHEDULE_DAYS_BACK);
   const [daysAhead, setDaysAhead] = useState(SCHEDULE_DAYS_AHEAD);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [initialLoaded, setInitialLoaded] = useState(false);
   const [fetchError, setFetchError] = useState(null);
-  const sentinelRef = useRef(null);
-  const isLoadingMoreRef = useRef(false);
 
   // button states for recalc/validate so React can re-render correctly
   const [recalcState, setRecalcState] = useState({ busy: false, text: '⚡ Przelicz kampanie' });
@@ -136,11 +81,23 @@ export default function Schedule() {
       }
     } catch (e) {
       notify({ type: 'error', message: 'Nie udało się wczytać szczegółów wiadomości.' });
+      return null;
     }
     return item;
   };
 
+  const openPreview = async item => {
+    const request = ++previewRequest.current;
+    setPreviewBusy(true);
+    const full = await ensureDetail(item);
+    if (request !== previewRequest.current) return;
+    setPreviewBusy(false);
+    if (full) setPreviewItem(full);
+  };
+
   const loadData = async (opts = {}) => {
+    const generation = ++fetchGeneration.current;
+    setRefreshing(true);
     setFetchError(null);
     try {
       const effectiveBack = opts.daysBack ?? daysBack;
@@ -163,6 +120,7 @@ export default function Schedule() {
         api.get('/status').catch(() => ({})),
         api.get('/settings/scheduling-strategy').catch(() => ({})),
       ]);
+      if (generation !== fetchGeneration.current) return;
       setSent(s);
       setScheduled(sch);
       setStats(st);
@@ -194,48 +152,37 @@ export default function Schedule() {
       });
       filterCampaignOptions.current = [...camps.entries()].sort((a,b) => a[1].localeCompare(b[1]));
     } catch (e) {
-      setFetchError('Nie udało się wczytać harmonogramu. Spróbuj ponownie.');
+      if (generation === fetchGeneration.current) setFetchError('Nie udało się wczytać harmonogramu. Spróbuj ponownie.');
     } finally {
-      // loading.stop();
+      if (generation === fetchGeneration.current) { setRefreshing(false); setInitialLoaded(true); }
     }
   };
 
   useEffect(() => {
-    loadData().then(() => setInitialLoaded(true));
+    loadData();
     // auto-refresh every 30s, similar to template UI
     const id = setInterval(loadData, 30000);
-    return () => clearInterval(id);
+    return () => { clearInterval(id); fetchGeneration.current += 1; };
   }, [daysBack, daysAhead]);
 
-  useEffect(() => {
-    if (!initialLoaded) return;
-    const sentinel = sentinelRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      async ([entry]) => {
-        if (!entry.isIntersecting || isLoadingMoreRef.current) return;
-        isLoadingMoreRef.current = true;
-        setIsLoadingMore(true);
-        const nextAhead = daysAhead + SCHEDULE_DAYS_AHEAD;
-        setDaysAhead(nextAhead);
-        await loadData({ daysAhead: nextAhead });
-        setIsLoadingMore(false);
-        isLoadingMoreRef.current = false;
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, [daysAhead, initialLoaded]);
+  const showRange = useCallback((first, last) => {
+    const today = new Date();
+    const back = Math.ceil((today - new Date(`${first}T00:00:00Z`)) / 86400000) + 2;
+    const ahead = Math.ceil((new Date(`${last}T23:59:59Z`) - today) / 86400000) + 2;
+    setDaysBack(value => Math.min(3650, Math.max(value, back)));
+    setDaysAhead(value => Math.min(3650, Math.max(value, ahead)));
+  }, []);
 
   const clearFilters = () => {
     setCampaignFilter('');
+    setInboxFilter('');
     setStatusFilter('');
     setSearchFilter('');
   };
 
   const matchesFilter = item => {
     if (campaignFilter && String(item.campaign_id) !== campaignFilter) return false;
+    if (inboxFilter && String(item.inbox_id) !== inboxFilter) return false;
     if (statusFilter && item.type !== statusFilter) return false;
     if (searchFilter) {
       const hay = [item.lead_email, item.lead_name, item.subject, item.campaign_name, item.inbox_email].join(' ').toLowerCase();
@@ -388,7 +335,7 @@ export default function Schedule() {
           <div className="time-col">{time}</div>
           <div className="status-col"><span className={`badge-status ${statusCls}`}>{statusLabel}</span></div>
           <div className="lead-col" title={item.lead_email}>
-            {/* {item.lead_email}{item.lead_status && <span className={`badge ${item.lead_status}`} style={{marginLeft:'0.3rem',fontSize:'0.75rem'}}>{item.lead_status}</span>} */}
+            {item.lead_email}
           </div>
           <div className="subj-col" title={subject}>{subject}</div>
           <div className="camp-col" title={item.campaign_name}>{item.campaign_name}</div>
@@ -433,14 +380,13 @@ export default function Schedule() {
                       variant="outline"
                       onClick={async e => {
                         e.stopPropagation();
-                        const full = await ensureDetail(item);
-                        setPreviewItem(full);
+                        await openPreview(item);
                       }}
                     >
                       Pełny podgląd
                     </Button>
                   </div>
-                  <div className="body-preview" dangerouslySetInnerHTML={{__html:item.sequence_body.trim().startsWith('<')?item.sequence_body:escapeHtml(item.sequence_body)}} />
+                  <div className="body-preview">{item.sequence_is_html || item.sequence_body.trim().startsWith('<') ? <SafeEmail html={item.sequence_body} /> : <pre>{item.sequence_body}</pre>}</div>
                 </div>
               )}
             </div>
@@ -528,14 +474,55 @@ export default function Schedule() {
     return parts;
   };
 
+  const filters = (<div className="sk-schedule-toolbar">
+        <select aria-label="Kampania" value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
+          <option value="">Wszystkie kampanie</option>
+          {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
+        </select>
+        <select aria-label="Skrzynka" value={inboxFilter} onChange={e => setInboxFilter(e.target.value)}>
+          <option value="">Wszystkie skrzynki</option>
+          {[...new Map([...sent, ...scheduled].filter(i => i.inbox_id).map(i => [i.inbox_id, i.inbox_email])).entries()].map(([id, email]) => <option key={id} value={id}>{email || `Skrzynka #${id}`}</option>)}
+        </select>
+        <select aria-label="Status wiadomości" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
+          <option value="">Wszystkie statusy</option>
+          <option value="sent">Wysłane</option>
+          <option value="scheduled">Zaplanowane</option>
+        </select>
+        <input type="search" aria-label="Szukaj w kolejce" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
+        <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
+        {!isProduction && (
+          <>
+            <Button
+              id="validate-queue-btn"
+              size="sm"
+              variant="outline"
+              onClick={validateQueue}
+              disabled={validateState.busy}
+            >
+              {validateState.text}
+            </Button>
+            <Button
+              id="recalc-all-btn"
+              size="sm"
+              variant="outline"
+              onClick={recalculateAll}
+              disabled={recalcState.busy}
+            >
+              {recalcState.text}
+            </Button>
+          </>
+        )}
+      </div>);
+
   return (
     <PageFrame
       className="sk-schedule-page"
-      title="Harmonogram i kolejka"
+      title={previewItem ? "Podgląd wiadomości w kolejce" : "Harmonogram i kolejka"}
       description="Monitoruj zaplanowane i wysłane wiadomości w strefach czasowych kampanii."
-      actions={<Button size="sm" variant="outline" onClick={loadData}>↻ Odśwież</Button>}
+      actions={previewItem ? <Button variant="outline" onClick={() => { previewRequest.current += 1; setPreviewBusy(false); setPreviewItem(null); }}>Wróć do harmonogramu</Button> : <><Button size="sm" variant="outline" onClick={() => setView(v => v === 'calendar' ? 'queue' : 'calendar')}>{view === 'calendar' ? 'Lista wiadomości' : 'Kalendarz'}</Button><Button size="sm" variant="outline" disabled={refreshing} onClick={() => loadData()}>↻ Odśwież</Button></>}
     >
-      <Card className="sk-schedule-statusbar flex flex-wrap justify-between items-center mb-4 p-2">
+      <div hidden={!!previewItem}>
+      {initialLoaded && !fetchError && <Card className="sk-schedule-statusbar flex flex-wrap justify-between items-center mb-4 p-2">
         <div className="flex flex-wrap gap-4 items-center">
           {!isProduction && (
             <>
@@ -562,13 +549,13 @@ export default function Schedule() {
             </>
           )}
           <div>
-            <span className="text-sm text-gray-500">Harmonogram:</span> <span className={serverStatus.schedule_running?'text-green-600':'text-red-600'}>{serverStatus.schedule_running?'Działa':'Zatrzymany'}</span>
+            <span className="text-sm text-gray-500">Harmonogram:</span> <span className={typeof serverStatus.schedule_running !== 'boolean' ? 'sk-muted' : serverStatus.schedule_running ? 'text-green-600' : 'text-red-600'}>{typeof serverStatus.schedule_running !== 'boolean' ? 'Brak danych' : serverStatus.schedule_running ? 'Działa' : 'Zatrzymany'}</span>
           </div>
           <div>
             <span className="text-sm text-gray-500">Ostatnie uruchomienie:</span> <span className="font-semibold">{renderLastRun(serverStatus.last_send_job_run)}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count??0}</span>
+            <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count ?? '—'}</span>
           </div>
           <div>
             <span className="text-sm text-gray-500">Strategia:</span> <span className={strategy==='round_robin'?'text-teal-500':'text-gray-900'} style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}} title="Zmień w ustawieniach" onClick={() => { window.location = '/settings#general'; }}>{strategy==='priority'?'Priorytet':'Równomiernie'}</span>
@@ -577,59 +564,29 @@ export default function Schedule() {
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">Auto-odświeżanie: 30 s</span>
         </div>
-      </Card>
-      <div className="sk-schedule-metrics">
-        <Metric icon="send" title="Wysłane" value={(stats.total_sent||0).toLocaleString('pl-PL')} detail="w załadowanym zakresie" tone="blue" />
+      </Card>}
+      {view === 'queue' && initialLoaded && !fetchError && <div className="sk-schedule-metrics">
+        <Metric icon="send" title="Wysłane" value={(stats.total_sent||0).toLocaleString('pl-PL')} detail="łącznie w historii wysyłki" tone="blue" />
         <Metric icon="calendar" title="Zaplanowane" value={(stats.total_scheduled||0).toLocaleString('pl-PL')} detail={timeToNext ? `następna za ${timeToNext}` : 'oczekujące w kolejce'} tone="green" />
         <Metric icon="campaign" title="Kampanie" value={stats.total_campaigns||0} detail={strategy==='priority'?'strategia priorytetowa':'równomierny podział'} tone="purple" />
-        <Metric icon="server" title="Scheduler" value={serverStatus.schedule_running?'Online':'Stop'} detail={`ostatni przebieg: ${renderLastRun(serverStatus.last_send_job_run)}`} tone={serverStatus.schedule_running?'green':'red'} />
-      </div>
-      <div className="sk-schedule-toolbar">
-        <select value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">Wszystkie kampanie</option>
-          {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
-        </select>
-        <select value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">Wszystkie statusy</option>
-          <option value="sent">Wysłane</option>
-          <option value="scheduled">Zaplanowane</option>
-        </select>
-        <input type="text" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
-        <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
-        {!isProduction && (
-          <>
-            <Button
-              id="validate-queue-btn"
-              size="sm"
-              variant="outline"
-              onClick={validateQueue}
-              disabled={validateState.busy}
-            >
-              {validateState.text}
-            </Button>
-            <Button
-              id="recalc-all-btn"
-              size="sm"
-              variant="outline"
-              onClick={recalculateAll}
-              disabled={recalcState.busy}
-            >
-              {recalcState.text}
-            </Button>
-          </>
-        )}
-      </div>
-      <Card className="sk-schedule-list p-4" id="schedule-body">
-        <ErrorNotice error={fetchError} onRetry={() => loadData()} />
-        {!initialLoaded ? <StatePanel icon="refresh" title="Ładowanie harmonogramu" description="Pobieramy kolejkę wysyłki." /> : !fetchError && renderSection()}
-        <div ref={sentinelRef} style={{ height: 1 }} />
-        {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--sk-muted)' }}>Wczytywanie…</p>}
-      </Card>
+        <Metric icon="server" title="Scheduler" value={typeof serverStatus.schedule_running !== 'boolean' ? '—' : serverStatus.schedule_running ? 'Online' : 'Stop'} detail={`ostatni przebieg: ${renderLastRun(serverStatus.last_send_job_run)}`} tone={typeof serverStatus.schedule_running !== 'boolean' ? 'neutral' : serverStatus.schedule_running ? 'green' : 'red'} />
+      </div>}
+      {view === 'queue' && filters}
+      <ErrorNotice error={fetchError} onRetry={() => loadData()} />
+      {!initialLoaded ? <StatePanel icon="refresh" title="Ładowanie harmonogramu" description="Pobieramy kolejkę wysyłki." /> : !fetchError && view === 'calendar' && <ScheduleCalendar
+        items={[...filteredSent, ...filteredScheduled]} filters={filters} busy={refreshing}
+        onRangeChange={showRange} onOpenQueue={() => setView('queue')}
+        onPreview={openPreview}
+      />}
+      {!fetchError && (sent.length >= SCHEDULE_LIMIT || scheduled.length >= SCHEDULE_LIMIT) && <p className="sk-notice tone-amber">Osiągnięto limit 5000 rekordów. Widok może nie zawierać wszystkich wiadomości w tym okresie.</p>}
+      {view === 'queue' && initialLoaded && !fetchError && <Card className="sk-schedule-list p-4" id="schedule-body">
+        {renderSection()}
+        <div className="sk-form-actions"><Button variant="outline" disabled={refreshing || daysBack >= 3650} onClick={() => setDaysBack(v => Math.min(3650, v + 7))}>Starsze wiadomości</Button><Button variant="outline" disabled={refreshing || daysAhead >= 3650} onClick={() => setDaysAhead(v => Math.min(3650, v + 7))}>Kolejne 7 dni</Button></div>
+      </Card>}
 
-      {/* Email preview modal */}
-      {previewItem && (
-        <ScheduleEmailPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
-      )}
+      </div>
+      {previewBusy && !previewItem && <p role="status">Wczytywanie podglądu wiadomości…</p>}
+      {previewItem && <ScheduleMessagePreview item={previewItem} items={[...filteredScheduled, ...filteredSent]} onSelect={openPreview} busy={previewBusy} />}
     </PageFrame>
   );
 }

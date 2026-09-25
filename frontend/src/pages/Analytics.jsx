@@ -373,7 +373,7 @@ export default function Analytics() {
               }}
               disabled={!currentChoice}
             >
-              Add
+              Dodaj
             </Button>
           </div>
           {selectedIds.length > 0 && (
@@ -388,6 +388,7 @@ export default function Analytics() {
                     {camp?.name || id}
                     <button
                       className="ml-1 text-gray-500 hover:text-gray-700"
+                      aria-label={`Usuń filtr kampanii ${camp?.name || id}`}
                       onClick={() => setSelectedIds(selectedIds.filter(x => x !== id))}
                     >
                       ×

@@ -34,7 +34,7 @@ export default function Dashboard(){
    <Metric icon="reply" title="Odpowiedzi" value={data?replies:'—'} detail={`${replyRate}% współczynnik`} tone="blue"/>
    <Metric icon="stack" title="Aktywne kampanie" value={data?campaigns.filter(c=>!c.paused).length:'—'} detail={`z ${campaigns.length} wszystkich`} tone="blue"/>
    <Metric icon="shield" title="Zdrowie domeny" value="—" detail="Brak pomiaru DNS"/>
-   <Metric icon="mail" title="Skrzynki" value={data?inboxes.length:'—'} detail={inboxes.length&&activeInboxes===inboxes.length?'Wszystkie online':`${activeInboxes} aktywnych · ${inboxes.length-activeInboxes} wstrzymanych`} tone="blue"/>
+   <Metric icon="mail" title="Skrzynki" value={data?inboxes.length:'—'} detail={inboxes.length&&activeInboxes===inboxes.length?'Wszystkie aktywne':`${activeInboxes} aktywnych · ${inboxes.length-activeInboxes} wstrzymanych`} tone="blue"/>
    <Metric icon="unsubscribe" title="Wypisania" value={data?data.suppression.filter(x=>x.reason==='unsubscribe').length:'—'} detail="Na globalnej liście wykluczeń" tone="red"/>
   </div>
   <div className="sk-two-col"><Panel title="Aktywność wysyłki" icon="flash" action={<select className="sk-dashboard-range" aria-label="Zakres wykresu" value={days} onChange={e=>setDays(+e.target.value)}><option value={7}>Ostatnie 7 dni</option><option value={14}>Ostatnie 14 dni</option></select>}><ActivityChart rows={daily} days={days}/></Panel>

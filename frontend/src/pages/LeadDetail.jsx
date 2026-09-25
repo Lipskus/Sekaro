@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, Badge, ErrorNotice, StatePanel } from '../redesign/ui';
+import { PageFrame, Metric, Badge, ErrorNotice, StatePanel, SectionTabs } from '../redesign/ui';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
 
@@ -17,6 +17,7 @@ export default function LeadDetail() {
   const { id } = useParams();
   const notify = useNotify();
   const loading = useLoading();
+  const [detailTab, setDetailTab] = useState('summary');
   const [lead, setLead] = useState(null);
   const [fields, setFields] = useState([]);
   const [editName, setEditName] = useState('');
@@ -91,7 +92,7 @@ export default function LeadDetail() {
 
   const interactions = lead.interactions || [];
   const outboundCount = interactions.filter(row => row.direction === 'outbound').length;
-  const inboundCount = interactions.filter(row => row.direction !== 'outbound').length;
+  const inboundCount = interactions.filter(row => row.direction === 'inbound').length;
   const campaignsCount = lead.campaigns?.length || 0;
 
   return (
@@ -123,9 +124,11 @@ export default function LeadDetail() {
         <Metric icon="history" title="Historia" value={interactions.length} detail="zarejestrowane zdarzenia" tone="green" />
       </div>
 
-      <div className="sk-contact-detail-layout">
+      <SectionTabs ariaLabel="Widok kontaktu" items={[{ id: 'summary', label: 'Podsumowanie', icon: 'contacts' }, { id: 'activity', label: 'Aktywność', icon: 'history' }]} value={detailTab} onChange={setDetailTab} />
+      <div className={`sk-contact-detail-layout sk-contact-tab-${detailTab}`}>
 
-      <Card className="sk-contact-detail-campaigns p-4">
+
+      <Card hidden={detailTab !== 'summary'} className="sk-contact-detail-campaigns p-4">
         <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
           Kampanie
         </h2>
@@ -169,7 +172,7 @@ export default function LeadDetail() {
         )}
       </Card>
 
-      <Card className="sk-contact-detail-fields p-4">
+      <Card hidden={detailTab !== 'summary'} className="sk-contact-detail-fields p-4">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 pb-3 dark:border-gray-700">
           <div>
             <h2 className="text-lg font-semibold">Dane kontaktu i zmienne</h2>
@@ -186,6 +189,7 @@ export default function LeadDetail() {
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">E-mail</label>
             <input
+              aria-label="E-mail"
               value={lead.email || ''}
               readOnly
               className="w-full rounded-md border-gray-300 bg-gray-100 font-mono text-sm text-gray-600"
@@ -195,6 +199,7 @@ export default function LeadDetail() {
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa / imię</label>
             <input
+              aria-label="Nazwa / imię"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               className="w-full rounded-md border-gray-300 text-sm"
@@ -208,6 +213,7 @@ export default function LeadDetail() {
                 {field.label || field.key}
               </label>
               <input
+                aria-label={field.label || field.key}
                 value={editCustom[field.key] ?? ''}
                 onChange={(e) =>
                   setEditCustom((prev) => ({ ...prev, [field.key]: e.target.value }))
@@ -231,7 +237,7 @@ export default function LeadDetail() {
         )}
       </Card>
 
-      <Card className="sk-contact-detail-history p-4 overflow-auto">
+      <Card hidden={detailTab !== 'activity'} className="sk-contact-detail-history p-4 overflow-auto">
         <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
           Historia
         </h2>

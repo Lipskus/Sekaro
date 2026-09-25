@@ -43,6 +43,7 @@ export default function Templates() {
   const [contactSearch, setContactSearch] = useState('');
   const [contactMatches, setContactMatches] = useState([]);
   const [previewLeadId, setPreviewLeadId] = useState('');
+  const [editorMode, setEditorMode] = useState('edit');
   const [preview, setPreview] = useState(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
@@ -104,6 +105,7 @@ export default function Templates() {
   };
 
   const newTemplate = () => {
+    setEditorMode('edit');
     setSelectedId(null);
     setSelectedTemplate(null);
     setSelectedVersionId(null);
@@ -177,6 +179,7 @@ export default function Templates() {
   const loadVersion = (versionId) => {
     const version = (selectedTemplate?.versions || []).find((v) => String(v.id) === String(versionId));
     if (!version) return;
+    setEditorMode('edit');
     setSelectedVersionId(version.id);
     setSubject(version.subject || '');
     setBody(version.body || '');
@@ -185,6 +188,7 @@ export default function Templates() {
   };
 
   const insertVariable = (key, target = 'body') => {
+    setEditorMode('edit');
     const token = variableToken(key);
     if (target === 'subject') {
       setSubject((prev) => `${prev}${prev && !prev.endsWith(' ') ? ' ' : ''}${token}`);
@@ -208,6 +212,7 @@ export default function Templates() {
 
   const renderPreview = async () => {
     setPreviewBusy(true);
+    setPreview(null);
     try {
       const row = await api.post('/templates/preview/render', {
         subject,
@@ -273,7 +278,7 @@ export default function Templates() {
                 type="button"
                 disabled={busy}
                 aria-pressed={selectedId === tpl.id}
-                onClick={() => loadTemplate(tpl.id)}
+                onClick={() => { setEditorMode('edit'); loadTemplate(tpl.id); }}
                 className={`sk-template-list-item mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
                   selectedId === tpl.id ? 'bg-teal-50 text-teal-800' : 'hover:bg-gray-50 text-gray-700'
                 }`}
@@ -289,11 +294,15 @@ export default function Templates() {
         </Card>
 
         <div className="sk-template-main min-w-0">
-          <Card className="sk-template-editor p-5 space-y-4">
+          <div className="sk-template-mode" role="group" aria-label="Widok szablonu">
+            {[['edit', 'Edytor'], ['preview', 'Podgląd'], ['test', 'Wysyłka testowa']].map(([value, label]) => <button type="button" key={value} aria-pressed={editorMode === value} onClick={() => setEditorMode(value)}>{label}</button>)}
+          </div>
+          <Card hidden={editorMode !== 'edit'} className="sk-template-editor p-5 space-y-4">
             <div className="flex flex-wrap items-end gap-3">
               <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa szablonu</label>
                 <input
+                  aria-label="Nazwa szablonu"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-lg border-gray-300 text-sm"
@@ -305,6 +314,7 @@ export default function Templates() {
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Temat</label>
               <input
+                aria-label="Temat wiadomości"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 className="w-full rounded-lg border-gray-300 text-sm"
@@ -380,7 +390,7 @@ export default function Templates() {
             </div>
           </Card>
 
-          <Card className="sk-template-preview p-5 space-y-4">
+          <Card hidden={editorMode !== 'preview'} className="sk-template-preview p-5 space-y-4">
             <div>
               <h2 className="font-semibold text-gray-900">Podgląd dla kontaktu</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -405,6 +415,7 @@ export default function Templates() {
             </div>
             {contactMatches.length > 0 && (
               <select
+                aria-label="Kontakt do podglądu"
                 value={previewLeadId}
                 onChange={(e) => {
                   setPreviewLeadId(e.target.value);
@@ -447,7 +458,7 @@ export default function Templates() {
             )}
           </Card>
 
-          <Card className="sk-template-test p-5 space-y-3">
+          <Card hidden={editorMode !== 'test'} className="sk-template-test p-5 space-y-3">
             <div>
               <h2 className="font-semibold text-gray-900">Wysyłka testowa</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -456,6 +467,7 @@ export default function Templates() {
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <select
+                aria-label="Skrzynka do wysyłki testowej"
                 value={testInboxId}
                 onChange={(e) => setTestInboxId(e.target.value)}
                 className="rounded-lg border-gray-300 text-sm"
@@ -469,6 +481,7 @@ export default function Templates() {
               </select>
               <input
                 type="email"
+                aria-label="Adres odbiorcy testowego"
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
                 className="rounded-lg border-gray-300 text-sm"
