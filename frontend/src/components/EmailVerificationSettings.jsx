@@ -1,23 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../api';
 import { useNotify } from '../context/NotificationContext';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
+import { ErrorNotice, StatePanel } from '../redesign/ui';
 
 const MAX_TEST_EMAILS = 10;
 
 const STATUS_ICON = {
-  valid:   { icon: '✓', label: 'Send',          cls: 'text-green-600 font-semibold' },
-  invalid: { icon: '✗', label: 'Skip',          cls: 'text-red-500 font-semibold' },
-  risky:   { icon: '⚠', label: 'Skip (risky)',  cls: 'text-yellow-600 font-semibold' },
-  unknown: { icon: '?', label: 'Allow through', cls: 'text-gray-500' },
+  valid:   { icon: '✓', label: 'Wyślij',          cls: 'text-green-600 font-semibold' },
+  invalid: { icon: '✗', label: 'Pomiń',          cls: 'text-red-500 font-semibold' },
+  risky:   { icon: '⚠', label: 'Pomiń (ryzykowny)',  cls: 'text-yellow-600 font-semibold' },
+  unknown: { icon: '?', label: 'Dopuść', cls: 'text-gray-500' },
 };
 
-export default function EmailVerificationSettings() {
+export default function EmailVerificationSettings({ initialExpanded = false }) {
   const notify = useNotify();
 
   // ── core settings ──────────────────────────────────────────────────────────
-  const [expanded,          setExpanded]          = useState(false);
+  const [expanded,          setExpanded]          = useState(initialExpanded);
   const [enabled,           setEnabled]           = useState(false);
   const [provider,          setProvider]          = useState('mailtester_ninja');
   const [apiKey,            setApiKey]            = useState('');
@@ -48,8 +49,12 @@ export default function EmailVerificationSettings() {
   const [customTesting,     setCustomTesting]     = useState(false);
   const [customTestResults, setCustomTestResults] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+
   // ── load saved settings ────────────────────────────────────────────────────
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true); setLoadError(null);
     api.get('/settings/email-verification').then(data => {
       const p   = data.provider || 'mailtester_ninja';
       const cu  = data.custom_url || '';
@@ -69,8 +74,9 @@ export default function EmailVerificationSettings() {
       setConnectionTested(data.connection_tested || false);
       setCredsChanged(false);
       savedStateRef.current = { provider: p, customUrl: cu, customField: cf, customValidValues: cvv, customInvalidValues: civ, customMethod: cm };
-    }).catch(() => {});
+    }).catch(setLoadError).finally(() => setLoading(false));
   }, []);
+  useEffect(() => { load(); }, [load]);
 
   // ── helpers ────────────────────────────────────────────────────────────────
   const parseValues = str => str.split(',').map(s => s.trim()).filter(Boolean);
@@ -99,7 +105,7 @@ export default function EmailVerificationSettings() {
         setTestResult(null);
       }
       setCredsChanged(false);
-      notify({ type: 'success', message: 'Email verification settings saved' });
+      notify({ type: 'success', message: 'Ustawienia weryfikacji zapisane' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -183,6 +189,8 @@ export default function EmailVerificationSettings() {
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
+  if (loading) return <StatePanel icon="refresh" title="Wczytywanie weryfikacji e-mail"/>;
+  if (loadError) return <ErrorNotice error={loadError} onRetry={load}/>;
   return (
     <Card className="mb-4">
 
@@ -193,7 +201,7 @@ export default function EmailVerificationSettings() {
       >
         <div className="flex items-center gap-3 min-w-0">
           <span className={`text-gray-400 transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Email Verification</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Weryfikacja e-mail</h3>
           {enabled
             ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Enabled</span>
             : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
@@ -236,14 +244,13 @@ export default function EmailVerificationSettings() {
           <div className="mt-4 space-y-5 border-t pt-4">
 
             <p className="text-sm text-gray-500">
-              Automatically check each lead's email address before sending. Addresses that look fake or
-              undeliverable are skipped so you don't waste sending quota.
+              Sprawdzaj adresy kontaktów przed wysyłką. Nieprawidłowe adresy są pomijane, aby nie zużywać limitu wysyłki.
             </p>
 
             {/* ── Provider selector ── */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Verification service
+                Usługa weryfikacji
               </label>
               <select
                 className="border rounded-lg px-3 py-2 text-sm w-full max-w-xs dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -259,7 +266,7 @@ export default function EmailVerificationSettings() {
               >
                 {(providers.length > 0 ? providers : ['mailtester_ninja']).map(p => (
                   <option key={p} value={p}>
-                    {p === 'custom'           ? 'My own API (custom)'
+                    {p === 'custom'           ? 'Własne API'
                       : p === 'mailtester_ninja' ? 'Mailtester Ninja'
                       : p.replace(/_/g, ' ')}
                   </option>
@@ -270,11 +277,11 @@ export default function EmailVerificationSettings() {
             {/* ── API key (built-in providers) ── */}
             {provider !== 'custom' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">API Key</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Klucz API</label>
                 <input
                   type="password"
                   className="border rounded-lg px-3 py-2 text-sm w-full max-w-md dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  placeholder={apiKeyMasked || 'Enter API key'}
+                  placeholder={apiKeyMasked || 'Wpisz klucz API'}
                   value={apiKey}
                   onChange={e => {
                     setApiKey(e.target.value);
@@ -286,7 +293,7 @@ export default function EmailVerificationSettings() {
                   }}
                 />
                 {apiKeyMasked && !apiKey && (
-                  <p className="text-xs text-gray-400 mt-1">Current key: {apiKeyMasked}</p>
+                  <p className="text-xs text-gray-400 mt-1">Zapisany klucz: {apiKeyMasked}</p>
                 )}
               </div>
             )}
