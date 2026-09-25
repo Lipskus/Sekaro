@@ -336,3 +336,57 @@ html[data-theme=dark] {
   .sk-settings-grid{grid-template-columns:1fr}
   .sk-span-12,.sk-span-8,.sk-span-7,.sk-span-6,.sk-span-5,.sk-span-4{grid-column:1}
 }
+
+
+/* Existing Settings route — bridge styles while the functional sections are migrated card by card. */
+.sk-settings-page {
+  background:var(--sk-bg);
+  color:var(--sk-text);
+}
+.sk-settings-page-head {
+  padding:26px 28px 0;
+  border-bottom:1px solid var(--sk-line);
+  background:var(--sk-bg);
+}
+.sk-settings-page-head>div:first-child h1 {
+  margin:0;
+  font-size:30px;
+  line-height:1.15;
+  letter-spacing:-.65px;
+  font-weight:760;
+}
+.sk-settings-page-head>div:first-child p {
+  margin:5px 0 12px;
+  font-size:15px;
+  line-height:1.45;
+  color:var(--sk-muted);
+}
+.sk-settings-main-tabs {
+  margin:0;
+  border-bottom:0;
+}
+.sk-settings-page>div>aside {
+  border-color:var(--sk-line)!important;
+  background:var(--sk-surface)!important;
+}
+.sk-settings-page>div>aside p {
+  color:var(--sk-muted)!important;
+}
+.sk-settings-page>div>aside nav button {
+  min-height:34px;
+  color:var(--sk-muted)!important;
+  border-radius:7px!important;
+}
+.sk-settings-page>div>aside nav button:hover {
+  background:var(--sk-surface-alt)!important;
+  color:var(--sk-text)!important;
+}
+.sk-settings-page>div>aside nav button.bg-primary\/15 {
+  background:var(--sk-green-soft)!important;
+  color:var(--sk-green-text)!important;
+  box-shadow:inset 3px 0 0 var(--sk-accent);
+  font-weight:650;
+}
+.sk-settings-page>div>div[ref] {
+  background:var(--sk-bg);
+}
