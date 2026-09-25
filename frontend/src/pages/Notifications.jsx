@@ -5,7 +5,7 @@ import { useNotifications } from '../context/NotificationsContext';
 import { useNotify } from '../context/NotificationContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { PageFrame, SectionTabs, StatePanel, Icon } from '../redesign/ui';
+import { PageFrame, SectionTabs, StatePanel, ErrorNotice, Icon } from '../redesign/ui';
 import {
   RiMailOpenLine,
   RiMailSendLine,
@@ -140,6 +140,7 @@ export default function Notifications() {
   const [total, setTotal] = useState(0);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [eventTypes, setEventTypes] = useState([]);
   const [notifConfig, setNotifConfig] = useState({ enabled: false, notification_email: '', events: [], rate_limit_per_hour: 10 });
   const [configSaving, setConfigSaving] = useState(false);
@@ -155,6 +156,7 @@ export default function Notifications() {
       offsetRef.current = 0;
     }
     setLoading(true);
+    setFetchError('');
     try {
       const params = new URLSearchParams();
       if (activeTab === 'unread') params.set('unread_only', 'true');
@@ -169,7 +171,7 @@ export default function Notifications() {
         offsetRef.current += limit;
       }
     } catch (e) {
-      if (gen === fetchGenRef.current) console.error(e);
+      if (gen === fetchGenRef.current) setFetchError(e);
     } finally {
       if (gen === fetchGenRef.current) setLoading(false);
     }
@@ -325,6 +327,8 @@ export default function Notifications() {
               </div>
             </div>
 
+            <ErrorNotice error={fetchError} onRetry={() => fetchNotifications(true)} />
+
             {/* Loading state — first load */}
             {loading && items.length === 0 && (
               <StatePanel
@@ -336,7 +340,7 @@ export default function Notifications() {
             )}
 
             {/* Empty state */}
-            {!loading && filteredItems.length === 0 && (
+            {!loading && !fetchError && filteredItems.length === 0 && (
               <StatePanel
                 tone="success"
                 icon="mail"
