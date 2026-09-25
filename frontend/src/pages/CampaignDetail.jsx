@@ -3541,7 +3541,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
 
       {showEditWarning && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div data-darkreader-ignore className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" >
+          <div className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" >
             <h3 className="font-semibold text-gray-800 mb-1">Discard changes?</h3>
             <p className="text-sm text-gray-500 mb-4">You have unsaved changes. Closing will discard them.</p>
             <div className="flex gap-2 justify-end">
