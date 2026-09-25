@@ -1589,3 +1589,110 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 @media(max-width:760px){
   .sk-contact-detail-metrics{grid-template-columns:1fr}
 }
+
+
+/* Contact recovery tools */
+.sk-contact-tools-metrics {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--sk-space-4);
+  margin-bottom:var(--sk-space-5);
+}
+.sk-contact-tools-metrics .sk-metric {
+  min-height:124px;
+  padding:15px 16px;
+}
+.sk-contact-tools-metrics .sk-metric-icon {width:40px;height:40px;margin-bottom:2px}
+.sk-contact-tools-metrics .sk-metric-value {font-size:24px;margin:4px 0 2px}
+.sk-contact-tools-actions,
+.sk-contact-tools-searchbar {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:12px;
+  margin-bottom:var(--sk-space-4);
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-radius-lg);
+  background:var(--sk-surface);
+}
+.sk-contact-tools-actions span {
+  color:var(--sk-muted);
+  font-size:11px;
+}
+.sk-contact-tools-searchbar .relative {margin-left:auto}
+.sk-contact-tools-guide {
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+  margin-bottom:var(--sk-space-4);
+  border-color:color-mix(in srgb,var(--sk-amber-text) 35%,var(--sk-line))!important;
+  background:var(--sk-amber-soft)!important;
+  color:var(--sk-text)!important;
+}
+.sk-contact-tools-guide svg {color:var(--sk-amber-text);flex:0 0 auto}
+.sk-contact-tools-guide p {margin:0;font-size:11px;line-height:1.5}
+.sk-contact-tools-bulk,
+.sk-contact-tools-table {
+  border:1px solid var(--sk-line)!important;
+  border-radius:var(--sk-radius-lg)!important;
+  background:var(--sk-surface)!important;
+  color:var(--sk-text);
+  box-shadow:var(--sk-shadow);
+}
+.sk-contact-tools-page [class*="text-gray-900"],
+.sk-contact-tools-page [class*="text-gray-800"],
+.sk-contact-tools-page [class*="text-gray-700"],
+.sk-contact-tools-page [class*="text-gray-600"] {color:var(--sk-text)!important}
+.sk-contact-tools-page [class*="text-gray-500"],
+.sk-contact-tools-page [class*="text-gray-400"],
+.sk-contact-tools-page [class*="text-gray-300"] {color:var(--sk-muted)!important}
+.sk-contact-tools-page [class*="bg-gray-50"],
+.sk-contact-tools-page [class*="bg-gray-100"],
+.sk-contact-tools-page [class*="bg-gray-200"] {background:var(--sk-surface-alt)!important}
+.sk-contact-tools-page [class*="border-gray-"] {border-color:var(--sk-line)!important}
+.sk-contact-tools-page input:not([type=checkbox]):not([type=radio]),
+.sk-contact-tools-page select {
+  background:var(--sk-surface)!important;
+  color:var(--sk-text)!important;
+  border-color:var(--sk-line)!important;
+}
+.sk-contact-tools-table table {
+  color:var(--sk-text);
+}
+.sk-contact-tools-table thead {
+  background:var(--sk-surface-alt);
+}
+.sk-contact-tools-table tr {
+  border-color:var(--sk-line)!important;
+}
+.sk-contact-tools-table tbody tr:nth-child(even) {
+  background:color-mix(in srgb,var(--sk-surface-alt) 58%,transparent)!important;
+}
+.sk-contact-tools-modal {
+  border:1px solid var(--sk-line);
+  background:var(--sk-surface)!important;
+  color:var(--sk-text);
+}
+.sk-contact-tools-modal [class*="bg-gray-50"],
+.sk-contact-tools-modal [class*="bg-gray-100"] {background:var(--sk-surface-alt)!important}
+.sk-contact-tools-modal [class*="border-gray-"] {border-color:var(--sk-line)!important}
+.sk-contact-tools-modal [class*="text-gray-900"],
+.sk-contact-tools-modal [class*="text-gray-800"],
+.sk-contact-tools-modal [class*="text-gray-700"] {color:var(--sk-text)!important}
+.sk-contact-tools-modal [class*="text-gray-500"],
+.sk-contact-tools-modal [class*="text-gray-400"] {color:var(--sk-muted)!important}
+.sk-contact-tools-modal input,
+.sk-contact-tools-modal select {
+  background:var(--sk-surface)!important;
+  border-color:var(--sk-line)!important;
+  color:var(--sk-text)!important;
+}
+@media(max-width:1180px){
+  .sk-contact-tools-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .sk-contact-tools-metrics{grid-template-columns:1fr}
+  .sk-contact-tools-actions,.sk-contact-tools-searchbar{align-items:stretch;flex-direction:column}
+  .sk-contact-tools-searchbar .relative{margin-left:0}
+}
