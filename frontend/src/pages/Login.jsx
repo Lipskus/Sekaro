@@ -4,7 +4,7 @@ import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { useLanguage } from '../context/LanguageContext';
 import { useDarkMode } from '../context/DarkModeContext';
 import Logo from '../redesign/Logo';
-import { RiLock2Line, RiMailLine, RiEyeLine, RiEyeOffLine, RiShieldCheckLine, RiBarChartLine, RiArrowRightLine } from 'react-icons/ri';
+import { RiLock2Line, RiMailLine, RiEyeLine, RiEyeOffLine, RiShieldCheckLine, RiBarChartLine, RiArrowRightLine, RiGlobalLine, RiSunLine, RiMoonLine, RiComputerLine, RiSendPlaneLine } from 'react-icons/ri';
 
 const BACKUP_MIN_PASSWORD_LEN = 8;
 
@@ -34,6 +34,7 @@ export default function Login() {
   const [restorePreview, setRestorePreview] = useState(null);
   const [restorePreviewBusy, setRestorePreviewBusy] = useState(false);
   const [restoreExecuteBusy, setRestoreExecuteBusy] = useState(false);
+  const [restoreConfirmArmed, setRestoreConfirmArmed] = useState(false);
   const [restoreMsg, setRestoreMsg] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,6 +47,7 @@ export default function Login() {
   });
 
   const isFirstUser = setupComplete === false;
+  const LoginThemeIcon = themePreference === 'dark' ? RiMoonLine : themePreference === 'system' ? RiComputerLine : RiSunLine;
 
   useEffect(() => {
     if (isFirstUser) return;
@@ -99,6 +101,7 @@ export default function Login() {
     setRestoreMetaBusy(true);
     setRestoreMeta(null);
     setRestorePreview(null);
+    setRestoreConfirmArmed(false);
     setRestoreMsg(null);
     (async () => {
       try {
@@ -145,24 +148,31 @@ export default function Login() {
   return (
     <div className="sk-login-page" aria-busy={authBusy||restoreMetaBusy||restorePreviewBusy||restoreExecuteBusy}>
       <div className="sk-login-controls" aria-label="Ustawienia logowania">
-        <select
-          value={language}
-          onChange={event => setLanguage(event.target.value)}
-          aria-label="Język"
-        >
-          {languages.map(item => (
-            <option key={item.code} value={item.code}>{item.label}</option>
-          ))}
-        </select>
-        <select
-          value={themePreference}
-          onChange={event => setThemePreference(event.target.value)}
-          aria-label="Motyw"
-        >
-          <option value="light">Jasny motyw</option>
-          <option value="dark">Ciemny motyw</option>
-          <option value="system">Motyw systemowy</option>
-        </select>
+        <label className="sk-login-control sk-login-control-language">
+          <RiGlobalLine aria-hidden="true" />
+          <select
+            value={language}
+            onChange={event => setLanguage(event.target.value)}
+            aria-label="Język"
+          >
+            {languages.map(item => (
+              <option key={item.code} value={item.code}>{item.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="sk-login-control sk-login-control-theme">
+          <LoginThemeIcon aria-hidden="true" />
+          <select
+            value={themePreference}
+            onChange={event => setThemePreference(event.target.value)}
+            aria-label="Motyw"
+          >
+            <option value="light">Jasny motyw</option>
+            <option value="dark">Ciemny motyw</option>
+            <option value="system">Motyw systemowy</option>
+          </select>
+          <i className="sk-login-control-dot" aria-hidden="true" />
+        </label>
       </div>
 
       <section className="sk-login-brand-panel" aria-label="Sekaro">
@@ -195,7 +205,7 @@ export default function Login() {
             <div className="sk-login-chart-line"><b/><b/><b/><b/></div>
           </div>
           <div className="sk-login-float sk-login-float-mail"><RiMailLine /></div>
-          <div className="sk-login-float sk-login-float-send"><RiArrowRightLine /></div>
+          <div className="sk-login-float sk-login-float-send"><RiSendPlaneLine /></div>
           <div className="sk-login-float sk-login-float-chart"><RiBarChartLine /></div>
           <div className="sk-login-handwritten">Więcej<br/>możliwości<br/>w Twoich rękach</div>
         </div>
@@ -265,10 +275,13 @@ export default function Login() {
             )}
 
             {!isFirstUser && (
-              <label className="sk-login-remember">
-                <input type="checkbox" checked={rememberLogin} onChange={e => setRememberLogin(e.target.checked)} />
-                <span>Zapamiętaj login</span>
-              </label>
+              <div className="sk-login-options">
+                <label className="sk-login-remember">
+                  <input type="checkbox" checked={rememberLogin} onChange={e => setRememberLogin(e.target.checked)} />
+                  <span>Zapamiętaj mnie</span>
+                </label>
+                <span className="sk-login-forgot" aria-disabled="true" title="Odzyskiwanie hasła nie jest skonfigurowane">Nie pamiętasz hasła?</span>
+              </div>
             )}
 
             {authError && <div className="sk-login-error" role="alert">{authError}</div>}
@@ -416,6 +429,7 @@ export default function Login() {
                               throw new Error(parseDetailMessage(text) || res.statusText);
                             }
                             setRestorePreview(data);
+                            setRestoreConfirmArmed(false);
                           } catch (e) {
                             setRestoreMsg({ type: 'err', text: e.message || 'Nie udało się zweryfikować kopii zapasowej' });
                           } finally {
@@ -469,6 +483,7 @@ export default function Login() {
                                 throw new Error(parseDetailMessage(text) || res.statusText);
                               }
                               setRestorePreview(data);
+                            setRestoreConfirmArmed(false);
                             } catch (e) {
                               setRestoreMsg({ type: 'err', text: e.message || 'Nieprawidłowe hasło lub uszkodzona kopia' });
                             } finally {
@@ -492,19 +507,25 @@ export default function Login() {
                           <li>Użytkownicy: {restorePreview.backup?.user_count ?? '—'}</li>
                           <li>Administratorzy: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
                         </ul>
+                        {restoreConfirmArmed && (
+                          <div className="sk-login-restore-confirm" role="alert">
+                            <strong>Ta operacja zastąpi obecną bazę danych i nie można jej cofnąć.</strong>
+                            <button type="button" onClick={() => setRestoreConfirmArmed(false)} disabled={restoreExecuteBusy}>
+                              Anuluj
+                            </button>
+                          </div>
+                        )}
                         <button
                           type="button"
                           disabled={restoreExecuteBusy}
                           className="w-full py-2 px-4 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50"
                           onClick={async () => {
-                            if (
-                              !window.confirm(
-                                'Zastąpić obecną bazę danych tą kopią? Tej operacji nie można cofnąć.',
-                              )
-                            ) {
+                            if (!restoreConfirmArmed) {
+                              setRestoreConfirmArmed(true);
                               return;
                             }
                             setRestoreExecuteBusy(true);
+                            setRestoreConfirmArmed(false);
                             setRestoreMsg(null);
                             try {
                               const res = await fetch('/api/auth/restore-setup/execute', {
@@ -534,7 +555,7 @@ export default function Login() {
                             }
                           }}
                         >
-                          {restoreExecuteBusy ? 'Przywracanie…' : 'Potwierdź i przywróć'}
+                          {restoreExecuteBusy ? 'Przywracanie…' : restoreConfirmArmed ? 'Tak, zastąp bazę' : 'Potwierdź i przywróć'}
                         </button>
                       </div>
                     )}
@@ -555,7 +576,7 @@ export default function Login() {
         </div>
       </section>
 
-      <footer className="sk-login-footer">© 2026 Sekaro. Wszystkie prawa zastrzeżone.</footer>
+      <footer className="sk-login-footer">© 2025 Sekaro. Wszystkie prawa zastrzeżone.</footer>
     </div>
   );
 

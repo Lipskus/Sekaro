@@ -42,3 +42,7 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      - name: Verify frontend loading, error and detail states
+        working-directory: frontend
+        run: npm test

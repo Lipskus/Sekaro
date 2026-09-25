@@ -6,7 +6,8 @@ import 'react-quill/dist/quill.snow.css';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Icon } from '../redesign/ui';
+import { PageFrame, Icon, ErrorNotice, StatePanel } from '../redesign/ui';
+import SafeEmail from '../redesign/SafeEmail';
 import { useNotify } from '../context/NotificationContext';
 import { useConfirm } from '../context/ConfirmContext';
 
@@ -34,10 +35,15 @@ export default function Templates() {
   const [isHtml, setIsHtml] = useState(false);
   const [htmlSourceMode, setHtmlSourceMode] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [baseLoading, setBaseLoading] = useState(true);
+  const [baseError, setBaseError] = useState(null);
+  const [templateQuery, setTemplateQuery] = useState('');
+  const [selectedVersionId, setSelectedVersionId] = useState(null);
 
   const [contactSearch, setContactSearch] = useState('');
   const [contactMatches, setContactMatches] = useState([]);
   const [previewLeadId, setPreviewLeadId] = useState('');
+  const [editorMode, setEditorMode] = useState('edit');
   const [preview, setPreview] = useState(null);
   const [previewBusy, setPreviewBusy] = useState(false);
 
@@ -51,6 +57,8 @@ export default function Templates() {
   );
 
   const loadBase = async () => {
+    setBaseLoading(true);
+    setBaseError(null);
     try {
       const [tpls, flds, ibxs] = await Promise.all([
         api.get('/templates'),
@@ -65,7 +73,9 @@ export default function Templates() {
         if (first) setTestInboxId(String(first.id));
       }
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się wczytać szablonów.' });
+      setBaseError(e);
+    } finally {
+      setBaseLoading(false);
     }
   };
 
@@ -81,6 +91,7 @@ export default function Templates() {
       setSelectedTemplate(row);
       setName(row.name || '');
       const v = latestVersion(row);
+      setSelectedVersionId(v?.id ?? null);
       setSubject(v?.subject || '');
       setBody(v?.body || '');
       setIsHtml(Boolean(v?.is_html));
@@ -94,8 +105,10 @@ export default function Templates() {
   };
 
   const newTemplate = () => {
+    setEditorMode('edit');
     setSelectedId(null);
     setSelectedTemplate(null);
+    setSelectedVersionId(null);
     setName('');
     setSubject('');
     setBody('');
@@ -137,6 +150,7 @@ export default function Templates() {
       setSelectedId(row.id);
       setSelectedTemplate(row);
       setName(row.name || name.trim());
+      setSelectedVersionId(latestVersion(row)?.id ?? null);
       await loadBase();
     } catch (e) {
       notify({ type: 'error', message: e.message || 'Nie udało się zapisać szablonu.' });
@@ -165,6 +179,8 @@ export default function Templates() {
   const loadVersion = (versionId) => {
     const version = (selectedTemplate?.versions || []).find((v) => String(v.id) === String(versionId));
     if (!version) return;
+    setEditorMode('edit');
+    setSelectedVersionId(version.id);
     setSubject(version.subject || '');
     setBody(version.body || '');
     setIsHtml(Boolean(version.is_html));
@@ -172,6 +188,7 @@ export default function Templates() {
   };
 
   const insertVariable = (key, target = 'body') => {
+    setEditorMode('edit');
     const token = variableToken(key);
     if (target === 'subject') {
       setSubject((prev) => `${prev}${prev && !prev.endsWith(' ') ? ' ' : ''}${token}`);
@@ -195,6 +212,7 @@ export default function Templates() {
 
   const renderPreview = async () => {
     setPreviewBusy(true);
+    setPreview(null);
     try {
       const row = await api.post('/templates/preview/render', {
         subject,
@@ -238,21 +256,29 @@ export default function Templates() {
       className="sk-templates-page"
       title="Szablony wiadomości"
       description="Twórz, wersjonuj i testuj szablony. Dynamiczne zmienne korzystają z pól kontaktów w formacie {{klucz}}."
-      actions={<Button type="button" variant="default" onClick={newTemplate}>Nowy szablon</Button>}
+      actions={<Button type="button" variant="default" onClick={newTemplate} disabled={busy}>Nowy szablon</Button>}
     >
+      <ErrorNotice error={baseError} onRetry={loadBase} />
       <div className="sk-template-layout">
         <Card className="sk-template-sidebar overflow-hidden h-fit">
           <div className="border-b px-4 py-3">
             <div className="sk-template-sidebar-title"><Icon name="template" size={18}/><span>Szablony</span></div>
+            <input aria-label="Szukaj szablonów" placeholder="Szukaj szablonów…" value={templateQuery} onChange={e => setTemplateQuery(e.target.value)} className="sk-template-search" />
           </div>
           <div className="max-h-[70vh] overflow-y-auto p-2">
-            {templates.length === 0 ? (
+            {baseLoading && templates.length === 0 ? (
+              <StatePanel icon="refresh" title="Ładowanie szablonów" />
+            ) : baseError && templates.length === 0 ? null : templates.length === 0 ? (
               <p className="p-3 text-sm text-gray-400">Brak szablonów.</p>
-            ) : templates.map((tpl) => (
+            ) : templates.filter(t => t.name.toLocaleLowerCase('pl-PL').includes(templateQuery.toLocaleLowerCase('pl-PL'))).length === 0 ? (
+              <p className="p-3 text-sm text-gray-400">Brak pasujących szablonów.</p>
+            ) : templates.filter(t => t.name.toLocaleLowerCase('pl-PL').includes(templateQuery.toLocaleLowerCase('pl-PL'))).map((tpl) => (
               <button
                 key={tpl.id}
                 type="button"
-                onClick={() => loadTemplate(tpl.id)}
+                disabled={busy}
+                aria-pressed={selectedId === tpl.id}
+                onClick={() => { setEditorMode('edit'); loadTemplate(tpl.id); }}
                 className={`sk-template-list-item mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
                   selectedId === tpl.id ? 'bg-teal-50 text-teal-800' : 'hover:bg-gray-50 text-gray-700'
                 }`}
@@ -268,38 +294,27 @@ export default function Templates() {
         </Card>
 
         <div className="sk-template-main min-w-0">
-          <Card className="sk-template-editor p-5 space-y-4">
+          <div className="sk-template-mode" role="group" aria-label="Widok szablonu">
+            {[['edit', 'Edytor'], ['preview', 'Podgląd'], ['test', 'Wysyłka testowa']].map(([value, label]) => <button type="button" key={value} aria-pressed={editorMode === value} onClick={() => setEditorMode(value)}>{label}</button>)}
+          </div>
+          <Card hidden={editorMode !== 'edit'} className="sk-template-editor p-5 space-y-4">
             <div className="flex flex-wrap items-end gap-3">
-              <div className="min-w-[240px] flex-1">
+              <div className="min-w-0 flex-1">
                 <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa szablonu</label>
                 <input
+                  aria-label="Nazwa szablonu"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-lg border-gray-300 text-sm"
                   placeholder="Nazwa widoczna tylko w Sekaro"
                 />
               </div>
-              {selectedTemplate?.versions?.length > 0 && (
-                <div className="min-w-[170px]">
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Historia</label>
-                  <select
-                    defaultValue={selectedTemplate.latest_version?.id || ''}
-                    onChange={(e) => loadVersion(e.target.value)}
-                    className="w-full rounded-lg border-gray-300 text-sm"
-                  >
-                    {(selectedTemplate.versions || []).map((v) => (
-                      <option key={v.id} value={v.id}>
-                        v{v.version} · {new Date(v.created_at).toLocaleString()}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700">Temat</label>
               <input
+                aria-label="Temat wiadomości"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
                 className="w-full rounded-lg border-gray-300 text-sm"
@@ -375,7 +390,7 @@ export default function Templates() {
             </div>
           </Card>
 
-          <Card className="sk-template-preview p-5 space-y-4">
+          <Card hidden={editorMode !== 'preview'} className="sk-template-preview p-5 space-y-4">
             <div>
               <h2 className="font-semibold text-gray-900">Podgląd dla kontaktu</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -392,13 +407,15 @@ export default function Templates() {
                     searchContacts();
                   }
                 }}
-                className="min-w-[220px] flex-1 rounded-lg border-gray-300 text-sm"
+                className="min-w-0 flex-1 rounded-lg border-gray-300 text-sm"
+                aria-label="Szukaj kontaktu do podglądu"
                 placeholder="Szukaj e-maila lub nazwy…"
               />
               <Button type="button" variant="outline" onClick={searchContacts}>Szukaj</Button>
             </div>
             {contactMatches.length > 0 && (
               <select
+                aria-label="Kontakt do podglądu"
                 value={previewLeadId}
                 onChange={(e) => {
                   setPreviewLeadId(e.target.value);
@@ -432,10 +449,7 @@ export default function Templates() {
                 <div>
                   <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Treść</div>
                   {preview.is_html ? (
-                    <div
-                      className="mt-2 rounded-md bg-white p-4 text-sm"
-                      dangerouslySetInnerHTML={{ __html: preview.body }}
-                    />
+                    <div className="mt-2 rounded-md p-4 text-sm sk-template-email"><SafeEmail html={preview.body} /></div>
                   ) : (
                     <pre className="mt-2 whitespace-pre-wrap rounded-md bg-white p-4 font-sans text-sm">{preview.body}</pre>
                   )}
@@ -444,7 +458,7 @@ export default function Templates() {
             )}
           </Card>
 
-          <Card className="sk-template-test p-5 space-y-3">
+          <Card hidden={editorMode !== 'test'} className="sk-template-test p-5 space-y-3">
             <div>
               <h2 className="font-semibold text-gray-900">Wysyłka testowa</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -453,6 +467,7 @@ export default function Templates() {
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <select
+                aria-label="Skrzynka do wysyłki testowej"
                 value={testInboxId}
                 onChange={(e) => setTestInboxId(e.target.value)}
                 className="rounded-lg border-gray-300 text-sm"
@@ -466,6 +481,7 @@ export default function Templates() {
               </select>
               <input
                 type="email"
+                aria-label="Adres odbiorcy testowego"
                 value={testTo}
                 onChange={(e) => setTestTo(e.target.value)}
                 className="rounded-lg border-gray-300 text-sm"
@@ -479,6 +495,22 @@ export default function Templates() {
         </div>
 
         <div className="sk-template-aside">
+          <Card className="sk-template-history p-4">
+            <h2>Historia wersji</h2>
+            <p>Wybór wersji wczytuje ją do edytora. Zapis tworzy nową wersję.</p>
+            {selectedTemplate?.versions?.length ? (
+              <ol>
+                {selectedTemplate.versions.map(v => (
+                  <li key={v.id}>
+                    <button type="button" aria-pressed={selectedVersionId === v.id} onClick={() => loadVersion(v.id)} disabled={busy}>
+                      <span><strong>Wersja {v.version}</strong>{v.id === selectedTemplate.latest_version?.id && <small>Aktualna</small>}</span>
+                      <time dateTime={v.created_at}>{new Date(v.created_at).toLocaleString('pl-PL')}</time>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+            ) : <p>Zapisane wersje szablonu pojawią się tutaj.</p>}
+          </Card>
           <Card className="sk-template-variables p-4">
             <div className="mb-3">
               <h2 className="font-semibold text-gray-900">Zmienne</h2>

@@ -7,7 +7,7 @@ import {Panel,Metric,Button,Badge,Avatar,Icon,Empty,ErrorNotice,dateTime} from '
 import ActivityChart from '../ActivityChart';
 
 export default function Dashboard(){
- const {user}=useAuth(),{overallStatus}=useSystemHealth();
+ const {user}=useAuth(),{overallStatus,loading:healthLoading,fetchError:healthError}=useSystemHealth();
  const [data,setData]=useState(null),[error,setError]=useState(''),[days,setDays]=useState(7);
  const load=useCallback(async()=>{
   setError('');const start=new Date();start.setUTCDate(start.getUTCDate()-days+1);
@@ -21,18 +21,20 @@ export default function Dashboard(){
  const inboxes=data?.inboxes||[],campaigns=data?.campaigns||[],daily=data?.daily||[];
  const sent=inboxes.reduce((a,i)=>a+(i.sent_today||0),0),limit=inboxes.reduce((a,i)=>a+(i.effective_max_per_day||i.max_emails_per_day||0),0);
  const today=new Date().toISOString().slice(0,10),replies=daily.filter(d=>d.date===today).reduce((a,d)=>a+(d.total_replies||0),0);
+ const replyRate=sent?((replies/sent)*100).toFixed(1):'0.0';
+ const activeInboxes=inboxes.filter(i=>!i.paused).length;
  const domains=[...new Set(inboxes.map(i=>i.email?.split('@')[1]).filter(Boolean))];
  const name=(user?.display_name||user?.name||user?.username||'Administratorze').split(' ')[0];
- const health=({error:['red','Wykryto problem'],warning:['amber','Wymaga uwagi'],ok:['green','Wszystko działa']})[overallStatus]||['neutral','Sprawdzanie…'];
+ const health=({error:['red','Wykryto problem'],warning:['amber','Wymaga uwagi'],ok:['green','Online']})[overallStatus]||['neutral','Sprawdzanie…'];
  return <div className="sk-page sk-dashboard" aria-busy={!data&&!error}>
   <ErrorNotice error={error} onRetry={load}/>
-  <div className="sk-page-heading"><div><h1>Witaj, {name}! <span aria-hidden="true">👋</span></h1><p>Oto podsumowanie kampanii i korespondencji.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="server" size={24}/><div>Self-hosted<small><Badge tone={health[0]} dot>{health[1]}</Badge></small></div></div><div className="sk-heading-meta"><Icon name="calendar" size={24}/><div>{new Date().toLocaleDateString('pl-PL',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}<small>{new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</small></div></div><Button to="/campaigns/add" icon="plus" variant="primary">Nowa kampania</Button></div></div>
+  <div className="sk-page-heading"><div><h1>Witaj, {name}! <span aria-hidden="true">👋</span></h1><p>Oto podsumowanie Twoich działań outreachowych.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="server" size={24}/><div>Self-hosted<small><Badge tone={health[0]} dot>{health[1]}</Badge></small></div></div><div className="sk-heading-meta"><Icon name="calendar" size={24}/><div>{new Date().toLocaleDateString('pl-PL',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}<small>{new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit'})}</small></div></div><Button to="/campaigns/add" icon="plus" variant="primary">Nowa kampania</Button></div></div>
   <div className="sk-metrics">
    <Metric icon="send" title="Wysłane dziś" value={data?sent:'—'} detail={`z limitu ${limit.toLocaleString('pl-PL')}`}/>
-   <Metric icon="reply" title="Odpowiedzi" value={data?replies:'—'} detail="Dzisiaj · według raportu" tone="blue"/>
+   <Metric icon="reply" title="Odpowiedzi" value={data?replies:'—'} detail={`${replyRate}% współczynnik`} tone="blue"/>
    <Metric icon="stack" title="Aktywne kampanie" value={data?campaigns.filter(c=>!c.paused).length:'—'} detail={`z ${campaigns.length} wszystkich`} tone="blue"/>
-   <Metric icon="shield" title="Diagnostyka domeny" value="—" detail="Brak pomiaru DNS"/>
-   <Metric icon="mail" title="Skrzynki" value={data?inboxes.length:'—'} detail={`${inboxes.filter(i=>!i.paused).length} aktywnych · SMTP/IMAP`} tone="blue"/>
+   <Metric icon="shield" title="Zdrowie domeny" value="—" detail="Brak pomiaru DNS"/>
+   <Metric icon="mail" title="Skrzynki" value={data?inboxes.length:'—'} detail={inboxes.length&&activeInboxes===inboxes.length?'Wszystkie aktywne':`${activeInboxes} aktywnych · ${inboxes.length-activeInboxes} wstrzymanych`} tone="blue"/>
    <Metric icon="unsubscribe" title="Wypisania" value={data?data.suppression.filter(x=>x.reason==='unsubscribe').length:'—'} detail="Na globalnej liście wykluczeń" tone="red"/>
   </div>
   <div className="sk-two-col"><Panel title="Aktywność wysyłki" icon="flash" action={<select className="sk-dashboard-range" aria-label="Zakres wykresu" value={days} onChange={e=>setDays(+e.target.value)}><option value={7}>Ostatnie 7 dni</option><option value={14}>Ostatnie 14 dni</option></select>}><ActivityChart rows={daily} days={days}/></Panel>

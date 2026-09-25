@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, ErrorNotice, Empty } from '../redesign/ui';
+import { PageFrame, Metric, ErrorNotice, Empty, StatePanel } from '../redesign/ui';
 import DatePicker from '../components/ui/DatePicker';
 // Recharts for charts
 import {
@@ -60,6 +60,9 @@ export default function Analytics() {
   const [selectedIds, setSelectedIds] = useState([]);
   const [error, setError] = useState(null);
   const [analyticsData, setAnalyticsData] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [dataError, setDataError] = useState(null);
+  const [retry, setRetry] = useState(0);
   const [serverToday, setServerToday] = useState(null);
 
   const [presets, setPresets] = useState(() => buildPresets(new Date()));
@@ -104,20 +107,29 @@ export default function Analytics() {
         setEndDate(last7.end);
         setActivePreset('Ostatnie 7 dni');
       } catch (e) {
-        setError('Failed to load analytics');
+        setError('Nie udało się wczytać analityki.');
       }
     })();
   }, []);
 
   // Re-fetch analytics data whenever the date range or campaign selection changes
   useEffect(() => {
-    if (!startDate || !endDate) return;
+    let current = true;
+    if (!startDate || !endDate || startDate > endDate) {
+      setDataLoading(false);
+      setDataError('Wybierz poprawny zakres dat: data końcowa nie może poprzedzać początkowej.');
+      return;
+    }
+    setDataLoading(true);
+    setDataError(null);
     const params = new URLSearchParams({ start_date: startDate, end_date: endDate });
     if (selectedIds.length) selectedIds.forEach(id => params.append('campaign_id', id));
     api.get(`/analytics/daily?${params}`)
-      .then(data => setAnalyticsData(data))
-      .catch(() => setAnalyticsData([]));
-  }, [startDate, endDate, selectedIds]);
+      .then(data => { if (current) setAnalyticsData(data); })
+      .catch(() => { if (current) setDataError('Nie udało się pobrać wyników analityki.'); })
+      .finally(() => { if (current) setDataLoading(false); });
+    return () => { current = false; };
+  }, [startDate, endDate, selectedIds, retry]);
 
   const applyPreset = (preset) => {
     setActivePreset(preset.label);
@@ -253,12 +265,12 @@ export default function Analytics() {
     >
       <ErrorNotice error={error} />
 
-      <div className="sk-analytics-metrics">
+      {!dataLoading && !dataError && <div className="sk-analytics-metrics">
         <Metric icon="send" title="Wysłane" value={rangeSent.toLocaleString('pl-PL')} detail="w wybranym zakresie" tone="blue" />
         <Metric icon="reply" title="Wskaźnik odpowiedzi" value={`${replyRateRange}%`} detail={`${rangeReplies.toLocaleString('pl-PL')} odpowiedzi`} tone="green" />
         <Metric icon="link" title="Wskaźnik kliknięć" value={`${clickRateRange}%`} detail={`${rangeClicks.toLocaleString('pl-PL')} kliknięć`} tone="purple" />
         <Metric icon="campaign" title="Kampanie" value={filtered.length} detail={selectedIds.length ? 'wybrane do porównania' : 'wszystkie kampanie'} tone="green" />
-      </div>
+      </div>}
 
       {/* Date range presets */}
       <div className="sk-analytics-presets">
@@ -275,26 +287,29 @@ export default function Analytics() {
           onClick={() => setActivePreset('custom')}
           className={activePreset === 'custom' ? 'is-active' : ''}
         >
-          Custom
+          Własny zakres
         </button>
       </div>
 
       {activePreset === 'custom' && (
-        <div className="flex items-center gap-4">
-          <label className="text-sm flex items-center gap-1">From <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
-          <label className="text-sm flex items-center gap-1">To <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
+        <div className="sk-analytics-custom-range">
+          <label>Od <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
+          <label>Do <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
         </div>
       )}
 
       {/* timeline area chart — scroll to zoom, centered on hovered day */}
-      <Card className="sk-analytics-chart-panel p-4">
+      <ErrorNotice error={dataError} onRetry={() => setRetry(n => n + 1)} />
+      {dataLoading ? <StatePanel icon="refresh" title="Ładowanie danych" description="Pobieramy wyniki dla wybranego okresu." /> : !dataError && analyticsData.length === 0 ? (
+        <StatePanel icon="chart" title="Brak danych" description="W wybranym okresie nie ma zdarzeń. Wybierz inny zakres lub kampanię." />
+      ) : !dataError && <Card className="sk-analytics-chart-panel p-4">
         <div ref={chartContainerRef} style={{ width: '100%', height: 290 }}>
           <ResponsiveContainer>
             <ReAreaChart data={displayData} onMouseMove={handleChartMouseMove} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
               <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={formatXDate} />
               <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip wrapperStyle={{ zIndex: 1000 }} />
-              <CartesianGrid strokeDasharray="3 3" />
+              <Tooltip wrapperStyle={{ zIndex: 1000 }} contentStyle={{ background: 'var(--sk-surface)', color: 'var(--sk-text)', borderColor: 'var(--sk-line)', borderRadius: 8 }} labelStyle={{ color: 'var(--sk-text)' }} />
+              <CartesianGrid stroke="var(--sk-line)" strokeDasharray="3 3" />
               {seriesList.map(s => (
                 <Area
                   key={s.key}
@@ -312,14 +327,16 @@ export default function Analytics() {
                 content={() => (
                   <div className="flex flex-wrap justify-center gap-3 mt-2">
                     {seriesList.map(s => (
-                      <span
+                      <button
+                        type="button"
+                        aria-pressed={!hideSeries[s.key]}
                         key={s.key}
                         onClick={() => toggleSeries(s.key)}
                         className={`flex items-center gap-1 cursor-pointer select-none text-xs transition-opacity ${hideSeries[s.key] ? 'opacity-40' : ''}`}
                       >
                         <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: s.stroke }} />
                         {s.name}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -327,18 +344,18 @@ export default function Analytics() {
             </ReAreaChart>
           </ResponsiveContainer>
         </div>
-      </Card>
+      </Card>}
       <div className="sk-analytics-campaign-filter">
         <div className="flex-1">
           <label htmlFor="campaign-select" className="sr-only">Kampanie</label>
-          <div className="flex items-center gap-2">
+          <div className="sk-analytics-campaign-picker">
             <select
               id="campaign-select"
               value={currentChoice}
               onChange={e => setCurrentChoice(e.target.value)}
               className="border rounded px-2 py-1"
             >
-              <option value="">Add a campaign…</option>
+              <option value="">Dodaj kampanię…</option>
               {campaigns
                 .filter(c => !selectedIds.includes(String(c.id)))
                 .map(c => (
@@ -356,7 +373,7 @@ export default function Analytics() {
               }}
               disabled={!currentChoice}
             >
-              Add
+              Dodaj
             </Button>
           </div>
           {selectedIds.length > 0 && (
@@ -371,6 +388,7 @@ export default function Analytics() {
                     {camp?.name || id}
                     <button
                       className="ml-1 text-gray-500 hover:text-gray-700"
+                      aria-label={`Usuń filtr kampanii ${camp?.name || id}`}
                       onClick={() => setSelectedIds(selectedIds.filter(x => x !== id))}
                     >
                       ×
@@ -385,18 +403,18 @@ export default function Analytics() {
         <div className="flex-1 space-y-2"></div>
       </div>
 
-      {filtered.length === 0 ? (
+      {dataLoading || dataError || error ? null : filtered.length === 0 ? (
         <Card><Empty icon="chart">{campaigns.length === 0 ? 'Brak kampanii do analizy.' : 'Brak kampanii pasujących do filtra.'}</Empty></Card>
       ) : (
         <Card className="sk-analytics-table-panel overflow-auto">
           <table className="sk-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th className="text-center">Leads</th>
+                <th>Nazwa</th>
+                <th className="text-center">Kontakty</th>
                 <th className="text-center">Wysłane</th>
-                <th className="text-center">Pending</th>
-                <th className="text-center">Progress</th>
+                <th className="text-center">Oczekujące</th>
+                <th className="text-center">Postęp</th>
                 <th className="text-center">Odpowiedzi</th>
                 <th className="text-center">Odpowiedzi %</th>
                 <th className="text-center">Otwarcia %</th>

@@ -5,7 +5,7 @@ import { useNotifications } from '../context/NotificationsContext';
 import { useNotify } from '../context/NotificationContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { PageFrame, SectionTabs, StatePanel, Icon } from '../redesign/ui';
+import { PageFrame, SectionTabs, StatePanel, ErrorNotice, Icon } from '../redesign/ui';
 import {
   RiMailOpenLine,
   RiMailSendLine,
@@ -45,22 +45,22 @@ const EVENT_ICONS = {
 };
 
 const EVENT_LABELS = {
-  'email.sent': 'Email Sent',
-  'email.opened': 'Email Opened',
-  'email.clicked': 'Link Clicked',
-  'email.bounced': 'Email Bounced',
-  'lead.replied': 'Lead Replied',
-  'lead.unsubscribed': 'Lead Unsubscribed',
-  'lead.status_changed': 'Status Changed',
-  'lead.interested': 'Lead Interested (AI)',
-  'lead.not_interested': 'Lead Not Interested (AI)',
-  'lead.out_of_office': 'Out of Office (AI)',
-  'lead.wrong_person': 'Wrong Person (AI)',
-  'lead.auto_reply': 'Auto Reply (AI)',
-  'feature.error': 'Feature Error',
-  'daily_limit': 'Daily Limit Hit',
-  'rate_limit': 'Rate Limit',
-  'token_expired': 'Token Expired',
+  'email.sent': 'Wiadomość wysłana',
+  'email.opened': 'Wiadomość otwarta',
+  'email.clicked': 'Kliknięcie linku',
+  'email.bounced': 'Wiadomość odbita',
+  'lead.replied': 'Kontakt odpowiedział',
+  'lead.unsubscribed': 'Kontakt wypisany',
+  'lead.status_changed': 'Zmiana statusu',
+  'lead.interested': 'Kontakt zainteresowany (AI)',
+  'lead.not_interested': 'Kontakt niezainteresowany (AI)',
+  'lead.out_of_office': 'Poza biurem (AI)',
+  'lead.wrong_person': 'Niewłaściwy odbiorca (AI)',
+  'lead.auto_reply': 'Automatyczna odpowiedź (AI)',
+  'feature.error': 'Błąd funkcji',
+  'daily_limit': 'Osiągnięto limit dzienny',
+  'rate_limit': 'Limit szybkości',
+  'token_expired': 'Token wygasł',
 };
 
 const EVENT_CATEGORIES = {
@@ -72,28 +72,32 @@ const EVENT_CATEGORIES = {
 function timeAgo(iso) {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
+  if (mins < 1) return 'przed chwilą';
+  if (mins < 60) return `${mins} min temu`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
+  if (hrs < 24) return `${hrs} godz. temu`;
   const days = Math.floor(hrs / 24);
-  return `${days}d ago`;
+  return `${days} d temu`;
 }
 
-function NotificationItem({ n, onRead, onDelete, navigate }) {
+function NotificationItem({ n, onRead, onDelete, onSelect, selected }) {
   const handleClick = () => {
     if (!n.read_at) onRead(n.id);
-    if (n.lead_id) navigate(`/leads/${n.lead_id}`);
-    else if (n.campaign_id) navigate(`/campaigns/${n.campaign_id}`);
-    else if (n.inbox_id) navigate(`/inboxes/${n.inbox_id}`);
-    else if (n.event_type.startsWith('email.')) navigate('/analytics');
-    else if (['daily_limit', 'rate_limit', 'token_expired'].includes(n.event_type)) navigate('/inboxes');
-    else navigate('/notifications');
+    onSelect(n.id);
   };
 
   return (
     <div
       onClick={handleClick}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleClick();
+        }
+      }}
+      role="button"
+      aria-pressed={selected}
+      tabIndex={0}
       className={`group flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
         n.read_at
           ? 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
@@ -112,15 +116,17 @@ function NotificationItem({ n, onRead, onDelete, navigate }) {
           <p className="text-[10px] text-gray-400">{timeAgo(n.created_at)}</p>
           {!n.read_at && (
             <span className="rounded-full bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 text-[10px] font-semibold px-1.5 py-0.5 leading-none">
-              New
+              Nowe
             </span>
           )}
         </div>
       </div>
       <button
         onClick={(e) => { e.stopPropagation(); onDelete(n.id); }}
-        className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity"
-        title="Dismiss"
+        onKeyDown={e => e.stopPropagation()}
+        className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity"
+        title="Usuń"
+        aria-label="Usuń powiadomienie"
       >
         <RiDeleteBinLine size={16} />
       </button>
@@ -140,9 +146,13 @@ export default function Notifications() {
   const [total, setTotal] = useState(0);
   const [unread, setUnread] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState('');
   const [eventTypes, setEventTypes] = useState([]);
   const [notifConfig, setNotifConfig] = useState({ enabled: false, notification_email: '', events: [], rate_limit_per_hour: 10 });
   const [configSaving, setConfigSaving] = useState(false);
+  const [configLoading, setConfigLoading] = useState(true);
+  const [configError, setConfigError] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState(null);
   const limit = 50;
@@ -155,6 +165,7 @@ export default function Notifications() {
       offsetRef.current = 0;
     }
     setLoading(true);
+    setFetchError('');
     try {
       const params = new URLSearchParams();
       if (activeTab === 'unread') params.set('unread_only', 'true');
@@ -169,7 +180,7 @@ export default function Notifications() {
         offsetRef.current += limit;
       }
     } catch (e) {
-      if (gen === fetchGenRef.current) console.error(e);
+      if (gen === fetchGenRef.current) setFetchError(e);
     } finally {
       if (gen === fetchGenRef.current) setLoading(false);
     }
@@ -178,13 +189,25 @@ export default function Notifications() {
   useEffect(() => {
     setSearchQuery('');
     setFilterCategory(null);
+    setSelectedId(null);
+    if (activeTab === 'preferences') return;
     fetchNotifications(true);
   }, [activeTab]);
 
-  useEffect(() => {
-    api.get('/settings/webhooks/events').then(d => setEventTypes(d.events || [])).catch(() => {});
-    api.get('/notifications/config').then(d => setNotifConfig(d)).catch(() => {});
+  const loadConfig = useCallback(async () => {
+    setConfigLoading(true);
+    setConfigError(null);
+    try {
+      const [events, config] = await Promise.all([api.get('/settings/webhooks/events'), api.get('/notifications/config')]);
+      setEventTypes(events.events || []);
+      setNotifConfig(config);
+    } catch (e) {
+      setConfigError(e);
+    } finally {
+      setConfigLoading(false);
+    }
   }, []);
+  useEffect(() => { loadConfig(); }, [loadConfig]);
 
   const markRead = async (id) => {
     try {
@@ -193,7 +216,7 @@ export default function Notifications() {
       setUnread(prev => Math.max(0, prev - 1));
       refreshBadge();
     } catch (e) {
-      console.error(e);
+      notify({ type: 'error', message: 'Nie udało się oznaczyć powiadomienia jako przeczytane.' });
     }
   };
 
@@ -204,7 +227,7 @@ export default function Notifications() {
       setUnread(0);
       refreshBadge();
     } catch (e) {
-      console.error(e);
+      notify({ type: 'error', message: 'Nie udało się oznaczyć powiadomień jako przeczytane.' });
     }
   };
 
@@ -217,7 +240,7 @@ export default function Notifications() {
       if (removed && !removed.read_at) setUnread(prev => Math.max(0, prev - 1));
       refreshBadge();
     } catch (e) {
-      console.error(e);
+      notify({ type: 'error', message: 'Nie udało się usunąć powiadomienia.' });
     }
   };
 
@@ -233,10 +256,10 @@ export default function Notifications() {
     try {
       const res = await api.put('/notifications/config', notifConfig);
       setNotifConfig(res);
-      notify({ message: 'Notification preferences saved', type: 'success' });
+      notify({ message: 'Preferencje powiadomień zapisane.', type: 'success' });
     } catch (e) {
       console.error(e);
-      notify({ message: 'Failed to save preferences', type: 'error' });
+      notify({ message: 'Nie udało się zapisać preferencji.', type: 'error' });
     } finally {
       setConfigSaving(false);
     }
@@ -265,13 +288,21 @@ export default function Notifications() {
   }, [items, searchQuery, filterCategory]);
 
   const filterCategories = [
-    { key: null, label: 'All' },
-    { key: 'email', label: 'Email' },
-    { key: 'lead', label: 'Leads' },
+    { key: null, label: 'Wszystkie' },
+    { key: 'email', label: 'E-mail' },
+    { key: 'lead', label: 'Kontakty' },
     { key: 'system', label: 'System' },
   ];
 
   const isFiltered = searchQuery.trim() || filterCategory;
+  const selected = filteredItems.find(n => n.id === selectedId);
+  const openRelated = n => {
+    if (n.lead_id) navigate(`/leads/${n.lead_id}`);
+    else if (n.campaign_id) navigate(`/campaigns/${n.campaign_id}`);
+    else if (n.inbox_id) navigate(`/inboxes?inbox=${n.inbox_id}`);
+    else if (n.event_type.startsWith('email.')) navigate('/analytics');
+    else navigate('/system-health');
+  };
 
   return (
     <PageFrame
@@ -307,7 +338,7 @@ export default function Notifications() {
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Search notifications..."
+                  placeholder="Szukaj w powiadomieniach…"
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
               </div>
@@ -325,6 +356,8 @@ export default function Notifications() {
               </div>
             </div>
 
+            <ErrorNotice error={fetchError} onRetry={() => fetchNotifications(true)} />
+
             {/* Loading state — first load */}
             {loading && items.length === 0 && (
               <StatePanel
@@ -336,7 +369,7 @@ export default function Notifications() {
             )}
 
             {/* Empty state */}
-            {!loading && filteredItems.length === 0 && (
+            {!loading && !fetchError && filteredItems.length === 0 && (
               <StatePanel
                 tone="success"
                 icon="mail"
@@ -350,9 +383,10 @@ export default function Notifications() {
               <>
                 <p className="sk-notification-count">
                   {isFiltered
-                    ? `Showing ${filteredItems.length} of ${items.length} loaded`
-                    : `Showing ${items.length} of ${total} notifications`}
+                    ? `Wyświetlono ${filteredItems.length} z ${items.length} wczytanych`
+                    : `Wyświetlono ${items.length} z ${total} powiadomień`}
                 </p>
+                <div className="sk-notification-workspace">
                 <div className="sk-notification-list">
                   {filteredItems.map(n => (
                     <NotificationItem
@@ -360,18 +394,29 @@ export default function Notifications() {
                       n={n}
                       onRead={markRead}
                       onDelete={dismiss}
-                      navigate={navigate}
+                      onSelect={setSelectedId}
+                      selected={selectedId === n.id}
                     />
                   ))}
+                </div>
+                <aside className="sk-notification-detail" aria-label="Szczegóły powiadomienia">
+                  {selected ? <>
+                    <span className="sk-badge">{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
+                    <h2>{selected.title}</h2>
+                    <time dateTime={selected.created_at}>{new Date(selected.created_at).toLocaleString('pl-PL')}</time>
+                    <p>{selected.message}</p>
+                    <Button onClick={() => openRelated(selected)}>Otwórz powiązany widok</Button>
+                  </> : <StatePanel icon="bell" title="Wybierz powiadomienie" description="Pełna treść i powiązane działania pojawią się tutaj." />}
+                </aside>
                 </div>
               </>
             )}
 
             {/* Wczytaj więcej — only on All tab */}
-            {activeTab !== 'unread' && items.length < total && !loading && (
+            {items.length < total && !loading && !fetchError && (
               <div className="sk-notification-load-more">
                 <Button size="sm" variant="outline" onClick={loadMore}>
-                  Load more
+                  Wczytaj więcej
                 </Button>
               </div>
             )}
@@ -386,7 +431,9 @@ export default function Notifications() {
           </>
         )}
 
-        {activeTab === 'preferences' && (
+        {activeTab === 'preferences' && <ErrorNotice error={configError} onRetry={loadConfig} />}
+        {activeTab === 'preferences' && configLoading && <StatePanel icon="refresh" title="Ładowanie preferencji" />}
+        {activeTab === 'preferences' && !configLoading && !configError && (
           <div className="sk-notification-preferences">
             <section className="sk-notification-pref-card">
               <h2>Powiadomienia e-mail</h2>

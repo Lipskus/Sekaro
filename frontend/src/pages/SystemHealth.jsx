@@ -94,7 +94,12 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
     ok:      { headline: 'Wszystko wygląda dobrze', sub: 'Monitorowane elementy działają poprawnie.' },
     unknown: { headline: 'Stan nieznany',          sub: 'Nie udało się pobrać danych diagnostycznych.' },
   };
-  const msg = heroMessages[status] || heroMessages.unknown;
+  const msg = loading && status === 'unknown'
+    ? { headline: 'Sprawdzanie systemu', sub: 'Pobieramy aktualny stan usług i zasobów.' }
+    : (heroMessages[status] || heroMessages.unknown);
+  const summary = status === 'ok' || status === 'unknown'
+    ? msg.sub
+    : `${issueCount} problem${issueCount !== 1 ? 'ów' : ''} — ${msg.sub}`;
 
   return (
     <div className={`sk-health-summary sk-health-summary-${status} rounded-xl border p-6 flex items-center justify-between gap-4`}>
@@ -108,11 +113,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
         </div>
         <div>
           <h2 className={`text-xl font-semibold ${col.text}`}>{msg.headline}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {status === 'ok'
-              ? msg.sub
-              : `${issueCount} problem${issueCount !== 1 ? 'ów' : ''} — ${msg.sub}`}
-          </p>
+          <p className="text-sm text-gray-500 mt-0.5">{summary}</p>
         </div>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
@@ -147,12 +148,12 @@ function CheckCard({ check, muted, onToggleMute }) {
 
   return (
     <div
-      className={`rounded-xl border bg-white shadow-sm flex flex-col overflow-hidden transition-opacity ${
+      className={`sk-health-check sk-health-check-${displayStatus} rounded-xl border bg-white shadow-sm flex flex-col overflow-hidden transition-opacity ${
         isMuted ? 'opacity-60' : ''
       } ${col.border}`}
     >
       {/* Card header */}
-      <div className={`flex items-center justify-between px-4 py-3 ${col.bg} border-b ${col.border}`}>
+      <div className={`sk-health-check-head flex items-center justify-between px-4 py-3 ${col.bg} border-b ${col.border}`}>
         <div className="flex items-center gap-2.5">
           <div className={col.text}>
             <CategoryIcon icon={check.icon} size={18} />
@@ -374,6 +375,7 @@ export default function SystemHealth() {
   const errorChecks = checks.filter(check => check.status === 'error').length;
   const warningChecks = checks.filter(check => check.status === 'warning').length;
   const okChecks = checks.filter(check => check.status === 'ok').length;
+  const diagnosticsAvailable = !!rawData && !fetchError;
   const mailboxCount = rawData?.inboxes?.length || rawData?.smtp?.accounts?.length || 0;
   const storageUsed = rawData?.storage?.available
     ? Math.max(0, Math.min(100, Number(rawData.storage.used_percent) || 0))
@@ -396,18 +398,9 @@ export default function SystemHealth() {
   return (
     <PageFrame
       className="sk-system-health-page"
-      title="System Health"
-      description="Status usług, zasobów, skrzynek i najważniejszych incydentów Sekaro."
-      actions={
-        <>
-          {mutedCount > 0 && (
-            <Button variant="outline" onClick={unmuteAll}>Wyłącz wyciszenie ({mutedCount})</Button>
-          )}
-          <Button variant="outline" icon="refresh" onClick={refresh} disabled={loading}>
-            {loading ? 'Sprawdzanie…' : 'Odśwież diagnostykę'}
-          </Button>
-        </>
-      }
+      title="Stan systemu"
+      description="Stan skrzynek SMTP/IMAP, synchronizacji, śledzenia i konfiguracji funkcji Sekaro."
+      actions={mutedCount > 0 ? <Button variant="outline" onClick={unmuteAll}>Wyłącz wyciszenie ({mutedCount})</Button> : null}
     >
       <ErrorNotice error={fetchError ? `Nie udało się pobrać diagnostyki: ${fetchError}` : null} onRetry={refresh} />
 
@@ -416,11 +409,11 @@ export default function SystemHealth() {
           icon="shield"
           title="Status systemu"
           value={overallStatus === 'error' ? 'Błąd' : overallStatus === 'warning' ? 'Ostrzeżenie' : overallStatus === 'ok' ? 'Dostępny' : 'Nieznany'}
-          detail={issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
+          detail={!diagnosticsAvailable ? 'Oczekiwanie na dane diagnostyczne' : issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
           tone={overallStatus === 'error' ? 'red' : overallStatus === 'warning' ? 'amber' : overallStatus === 'ok' ? 'green' : 'neutral'}
         />
-        <Metric icon="mail" title="SMTP / IMAP" value={mailboxCount} detail={mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={mailboxCount ? 'green' : 'red'} />
-        <Metric icon="server" title="Kontrole" value={checks.length} detail={`${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów`} tone={errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
+        <Metric icon="mail" title="SMTP / IMAP" value={diagnosticsAvailable ? mailboxCount : '—'} detail={!diagnosticsAvailable ? 'brak danych o skrzynkach' : mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={!diagnosticsAvailable ? 'neutral' : mailboxCount ? 'green' : 'red'} />
+        <Metric icon="server" title="Kontrole" value={diagnosticsAvailable ? checks.length : '—'} detail={diagnosticsAvailable ? `${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów` : 'brak wyników kontroli'} tone={!diagnosticsAvailable ? 'neutral' : errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
         <Metric icon="chart" title="Dysk" value={storageUsed == null ? '—' : `${storageUsed.toFixed(0)}%`} detail={rawData?.storage?.available ? 'wykorzystanie magazynu danych' : 'brak danych o pojemności'} tone={storageUsed == null ? 'neutral' : storageUsed >= 95 ? 'red' : storageUsed >= 85 ? 'amber' : 'green'} />
       </div>
 
@@ -429,6 +422,7 @@ export default function SystemHealth() {
         loading={loading}
         lastChecked={lastChecked}
         issueCount={issueCount}
+        onRefresh={refresh}
       />
 
       {checks.length > 0 ? (

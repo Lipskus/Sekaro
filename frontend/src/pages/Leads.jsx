@@ -184,7 +184,7 @@ export default function Leads() {
         return next;
       });
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Failed to load leads' });
+      notify({ type: 'error', message: e.message || 'Nie udało się wczytać kontaktów.' });
     } finally {
       loading.stop();
     }
@@ -263,17 +263,17 @@ export default function Leads() {
   const handleBulkDelete = async () => {
     if (!selected.size) return;
     const ok = await confirm(
-      `Permanently delete ${selected.size} lead(s)? This removes enrollments and email history for those leads.`,
+      `Trwale usunąć ${selected.size} kontaktów? Zostaną usunięte również przypisania do kampanii i historia wiadomości.`,
     );
     if (!ok) return;
     loading.start();
     try {
       const res = await api.post('/leads/bulk-delete', { lead_ids: [...selected] });
       const n = res.deleted ?? selected.size;
-      notify({ type: 'success', message: `Deleted ${n} lead(s).` });
+      notify({ type: 'success', message: `Usunięto ${n} kontaktów.` });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Delete failed' });
+      notify({ type: 'error', message: e.message || 'Nie udało się usunąć kontaktów.' });
     } finally {
       loading.stop();
     }
@@ -282,16 +282,16 @@ export default function Leads() {
   const handleBulkStatus = async () => {
     if (!selected.size) return;
     const ok = await confirm(
-      `Set enrollment to “${bulkEnrollmentStatus}” on every campaign for ${selected.size} lead(s)? The send queue will be recalculated.`,
+      `Ustawić status „${bulkEnrollmentStatus}” we wszystkich kampaniach dla ${selected.size} kontaktów? Kolejka wysyłki zostanie przeliczona.`,
     );
     if (!ok) return;
     loading.start();
     try {
       await api.post('/leads/bulk-status', { lead_ids: [...selected], enrollment_status: bulkEnrollmentStatus });
-      notify({ type: 'success', message: 'Status updated.' });
+      notify({ type: 'success', message: 'Status zaktualizowany.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Update failed' });
+      notify({ type: 'error', message: e.message || 'Nie udało się zaktualizować danych.' });
     } finally {
       loading.stop();
     }
@@ -308,11 +308,11 @@ export default function Leads() {
           (l.campaigns || []).some((c) => c.status === 'bounced'),
       );
     if (!targets.length) {
-      notify({ type: 'info', message: 'Select bounced or invalid leads to re-enroll with a corrected email.' });
+      notify({ type: 'info', message: 'Wybierz odbite lub niepoprawne kontakty, aby przywrócić je z poprawionym adresem e-mail.' });
       return;
     }
     const ok = await confirm(
-      `Re-enroll ${targets.length} lead(s) using the “New email” values? Status becomes active; verification runs when enabled on your account.`,
+      `Przywrócić ${targets.length} kontaktów z użyciem wartości „Nowy e-mail”? Status zostanie ustawiony na aktywny, a weryfikacja uruchomi się zgodnie z ustawieniami konta.`,
     );
     if (!ok) return;
     loading.start();
@@ -324,7 +324,7 @@ export default function Leads() {
         }))
         .filter((row) => row.email);
       if (!items.length) {
-        notify({ type: 'error', message: 'Enter an email for each selected lead.' });
+        notify({ type: 'error', message: 'Wpisz adres e-mail dla każdego wybranego kontaktu.' });
         return;
       }
       const res = await api.post('/leads/bulk-recover', { items, verify_email: true });
@@ -332,11 +332,11 @@ export default function Leads() {
       const errN = res.errors?.length ?? 0;
       notify({
         type: errN ? 'info' : 'success',
-        message: `Recovery started for ${n} lead(s).${errN ? ` ${errN} skipped (see API errors).` : ''}`,
+        message: `Rozpoczęto przywracanie ${n} kontaktów.${errN ? ` Pominięto ${errN}; sprawdź błędy API.` : ''}`,
       });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Re-enroll failed' });
+      notify({ type: 'error', message: e.message || 'Nie udało się przywrócić kontaktów.' });
     } finally {
       loading.stop();
     }
@@ -345,16 +345,16 @@ export default function Leads() {
   const recoverOne = async (lead) => {
     const email = (emailDrafts[lead.id] ?? lead.email).trim();
     if (!email) {
-      notify({ type: 'error', message: 'Enter an email address.' });
+      notify({ type: 'error', message: 'Wpisz adres e-mail.' });
       return;
     }
     loading.start();
     try {
       await api.post(`/leads/${lead.id}/recover`, { email, verify_email: true });
-      notify({ type: 'success', message: 'Lead updated. Verification or scheduling will follow your account settings.' });
+      notify({ type: 'success', message: 'Kontakt zaktualizowany. Weryfikacja lub planowanie zostanie wykonane zgodnie z ustawieniami konta.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Recovery failed' });
+      notify({ type: 'error', message: e.message || 'Nie udało się przywrócić kontaktu.' });
     } finally {
       loading.stop();
     }
@@ -364,10 +364,10 @@ export default function Leads() {
     loading.start();
     try {
       await api.patch(`/leads/${lead.id}`, { enrollment_status: 'active' });
-      notify({ type: 'success', message: 'All enrollments set to active; queue recalculated.' });
+      notify({ type: 'success', message: 'Wszystkie przypisania ustawiono jako aktywne; kolejka została przeliczona.' });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Update failed' });
+      notify({ type: 'error', message: e.message || 'Nie udało się zaktualizować danych.' });
     } finally {
       loading.stop();
     }
@@ -392,9 +392,9 @@ export default function Leads() {
       a.download = filename;
       a.click();
       URL.revokeObjectURL(url);
-      notify({ type: 'success', message: 'CSV downloaded.' });
+      notify({ type: 'success', message: 'Pobrano plik CSV.' });
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Export failed' });
+      notify({ type: 'error', message: e.message || 'Eksport nie powiódł się.' });
     } finally {
       loading.stop();
     }
@@ -554,7 +554,7 @@ export default function Leads() {
 
   const importRecoverCsv = async (file) => {
     const ok = await confirm(
-      'Recover leads from this CSV? The server reads id and email columns (header row or first two columns).',
+      'Przywrócić kontakty z tego pliku CSV? Serwer odczytuje kolumny id i email (z nagłówka albo dwóch pierwszych kolumn).',
     );
     if (!ok) return;
     loading.start();
@@ -564,11 +564,11 @@ export default function Leads() {
       const errN = res.errors?.length ?? 0;
       notify({
         type: errN ? 'info' : 'success',
-        message: `Recovered ${n} lead(s).${errN ? ` ${errN} row(s) skipped.` : ''}`,
+        message: `Przywrócono ${n} kontaktów.${errN ? ` Pominięto ${errN} wierszy.` : ''}`,
       });
       await loadLeads();
     } catch (e) {
-      notify({ type: 'error', message: e.message || 'Import failed — check CSV format and IDs.' });
+      notify({ type: 'error', message: e.message || 'Import nie powiódł się — sprawdź format CSV i identyfikatory.' });
       await loadLeads();
     } finally {
       loading.stop();
@@ -582,7 +582,7 @@ export default function Leads() {
       description="Weryfikuj, naprawiaj i odzyskuj odbite lub niepoprawne adresy bez dublowania głównego widoku Kontaktów."
       actions={
         <>
-          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>Suppression list</Button>
+          <Button type="button" variant="outline" size="sm" onClick={openSuppression}>Lista wykluczeń</Button>
           <Button type="button" variant="outline" size="sm" onClick={exportCsv} disabled={!leads.length}>Eksport CSV</Button>
           <FileUploadArea
             size="sm"
@@ -600,8 +600,8 @@ export default function Leads() {
     >
       <div className="sk-contact-tools-metrics">
         <Metric icon="contacts" title="Widoczne kontakty" value={leads.length} detail={tab === TAB_BOUNCED ? 'wymagające weryfikacji' : 'zgodne z filtrami'} tone="blue" />
-        <Metric icon="warning" title="Invalid" value={invalidVisible} detail="niepoprawne adresy" tone="red" />
-        <Metric icon="block" title="Bounce" value={bouncedVisible} detail="odbite w kampaniach" tone="amber" />
+        <Metric icon="warning" title="Niepoprawne" value={invalidVisible} detail="niepoprawne adresy" tone="red" />
+        <Metric icon="block" title="Odbicia" value={bouncedVisible} detail="odbite w kampaniach" tone="amber" />
         <Metric icon="refresh" title="Do odzyskania" value={recoverableVisible} detail={selected.size ? `${selected.size} zaznaczonych` : 'gotowe do działania'} tone="green" />
       </div>
 
@@ -669,7 +669,7 @@ export default function Leads() {
       )}
 
       <div className="flex flex-wrap gap-2 items-center">
-        <span className="text-sm text-gray-500">Interest:</span>
+        <span className="text-sm text-gray-500">Zainteresowanie:</span>
         {INTEREST_FILTER_OPTIONS.map((o) => (
           <button
             key={o.value}

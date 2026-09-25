@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
+import Modal from '../redesign/Modal';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, Badge, Icon, Empty, Button as SkButton } from '../redesign/ui';
+import { PageFrame, Metric, Badge, Icon, Empty, ErrorNotice, StatePanel, Button as SkButton } from '../redesign/ui';
 import { useAppMode } from '../context/AppModeContext';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
@@ -65,7 +66,7 @@ function formatJitterMinutesLabel(seconds) {
   if (s <= 0) return null;
   const min = s / 60;
   const t = Number.isInteger(min) ? String(min) : (Math.round(min * 10) / 10).toString();
-  return `up to ${t} min random`;
+  return `losowo do ${t} min`;
 }
 
 /**
@@ -111,7 +112,7 @@ function InboxTrackingOptions({
     return list
       .filter((i) => i.id !== currentInboxId)
       .flatMap((i) => {
-        const label = (i.display_name || '').trim() || i.email || `Inbox #${i.id}`;
+        const label = (i.display_name || '').trim() || i.email || `Skrzynka #${i.id}`;
         const rows = [];
         if (!beaconConnected && i.beacon_connected && (i.beacon_base_url || '').trim()) {
           const primary = (i.beacon_base_url || '').trim();
@@ -166,17 +167,17 @@ function InboxTrackingOptions({
     if (!domain) return;
     abortRef.current = false;
     setVerifyState('checking');
-    setVerifyMsg('Registering domain…');
+    setVerifyMsg('Rejestrowanie domeny…');
     try {
       await api.post('/settings/register-tracking-domain-pending', { domain });
     } catch (_) { /* non-fatal */ }
     if (abortRef.current) return;
     const MAX_ATTEMPTS = 5;
     const RETRY_DELAY_MS = 8000;
-    let lastError = 'Timed out waiting for SSL certificate to be provisioned';
+    let lastError = 'Przekroczono czas oczekiwania na wystawienie certyfikatu SSL';
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       if (abortRef.current) return;
-      setVerifyMsg(attempt === 0 ? 'Provisioning SSL certificate…' : `Waiting for SSL certificate… (attempt ${attempt + 1}/${MAX_ATTEMPTS})`);
+      setVerifyMsg(attempt === 0 ? 'Wystawianie certyfikatu SSL…' : `Oczekiwanie na certyfikat SSL… (próba ${attempt + 1}/${MAX_ATTEMPTS})`);
       try {
         const data = await api.get(
           `/settings/verify-tracking-domain?domain=${encodeURIComponent(domain)}`
@@ -188,7 +189,7 @@ function InboxTrackingOptions({
           onDnsVerifyChange?.(true);
           return;
         }
-        lastError = data.error || 'Unknown error';
+        lastError = data.error || 'Nieznany błąd';
       } catch (e) {
         if (abortRef.current) return;
         lastError = e.message;
@@ -242,9 +243,9 @@ function InboxTrackingOptions({
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
-            Use a tracker already linked to another inbox
+            Użyj trackera połączonego z inną skrzynką
             {!reuseOpen && hasReuseOptions && (
-              <span className="ml-auto text-[10px] font-normal text-gray-500">{reuseRowsAll.length} available</span>
+              <span className="ml-auto text-[10px] font-normal text-gray-500">{reuseRowsAll.length} dostępnych</span>
             )}
           </button>
           {reuseOpen && (
@@ -259,11 +260,11 @@ function InboxTrackingOptions({
                     type="search"
                     value={reuseSearch}
                     onChange={(e) => setReuseSearch(e.target.value)}
-                    placeholder="Search by URL, domain, or inbox…"
+                    placeholder="Szukaj po URL, domenie lub skrzynce…"
                     className="w-full min-w-0 max-w-full box-border border rounded px-2 py-1.5 text-xs bg-white"
                   />
                   {reuseSearch.trim() && reuseRows.length === 0 && reuseRowsAll.length > 0 ? (
-                    <p className="text-xs text-gray-500">No matches — clear search to see all {reuseRowsAll.length} tracker(s).</p>
+                    <p className="text-xs text-gray-500">Brak wyników — wyczyść wyszukiwanie, aby zobaczyć wszystkie trackery ({reuseRowsAll.length}).</p>
                   ) : null}
                   <ul className="max-h-40 overflow-y-auto space-y-1.5 min-w-0">
                     {reuseRows.map((r) => (
@@ -306,7 +307,7 @@ function InboxTrackingOptions({
                             ? beaconConnecting && reuseBusyKey === r.key
                               ? 'Łączenie…'
                               : 'Połącz'
-                            : 'Use & verify'}
+                            : 'Użyj i sprawdź'}
                         </button>
                       </li>
                     ))}
@@ -333,8 +334,8 @@ function InboxTrackingOptions({
         <div className="ml-6 min-w-0 max-w-full border-l-2 border-gray-200 pl-3 py-0.5">
           <CollapsibleInfo>
             <p>
-              Open, click, and unsubscribe links use your Sekaro app URL{' '}
-              <span className="text-gray-500 font-mono break-all">({hostHint})</span>. No Beacon service and no extra DNS records are required.
+              Linki otwarć, kliknięć i wypisania używają adresu aplikacji Sekaro{' '}
+              <span className="text-gray-500 font-mono break-all">({hostHint})</span>. Beacon ani dodatkowe rekordy DNS nie są wymagane.
             </p>
           </CollapsibleInfo>
         </div>
@@ -390,13 +391,13 @@ function InboxTrackingOptions({
             </p>
           )}
           <CollapsibleInfo>
-            <p className="font-medium text-gray-700">How Beacon works</p>
+            <p className="font-medium text-gray-700">Jak działa Beacon</p>
             <p>
-              Run the Beacon service on the HTTPS hostname you want for tracking links. While Sekaro is not connected yet, open Beacon&apos;s root URL in a browser and copy the <strong>setup URL</strong> (it includes{' '}
+              Uruchom usługę Beacon pod nazwą hosta HTTPS, której chcesz używać dla linków śledzących. Dopóki Sekaro nie jest połączone, otwórz główny adres Beacon w przeglądarce i skopiuj <strong>adres konfiguracji</strong> (zawiera{' '}
               <code className="bg-gray-100 px-0.5 rounded">?token=</code>
-              ). Wklej adres powyżej i kliknij Połącz. On Beacon, set{' '}
+              ). Wklej adres powyżej i kliknij Połącz. W Beacon ustaw{' '}
               <code className="bg-gray-100 px-0.5 rounded">BEACON_PUBLIC_BASE_URL</code>
-              {' '}if printed links should use a specific public origin.
+              {' '}jeśli generowane linki mają używać konkretnego publicznego adresu.
             </p>
             <p>
               <a
@@ -405,7 +406,7 @@ function InboxTrackingOptions({
                 rel="noopener noreferrer"
                 className="text-blue-700 hover:underline break-all"
               >
-                Full setup guide (Sekaro repo → INSTALL.md)
+                Pełna instrukcja konfiguracji (repo Sekaro → INSTALL.md)
               </a>
             </p>
           </CollapsibleInfo>
@@ -431,7 +432,7 @@ function InboxTrackingOptions({
                 type="text"
                 disabled={dnsInputDisabled}
                 className="w-full min-w-0 max-w-full box-border border rounded px-2 py-1.5 font-mono text-sm bg-white disabled:bg-gray-100 disabled:text-gray-500"
-                placeholder="mail.yourdomain.com"
+                placeholder="mail.twojadomena.pl"
                 value={trackingDomain || ''}
                 onChange={e => handleDnsValue(e.target.value)}
                 onFocus={() => {
@@ -454,19 +455,19 @@ function InboxTrackingOptions({
               </p>
             )}
             {verifyState === 'ok' && (
-              <p className="text-xs text-green-600 font-medium">✓ Domain is reachable and pointing to this server</p>
+              <p className="text-xs text-green-600 font-medium">✓ Domena jest osiągalna i wskazuje na ten serwer</p>
             )}
             {verifyState && verifyState !== 'checking' && verifyState !== 'ok' && (
               <p className="text-xs text-red-600">✗ {verifyState.error}</p>
             )}
             <CollapsibleInfo>
               <p className="font-medium text-gray-700">Konfiguracja DNS (CNAME)</p>
-              <p>Add a <code>CNAME</code> at your DNS host pointing your tracking hostname at this Sekaro server:</p>
+              <p>Dodaj rekord <code>CNAME</code> u operatora DNS, kierując domenę śledzącą na ten serwer Sekaro:</p>
               <pre className="bg-white border rounded p-2 overflow-x-auto whitespace-pre-wrap break-all text-gray-700 text-[11px]">
                 {`${(trackingDomain || '').trim() || 'mail.yourdomain.com'}  CNAME  ${cnameTarget || 'your-app-host'}.`}
               </pre>
               <p>
-                Caddy requests a certificate on the first HTTPS hit. Select <strong>Konfiguracja DNS</strong>, enter the hostname, run <strong>Sprawdź</strong>, then save the inbox.
+                Caddy pobiera certyfikat przy pierwszym żądaniu HTTPS. Wybierz <strong>Konfiguracja DNS</strong>, wpisz nazwę hosta, kliknij <strong>Sprawdź</strong>, a następnie zapisz skrzynkę.
               </p>
             </CollapsibleInfo>
           </div>
@@ -476,8 +477,8 @@ function InboxTrackingOptions({
       {!cnameUiEnabled && (trackingDomain || '').trim() && !beaconConnected && (
         <div className="text-xs text-amber-800 space-y-2 bg-amber-50 border border-amber-200 rounded p-2">
           <p>
-            Legacy CNAME tracking domain saved:{' '}
-            <code className="font-mono">{(trackingDomain || '').trim()}</code>. Prefer Beacon for new setups.
+            Zapisano starszą domenę śledzącą CNAME:{' '}
+            <code className="font-mono">{(trackingDomain || '').trim()}</code>. Dla nowych konfiguracji zalecany jest Beacon.
           </p>
           <button
             type="button"
@@ -550,7 +551,9 @@ export default function Inboxes() {
   const [addDomainVerified, setAddDomainVerified] = useState(false);
   const [showAdd, setShowAdd] = useState(false); // controls add modal
   const confirm = useConfirm();
-  const addBackdropDown = useRef(false);
+  const [inboxQuery, setInboxQuery] = useState('');
+  const [inboxStatus, setInboxStatus] = useState('all');
+  const [adding, setAdding] = useState(false);
   const notify = useNotify();
   const { mode } = useAppMode();
   /** Development-only: count of open/click/unsub rows synced to Beacon on connect (from server). */
@@ -582,17 +585,23 @@ export default function Inboxes() {
 
   // ---- Detail panel state ----
   const [selectedInbox, setSelectedInbox] = useState(null);
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState(null);
 
   // Auto-open inbox detail panel when ?inbox=<id> is in the URL
   const autoOpenHandledRef = useRef(false);
 
   const load = async () => {
+    setListLoading(true);
+    setListError(null);
     try {
       const data = await api.get('/inboxes');
       setInboxes(data);
       setSelectedInbox(prev => prev ? (data.find(i => i.id === prev.id) || null) : null);
     } catch (e) {
-      console.error(e);
+      setListError(e);
+    } finally {
+      setListLoading(false);
     }
   };
   useEffect(() => {
@@ -644,7 +653,7 @@ export default function Inboxes() {
     try {
       await api.put(`/smtp/inboxes/${created.id}`, { ...smtpForm, smtp_port: +smtpForm.smtp_port, imap_port: +smtpForm.imap_port });
     } catch (e) {
-      setMessage({ type: 'error', text: `Inbox created but SMTP credentials failed to save: ${e.message}` });
+      setMessage({ type: 'error', text: `Skrzynka została utworzona, ale nie udało się zapisać danych SMTP: ${e.message}` });
       setForm(initialForm);
       setSmtpForm(initialSmtpForm);
       load();
@@ -654,13 +663,13 @@ export default function Inboxes() {
     try {
       const res = await api.post(`/smtp/inboxes/${created.id}/test`, {});
       if (res.ok) {
-        setMessage({ type: 'success', text: 'SMTP inbox added and connection verified' });
+        setMessage({ type: 'success', text: 'Dodano skrzynkę SMTP i potwierdzono połączenie' });
       } else {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
-        setMessage({ type: 'error', text: `Inbox added but connection test failed: ${details || 'unknown error'}` });
+        setMessage({ type: 'error', text: `Skrzynka została dodana, ale test połączenia nie powiódł się: ${details || 'nieznany błąd'}` });
       }
     } catch (e) {
-      setMessage({ type: 'error', text: `Inbox added but connection test failed: ${e.message}` });
+      setMessage({ type: 'error', text: `Skrzynka została dodana, ale test połączenia nie powiódł się: ${e.message}` });
     }
     setForm(initialForm);
     setSmtpForm(initialSmtpForm);
@@ -672,31 +681,33 @@ export default function Inboxes() {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (adding) return;
     setMessage(null);
     if (form.provider === 'smtp') {
       if (!form.email.trim()) {
-        setMessage({ type: 'error', text: 'Email address is required for SMTP inboxes.' });
+        setMessage({ type: 'error', text: 'Adres e-mail jest wymagany dla skrzynki SMTP.' });
         return;
       }
       if (!smtpForm.smtp_host.trim() || !smtpForm.smtp_username.trim() || !smtpForm.smtp_password) {
-        setMessage({ type: 'error', text: 'Host SMTP, username, and password are required.' });
+        setMessage({ type: 'error', text: 'Host SMTP, login i hasło są wymagane.' });
         return;
       }
       const addDomain = addTrackingMode === 'dns' ? form.tracking_domain.trim() : '';
       if (addDomain && !addDomainVerified) {
-        setMessage({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
+        setMessage({ type: 'error', text: 'Przed zapisaniem sprawdź domenę śledzącą DNS.' });
         return;
       }
+      setAdding(true);
       try {
         await submitSmtp({ ...form, tracking_domain: addDomain || null });
       } catch (e) {
         setMessage({ type: 'error', text: e.message });
-      }
+      } finally { setAdding(false); }
       return;
     }
     const addDomain = addTrackingMode === 'dns' ? form.tracking_domain.trim() : '';
     if (addDomain && !addDomainVerified) {
-      setMessage({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
+      setMessage({ type: 'error', text: 'Przed zapisaniem sprawdź domenę śledzącą DNS.' });
       return;
     }
     try {
@@ -704,7 +715,7 @@ export default function Inboxes() {
         ...form,
         tracking_domain: addDomain || null,
       });
-      setMessage({ type: 'success', text: 'Inbox added' });
+      setMessage({ type: 'success', text: 'Skrzynka dodana' });
       setForm(initialForm);
       setAddTrackingMode('app');
       setAddDomainVerified(false);
@@ -805,7 +816,7 @@ export default function Inboxes() {
     const newDomain = editTrackingMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
     const domainChanged = newDomain !== editOriginalDomain.current;
     if (editTrackingMode === 'dns' && newDomain && domainChanged && !editDomainVerified) {
-      setEditMsg({ type: 'error', text: 'Please verify the DNS tracking domain before saving.' });
+      setEditMsg({ type: 'error', text: 'Przed zapisaniem sprawdź domenę śledzącą DNS.' });
       return;
     }
     setEditDirty(false); // save in progress — don't treat as unsaved
@@ -842,7 +853,7 @@ export default function Inboxes() {
     try {
       const { _meta, ...payload } = editingSmtp;
       if (!payload.smtp_password && !(_meta?.has_smtp_password)) {
-        setSmtpTestMsg({ type: 'error', text: 'SMTP password is required.' });
+        setSmtpTestMsg({ type: 'error', text: 'Hasło SMTP jest wymagane.' });
         return;
       }
       const saved = await api.put(`/smtp/inboxes/${editing.id}`, {
@@ -868,7 +879,7 @@ export default function Inboxes() {
         setSmtpTestMsg({ type: 'success', text: 'Test połączenia zakończony powodzeniem (SMTP' + (res.imap?.detail?.includes('skipped') ? '' : ' + IMAP') + ')' });
       } else {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
-        setSmtpTestMsg({ type: 'error', text: `Test połączenia nie powiódł się: ${details || 'unknown error'}` });
+        setSmtpTestMsg({ type: 'error', text: `Test połączenia nie powiódł się: ${details || 'nieznany błąd'}` });
       }
       await refreshEditingInbox(editing.id);
     } catch (err) {
@@ -893,13 +904,13 @@ export default function Inboxes() {
     if (!editing) return;
     const url = beaconSetupUrl.trim();
     if (!url) {
-      setEditMsg({ type: 'error', text: 'Paste the full Beacon setup URL (includes ?token=…).' });
+      setEditMsg({ type: 'error', text: 'Wklej pełny adres konfiguracji Beacon (zawiera ?token=…).' });
       return;
     }
     setBeaconConnecting(true);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect`, { setup_url: url });
-      setEditMsg({ type: 'success', text: 'Beacon connected. Custom Caddy tracking domain was cleared.' });
+      setEditMsg({ type: 'success', text: 'Beacon połączony. Własna domena śledząca Caddy została wyczyszczona.' });
       setBeaconSetupUrl('');
       setEditTrackingMode('beacon');
       await refreshEditingInbox(editing.id);
@@ -916,7 +927,7 @@ export default function Inboxes() {
     setEditMsg(null);
     try {
       await api.post(`/inboxes/${editing.id}/beacon/connect-from`, { source_inbox_id: sourceInboxId });
-      setEditMsg({ type: 'success', text: 'Beacon connected using another inbox’s tracker.' });
+      setEditMsg({ type: 'success', text: 'Beacon połączony przy użyciu trackera z innej skrzynki.' });
       setBeaconSetupUrl('');
       setEditTrackingMode('beacon');
       await refreshEditingInbox(editing.id);
@@ -949,7 +960,7 @@ export default function Inboxes() {
     if (!ok) return;
     try {
       await api.post(`/inboxes/${editing.id}/beacon/disconnect`);
-      setEditMsg({ type: 'success', text: 'Beacon disconnected.' });
+      setEditMsg({ type: 'success', text: 'Beacon rozłączony.' });
       setEditTrackingMode('app');
       await refreshEditingInbox(editing.id);
     } catch (err) {
@@ -962,7 +973,7 @@ export default function Inboxes() {
     const onKey = (e) => {
       if (e.key !== 'Escape') return;
       if (showEditWarning) { setShowEditWarning(false); }
-      else if (showAdd) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }
+      else if (showAdd) return; // Shared Modal owns Escape and guards an active save.
       else if (editing) tryCloseEdit();
       else if (selectedInbox) setSelectedInbox(null);
     };
@@ -982,28 +993,28 @@ export default function Inboxes() {
 
     try {
       await tryDelete();
-      notify({ type: 'success', message: `Inbox "${email}" deleted` });
+      notify({ type: 'success', message: `Skrzynka „${email}” została usunięta` });
       load();
     } catch (e) {
       const msg = e.message || '';
       if (msg.includes('assigned to one or more campaigns') || msg.includes('pending queue slots')) {
         const again = await confirm(
-          'Inbox is currently in use.\n' +
-          'Assigned leads will be reassigned to other inboxes.'
+          'Skrzynka jest obecnie używana.\n' +
+          'Przypisane kontakty zostaną przeniesione do innych skrzynek.'
         );
         if (again) {
           try {
             await tryDelete(true);
-            notify({ type: 'success', message: `Inbox "${email}" paused & deleted` });
+            notify({ type: 'success', message: `Skrzynka „${email}” została wstrzymana i usunięta` });
             load();
             return;
           } catch (e2) {
-            notify({ type: 'error', message: 'Error deleting inbox after reassign: ' + e2.message });
+            notify({ type: 'error', message: 'Błąd usuwania skrzynki po przeniesieniu kontaktów: ' + e2.message });
             return;
           }
         }
       }
-      notify({ type: 'error', message: 'Error deleting inbox: ' + msg });
+      notify({ type: 'error', message: 'Błąd usuwania skrzynki: ' + msg });
     }
   };
 
@@ -1056,6 +1067,8 @@ export default function Inboxes() {
     0,
   );
 
+  const filteredInboxes = inboxes.filter(inbox => (!inboxQuery.trim() || `${inbox.email} ${inbox.display_name}`.toLowerCase().includes(inboxQuery.trim().toLowerCase())) && (inboxStatus === 'all' || (inboxStatus === 'paused' ? inbox.paused : !inbox.paused)));
+
   return (
     <PageFrame
       className="sk-inboxes-page"
@@ -1077,14 +1090,17 @@ export default function Inboxes() {
         </SkButton>
       }
     >
-      <div className="sk-inbox-summary">
+      <ErrorNotice error={listError} onRetry={load} />
+      {!showAdd && message && <div className={`sk-notice tone-${message.type === 'error' ? 'red' : 'green'}`} role={message.type === 'error' ? 'alert' : 'status'}>{message.text}</div>}
+      {listLoading && inboxes.length === 0 && <StatePanel icon="refresh" title="Ładowanie skrzynek" description="Pobieramy konfigurację skrzynek." />}
+      {!listLoading && !listError && <div className="sk-inbox-summary">
         <Metric icon="mail" title="Skrzynki" value={inboxes.length} detail={`${activeInboxCount} aktywnych`} tone="blue" />
-        <Metric icon="success" title="Aktywne" value={activeInboxCount} detail={pausedInboxCount ? `${pausedInboxCount} wstrzymanych` : 'Wszystkie online'} tone="green" />
+        <Metric icon="success" title="Aktywne" value={activeInboxCount} detail={pausedInboxCount ? `${pausedInboxCount} wstrzymanych` : 'bez wstrzymania wysyłki'} tone="green" />
         <Metric icon="send" title="Wysłano dziś" value={sentTodayTotal.toLocaleString('pl-PL')} detail="ze wszystkich skrzynek" tone="green" />
         <Metric icon="chart" title="Dzienny limit" value={dailyCapacity.toLocaleString('pl-PL')} detail="łączna bieżąca pojemność" tone="purple" />
-      </div>
+      </div>}
 
-      {inboxes.length === 0 && (
+      {!listLoading && !listError && inboxes.length === 0 && (
         <div className="sk-inboxes-empty">
           <Empty icon="mail">Brak skrzynek. Dodaj pierwszą skrzynkę SMTP/IMAP, aby rozpocząć wysyłkę.</Empty>
           <SkButton
@@ -1104,59 +1120,28 @@ export default function Inboxes() {
       )}
       {inboxes.length > 0 && (
         <div className="sk-inbox-layout">
-          {/* ── Inbox card list ── */}
-          <div className="sk-inbox-list">
-            {inboxes.map(inbox => {
-              const isSelected = selectedInbox?.id === inbox.id;
-              const sentDzisiaj = inbox.sent_today || 0;
-              const maxDzisiaj = inbox.effective_max_per_day || inbox.max_emails_per_day;
-              const warmupActive = inbox.ramp_up_enabled && inbox.effective_max_per_day < inbox.max_emails_per_day;
-              const avatarLetter = (inbox.email || inbox.display_name || 'I')[0].toUpperCase();
-              return (
-                <button
-                  key={inbox.id}
-                  onClick={() => { if (isSelected) { tryCloseSidebar(); } else { setSelectedInbox(inbox); } }}
-                  className={`sk-inbox-card ${isSelected ? 'is-selected' : ''}`}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    {/* Left: avatar + email */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
-                        {avatarLetter}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium text-gray-900 text-sm leading-tight truncate">
-                          {inbox.email || '(połączone konto)'}
-                        </p>
-                        {inbox.display_name && (
-                          <p className="text-xs text-gray-500 leading-tight mt-0.5 truncate">{inbox.display_name}</p>
-                        )}
-                      </div>
-                    </div>
-                    {/* Right: badges + sent count */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {warmupActive && (
-                        <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
-                          Stage {inbox.effective_max_per_day}/{inbox.max_emails_per_day}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500">
-                        <span className="font-semibold text-gray-800">{sentDzisiaj}</span>
-                        <span className="text-gray-400"> / {maxDzisiaj} sent</span>
-                      </span>
-                      {inbox.paused
-                        ? <Badge dot tone="amber">Wstrzymana</Badge>
-                        : <Badge dot tone="green">Aktywna</Badge>
-                      }
-                      <svg className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${isSelected ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
+          <section className="sk-panel sk-inbox-table-panel">
+            <div className="sk-panel-heading"><h2>Lista skrzynek</h2><small className="sk-muted">{inboxes.length} skrzynek</small></div>
+            <div className="sk-inbox-filters">
+              <div className="sk-search-input"><Icon name="search" /><input type="search" aria-label="Szukaj skrzynki" placeholder="Szukaj adresu lub nazwy…" value={inboxQuery} onChange={e => setInboxQuery(e.target.value)} /></div>
+              <select aria-label="Status skrzynki" value={inboxStatus} onChange={e => setInboxStatus(e.target.value)}><option value="all">Wszystkie statusy</option><option value="active">Aktywne</option><option value="paused">Wstrzymane</option></select>
+            </div>
+            <div className="sk-table-wrap"><table className="sk-table sk-mailbox-table"><thead><tr><th>Adres e-mail</th><th>Typ</th><th>Status</th><th>Wysłano dziś</th><th>W kolejce</th><th>Rozgrzewanie</th></tr></thead><tbody>
+              {filteredInboxes.map(inbox => {
+                const isSelected = selectedInbox?.id === inbox.id;
+                const limit = inbox.effective_max_per_day || inbox.max_emails_per_day;
+                return <tr key={inbox.id} className={isSelected ? 'is-selected' : ''}>
+                  <td><button type="button" className="sk-mailbox-open" aria-expanded={isSelected} disabled={!!editing && editing.id !== inbox.id} onClick={() => isSelected ? tryCloseSidebar() : setSelectedInbox(inbox)}><strong>{inbox.email || '(połączone konto)'}</strong><small>{inbox.display_name}</small></button></td>
+                  <td>{inbox.provider === 'smtp' ? 'SMTP' : inbox.provider}</td>
+                  <td><Badge dot tone={inbox.paused ? 'amber' : 'green'}>{inbox.paused ? 'Wstrzymana' : 'Aktywna'}</Badge></td>
+                  <td>{inbox.sent_today || 0} <span className="sk-muted">/ {limit}</span></td>
+                  <td>{inbox.pending_leads ?? '—'}</td>
+                  <td>{inbox.ramp_up_enabled ? <Badge tone="amber">Etap {limit}/{inbox.max_emails_per_day}</Badge> : <span className="sk-muted">Wyłączone</span>}</td>
+                </tr>;
+              })}
+            </tbody></table></div>
+            {!filteredInboxes.length && <Empty icon="search">Brak skrzynek pasujących do filtrów.</Empty>}
+          </section>
 
           {/* ── Detail panel ── */}
           {selectedInbox && (
@@ -1165,7 +1150,7 @@ export default function Inboxes() {
                 <>
                   {/* Edit panel header */}
                   <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
-                    <h3 className="font-semibold text-gray-900 text-sm">Edit Inbox</h3>
+                    <h3 className="font-semibold text-gray-900 text-sm">Edytuj skrzynkę</h3>
                     <button
                       onClick={tryCloseEdit}
                       className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
@@ -1229,7 +1214,7 @@ export default function Inboxes() {
                                 <input type="text" value={editingSmtp.smtp_username} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">SMTP password {editingSmtp._meta?.has_smtp_password && <span className="text-gray-400 font-normal">(saved — re-enter to change)</span>}</label>
+                                <label className="block text-xs font-medium text-gray-700">Hasło SMTP {editingSmtp._meta?.has_smtp_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
                                 <input type="password" value={editingSmtp.smtp_password} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_smtp_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               <div className="flex gap-4 text-sm text-gray-700">
@@ -1243,7 +1228,7 @@ export default function Inboxes() {
                                 </label>
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">IMAP host (optional — reply sync)</label>
+                                <label className="block text-xs font-medium text-gray-700">Host IMAP (opcjonalny — synchronizacja odpowiedzi)</label>
                                 <input type="text" value={editingSmtp.imap_host} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_host: e.target.value }))} placeholder="Pozostaw puste tylko dla skrzynki wysyłkowej" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               {editingSmtp.imap_host.trim() !== '' && (
@@ -1259,19 +1244,19 @@ export default function Inboxes() {
                                     </div>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium text-gray-700">IMAP password {editingSmtp._meta?.has_imap_password && <span className="text-gray-400 font-normal">(saved — re-enter to change)</span>}</label>
+                                    <label className="block text-xs font-medium text-gray-700">Hasło IMAP {editingSmtp._meta?.has_imap_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
                                     <input type="password" value={editingSmtp.imap_password} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_imap_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                   </div>
                                 </>
                               )}
                               {editingSmtp._meta?.last_tested_at && (
                                 <p className={`text-xs ${editingSmtp._meta.last_test_ok ? 'text-green-600' : 'text-red-600'}`}>
-                                  Last test: {editingSmtp._meta.last_test_ok ? 'passed' : `failed — ${editingSmtp._meta.last_test_error || 'unknown error'}`}
+                                  Ostatni test: {editingSmtp._meta.last_test_ok ? 'poprawny' : `nieudany — ${editingSmtp._meta.last_test_error || 'nieznany błąd'}`}
                                 </p>
                               )}
                               <div className="flex gap-2">
                                 <Button type="button" size="sm" variant="outline" onClick={saveEditingSmtp}>Zapisz SMTP</Button>
-                                <Button type="button" size="sm" variant="outline" onClick={testEditingSmtp} disabled={smtpTesting}>{smtpTesting ? 'Testing…' : 'Testuj połączenie'}</Button>
+                                <Button type="button" size="sm" variant="outline" onClick={testEditingSmtp} disabled={smtpTesting}>{smtpTesting ? 'Testowanie…' : 'Testuj połączenie'}</Button>
                               </div>
                             </>
                           )}
@@ -1308,7 +1293,7 @@ export default function Inboxes() {
                           step={0.5}
                           className="mt-1 block w-full border-gray-300 rounded-md text-sm"
                         />
-                        <p className="mt-1 text-xs text-gray-400">Random 0–N minute delay per send (stored as seconds on the server). Set to 0 to disable.</p>
+                        <p className="mt-1 text-xs text-gray-400">Losowe opóźnienie 0–N minut dla każdej wysyłki (na serwerze zapisywane w sekundach). Ustaw 0, aby wyłączyć.</p>
                       </div>
                       <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
@@ -1316,7 +1301,7 @@ export default function Inboxes() {
                           {mode === 'development' && devBeaconRegCount !== null && (
                             <span className="normal-case font-normal text-gray-400">
                               {' '}
-                              ({devBeaconRegCount} {devBeaconRegCount === 1 ? 'link' : 'links'})
+                              ({devBeaconRegCount} {devBeaconRegCount === 1 ? 'link' : 'linków'})
                             </span>
                           )}
                         </p>
@@ -1382,8 +1367,8 @@ export default function Inboxes() {
                                 />
                               </div>
                               <p className="text-xs text-gray-500">
-                                Starts at {editing.ramp_up_start ?? 1} email{(editing.ramp_up_start ?? 1) !== 1 ? 's' : ''} on day one, adds {editing.ramp_up_step_size ?? 1} more each day, and turns off automatically once it reaches {editing.max_emails_per_day}.
-                                Dzisiaj's limit: <strong>{editing.effective_max_per_day ?? editing.ramp_up_start ?? 1}</strong> / {editing.max_emails_per_day}
+                                Pierwszego dnia limit wynosi {editing.ramp_up_start ?? 1}, następnie rośnie codziennie o {editing.ramp_up_step_size ?? 1} i wyłącza rozgrzewanie automatycznie po osiągnięciu {editing.max_emails_per_day}.
+                                Dzisiejszy limit: <strong>{editing.effective_max_per_day ?? editing.ramp_up_start ?? 1}</strong> / {editing.max_emails_per_day}
                               </p>
                             </div>
                           )}
@@ -1414,7 +1399,7 @@ export default function Inboxes() {
                     <button
                       onClick={() => setSelectedInbox(null)}
                       className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                      aria-label="Close panel"
+                      aria-label="Zamknij panel"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1427,7 +1412,7 @@ export default function Inboxes() {
                     {/* Status + Typ skrzynki row */}
                     <div className="flex items-center justify-between">
                       {selectedInbox.paused
-                        ? <span className="text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full font-medium">Paused</span>
+                        ? <span className="text-xs bg-orange-100 text-orange-700 px-2.5 py-1 rounded-full font-medium">Wstrzymana</span>
                         : <span className="text-xs bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-medium">Aktywna</span>
                       }
                       <span className="text-xs bg-sky-100 text-sky-700 px-2.5 py-1 rounded-full font-medium capitalize">{selectedInbox.provider || 'smtp'}</span>
@@ -1454,9 +1439,9 @@ export default function Inboxes() {
 
                     {/* Settings */}
                     <div className="space-y-2.5">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Settings</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Ustawienia</p>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Max per day</span>
+                        <span className="text-gray-600">Maks. dziennie</span>
                         <span className="font-medium text-gray-900">{selectedInbox.max_emails_per_day}</span>
                       </div>
                       <div className="flex justify-between text-sm">
@@ -1468,14 +1453,14 @@ export default function Inboxes() {
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Wait between sends</span>
+                        <span className="text-gray-600">Odstęp między wysyłkami</span>
                         <span className="font-medium text-gray-900">{selectedInbox.wait_minutes_between || 5} min</span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Send jitter</span>
+                        <span className="text-gray-600">Losowe opóźnienie</span>
                         <span className="font-medium text-gray-900">
                           {formatJitterMinutesLabel(selectedInbox.max_jitter_seconds)
-                            ?? <span className="text-gray-400">disabled</span>}
+                            ?? <span className="text-gray-400">wyłączone</span>}
                         </span>
                       </div>
                     </div>
@@ -1489,7 +1474,7 @@ export default function Inboxes() {
                           {selectedInbox.effective_max_per_day < selectedInbox.max_emails_per_day ? (
                             <>
                               <div className="flex justify-between text-sm">
-                                <span className="text-gray-600">Dzisiaj's stage</span>
+                                <span className="text-gray-600">Dzisiejszy etap</span>
                                 <span className="font-medium text-amber-700">{selectedInbox.effective_max_per_day} / {selectedInbox.max_emails_per_day}</span>
                               </div>
                               <div className="w-full bg-amber-100 rounded-full h-1.5">
@@ -1500,11 +1485,11 @@ export default function Inboxes() {
                               </div>
                             </>
                           ) : (
-                            <p className="text-sm text-green-700 font-medium">Complete ✓</p>
+                            <p className="text-sm text-green-700 font-medium">Zakończone ✓</p>
                           )}
                           <div className="flex justify-between text-sm">
-                            <span className="text-gray-600">Ramp period</span>
-                            <span className="font-medium text-gray-900">{Math.ceil((selectedInbox.max_emails_per_day - (selectedInbox.ramp_up_start || 1)) / (selectedInbox.ramp_up_step_size || 1))} days</span>
+                            <span className="text-gray-600">Okres rozgrzewania</span>
+                            <span className="font-medium text-gray-900">{Math.ceil((selectedInbox.max_emails_per_day - (selectedInbox.ramp_up_start || 1)) / (selectedInbox.ramp_up_step_size || 1))} dni</span>
                           </div>
                         </div>
                       </>
@@ -1537,7 +1522,7 @@ export default function Inboxes() {
                   {/* Action buttons */}
                   <div className="px-5 py-4 border-t border-gray-100 space-y-2">
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(selectedInbox)}>Edit</Button>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(selectedInbox)}>Edytuj</Button>
                       {selectedInbox.paused
                         ? <Button variant="outline" size="sm" className="flex-1 bg-green-50 text-green-700 border-green-300 hover:bg-green-100" onClick={() => resumeInbox(selectedInbox.id, selectedInbox.email)}>Wznów</Button>
                         : <Button variant="outline" size="sm" className="flex-1 bg-orange-50 text-orange-700 border-orange-300 hover:bg-orange-100" onClick={() => openPauseModal(selectedInbox)}>Wstrzymaj</Button>
@@ -1552,38 +1537,33 @@ export default function Inboxes() {
         </div>
       )}
 
-      {/* add modal */}
+      {/* Add mailbox: shared accessible dialog with a two-column form. */}
       {showAdd && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onMouseDown={e => { addBackdropDown.current = e.target === e.currentTarget; }}
-          onClick={() => { if (addBackdropDown.current) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); } }}
-        >
-          <div data-darkreader-ignore className="p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" style={{ backgroundColor: 'white' }} onClick={e => e.stopPropagation()}>
-            <h2 className="text-xl font-semibold mb-2">Dodaj skrzynkę</h2>
+        <Modal title="Dodaj skrzynkę" busy={adding} onClose={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
+          <div className="sk-inbox-modal-surface sk-inbox-add-content">
             {message && <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{message.text}</div>}
-            <form onSubmit={submit} className="space-y-4 min-w-0 max-w-full">
+            <form onSubmit={submit} className="sk-inbox-add-form">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Typ skrzynki</label>
-                <select name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100" disabled>
+                <label htmlFor="inbox-add-1" className="block text-sm font-medium text-gray-700">Typ skrzynki</label>
+                <select id="inbox-add-1" name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100" disabled>
                   <option value="smtp">SMTP / IMAP</option>
                 </select>
                 <p className="mt-1 text-xs text-gray-400">Sekaro działa z dowolnym dostawcą obsługującym SMTP, a odbiór odpowiedzi realizuje przez IMAP.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Adres e-mail</label>
-                <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="ty@twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md" />
+                <label htmlFor="inbox-add-2" className="block text-sm font-medium text-gray-700">Adres e-mail</label>
+                <input id="inbox-add-2" type="email" name="email" value={form.email} onChange={handleChange} placeholder="ty@twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md" />
                 <p className="mt-1 text-xs text-gray-400">Adres nadawcy. Powinien odpowiadać kontu używanemu do SMTP.</p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700">Nazwa nadawcy</label>
-                <input type="text" name="display_name" value={form.display_name} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <label htmlFor="inbox-add-3" className="block text-sm font-medium text-gray-700">Nazwa nadawcy</label>
+                <input id="inbox-add-3" type="text" name="display_name" value={form.display_name} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Reply-To</label>
-                <input
+                <label htmlFor="inbox-add-4" className="block text-sm font-medium text-gray-700">Reply-To</label>
+                <input id="inbox-add-4"
                   type="email"
                   name="reply_to"
                   value={form.reply_to}
@@ -1594,21 +1574,21 @@ export default function Inboxes() {
                 <p className="mt-1 text-xs text-gray-400">Opcjonalne. Jeśli puste, odpowiedzi trafią na adres nadawcy.</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Maks. wiadomości dziennie</label>
-                <input type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <label htmlFor="inbox-add-5" className="block text-sm font-medium text-gray-700">Maks. wiadomości dziennie</label>
+                <input id="inbox-add-5" type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Maks. wiadomości na godzinę</label>
-                <input type="number" name="max_emails_per_hour" value={form.max_emails_per_hour} onChange={handleChange} min={0} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <label htmlFor="inbox-add-6" className="block text-sm font-medium text-gray-700">Maks. wiadomości na godzinę</label>
+                <input id="inbox-add-6" type="number" name="max_emails_per_hour" value={form.max_emails_per_hour} onChange={handleChange} min={0} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
                 <p className="mt-1 text-xs text-gray-400">0 = brak osobnego limitu godzinowego.</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
-                <input type="number" name="wait_minutes_between" value={form.wait_minutes_between} onChange={handleChange} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <label htmlFor="inbox-add-7" className="block text-sm font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
+                <input id="inbox-add-7" type="number" name="wait_minutes_between" value={form.wait_minutes_between} onChange={handleChange} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Losowy odstęp wysyłki (minuty)</label>
-                <input
+                <label htmlFor="inbox-add-8" className="block text-sm font-medium text-gray-700">Losowy odstęp wysyłki (minuty)</label>
+                <input id="inbox-add-8"
                   type="number"
                   value={jitterInputMinutesFromSeconds(form.max_jitter_seconds)}
                   onChange={e => setForm(f => ({ ...f, max_jitter_seconds: jitterSecondsFromInputMinutes(e.target.value) }))}
@@ -1617,28 +1597,28 @@ export default function Inboxes() {
                   step={0.5}
                   className="mt-1 block w-full border-gray-300 rounded-md"
                 />
-                <p className="mt-1 text-xs text-gray-400">Random 0–N minute delay per send (default 3 min). Set to 0 to disable.</p>
+                <p className="mt-1 text-xs text-gray-400">Losowe opóźnienie 0–N minut dla każdej wysyłki (domyślnie 3 min). Ustaw 0, aby wyłączyć.</p>
               </div>
               {form.provider === 'smtp' && (
                 <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP (outbound)</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP (wysyłka)</p>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="col-span-2">
-                      <label className="block text-xs font-medium text-gray-700">Host</label>
-                      <input type="text" value={smtpForm.smtp_host} onChange={e => setSmtpForm(f => ({ ...f, smtp_host: e.target.value }))} placeholder="mail.yourdomain.com" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                      <label htmlFor="inbox-add-9" className="block text-xs font-medium text-gray-700">Host</label>
+                      <input id="inbox-add-9" type="text" value={smtpForm.smtp_host} onChange={e => setSmtpForm(f => ({ ...f, smtp_host: e.target.value }))} placeholder="mail.twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-700">Port</label>
-                      <input type="number" value={smtpForm.smtp_port} onChange={e => setSmtpForm(f => ({ ...f, smtp_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                      <label htmlFor="inbox-add-10" className="block text-xs font-medium text-gray-700">Port</label>
+                      <input id="inbox-add-10" type="number" value={smtpForm.smtp_port} onChange={e => setSmtpForm(f => ({ ...f, smtp_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700">Login</label>
-                    <input type="text" value={smtpForm.smtp_username} onChange={e => setSmtpForm(f => ({ ...f, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                    <label htmlFor="inbox-add-11" className="block text-xs font-medium text-gray-700">Login</label>
+                    <input id="inbox-add-11" type="text" value={smtpForm.smtp_username} onChange={e => setSmtpForm(f => ({ ...f, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700">Hasło</label>
-                    <input type="password" value={smtpForm.smtp_password} onChange={e => setSmtpForm(f => ({ ...f, smtp_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                    <label htmlFor="inbox-add-12" className="block text-xs font-medium text-gray-700">Hasło</label>
+                    <input id="inbox-add-12" type="password" value={smtpForm.smtp_password} onChange={e => setSmtpForm(f => ({ ...f, smtp_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                   </div>
                   <div className="flex gap-4 text-sm text-gray-700">
                     <label className="flex items-center gap-1.5 cursor-pointer">
@@ -1650,26 +1630,26 @@ export default function Inboxes() {
                       SSL (465)
                     </label>
                   </div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide pt-1">IMAP (inbound replies — optional)</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide pt-1">IMAP (odbiór odpowiedzi — opcjonalnie)</p>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700">Host</label>
-                    <input type="text" value={smtpForm.imap_host} onChange={e => setSmtpForm(f => ({ ...f, imap_host: e.target.value }))} placeholder="Pozostaw puste tylko dla skrzynki wysyłkowej" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                    <label htmlFor="inbox-add-13" className="block text-xs font-medium text-gray-700">Host</label>
+                    <input id="inbox-add-13" type="text" value={smtpForm.imap_host} onChange={e => setSmtpForm(f => ({ ...f, imap_host: e.target.value }))} placeholder="Pozostaw puste tylko dla skrzynki wysyłkowej" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                   </div>
                   {smtpForm.imap_host.trim() !== '' && (
                     <>
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <label className="block text-xs font-medium text-gray-700">Port</label>
-                          <input type="number" value={smtpForm.imap_port} onChange={e => setSmtpForm(f => ({ ...f, imap_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                          <label htmlFor="inbox-add-14" className="block text-xs font-medium text-gray-700">Port</label>
+                          <input id="inbox-add-14" type="number" value={smtpForm.imap_port} onChange={e => setSmtpForm(f => ({ ...f, imap_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                         </div>
                         <div className="col-span-2">
-                          <label className="block text-xs font-medium text-gray-700">Login</label>
-                          <input type="text" value={smtpForm.imap_username} onChange={e => setSmtpForm(f => ({ ...f, imap_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                          <label htmlFor="inbox-add-15" className="block text-xs font-medium text-gray-700">Login</label>
+                          <input id="inbox-add-15" type="text" value={smtpForm.imap_username} onChange={e => setSmtpForm(f => ({ ...f, imap_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Hasło</label>
-                        <input type="password" value={smtpForm.imap_password} onChange={e => setSmtpForm(f => ({ ...f, imap_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                        <label htmlFor="inbox-add-16" className="block text-xs font-medium text-gray-700">Hasło</label>
+                        <input id="inbox-add-16" type="password" value={smtpForm.imap_password} onChange={e => setSmtpForm(f => ({ ...f, imap_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
                       <label className="flex items-center gap-1.5 cursor-pointer text-sm text-gray-700">
                         <input type="checkbox" checked={!!smtpForm.imap_use_ssl} onChange={e => setSmtpForm(f => ({ ...f, imap_use_ssl: e.target.checked }))} />
@@ -1716,8 +1696,8 @@ export default function Inboxes() {
                   {form.ramp_up_enabled && (
                     <div className="space-y-2">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Początkowa liczba wiadomości dziennie</label>
-                        <input
+                        <label htmlFor="inbox-add-17" className="block text-xs font-medium text-gray-700">Początkowa liczba wiadomości dziennie</label>
+                        <input id="inbox-add-17"
                           type="number"
                           value={form.ramp_up_start}
                           onChange={e => setForm(f => ({ ...f, ramp_up_start: Math.max(1, +e.target.value) }))}
@@ -1727,8 +1707,8 @@ export default function Inboxes() {
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Przyrost dzienny</label>
-                        <input
+                        <label htmlFor="inbox-add-18" className="block text-xs font-medium text-gray-700">Przyrost dzienny</label>
+                        <input id="inbox-add-18"
                           type="number"
                           value={form.ramp_up_step_size}
                           onChange={e => setForm(f => ({ ...f, ramp_up_step_size: Math.max(1, +e.target.value) }))}
@@ -1738,23 +1718,23 @@ export default function Inboxes() {
                         />
                       </div>
                       <p className="text-xs text-gray-500">
-                        Starts at {form.ramp_up_start} email{form.ramp_up_start !== 1 ? 's' : ''} on day one, adds {form.ramp_up_step_size} more each day, and turns off automatically once it reaches {form.max_emails_per_day}.
+                        Pierwszego dnia limit wynosi {form.ramp_up_start}, następnie rośnie codziennie o {form.ramp_up_step_size} i wyłącza rozgrzewanie automatycznie po osiągnięciu {form.max_emails_per_day}.
                       </p>
                     </div>
                   )}
                 </div>
               </div>
               <div className="flex gap-2">
-                <Button type="submit" disabled={!canSubmit()} variant="default">
+                <Button type="submit" disabled={adding || !canSubmit()} variant="default">
                   Dodaj skrzynkę
                 </Button>
-                <Button type="button" variant="outline" onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
+                <Button type="button" variant="outline" disabled={adding} onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
                   Anuluj
                 </Button>
               </div>
             </form>
           </div>
-        </div>
+        </Modal>
       )}
 
 
@@ -1762,7 +1742,7 @@ export default function Inboxes() {
       {/* Unsaved changes warning for inbox edit */}
       {showEditWarning && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div data-darkreader-ignore className="rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ backgroundColor: 'white' }}>
+          <div className="sk-inbox-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto">
             <h3 className="font-semibold text-gray-800 mb-1">Zapisać zmiany?</h3>
             <p className="text-sm text-gray-500 mb-4">Masz niezapisane zmiany w tej skrzynce.</p>
             <div className="flex gap-2 justify-end">
@@ -1777,7 +1757,7 @@ export default function Inboxes() {
       {/* Wstrzymaj inbox modal */}
       {showPauseModal && pausingInbox && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div data-darkreader-ignore className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mx-auto">
+          <div className="sk-inbox-modal-surface p-6 rounded-xl shadow-lg w-full max-w-md mx-auto">
             <h2 className="text-xl font-semibold mb-1">Wstrzymaj skrzynkę</h2>
             <p className="text-sm text-gray-500 mb-4">
               Wstrzymujesz <span className="font-mono font-medium">{pausingInbox.email}</span>. Co zrobić z kontaktami przypisanymi do tej skrzynki?
