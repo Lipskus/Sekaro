@@ -1,30 +1,38 @@
 import {useEffect,useState,useCallback} from 'react';
-import {useParams,useLocation,Link} from 'react-router-dom';
+import {useParams,useLocation,useNavigate,Link} from 'react-router-dom';
 import {api} from '../../api';
 import CampaignDetail from '../../pages/CampaignDetail';
 import {Panel,Metric,Button,Badge,Icon,Empty,ErrorNotice,dateTime} from '../ui';
 import ActivityChart from '../ActivityChart';
+import CampaignSetupSteps, {campaignSetupSteps} from '../CampaignSetupSteps';
+import CampaignPreflight from '../CampaignPreflight';
 const tabs=[['overview','Przegląd'],['sequences','Sekwencja'],['leads','Odbiorcy'],['inboxes','Skrzynki'],['settings','Ustawienia'],['analytics','Analityka'],['queue','Aktywność']];
 const plain=html=>new DOMParser().parseFromString(html||'','text/html').body.textContent||'';
 export default function CampaignWorkspace(){
  const {id}=useParams(),location=useLocation(),tab=location.hash.slice(1)||'overview';
+ const navigate=useNavigate();
+ const setup=new URLSearchParams(location.search).get('setup')==='1';
+ const stepIndex=Math.max(0,campaignSetupSteps.findIndex(([key])=>key===tab));
+ const [inboxSelection,setInboxSelection]=useState([]);
  const [data,setData]=useState(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[report,setReport]=useState(null),[calendar,setCalendar]=useState(null),[details,setDetails]=useState(false),[saved,setSaved]=useState('');
  const load=useCallback(async()=>{
   try{const from=new Date();from.setUTCDate(from.getUTCDate()-6);
    const [campaign,inboxes,sequences,leads,daily]=await Promise.all([api.get('/campaigns/'+id),api.get('/inboxes'),api.get(`/campaigns/${id}/sequences`),api.get(`/campaigns/${id}/leads`),api.get(`/analytics/daily?campaign_id=${id}&start_date=${from.toISOString().slice(0,10)}&end_date=${new Date().toISOString().slice(0,10)}`)]);
-   setData({campaign,inboxes,sequences,leads,daily});setCalendar({sending_days:campaign.sending_days||[],sending_hours_start:campaign.sending_hours_start,sending_hours_end:campaign.sending_hours_end,timezone:campaign.timezone||'UTC'});
-  }catch(e){setError(e);}
+   setData({campaign,inboxes,sequences,leads,daily});setInboxSelection(campaign.inbox_ids||[]);setCalendar({sending_days:campaign.sending_days||[],sending_hours_start:campaign.sending_hours_start,sending_hours_end:campaign.sending_hours_end,timezone:campaign.timezone||'UTC'});return true;
+  }catch(e){setError(e);return false;}
  },[id]);
  const check=useCallback(async()=>{setBusy(true);setError('');setReport(null);try{const r=await api.get(`/campaigns/${id}/preflight`);setReport(r);return r;}catch(e){setError(e);return null;}finally{setBusy(false);}},[id]);
  useEffect(()=>{setData(null);setReport(null);load();check();},[id]);
  // On returning from an editor, refresh both values and diagnostics.
- useEffect(()=>{if(tab==='overview'&&data){load();check();}},[tab]);
+ useEffect(()=>{if(data){load();check();}},[tab]);
  const action=async()=>{setBusy(true);setError('');try{
-  if(data.campaign.paused){await api.patch(`/campaigns/${id}`,calendar);const r=await api.get(`/campaigns/${id}/preflight`);setReport(r);if(!r.ready){setDetails(true);return;}await api.post(`/campaigns/${id}/start`,{});}
+  if(data.campaign.paused){setReport(null);await api.patch(`/campaigns/${id}`,calendar);const r=await api.get(`/campaigns/${id}/preflight`);setReport(r);if(!r.ready){setDetails(true);return;}await api.post(`/campaigns/${id}/start`,{});}
   else await api.post(`/campaigns/${id}/pause`,{});
   await load();
  }catch(e){setError(e);}finally{setBusy(false);}};
- const saveCalendar=async()=>{setBusy(true);setError('');setSaved('');try{await api.patch(`/campaigns/${id}`,calendar);setSaved('Harmonogram zapisany.');await load();setReport(await api.get(`/campaigns/${id}/preflight`));}catch(e){setError(e);}finally{setBusy(false);}};
+ const saveInboxes=async()=>{setBusy(true);setError('');try{await api.patch(`/campaigns/${id}`,{inbox_ids:inboxSelection});const loaded=await load();setReport(null);return loaded;}catch(e){setError(e);return false;}finally{setBusy(false);}};
+ const saveCalendar=async()=>{if(!calendar.sending_days.length||!calendar.sending_hours_start||!calendar.sending_hours_end||calendar.sending_hours_start>=calendar.sending_hours_end){setError(new Error('Wybierz dni wysyłki i godzinę końca późniejszą niż początek.'));return false;}setBusy(true);setError('');setSaved('');try{await api.patch(`/campaigns/${id}`,calendar);setSaved('Harmonogram zapisany.');if(!await load())return false;setReport(await api.get(`/campaigns/${id}/preflight`));return true;}catch(e){setError(e);return false;}finally{setBusy(false);}};
+ const nextStep=async()=>{if(busy)return;if(tab==='schedule'&&!await saveCalendar())return;if(tab==='inboxes'&&!await saveInboxes())return;navigate(`?setup=1#${campaignSetupSteps[stepIndex+1][0]}`);};
  if(!data)return <div className="sk-page"><ErrorNotice error={error} onRetry={load}/>{!error&&<Empty>Wczytywanie kampanii…</Empty>}</div>;
  const {campaign:c,sequences,leads,daily}=data,ib=data.inboxes.filter(i=>(c.inbox_ids||[]).includes(i.id)),first=ib[0];
  const blocking=(report?.issues||[]).some(i=>i.severity==='error');
@@ -32,14 +40,20 @@ export default function CampaignWorkspace(){
  const preflightTone=report?.ready?'green':report?(blocking?'red':'amber'):'neutral';
  const preflightMessage=report?.ready?'Kampania jest gotowa do uruchomienia!':report?(blocking?'Popraw błędy przed uruchomieniem.':'Sprawdź ostrzeżenia przed uruchomieniem.'):'Sprawdzanie gotowości…';
  const jitterMinutes=first?Math.max(0,Math.round((Number(first.max_jitter_seconds)||0)/60)):'—';
- const groups=[['mail','Skrzynki SMTP',['no_inboxes','inbox_paused','smtp_missing','smtp_not_verified'],`${ib.length} przypisanych skrzynek`],['stack','Sekwencja wiadomości',['no_sequences','first_subject_missing','empty_sequence_body'],`${sequences.length} kroków`],['contacts','Kontakty',['no_contacts','no_sendable_contacts','custom_emails_pending'],`${report?.summary?.sendable_contacts??leads.length} kwalifikujących się do wysyłki`],['template','Zmienne w szablonach',['missing_variable_values'],'Sprawdzenie wartości kontaktów'],['warning','Potencjalne ryzyka',[],`${report?.warnings?.length||0} ostrzeżeń`],['shield','Bezpieczeństwo kolejki',['uncertain_send_attempts'],'Kontrola niepewnych wysyłek']];
+ const groups=[['mail','Skrzynki SMTP',['no_inboxes','inbox_paused','smtp_missing','smtp_not_verified'],`${ib.length} przypisanych skrzynek`],['stack','Sekwencja wiadomości',['no_sequences','first_subject_missing','empty_sequence_body'],`${sequences.length} kroków`],['contacts','Kontakty',['no_contacts','no_sendable_contacts','custom_emails_pending'],`${report?.summary?.sendable_contacts??leads.length} kwalifikujących się do wysyłki`],['template','Zmienne w szablonach',['missing_variable_values'],'Sprawdzenie wartości kontaktów'],['calendar','Harmonogram',['no_sending_days','invalid_sending_days','invalid_sending_window','invalid_timezone'],'Dni, godziny i strefa czasowa'],['clock','Limity wysyłki',['daily_limit_invalid','hourly_above_daily','hourly_spacing_applied'],'Limity skrzynek'],['warning','Potencjalne ryzyka',[],`${report?.warnings?.length||0} ostrzeżeń`],['shield','Bezpieczeństwo kolejki',['uncertain_send_attempts'],'Kontrola niepewnych wysyłek']];
  let cumulative=0;
  return <div className="sk-page sk-campaign-page">
   <div className="sk-breadcrumb"><Link to="/campaigns">Kampanie</Link><Icon name="next" size={13}/><span>{c.name}</span></div>
-  <div className="sk-page-heading sk-campaign-heading"><div><div className="sk-title-line"><h1>{c.name}</h1><Badge tone={campaignState[0]} dot>{campaignState[1]}</Badge></div><p>Wiadomości, odbiorcy i harmonogram kampanii.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="calendar"/><div>Utworzona<small>{dateTime(c.created_at)}</small></div></div><Button icon={c.paused?'play':'pause'} variant={c.paused?'primary':'outline'} disabled={busy} onClick={action}>{busy?'Proszę czekać…':c.paused?'Uruchom kampanię':'Wstrzymaj'}</Button></div></div>
+  <div className="sk-page-heading sk-campaign-heading"><div><div className="sk-title-line"><h1>{c.name}</h1><Badge tone={campaignState[0]} dot>{campaignState[1]}</Badge></div><p>Wiadomości, odbiorcy i harmonogram kampanii.</p></div><div className="sk-heading-actions"><div className="sk-heading-meta"><Icon name="calendar"/><div>Utworzona<small>{dateTime(c.created_at)}</small></div></div>{!setup&&<Button icon={c.paused?'play':'pause'} variant={c.paused?'primary':'outline'} disabled={busy||(setup&&c.paused&&!report?.ready)} onClick={action}>{busy?'Proszę czekać…':c.paused?'Uruchom kampanię':'Wstrzymaj'}</Button>}</div></div>
   <ErrorNotice error={error} onRetry={load}/>
-  <nav className="sk-tabs" aria-label="Sekcje kampanii">{tabs.map(([key,label])=><Link className={`sk-tab ${tab===key?'active':''}`} aria-current={tab===key?'page':undefined} to={'#'+key} key={key}>{label}</Link>)}</nav>
-  {tab==='overview'?<>
+  {!setup&&c.paused&&<div className="sk-setup-entry"><Button to={`?setup=1#overview`} icon="check">Otwórz kreator i podsumowanie</Button></div>}
+  {setup?<CampaignSetupSteps current={stepIndex} campaignId={id}/>:<nav className="sk-tabs" aria-label="Sekcje kampanii">{tabs.map(([key,label])=><Link className={`sk-tab ${tab===key?'active':''}`} aria-current={tab===key?'page':undefined} to={'#'+key} key={key}>{label}</Link>)}</nav>}
+  {setup&&tab==='overview'?<CampaignPreflight campaign={c} inboxes={ib} sequences={sequences} report={report} busy={busy} onCheck={check} onStart={action}/>:setup&&tab==='schedule'?<Panel title="Harmonogram wysyłki" icon="calendar"><div className="sk-builder-panel-body">
+    <div className="sk-builder-days" role="group" aria-label="Dni wysyłki">{['Pon','Wt','Śr','Czw','Pt','Sob','Nie'].map((day,i)=><label key={day}><input type="checkbox" checked={calendar.sending_days.includes(i)} onChange={()=>setCalendar(p=>({...p,sending_days:p.sending_days.includes(i)?p.sending_days.filter(d=>d!==i):[...p.sending_days,i].sort()}))}/>{day}</label>)}</div>
+    <div className="sk-builder-two-col"><label>Początek wysyłki<input type="time" value={calendar.sending_hours_start} onChange={e=>setCalendar(p=>({...p,sending_hours_start:e.target.value}))}/></label><label>Koniec wysyłki<input type="time" value={calendar.sending_hours_end} onChange={e=>setCalendar(p=>({...p,sending_hours_end:e.target.value}))}/></label></div>
+    <label>Strefa czasowa<select value={calendar.timezone} onChange={e=>setCalendar(p=>({...p,timezone:e.target.value}))}>{[...new Set([calendar.timezone,'UTC',...(Intl.supportedValuesOf?.('timeZone')||[])])].map(t=><option key={t}>{t}</option>)}</select></label>
+    <Button onClick={saveCalendar} disabled={busy}>Zapisz harmonogram</Button><span role="status">{saved}</span>
+   </div></Panel>:tab==='overview'?<>
    <div className="sk-metrics four"><Metric icon="send" title="Kontakty w kampanii" value={leads.length} detail="Odbiorcy tej kampanii"/><Metric icon="mail" tone="blue" title="Skrzynki nadawcze" value={ib.length} detail={`${ib.filter(i=>!i.paused).length} aktywnych`}/><Metric icon="reply" tone="purple" title="Odpowiedzi" value={c.stats?.replies??0} detail="Rzeczywiste wyniki kampanii"/><Metric icon="chart" title="Status kampanii" value={<span className="sk-campaign-status-value">{campaignState[1]}</span>} detail="Kontrola przed uruchomieniem"/></div>
    <div className="sk-campaign-grid"><div>
     <Panel title="Harmonogram wysyłki" icon="calendar"><div className="sk-schedule-form">
@@ -55,6 +69,7 @@ export default function CampaignWorkspace(){
     {details&&<Panel title="Szczegóły kontroli" icon="info"><div className="sk-panel-body-compact">{!report?<p className="sk-muted sk-small">Brak aktualnych wyników kontroli.</p>:!(report.issues||[]).length?<p className="sk-muted sk-small">Brak zgłoszonych problemów.</p>:(report.issues||[]).map((x,i)=><div className={`sk-notice tone-${x.severity==='error'?'red':'amber'}`} key={i}>{x.message}</div>)}<Button to="#settings" className="compact">Ustawienia i obsługa błędów</Button></div></Panel>}
     <Panel title="Prognoza i statystyki" icon="chart" action={<Badge>Ostatnie 7 dni</Badge>}><div className="sk-campaign-stats">{[['send',c.stats?.scheduled||0,'W kolejce'],['mail',c.stats?.emails_sent||0,'Wysłano'],['reply',c.stats?.replies||0,'Odpowiedzi'],['contacts',leads.length,'Kontakty']].map(([icon,value,label])=><div key={label}><strong><Icon name={icon}/>{value}</strong><small>{label}</small></div>)}</div><ActivityChart rows={daily}/></Panel>
    </div></div>
-  </>:tab==='inboxes'?<Panel title="Skrzynki przypisane do kampanii" icon="mail"><div className="sk-table-wrap"><table className="sk-table"><thead><tr><th>Skrzynka</th><th>Limit dzienny</th><th>Limit godzinowy</th><th>Odstęp</th><th></th></tr></thead><tbody>{ib.map(i=><tr key={i.id}><td>{i.email}</td><td>{i.max_emails_per_day}</td><td>{i.max_emails_per_hour||'Brak'}</td><td>{i.wait_minutes_between} min</td><td><Button to={'/inboxes?inbox='+i.id} className="compact">Ustawienia skrzynki</Button></td></tr>)}</tbody></table>{!ib.length&&<Empty icon="mail">Ta kampania nie ma jeszcze przypisanej skrzynki.</Empty>}<Button to="#settings" className="compact sk-top-gap">Zmień przypisanie</Button></div></Panel>:<div className="sk-legacy-campaign"><CampaignDetail key={`${id}:${tab}`} embedded/></div>}
+  </>:tab==='inboxes'?<Panel title="Skrzynki przypisane do kampanii" icon="mail"><div className="sk-builder-panel-body">{setup&&<><div className="sk-builder-mailbox-list">{data.inboxes.map(i=><label className="sk-builder-mailbox" key={i.id}><input type="checkbox" checked={inboxSelection.includes(i.id)} onChange={e=>setInboxSelection(old=>e.target.checked?[...old,i.id]:old.filter(x=>x!==i.id))}/><span className="sk-builder-mailbox-copy"><strong>{i.email}</strong><small>{i.paused?'Wstrzymana':'Aktywna'} · limit: {i.max_emails_per_day}/dzień</small></span></label>)}</div><Button onClick={saveInboxes} disabled={busy}>Zapisz skrzynki</Button><Button to="/inboxes">Zarządzaj skrzynkami</Button></>}<div className="sk-table-wrap"><table className="sk-table"><thead><tr><th>Skrzynka</th><th>Limit dzienny</th><th>Limit godzinowy</th><th>Odstęp</th><th></th></tr></thead><tbody>{ib.map(i=><tr key={i.id}><td>{i.email}</td><td>{i.max_emails_per_day}</td><td>{i.max_emails_per_hour||'Brak'}</td><td>{i.wait_minutes_between} min</td><td><Button to={'/inboxes?inbox='+i.id} className="compact">Ustawienia skrzynki</Button></td></tr>)}</tbody></table>{!ib.length&&<Empty icon="mail">Ta kampania nie ma jeszcze przypisanej skrzynki.</Empty>}<Button to="#settings" className="compact sk-top-gap">Zmień przypisanie</Button></div></div></Panel>:<div className="sk-legacy-campaign"><CampaignDetail key={`${id}:${tab}`} embedded/></div>}
+  {setup&&<div className="sk-setup-footer"><Button to={`/campaigns/${id}#overview`}>Zakończ później</Button><span className="sk-muted sk-small">Zapisz zmiany w bieżącym etapie przed przejściem dalej.</span>{stepIndex>0&&<Button to={`?setup=1#${campaignSetupSteps[stepIndex-1][0]}`} icon="back">Wstecz</Button>}{stepIndex<5&&<Button onClick={nextStep} disabled={busy} variant="primary" icon="next">{tab==='schedule'||tab==='inboxes'?'Zapisz i dalej':'Dalej'}</Button>}</div>}
  </div>;
 }
