@@ -1,4 +1,5 @@
 import React from 'react';
+import {parseApiDate} from '../utils/datetime';
 import { Link } from 'react-router-dom';
 import {
  RiHome5Line, RiMegaphoneLine, RiMailLine, RiContactsLine, RiFileTextLine,
@@ -45,7 +46,7 @@ export function Metric({icon,title,value,detail,tone='green',badge}) {return <se
 export function Empty({children='Brak danych.',icon='info'}) {return <div className="sk-empty"><Icon name={icon} size={26}/><span>{children}</span></div>;}
 export function ErrorNotice({error,onRetry}) {return error ? <div className="sk-notice tone-red" role="alert"><Icon name="warning"/><span>{errorText(error)}</span>{onRetry&&<Button onClick={onRetry}>Spróbuj ponownie</Button>}</div>:null;}
 export function errorText(err) {let message=typeof err==='string'?err:err?.message;try{const d=JSON.parse(message)?.detail;if(typeof d==='string')return d;if(Array.isArray(d))return d.map(x=>x.msg).join(' ');if(d?.errors)return d.errors.map(x=>x.message).join(' ');}catch{}return message||'Nie udało się wykonać operacji.';}
-export function dateTime(value,opts={}) {if(!value)return '—';const d=new Date(/[zZ]|[+-]\d\d:\d\d$/.test(value)?value:value+'Z');return Number.isNaN(+d)?'—':d.toLocaleString('pl-PL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',...opts});}
+export function dateTime(value,opts={}) {if(!value)return '—';const d=parseApiDate(value);return Number.isNaN(+d)?'—':d.toLocaleString('pl-PL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',...opts});}
 export const statusLabels={active:'Aktywny',contacted:'Wysłano',completed:'Zakończony',replied:'Odpowiedział',bounced:'Odbicie',unsubscribed:'Wypisany',paused:'Wstrzymany',new:'Nowy',invalid:'Niepoprawny',valid:'Poprawny',pending:'Oczekuje',interested:'Zainteresowany',not_interested:'Niezainteresowany',needs_custom_email:'Do przygotowania',wrong_person:'Inny odbiorca',out_of_office:'Poza biurem',auto_reply:'Automatyczna odpowiedź'};
 export function ContactStatus({lead}) {const cs=lead?.campaigns||[];const s=lead?.email_verification_status==='invalid'?'invalid':cs.some(c=>c.status==='unsubscribed')?'unsubscribed':cs.some(c=>c.replied||c.status==='replied')?'replied':cs[0]?.status || lead?.lead_status || 'new';return <Badge dot tone={['bounced','invalid','unsubscribed'].includes(s)?'red':s==='replied'?'blue':s==='active'?'green':'neutral'}>{statusLabels[s]||s}</Badge>;}
 

@@ -153,7 +153,7 @@ export default function Analytics() {
     const map = {};
     analyticsData.forEach(row => {
       const cid = String(row.campaign_id);
-      if (!map[cid]) map[cid] = { sent: 0, replies: 0, totalOpens: 0, totalClicks: 0, uniqueLeads: 0 };
+      if (!map[cid]) map[cid] = { sent: 0, replies: 0, totalOpens: 0, totalClicks: 0 };
       map[cid].sent += row.sent;
       map[cid].replies += row.total_replies;
       map[cid].totalOpens += row.total_opens;
@@ -245,9 +245,7 @@ export default function Analytics() {
   const rangeSent = chartData.reduce((a,d)=>a+d.sent,0);
   const rangeReplies = chartData.reduce((a,d)=>a+d.totalReplies,0);
   const rangeClicks = chartData.reduce((a,d)=>a+d.totalClicks,0);
-  const totalRepliesFromStats = filtered.reduce((a,c)=>a+(c.stats?.replies||0),0);
-  const totalSentFromStats = filtered.reduce((a,c)=>a+(c.stats?.emails_sent||0),0);
-  const replyRateRange = totalSentFromStats > 0 ? Math.round((totalRepliesFromStats / totalSentFromStats) * 100) : 0;
+  const replyRateRange = rangeSent > 0 ? Math.round((rangeReplies / rangeSent) * 100) : 0;
   const clickRateRange = rangeSent > 0 ? Math.round((rangeClicks / rangeSent) * 100) : 0;
 
   // Format x-axis dates short
@@ -426,7 +424,6 @@ export default function Analytics() {
                 const allTimeStats = c.stats || {};
                 const rStats = filteredStatsByCampaign[String(c.id)] || {};
                 const sent = rStats.sent || 0;
-                const leads = rStats.uniqueLeads || 0;
                 const replies = rStats.replies || 0;
                 const openRate = sent > 0 ? Math.round((rStats.totalOpens || 0) / sent * 100) : 0;
                 const replyRate = sent > 0 ? Math.round(replies / sent * 100) : 0;
@@ -443,7 +440,7 @@ export default function Analytics() {
                         {c.name}
                       </Link>
                     </td>
-                    <td className="py-2 text-center font-mono">{leads}</td>
+                    <td className="py-2 text-center font-mono" title="Brak danych o unikalnych kontaktach w wybranym okresie">—</td>
                     <td className="py-2 text-center font-mono">{sent}</td>
                     <td className="py-2 text-center font-mono">{scheduled}</td>
                     <td className="py-2 text-center">

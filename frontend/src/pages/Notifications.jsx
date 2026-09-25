@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { parseApiDate } from '../utils/datetime';
 import { api } from '../api';
 import { useNotifications } from '../context/NotificationsContext';
 import { useNotify } from '../context/NotificationContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { PageFrame, SectionTabs, StatePanel, ErrorNotice, Icon } from '../redesign/ui';
+import { PageFrame, SectionTabs, StatePanel, ErrorNotice, Icon, dateTime } from '../redesign/ui';
 import {
   RiMailOpenLine,
   RiMailSendLine,
@@ -24,6 +25,10 @@ import {
   RiCursorLine,
   RiSearchLine,
 } from 'react-icons/ri';
+
+// Accept event names emitted by the first demo dataset as well as API event keys.
+const EVENT_ALIASES = { lead_replied: 'lead.replied', email_bounced: 'email.bounced', lead_unsubscribed: 'lead.unsubscribed' };
+const eventTone = type => ['email.bounced', 'feature.error', 'token_expired'].includes(type) ? 'red' : ['daily_limit', 'rate_limit', 'lead.unsubscribed'].includes(type) ? 'amber' : 'green';
 
 const EVENT_ICONS = {
   'email.sent': <RiMailSendLine size={20} />,
@@ -70,7 +75,7 @@ const EVENT_CATEGORIES = {
 };
 
 function timeAgo(iso) {
-  const diff = Date.now() - new Date(iso).getTime();
+  const diff = Date.now() - parseApiDate(iso).getTime();
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'przed chwilą';
   if (mins < 60) return `${mins} min temu`;
@@ -104,7 +109,7 @@ function NotificationItem({ n, onRead, onDelete, onSelect, selected }) {
           : 'bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/30'
       }`}
     >
-      <div className="mt-0.5 text-teal-500 flex-shrink-0">
+      <div className={`sk-notification-event-icon tone-${eventTone(n.event_type)}`}>
         {EVENT_ICONS[n.event_type] || <RiMailOpenLine size={20} />}
       </div>
       <div className="flex-1 min-w-0">
@@ -173,7 +178,8 @@ export default function Notifications() {
       params.set('offset', String(offsetRef.current));
       const data = await api.get(`/notifications?${params.toString()}`);
       if (gen !== fetchGenRef.current) return;
-      setItems(reset ? data.items : prev => [...prev, ...data.items]);
+      const normalized = data.items.map(n => ({ ...n, event_type: EVENT_ALIASES[n.event_type] || n.event_type }));
+      setItems(reset ? normalized : prev => [...prev, ...normalized]);
       setTotal(data.total);
       setUnread(data.unread);
       if (data.items.length > 0) {
@@ -401,9 +407,9 @@ export default function Notifications() {
                 </div>
                 <aside className="sk-notification-detail" aria-label="Szczegóły powiadomienia">
                   {selected ? <>
-                    <span className="sk-badge">{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
+                    <span className={`sk-badge tone-${eventTone(selected.event_type)}`}>{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
                     <h2>{selected.title}</h2>
-                    <time dateTime={selected.created_at}>{new Date(selected.created_at).toLocaleString('pl-PL')}</time>
+                    <time dateTime={selected.created_at}>{dateTime(selected.created_at)}</time>
                     <p>{selected.message}</p>
                     <Button onClick={() => openRelated(selected)}>Otwórz powiązany widok</Button>
                   </> : <StatePanel icon="bell" title="Wybierz powiadomienie" description="Pełna treść i powiązane działania pojawią się tutaj." />}

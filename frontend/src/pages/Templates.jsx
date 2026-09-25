@@ -6,7 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
-import { PageFrame, Icon, ErrorNotice, StatePanel } from '../redesign/ui';
+import { PageFrame, Icon, ErrorNotice, StatePanel, dateTime } from '../redesign/ui';
 import SafeEmail from '../redesign/SafeEmail';
 import { useNotify } from '../context/NotificationContext';
 import { useConfirm } from '../context/ConfirmContext';
@@ -380,7 +380,7 @@ export default function Templates() {
 
             <div className="flex flex-wrap gap-2 border-t pt-4">
               <Button type="button" variant="default" onClick={saveTemplate} disabled={busy}>
-                {busy ? 'Zapisywanie…' : selectedId ? 'Zapisz nową wersję' : 'Utwórz szablon'}
+                {busy ? 'Przetwarzanie…' : selectedId ? 'Zapisz nową wersję' : 'Utwórz szablon'}
               </Button>
               {selectedId && (
                 <Button type="button" variant="destructive" onClick={deleteTemplate} disabled={busy}>
@@ -504,7 +504,7 @@ export default function Templates() {
                   <li key={v.id}>
                     <button type="button" aria-pressed={selectedVersionId === v.id} onClick={() => loadVersion(v.id)} disabled={busy}>
                       <span><strong>Wersja {v.version}</strong>{v.id === selectedTemplate.latest_version?.id && <small>Aktualna</small>}</span>
-                      <time dateTime={v.created_at}>{new Date(v.created_at).toLocaleString('pl-PL')}</time>
+                      <time dateTime={v.created_at}>{dateTime(v.created_at)}</time>
                     </button>
                   </li>
                 ))}

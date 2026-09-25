@@ -1,3 +1,10 @@
+// Backend timestamps without an offset are UTC (Python datetime.utcnow).
+export function parseApiDate(value) {
+  if (value instanceof Date) return value;
+  const raw = typeof value === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(value) && !/(?:z|[+-]\d{2}:\d{2})$/i.test(value) ? value + 'Z' : value;
+  return new Date(raw);
+}
+
 export const DEFAULT_TIME_ZONE = 'UTC';
 
 export function normalizeTimeZone(tz) {
@@ -6,7 +13,7 @@ export function normalizeTimeZone(tz) {
 
 export function formatDateKey(value, timeZone = DEFAULT_TIME_ZONE) {
   if (!value) return 'unknown';
-  const date = value instanceof Date ? value : new Date(value);
+  const date = parseApiDate(value);
   if (Number.isNaN(date.getTime())) return 'unknown';
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: normalizeTimeZone(timeZone),
@@ -17,7 +24,7 @@ export function formatDateKey(value, timeZone = DEFAULT_TIME_ZONE) {
 }
 
 export function formatTimeParts(value, timeZone = DEFAULT_TIME_ZONE) {
-  const date = value instanceof Date ? value : new Date(value);
+  const date = parseApiDate(value);
   if (Number.isNaN(date.getTime())) return { hours: '00', minutes: '00', seconds: '00' };
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: normalizeTimeZone(timeZone),

@@ -3,6 +3,8 @@ import './calendar.css';
 import { Button, Badge, Icon, Panel, Switch, Empty } from './ui';
 import { addDaysToDateKey, formatDateKey, formatTimeKey } from '../utils/datetime';
 
+const messageCount = count => `${count} ${count === 1 ? 'wiadomość' : 'wiadomości'}`;
+
 export function calendarDays(anchor, mode = 'week') {
   const date = new Date(`${anchor}T12:00:00Z`);
   const first = mode === 'month' ? `${anchor.slice(0, 7)}-01` : anchor;
@@ -60,8 +62,8 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
   };
   const event = group => <button type="button" key={group.key} className={`sk-calendar-event ${group.type === 'sent' ? 'is-sent' : ''}`}
     onClick={() => setSelectedGroup(group.key)} aria-pressed={selectedGroup === group.key}
-    aria-label={`${group.name}, ${group.day}, ${group.hour}:00, ${group.items.length} wiadomości`}>
-    <strong>{group.name || 'Kampania'}</strong><span>{group.items.length} wiadomości</span>
+    aria-label={`${group.name}, ${group.day}, ${group.hour}:00, ${messageCount(group.items.length)}`}>
+    <strong>{group.name || 'Kampania'}</strong><span>{messageCount(group.items.length)}</span>
   </button>;
 
   return <div className="sk-calendar-workspace" aria-busy={busy}>
@@ -98,7 +100,7 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
       </div></Panel>
       <Panel title={chosen ? chosen.name : 'Dzisiaj'} icon={chosen ? 'mail' : 'calendar'} action={chosen && <Button icon="close" aria-label="Zamknij listę bloku" onClick={() => setSelectedGroup(null)} />}>
         <div className="sk-calendar-agenda">
-          <p className="sk-muted">{chosen ? dayLabel(chosen.day, { day: 'numeric', month: 'long' }) : dayLabel(today, { day: 'numeric', month: 'long' })} · {(chosen?.items || todayItems).length} wiadomości</p>
+          <p className="sk-muted">{chosen ? dayLabel(chosen.day, { day: 'numeric', month: 'long' }) : dayLabel(today, { day: 'numeric', month: 'long' })} · {messageCount((chosen?.items || todayItems).length)}</p>
           {(chosen?.items || todayItems).length ? (chosen?.items || todayItems).map(item => <button type="button" key={`${item.type}-${item.slot_id ?? item.log_id}`} onClick={() => onPreview(item)}>
             <strong>{formatTimeKey(item.sent_at || item.scheduled_at, zone)} · {item.campaign_name}</strong>
             <span>{item.lead_email}</span><small>{item.subject || '(bez tematu)'}</small>
