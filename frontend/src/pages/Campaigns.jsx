@@ -1,14 +1,51 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
+import { PageFrame, Panel, Metric, Badge, Button, ErrorNotice, Empty, Icon } from '../redesign/ui';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
+
+
+function campaignView(c) {
+  const stats = c.stats || {};
+  const totalLeads = stats.total_leads || 0;
+  const emailsSent = stats.emails_sent || 0;
+  const scheduled = stats.scheduled || 0;
+  const replies = stats.replies || 0;
+  const bounced = stats.bounced || 0;
+  const unsubscribed = stats.unsubscribed || 0;
+  const needsCustom = stats.needs_custom_email || 0;
+  const denom = emailsSent + scheduled;
+  const percent = denom > 0 ? Math.round((emailsSent / denom) * 100) : 0;
+  const replyRate = emailsSent > 0 ? Math.round((replies / emailsSent) * 100) : 0;
+  const isPaused = !!c.paused;
+  const isCompleted = !isPaused && scheduled === 0 && emailsSent > 0;
+  const pausedPercent = isPaused && totalLeads > 0 ? Math.round((emailsSent / totalLeads) * 100) : 0;
+
+  let statusKey = 'active';
+  let statusLabel = 'Aktywna';
+  let tone = 'green';
+  if (isPaused) {
+    statusKey = 'paused'; statusLabel = 'Wstrzymana'; tone = 'amber';
+  } else if (isCompleted) {
+    statusKey = 'completed'; statusLabel = 'Zakończona'; tone = 'blue';
+  } else if (needsCustom > 0 && totalLeads === needsCustom) {
+    statusKey = 'issues'; statusLabel = 'Wymaga poprawek'; tone = 'red';
+  } else if (totalLeads === 0) {
+    statusKey = 'draft'; statusLabel = 'Szkic'; tone = 'neutral';
+  }
+
+  return {
+    totalLeads, emailsSent, scheduled, replies, bounced, unsubscribed, needsCustom,
+    percent, replyRate, isPaused, isCompleted, pausedPercent, statusKey, statusLabel, tone,
+  };
+}
 
 export default function Campaigns() {
   const [campaigns, setCampaigns] = useState(() => apiCache.get('/campaigns') || []);
   const [error, setError] = useState(null);
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // scheduling strategy from server ("priority" or other)
   const [strategy, setStrategy] = useState('priority');
@@ -24,6 +61,7 @@ export default function Campaigns() {
         api.get('/settings/scheduling-strategy').catch(() => ({ scheduling_strategy: 'priority' })),
       ]);
       setCampaigns(camp);
+      setError(null);
       setStrategy(strat.scheduling_strategy || 'priority');
       setOrderChanged(false);
     } catch (e) {
@@ -94,208 +132,193 @@ export default function Campaigns() {
     load();
   };
 
-  if (error) {
-    return <div className="p-8 text-red-600">{error}</div>;
-  }
-
+  const rows = campaigns.map(c => ({ campaign: c, ...campaignView(c) }));
+  const filteredRows = rows.filter(row => {
+    const matchesQuery = !query.trim() || row.campaign.name.toLowerCase().includes(query.trim().toLowerCase());
+    const matchesStatus = statusFilter === 'all' || row.statusKey === statusFilter;
+    return matchesQuery && matchesStatus;
+  });
+  const totals = rows.reduce((acc, row) => {
+    acc.contacts += row.totalLeads;
+    acc.sent += row.emailsSent;
+    acc.scheduled += row.scheduled;
+    acc.replies += row.replies;
+    acc.bounced += row.bounced;
+    if (row.statusKey === 'active') acc.active += 1;
+    return acc;
+  }, { contacts: 0, sent: 0, scheduled: 0, replies: 0, bounced: 0, active: 0 });
+  const replyRateTotal = totals.sent > 0 ? ((totals.replies / totals.sent) * 100).toFixed(1) : '0.0';
+  const deliverability = totals.sent > 0 ? Math.max(0, 100 - (totals.bounced / totals.sent) * 100).toFixed(1) : '100.0';
   const isPriority = strategy === 'priority';
-  const banner = isPriority ? (
-    <div className="mb-4 flex items-center gap-2 text-xs text-gray-500">
-      <span className="font-medium text-gray-700">Priorytet</span>
-      <span>·</span>
-      <span>Przeciągnij wiersze, aby zmienić kolejność</span>
-      <span>·</span>
-      <Link to="/settings#general" className="underline text-teal-500">Zmień strategię</Link>
-    </div>
-  ) : null;
+  const filtersActive = query.trim().length > 0 || statusFilter !== 'all';
+  const canReorder = isPriority && !filtersActive;
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold mb-4">Kampanie</h1>
-        <Button as={Link} to="/analytics" variant="outline" size="sm">
-          Analityka
-        </Button>
-      </div>
-
-      {banner}
-
-      {campaigns.length === 0 && (
-        <Card>Brak kampanii. <Link className="text-teal-500" to="/campaigns/add">Utwórz kampanię</Link>.</Card>
-      )}
-
-      {campaigns.length > 0 && (
+    <PageFrame
+      className="sk-campaigns-page"
+      title="Kampanie"
+      description="Twórz, zarządzaj i monitoruj kampanie outreach."
+      actions={
         <>
-          <Card className="overflow-auto">
-            <table className="w-full table-auto border-collapse">
-            <thead>
-              <tr>
-                {isPriority && <><th className="w-8"></th><th className="w-10 text-gray-500 text-xs">#</th></>}
-                <th>Nazwa</th>
-                <th>Status</th>
-                <th className="text-center">Postęp</th>
-                <th className="text-center">Odpowiedzi</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map((c, idx) => {
-                // compute simple progress metrics using the stats object supplied by
-                // the backend.  we assume stats always exists because the schema
-                // defaults to zero-values.
-                const stats = c.stats || {};
-                const totalLeads = stats.total_leads || 0;
-                const emailsSent = stats.emails_sent || 0;
-                const scheduled = stats.scheduled || 0; // newly added field
-                // instead of assuming every enrolled lead will receive every
-                // sequence, compute progress as sent / (sent + scheduled).  slots
-                // are removed when a lead replies, so replied leads immediately
-                // appear "complete".
-                const denom = emailsSent + scheduled;
-                const percent = denom > 0 ? Math.round((emailsSent / denom) * 100) : 0;
-                const replies = stats.replies || 0;
-                const replyRate = emailsSent > 0 ? Math.round((replies / emailsSent) * 100) : 0;
-
-                // Determine campaign state for display
-                // When paused: scheduled slots were cleared, so denom == emailsSent
-                // which makes percent = 100%, but it's misleading.
-                const isCompleted = !c.paused && scheduled === 0 && emailsSent > 0;
-                const isPaused = !!c.paused;
-
-                // For paused campaigns, compute progress against total leads
-                // to give a better sense of how far we got
-                const pausedPercent = isPaused && totalLeads > 0
-                  ? Math.round((emailsSent / totalLeads) * 100)
-                  : 0;
-
-                // Build a short reason line for paused / completed
-                const reasonParts = [];
-                if (replies > 0) reasonParts.push(`${replies} odpowiedzi`);
-                const bounced = stats.bounced || 0;
-                if (bounced > 0) reasonParts.push(`${bounced} odbitych`);
-                const unsubscribed = stats.unsubscribed || 0;
-                if (unsubscribed > 0) reasonParts.push(`${unsubscribed} wypisanych`);
-                const needsCustom = stats.needs_custom_email || 0;
-                if (needsCustom > 0) reasonParts.push(`${needsCustom} wymaga treści`);
-
-                // Status display
-                let statusLabel, statusClass;
-                if (isPaused) {
-                  statusLabel = 'Wstrzymana';
-                  statusClass = 'text-amber-600 font-bold';
-                } else if (isCompleted) {
-                  statusLabel = 'Zakończona';
-                  statusClass = 'text-blue-600 font-bold';
-                } else if (needsCustom > 0 && totalLeads === needsCustom) {
-                  statusLabel = 'Wymaga treści';
-                  statusClass = 'text-purple-600 font-bold';
-                } else if (totalLeads === 0) {
-                  statusLabel = 'Szkic';
-                  statusClass = 'text-gray-400 font-bold';
-                } else {
-                  statusLabel = 'Aktywna';
-                  statusClass = 'text-green-600 font-bold';
-                }
-
-                // Progress bar colour
-                const barColor = isPaused ? 'bg-amber-400' : isCompleted ? 'bg-blue-500' : 'bg-teal-500';
-
-                return (
-                  <tr
-                    key={c.id}
-                    draggable={isPriority}
-                    onDragStart={e => isPriority && onDragStart(e, idx)}
-                    onDragOver={e => isPriority && onDragOver(e)}
-                    onDragLeave={e => isPriority && onDragLeave(e)}
-                    onDrop={e => isPriority && onDrop(e, idx)}
-                    onDragEnd={e => isPriority && onDragEnd(e)}
-                  >
-                    {isPriority && (
-                      <>
-                        <td className="py-2">
-                          <span className="cursor-grab text-gray-400">&#8942;&#8942;</span>
-                        </td>
-                        <td className="py-2 text-gray-500 text-xs">{idx + 1}</td>
-                      </>
-                    )}
-                    <td className="py-2">
-                      {isPaused ? (
-                        <span className="text-gray-500">
-                          {c.name}{' '}
-                          <span className="inline-block text-amber-700 bg-amber-100 px-1 py-0.5 text-xs font-bold rounded">WSTRZYMANA</span>
-                        </span>
-                      ) : isCompleted ? (
-                        <span>
-                          <Link to={`/campaigns/${c.id}`} className="text-blue-500">{c.name}</Link>{' '}
-                          <span className="inline-block text-blue-600 bg-blue-100 px-1 py-0.5 text-xs font-bold rounded">GOTOWA</span>
-                        </span>
-                      ) : (
-                        <Link to={`/campaigns/${c.id}`} className="text-teal-500">
-                          {c.name}
-                        </Link>
-                      )}
-                    </td>
-                    <td className="py-2">
-                      <span className={statusClass}>{statusLabel}</span>
-                    </td>
-                    <td className="py-2 text-center">
-                      <div className="w-32 inline-block bg-gray-200 rounded-full h-2 overflow-hidden">
-                        <div
-                          className={`${barColor} h-2`}
-                          style={{ width: `${isPaused ? pausedPercent : percent}%` }}
-                        />
-                      </div>
-                      <div className="text-xs mt-1">
-                        {isPaused ? (
-                          <span className="text-amber-700">{emailsSent} wysłano z {totalLeads} lead{totalLeads !== 1 ? 's' : ''}</span>
-                        ) : isCompleted ? (
-                          <span className="text-blue-600">{emailsSent} wysłano — zakończono</span>
-                        ) : (
-                          <span>{emailsSent} / {denom} ({percent}%)</span>
-                        )}
-                      </div>
-                      {reasonParts.length > 0 && (
-                        <div className="text-[10px] text-gray-400 mt-0.5">{reasonParts.join(' · ')}</div>
-                      )}
-                    </td>
-                    <td className="py-2 text-center">
-                      {replies} ({replyRate}%)
-                    </td>
-                    <td className="py-2">
-                      <div className="flex flex-wrap gap-2">
-                        <Button as={Link} to={`/campaigns/${c.id}`} variant="outline" size="sm">View</Button>
-                        <Button variant="outline" size="sm" onClick={() => togglePause(c.id, c.paused, c.name)}>
-                          {c.paused ? 'Wznów' : 'Wstrzymaj'}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
-                        <Button variant="danger" size="sm" onClick={() => deleteCampaign(c.id, c.name)}>Usuń</Button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          </Card>
-
-          {isPriority && orderChanged && (
-            <div className="mt-4 flex items-center gap-4">
-              <Button
-                variant="default"
-                size="md"
-                onClick={saveOrder}
-              >
-                Save priority order
-              </Button>
-              <span className="text-green-600 text-sm">Unsaved changes</span>
-            </div>
-          )}
+          <Button variant="outline" to="/analytics" icon="chart">Analityka</Button>
+          <Button variant="primary" to="/campaigns/add" icon="plus">Nowa kampania</Button>
         </>
+      }
+    >
+      <ErrorNotice error={error} onRetry={load} />
+
+      <div className="sk-campaign-summary">
+        <Metric icon="campaign" title="Aktywne kampanie" value={totals.active} detail={`z ${campaigns.length} wszystkich`} tone="green" />
+        <Metric icon="calendar" title="Zaplanowane wysyłki" value={totals.scheduled.toLocaleString('pl-PL')} detail="oczekujące w kolejce" tone="blue" />
+        <Metric icon="reply" title="Odpowiedzi" value={`${replyRateTotal}%`} detail={`${totals.replies.toLocaleString('pl-PL')} odpowiedzi`} tone="green" />
+        <Metric icon="shield" title="Dostarczalność" value={`${deliverability}%`} detail={`${totals.sent.toLocaleString('pl-PL')} wysłanych`} tone="green" />
+      </div>
+
+      <div className="sk-campaign-filterbar">
+        <div className="sk-search-input">
+          <Icon name="search" />
+          <input
+            type="search"
+            placeholder="Szukaj kampanii…"
+            aria-label="Szukaj kampanii"
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+          />
+        </div>
+        <div className="sk-campaign-filter-tabs" role="group" aria-label="Status kampanii">
+          {[
+            ['all','Wszystkie'],
+            ['active','Aktywne'],
+            ['paused','Wstrzymane'],
+            ['issues','Wymaga poprawek'],
+            ['completed','Zakończone'],
+          ].map(([key,label]) => (
+            <button
+              type="button"
+              key={key}
+              className={statusFilter === key ? 'is-active' : ''}
+              onClick={() => setStatusFilter(key)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {isPriority && (
+        <div className="sk-campaign-priority-note">
+          <Icon name="drag" size={17} />
+          <span>
+            Strategia priorytetowa jest aktywna.
+            {canReorder ? ' Przeciągnij wiersze, aby zmienić kolejność.' : ' Wyczyść filtry, aby zmieniać kolejność.'}
+          </span>
+          <Link to="/settings#general">Zmień strategię</Link>
+        </div>
       )}
 
-      <div className="mt-4">
-        <Button as={Link} to="/campaigns/add" variant="default" className="no-underline hover:no-underline">Utwórz kampanię</Button>
-      </div>
-    </div>
+      {campaigns.length === 0 ? (
+        <Panel>
+          <Empty icon="campaign">
+            Brak kampanii. Utwórz pierwszą kampanię, aby rozpocząć outreach.
+          </Empty>
+          <div className="sk-actions-end sk-campaign-empty-actions">
+            <Button variant="primary" to="/campaigns/add" icon="plus">Utwórz kampanię</Button>
+          </div>
+        </Panel>
+      ) : filteredRows.length === 0 ? (
+        <Panel>
+          <Empty icon="filter">Brak kampanii pasujących do wybranych filtrów.</Empty>
+        </Panel>
+      ) : (
+        <Panel className="sk-campaign-table-panel">
+          <div className="sk-table-wrap">
+            <table className="sk-table sk-campaign-table">
+              <thead>
+                <tr>
+                  {isPriority && <><th aria-label="Przeciągnij"/><th>#</th></>}
+                  <th>Nazwa kampanii</th>
+                  <th>Status</th>
+                  <th>Kontakty</th>
+                  <th>Postęp</th>
+                  <th>Odpowiedzi</th>
+                  <th aria-label="Akcje"/>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredRows.map(row => {
+                  const c = row.campaign;
+                  const idx = campaigns.findIndex(item => item.id === c.id);
+                  const progress = row.isPaused ? row.pausedPercent : row.percent;
+                  const reasonParts = [];
+                  if (row.bounced > 0) reasonParts.push(`${row.bounced} odbitych`);
+                  if (row.unsubscribed > 0) reasonParts.push(`${row.unsubscribed} wypisanych`);
+                  if (row.needsCustom > 0) reasonParts.push(`${row.needsCustom} wymaga treści`);
+
+                  return (
+                    <tr
+                      key={c.id}
+                      draggable={canReorder}
+                      onDragStart={e => canReorder && onDragStart(e, idx)}
+                      onDragOver={e => canReorder && onDragOver(e)}
+                      onDragLeave={e => canReorder && onDragLeave(e)}
+                      onDrop={e => canReorder && onDrop(e, idx)}
+                      onDragEnd={e => canReorder && onDragEnd(e)}
+                    >
+                      {isPriority && (
+                        <>
+                          <td className="sk-campaign-drag">
+                            <Icon name="drag" size={18} />
+                          </td>
+                          <td className="sk-muted">{idx + 1}</td>
+                        </>
+                      )}
+                      <td>
+                        <Link className="sk-campaign-name" to={`/campaigns/${c.id}`}>{c.name}</Link>
+                        {reasonParts.length > 0 && <small className="sk-campaign-reasons">{reasonParts.join(' · ')}</small>}
+                      </td>
+                      <td><Badge dot tone={row.tone}>{row.statusLabel}</Badge></td>
+                      <td>
+                        <strong>{row.totalLeads.toLocaleString('pl-PL')}</strong>
+                        <small className="sk-campaign-cell-detail">{row.scheduled.toLocaleString('pl-PL')} w kolejce</small>
+                      </td>
+                      <td className="sk-campaign-progress-cell">
+                        <div className="sk-campaign-progress">
+                          <span style={{width:`${Math.min(100,progress)}%`}} data-tone={row.tone}/>
+                        </div>
+                        <small>{row.emailsSent.toLocaleString('pl-PL')} wysłano · {progress}%</small>
+                      </td>
+                      <td>
+                        <strong>{row.replies.toLocaleString('pl-PL')}</strong>
+                        <small className="sk-campaign-cell-detail">{row.replyRate}%</small>
+                      </td>
+                      <td>
+                        <div className="sk-campaign-row-actions">
+                          <Button variant="outline" to={`/campaigns/${c.id}`}>Otwórz</Button>
+                          <Button variant="outline" onClick={() => togglePause(c.id, c.paused, c.name)}>
+                            {c.paused ? 'Wznów' : 'Wstrzymaj'}
+                          </Button>
+                          <Button variant="ghost" onClick={() => duplicateCampaign(c.id, c.name)}>Duplikuj</Button>
+                          <Button variant="danger" onClick={() => deleteCampaign(c.id, c.name)}>Usuń</Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      )}
+
+      {isPriority && orderChanged && (
+        <div className="sk-campaign-savebar" role="status">
+          <div>
+            <strong>Niezapisana kolejność kampanii</strong>
+            <small>Zapisz, aby scheduler używał nowego priorytetu.</small>
+          </div>
+          <Button variant="primary" onClick={saveOrder} icon="check">Zapisz kolejność</Button>
+        </div>
+      )}
+    </PageFrame>
   );
 }

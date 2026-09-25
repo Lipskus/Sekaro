@@ -5,17 +5,19 @@ import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
 import { useAppMode } from '../context/AppModeContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
+import { SectionTabs, SettingsCard, Field } from '../redesign/ui';
 
 const SETTINGS_TABS = [
-  { id: 'general', label: 'Ogólne' },
-  { id: 'setup', label: 'Kopia i dane' },
-  { id: 'features', label: 'Funkcje' },
-  { id: 'integrating', label: 'Integracje' },
-  { id: 'dev', label: 'Deweloperskie' },
+  { id: 'general', label: 'Ogólne', icon: 'settings' },
+  { id: 'setup', label: 'Kopia i przywracanie', icon: 'history' },
+  { id: 'features', label: 'Funkcje', icon: 'flash' },
+  { id: 'integrating', label: 'Integracje', icon: 'link' },
+  { id: 'dev', label: 'Tryb testowy', icon: 'warning' },
 ];
 
 /** In-tab section anchors (DOM id = `settings-${id}`). */
@@ -49,6 +51,7 @@ export default function Settings() {
   const confirm = useConfirm();
   const { isProduction } = useAppMode();
   const { user, logout } = useAuth();
+  const { language, setLanguage, languages } = useLanguage();
 
   /* ── state ── */
   const [strategy, setStrategy] = useState('priority');
@@ -689,29 +692,19 @@ export default function Settings() {
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="shrink-0 px-6 lg:px-8 pt-6 lg:pt-8 pb-0 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-transparent">
-        <h1 className="text-2xl font-bold">Ustawienia</h1>
-        <nav
-          className="mt-4 flex flex-wrap gap-x-1 gap-y-0 items-end"
-          aria-label="Sekcje ustawień"
-        >
-          {visibleTabs.map(t => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => selectTab(t.id)}
-              className={
-                'px-3 py-2 text-sm font-medium leading-none transition-colors border-b-2 -mb-px ' +
-                (activeTab === t.id
-                  ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600')
-              }
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
+    <div className="sk-settings-page relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <header className="sk-settings-page-head shrink-0">
+        <div>
+          <h1>Ustawienia</h1>
+          <p>Dostosuj działanie systemu do swoich potrzeb.</p>
+        </div>
+        <SectionTabs
+          items={visibleTabs}
+          value={activeTab}
+          onChange={selectTab}
+          ariaLabel="Sekcje ustawień"
+          className="sk-settings-main-tabs"
+        />
       </header>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row lg:items-stretch">
@@ -752,109 +745,149 @@ export default function Settings() {
         >
 
         {activeTab === 'general' && (
-          <>
-        <section id="settings-scheduling" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Harmonogram</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Określa sposób rozdzielania wiadomości pomiędzy aktywne kampanie.</p>
-          <div className="space-y-3">
-            <label className="flex gap-2 items-start cursor-pointer">
-              <input type="radio" name="strategy" value="priority" checked={strategy === 'priority'} onChange={() => submitStrategy('priority')} />
-              <span>
-                <strong>Priorytet kampanii</strong><br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Kampanie są przetwarzane zgodnie z ustawionym priorytetem.{' '}
-                  <a href="/campaigns" className="text-teal-500 underline">Zmień kolejność kampanii</a>
+          <div className="sk-settings-grid" aria-label="Ustawienia ogólne">
+            <SettingsCard
+              id="settings-scheduling"
+              span={6}
+              icon="calendar"
+              title="Domyślny harmonogram"
+              description="Określa sposób rozdzielania wiadomości pomiędzy aktywne kampanie."
+            >
+              <label className="sk-settings-choice">
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="priority"
+                  checked={strategy === 'priority'}
+                  onChange={() => submitStrategy('priority')}
+                />
+                <span>
+                  <strong>Priorytet kampanii</strong>
+                  <small>
+                    Kampanie są przetwarzane według kolejności priorytetów.{' '}
+                    <a href="/campaigns">Zmień kolejność kampanii</a>
+                  </small>
                 </span>
-              </span>
-            </label>
-            <label className="flex gap-2 items-start cursor-pointer">
-              <input type="radio" name="strategy" value="round_robin" checked={strategy === 'round_robin'} onChange={() => submitStrategy('round_robin')} />
-              <span>
-                <strong>Równomierny podział</strong><br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Dostępny limit skrzynek jest dzielony równomiernie pomiędzy aktywne kampanie.
+              </label>
+              <label className="sk-settings-choice">
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="round_robin"
+                  checked={strategy === 'round_robin'}
+                  onChange={() => submitStrategy('round_robin')}
+                />
+                <span>
+                  <strong>Równomierny podział</strong>
+                  <small>
+                    Dostępny limit skrzynek jest dzielony równomiernie pomiędzy aktywne kampanie.
+                  </small>
                 </span>
-              </span>
-            </label>
-          </div>
-        </section>
-
-        <section id="settings-appearance" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Wygląd</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Motyw może być zgodny z systemem albo ustawiony ręcznie.</p>
-          <div className="space-y-3">
-            <label className="flex gap-2 items-start cursor-pointer">
-              <input
-                type="radio"
-                name="appearance"
-                value="system"
-                checked={themePreference === 'system'}
-                onChange={() => setThemePreference('system')}
-              />
-              <span>
-                <strong>Systemowy</strong>
-                <br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">
-                  Automatycznie dopasuj wygląd do systemu lub przeglądarki.
-                </span>
-              </span>
-            </label>
-            <label className="flex gap-2 items-start cursor-pointer">
-              <input
-                type="radio"
-                name="appearance"
-                value="light"
-                checked={themePreference === 'light'}
-                onChange={() => setThemePreference('light')}
-              />
-              <span>
-                <strong>Jasny</strong>
-                <br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Zawsze używaj jasnego motywu.</span>
-              </span>
-            </label>
-            <label className="flex gap-2 items-start cursor-pointer">
-              <input
-                type="radio"
-                name="appearance"
-                value="dark"
-                checked={themePreference === 'dark'}
-                onChange={() => setThemePreference('dark')}
-              />
-              <span>
-                <strong>Ciemny</strong>
-                <br />
-                <span className="text-xs text-gray-500 dark:text-gray-400">Zawsze używaj ciemnego motywu.</span>
-              </span>
-            </label>
-          </div>
-        </section>
-
-        <section id="settings-account" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Konto i bezpieczeństwo</h2>
-          {user && (
-            <div className="space-y-4">
-              <div className="text-sm">
-                <span className="text-gray-500 dark:text-gray-400">Zalogowano jako </span>
-                <span className="font-medium">{user.username}</span>
-                <span className="ml-2 text-xs px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase">{user.role}</span>
+              </label>
+              <div className="sk-settings-note">
+                Ustawienia na poziomie kampanii mają wyższy priorytet i mogą nadpisywać tę wartość.
               </div>
+            </SettingsCard>
 
-              <Button size="sm" variant="outline" onClick={logout}>Wyloguj</Button>
-            </div>
-          )}
-        </section>
+            <SettingsCard
+              id="settings-appearance"
+              span={6}
+              icon="system"
+              title="Wygląd"
+              description="Dostosuj wygląd interfejsu do swoich preferencji."
+            >
+              <Field
+                label="Język interfejsu"
+                help="Zmiana języka jest zapisywana lokalnie dla tej przeglądarki."
+              >
+                <select value={language} onChange={e => setLanguage(e.target.value)}>
+                  {languages.map(item => (
+                    <option key={item.code} value={item.code}>{item.label}</option>
+                  ))}
+                </select>
+              </Field>
+              <div className="sk-theme-options" role="radiogroup" aria-label="Motyw aplikacji">
+                {[
+                  ['dark', 'Ciemny', 'moon'],
+                  ['light', 'Jasny', 'sun'],
+                  ['system', 'System', 'system'],
+                ].map(([value, label]) => (
+                  <label
+                    key={value}
+                    className={`sk-theme-option ${themePreference === value ? 'is-selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="appearance"
+                      value={value}
+                      checked={themePreference === value}
+                      onChange={() => setThemePreference(value)}
+                    />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="sk-settings-note">
+                Motyw systemowy automatycznie podąża za ustawieniem systemu operacyjnego lub przeglądarki.
+              </div>
+            </SettingsCard>
 
-        <section id="settings-known-ips" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-2 border-b border-gray-200 dark:border-gray-700 pb-2">Znane adresy IP</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Otwarcia i kliknięcia z tych adresów IP są ignorowane przy filtrowaniu własnej aktywności.
-          </p>
-          <Button size="sm" variant="outline" onClick={() => setKnownIpsOpen(true)}>
-            Zarządzaj adresami IP
-          </Button>
-        </section>
-          </>
+            <SettingsCard
+              id="settings-account"
+              span={7}
+              icon="shield"
+              title="Konto i bezpieczeństwo"
+              description="Podstawowe informacje o bieżącej sesji administratora."
+              action={user ? <span className="sk-coming-soon">{user.role || 'admin'}</span> : null}
+            >
+              {user ? (
+                <>
+                  <div className="sk-account-summary">
+                    <div>
+                      <span className="sk-account-label">Użytkownik</span>
+                      <strong>{user.username || user.email || 'Administrator'}</strong>
+                    </div>
+                    <div>
+                      <span className="sk-account-label">Adres e-mail</span>
+                      <strong>{user.email || '—'}</strong>
+                    </div>
+                    <div>
+                      <span className="sk-account-label">Rola</span>
+                      <strong>{user.role || 'Administrator'}</strong>
+                    </div>
+                  </div>
+                  <div className="sk-actions-end">
+                    <Button size="sm" variant="outline" onClick={logout}>Wyloguj</Button>
+                  </div>
+                </>
+              ) : (
+                <p className="sk-muted sk-small">Brak danych bieżącej sesji.</p>
+              )}
+            </SettingsCard>
+
+            <SettingsCard
+              id="settings-known-ips"
+              span={5}
+              icon="globe"
+              title="Znane adresy IP"
+              description="Adresy używane do filtrowania własnych otwarć i kliknięć."
+              action={<Button size="sm" variant="outline" onClick={() => setKnownIpsOpen(true)}>Zarządzaj</Button>}
+            >
+              <div className="sk-account-summary sk-account-summary-compact">
+                <div>
+                  <span className="sk-account-label">Bieżący adres</span>
+                  <strong>{currentIp || '—'}</strong>
+                </div>
+                <div>
+                  <span className="sk-account-label">Zapisane adresy</span>
+                  <strong>{knownIps.length}</strong>
+                </div>
+              </div>
+              <div className="sk-settings-note">
+                Otwarcia i kliknięcia z zapisanych adresów IP są ignorowane w statystykach aktywności.
+              </div>
+            </SettingsCard>
+          </div>
         )}
 
         {activeTab === 'setup' && (
