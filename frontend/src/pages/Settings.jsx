@@ -171,14 +171,14 @@ export default function Settings() {
       if (!backupMeta.backup_encryption_configured && pw.length < BACKUP_MIN_PASSWORD_LEN) {
         notify({
           type: 'error',
-          message: `Enter a backup password (at least ${BACKUP_MIN_PASSWORD_LEN} characters) or turn off encryption.`,
+          message: `Wpisz hasło kopii zapasowej (co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków) albo wyłącz szyfrowanie.`,
         });
         return;
       }
       if (pw.length > 0 && pw.length < BACKUP_MIN_PASSWORD_LEN) {
         notify({
           type: 'error',
-          message: `Backup password must be at least ${BACKUP_MIN_PASSWORD_LEN} characters.`,
+          message: `Hasło kopii zapasowej musi mieć co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków.`,
         });
         return;
       }
@@ -222,7 +222,7 @@ export default function Settings() {
         encrypt_backups: !!r.encrypt_backups,
         backup_encryption_hint: r.backup_encryption_hint ?? prev.backup_encryption_hint,
       }));
-      notify({ type: 'success', message: 'Ustawienia kopii saved' });
+      notify({ type: 'success', message: 'Ustawienia kopii zapisane' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -395,7 +395,7 @@ export default function Settings() {
         const { has_leads } = await api.get('/campaigns/has-leads');
         if (has_leads) {
           const ok = await confirm(
-            'Changing the scheduling strategy will recalculate all campaigns. Continue?',
+            'Zmiana strategii planowania spowoduje przeliczenie wszystkich kampanii. Kontynuować?',
           );
           if (!ok) return;
         }
@@ -404,7 +404,7 @@ export default function Settings() {
     try {
       await api.post('/settings/scheduling-strategy', { scheduling_strategy: val });
       setStrategy(val);
-      notify({ type: 'success', message: 'Strategy saved' });
+      notify({ type: 'success', message: 'Strategia zapisana' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -413,18 +413,18 @@ export default function Settings() {
     try {
       await api.post('/settings/test-mode', { test_mode: val });
       setTestMode(val);
-      notify({ type: 'success', message: 'Tryb testowy saved' });
+      notify({ type: 'success', message: 'Tryb testowy zapisany' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   /* ── webhook CRUD helpers ── */
   const createWebhook = async () => {
-    if (!newWh.url.trim()) return notify({ type: 'error', message: 'URL is required' });
+    if (!newWh.url.trim()) return notify({ type: 'error', message: 'Adres URL jest wymagany' });
     try {
       const wh = await api.post('/settings/webhooks', newWh);
       setWebhooks(prev => [wh, ...prev]);
       setNewWh({ url: '', secret: '', description: '', events: eventTypes, active: true });
-      notify({ type: 'success', message: 'Webhook created' });
+      notify({ type: 'success', message: 'Webhook utworzony' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -439,33 +439,33 @@ export default function Settings() {
       const updated = await api.patch(`/settings/webhooks/${id}`, editForm);
       setWebhooks(prev => prev.map(w => (w.id === id ? updated : w)));
       setEditingId(null);
-      notify({ type: 'success', message: 'Webhook updated' });
+      notify({ type: 'success', message: 'Webhook zaktualizowany' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const deleteWebhook = async id => {
-    const ok = await confirm('Delete this webhook?');
+    const ok = await confirm('Usunąć ten webhook?');
     if (!ok) return;
     try {
       await api.del(`/settings/webhooks/${id}`);
       setWebhooks(prev => prev.filter(w => w.id !== id));
-      notify({ type: 'success', message: 'Webhook deleted' });
+      notify({ type: 'success', message: 'Webhook usunięty' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const testWebhook = async id => {
     try {
       await api.post(`/settings/webhooks/${id}/test`);
-      notify({ type: 'success', message: 'Test event sent' });
+      notify({ type: 'success', message: 'Wysłano zdarzenie testowe' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
   const testWebhookEvent = async (id, event) => {
-    if (!event) return notify({ type: 'error', message: 'Select an event type' });
+    if (!event) return notify({ type: 'error', message: 'Wybierz typ zdarzenia' });
     try {
       const res = await api.post(`/settings/webhooks/${id}/test-event`, { event });
       setTestEventResult(res.payload_preview);
-      notify({ type: 'success', message: `Simulated ${event} event sent` });
+      notify({ type: 'success', message: `Wysłano symulowane zdarzenie ${event}` });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -496,7 +496,7 @@ export default function Settings() {
     try {
       await api.del(`/auth/api-keys/${id}`);
       setApiKeys(prev => prev.filter(k => k.id !== id));
-      notify({ type: 'success', message: 'API key revoked.' });
+      notify({ type: 'success', message: 'Klucz API unieważniony.' });
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
 
@@ -527,7 +527,7 @@ export default function Settings() {
         model: f.model,
         api_key: f.api_key,
       });
-      notify({ type: 'success', message: 'AI settings saved' });
+      notify({ type: 'success', message: 'Ustawienia AI zapisane' });
       loadAll();
     } catch (e) { notify({ type: 'error', message: e.message }); }
   };
@@ -538,11 +538,11 @@ export default function Settings() {
     const hasModel = f.model;
     const hasKey = f.api_key || f.api_key_set;
     const missing = [];
-    if (!hasProvider) missing.push('provider');
+    if (!hasProvider) missing.push('dostawcę');
     if (!hasModel) missing.push('model');
     if (!hasKey) missing.push('API key');
     if (missing.length) {
-      return notify({ type: 'error', message: `Please provide: ${missing.join(', ')}` });
+      return notify({ type: 'error', message: `Uzupełnij: ${missing.join(', ')}` });
     }
     setAiVerifying(prev => ({ ...prev, [featureId]: true }));
     setAiVerifyResult(prev => ({ ...prev, [featureId]: null }));
@@ -559,9 +559,9 @@ export default function Settings() {
           ...prev,
           [featureId]: { ...prev[featureId], connection_tested: true, last_error: '' },
         }));
-        notify({ type: 'success', message: 'Credentials verified ✓' });
+        notify({ type: 'success', message: 'Dane dostępowe zweryfikowane ✓' });
       } else {
-        notify({ type: 'error', message: `Verification failed: ${res.error}` });
+        notify({ type: 'error', message: `Weryfikacja nie powiodła się: ${res.error}` });
       }
     } catch (e) {
       setAiVerifyResult(prev => ({ ...prev, [featureId]: { ok: false, error: e.message } }));
@@ -593,22 +593,22 @@ export default function Settings() {
 
   /* ── event sections for grouped display ─────────────────────────────── */
   const EVENT_SECTIONS = [
-    { label: 'Email Events', events: eventTypes.filter(e => e.startsWith('email.')) },
-    { label: 'Lead Events',  events: eventTypes.filter(e => e.startsWith('lead.')) },
-    { label: 'System Events', events: eventTypes.filter(e => !e.startsWith('email.') && !e.startsWith('lead.')) },
+    { label: 'Zdarzenia e-mail', events: eventTypes.filter(e => e.startsWith('email.')) },
+    { label: 'Zdarzenia kontaktów',  events: eventTypes.filter(e => e.startsWith('lead.')) },
+    { label: 'Zdarzenia systemowe', events: eventTypes.filter(e => !e.startsWith('email.') && !e.startsWith('lead.')) },
   ].filter(s => s.events.length > 0);
 
   const EVENT_LABELS = {
-    'email.sent': 'Email Sent',
-    'email.opened': 'Email Opened',
-    'email.clicked': 'Link Clicked',
+    'email.sent': 'Wiadomość wysłana',
+    'email.opened': 'Wiadomość otwarta',
+    'email.clicked': 'Kliknięto link',
     'email.bounced': 'Email Bounced',
-    'lead.replied': 'Lead Replied',
-    'lead.unsubscribed': 'Lead Unsubscribed',
-    'lead.status_changed': 'Status Changed',
+    'lead.replied': 'Kontakt odpowiedział',
+    'lead.unsubscribed': 'Kontakt wypisany',
+    'lead.status_changed': 'Zmiana statusu',
     'lead.interested': 'Lead Interested (AI)',
     'lead.not_interested': 'Lead Not Interested (AI)',
-    'daily_limit': 'Daily Limit Hit',
+    'daily_limit': 'Osiągnięto limit dzienny',
     'rate_limit': 'Rate Limit',
     'token_expired': 'Token Expired',
   };
@@ -640,7 +640,7 @@ export default function Settings() {
               else onChange([]);
             }}
           >
-            <option value="all">All Events</option>
+            <option value="all">Wszystkie zdarzenia</option>
             <option value="specific">Specific Events</option>
           </select>
         </div>
@@ -679,7 +679,7 @@ export default function Settings() {
               );
             })}
             {events.length === 0 && (
-              <p className="text-xs text-amber-600">Select at least one event, or switch to "All Events".</p>
+              <p className="text-xs text-amber-600">Wybierz co najmniej jedno zdarzenie albo przełącz na „Wszystkie zdarzenia”.</p>
             )}
           </div>
         )}
@@ -936,7 +936,7 @@ export default function Settings() {
                 )}
                 <div>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Backup password (min. {BACKUP_MIN_PASSWORD_LEN} characters)
+                    Hasło kopii zapasowej (min. {BACKUP_MIN_PASSWORD_LEN} znaków)
                   </label>
                   <input
                     type="password"
@@ -944,7 +944,7 @@ export default function Settings() {
                     value={backupCfg.backup_encryption_password}
                     onChange={e => setBackupCfg(prev => ({ ...prev, backup_encryption_password: e.target.value }))}
                     autoComplete="new-password"
-                    placeholder={backupMeta.backup_encryption_configured ? 'Leave blank to keep existing password' : ''}
+                    placeholder={backupMeta.backup_encryption_configured ? 'Pozostaw puste, aby zachować obecne hasło' : ''}
                   />
                 </div>
                 <div>
@@ -960,7 +960,7 @@ export default function Settings() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Applies to downloads, Run backup now, and scheduled backups when encryption is enabled.
+                  Dotyczy pobierania, ręcznego uruchamiania kopii i zaplanowanych kopii, gdy szyfrowanie jest włączone.
                 </p>
               </div>
             )}
@@ -989,7 +989,7 @@ export default function Settings() {
                   </div>
                   {!backupMeta.local_disk_available && (
                     <p className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
-                      Saving backups on the server requires the deployment to set{' '}
+                      Zapisywanie kopii na serwerze wymaga ustawienia w środowisku wdrożeniowym{' '}
                       <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> and a persistent{' '}
                       <code className="text-[11px]">backups</code> folder (Docker Compose in this repo does). On hosts without that, use{' '}
                       <strong>POST to webhook</strong> below.
@@ -1002,7 +1002,7 @@ export default function Settings() {
                       checked={backupCfg.save_local}
                       onChange={e => setBackupCfg(prev => ({ ...prev, save_local: e.target.checked }))}
                     />
-                    <span>Save to server disk (keeps 10 newest files; older ones are removed)</span>
+                    <span>Zapisuj na dysku serwera (10 najnowszych plików; starsze są usuwane)</span>
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
@@ -1027,7 +1027,7 @@ export default function Settings() {
                       checked={backupCfg.send_webhook}
                       onChange={e => setBackupCfg(prev => ({ ...prev, send_webhook: e.target.checked }))}
                     />
-                    <span>POST backup file to webhook URL</span>
+                    <span>Wyślij plik kopii metodą POST na adres webhooka</span>
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Webhook URL</label>
@@ -1051,7 +1051,7 @@ export default function Settings() {
                       className="w-full border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
                       value={backupCfg.webhook_auth_header}
                       onChange={e => setBackupCfg(prev => ({ ...prev, webhook_auth_header: e.target.value }))}
-                      placeholder={backupMeta.webhook_auth_configured ? `Leave blank to keep existing password` : 'Bearer …'}
+                      placeholder={backupMeta.webhook_auth_configured ? `Pozostaw puste, aby zachować obecne hasło` : 'Bearer …'}
                     />
                   </div>
                 </div>
@@ -1128,7 +1128,7 @@ export default function Settings() {
                     a.download = name;
                     a.click();
                     URL.revokeObjectURL(a.href);
-                    notify({ type: 'success', message: 'Backup downloaded' });
+                    notify({ type: 'success', message: 'Kopia zapasowa pobrana' });
                   } catch (e) {
                     notify({ type: 'error', message: e.message || 'Download failed' });
                   } finally {
@@ -1240,7 +1240,7 @@ export default function Settings() {
                     </div>
                   </div>
                   <p className="text-xs text-amber-800 dark:text-amber-200">
-                    For encrypted backups, admin emails stay masked until the password is verified.
+                    W zaszyfrowanych kopiach adresy e-mail administratorów pozostają ukryte do czasu weryfikacji hasła.
                   </p>
                 </div>
               )}
@@ -1248,12 +1248,12 @@ export default function Settings() {
               {restoreMeta && !restorePreview && restoreMeta.encrypted && (
                 <div className="max-w-md mb-2">
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Backup password
+                    Hasło kopii zapasowej
                   </label>
                   <input
                     type="password"
                     className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
-                    placeholder={`At least ${BACKUP_MIN_PASSWORD_LEN} characters`}
+                    placeholder={`Co najmniej ${BACKUP_MIN_PASSWORD_LEN} znaków`}
                     value={restorePassword}
                     onChange={e => setRestorePassword(e.target.value)}
                     disabled={restorePreviewBusy || restoreExecuteBusy}
@@ -1281,7 +1281,7 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restorePreviewBusy ? 'Checking…' : 'Verify backup'}
+                    {restorePreviewBusy ? 'Sprawdzanie…' : 'Sprawdź kopię'}
                   </Button>
                 )}
                 {restoreMeta && !restorePreview && restoreMeta.encrypted && (
@@ -1309,7 +1309,7 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restorePreviewBusy ? 'Checking…' : 'Verify password'}
+                    {restorePreviewBusy ? 'Sprawdzanie…' : 'Sprawdź hasło'}
                   </Button>
                 )}
               </div>
@@ -1443,7 +1443,7 @@ export default function Settings() {
                     <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{feature.label}</h3>
                     {feature.enabled
                       ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączony</span>
-                      : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
+                      : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Wyłączone</span>
                     }
                   </div>
                   {/* Enable toggle — click doesn't propagate to collapse toggle */}
@@ -1481,12 +1481,12 @@ export default function Settings() {
                     {/* Step 1 — Provider */}
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">
-                        <span className="text-gray-400 mr-1">1.</span> Provider
+                        <span className="text-gray-400 mr-1">1.</span> Dostawca
                       </label>
                       <div className="relative">
                         <input
                           type="text"
-                          placeholder="Search providers…"
+                          placeholder="Szukaj dostawców…"
                           className="border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={provSearch !== null ? provSearch : selectedProviderLabel}
                           onChange={e => setProvSearch(e.target.value)}
@@ -1531,11 +1531,11 @@ export default function Settings() {
                       {feature.provider && (feature.api_key || feature.api_key_set) && (
                         <p className="text-[10px] mt-1 text-teal-600">
                           {fm.loading
-                            ? '⏳ Loading available models…'
+                            ? '⏳ Wczytywanie dostępnych modeli…'
                             : fm.error
-                              ? `⚠️ Could not fetch models: ${fm.error}`
+                              ? `⚠️ Nie udało się pobrać modeli: ${fm.error}`
                               : fm.models.length > 0
-                                ? `✓ ${fm.models.length} models available — select below or type a custom name`
+                                ? `✓ Dostępne modele: ${fm.models.length} — wybierz poniżej albo wpisz nazwę`
                                 : ''}
                         </p>
                       )}
@@ -1549,7 +1549,7 @@ export default function Settings() {
                       <div className="relative">
                         <input
                           type="text"
-                          placeholder={fm.loading ? 'Loading models…' : 'Search or type model name…'}
+                          placeholder={fm.loading ? 'Wczytywanie modeli…' : 'Wyszukaj lub wpisz nazwę modelu…'}
                           className="block w-full border rounded-lg p-2 text-sm bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-300"
                           value={modSearch !== '' ? modSearch : (feature.model || '')}
                           onChange={e => {
@@ -1580,7 +1580,7 @@ export default function Settings() {
                       </div>
                       {!fm.loading && fm.models.length === 0 && (
                         <p className="text-[10px] text-gray-400 mt-1">
-                          Type the model name as recognized by the provider (e.g. gpt-4o, claude-sonnet-4-20250514)
+                          Wpisz nazwę modelu rozpoznawaną przez dostawcę (np. gpt-4o, claude-sonnet-4-20250514)
                         </p>
                       )}
                     </div>
@@ -1605,7 +1605,7 @@ export default function Settings() {
                         onClick={() => verifyAiFeature(fid)}
                         disabled={verifying}
                       >
-                        {verifying ? 'Testing…' : feature.connection_tested ? '✓ Connection Tested' : 'Test Connection'}
+                        {verifying ? 'Testowanie…' : feature.connection_tested ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
                       </Button>
                       <Button size="sm" onClick={() => saveAiFeature(fid)}>Save</Button>
                       {verifyResult && !verifyResult.ok && (
@@ -1646,8 +1646,8 @@ export default function Settings() {
                 <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notification center</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {notifConfig.enabled
-                    ? 'Email notifications are enabled. Click to view history and preferences.'
-                    : 'Email notifications are disabled. Click to view history and preferences.'}
+                    ? 'Powiadomienia e-mail są włączone. Kliknij, aby zobaczyć historię i preferencje.'
+                    : 'Powiadomienia e-mail są wyłączone. Kliknij, aby zobaczyć historię i preferencje.'}
                 </p>
               </div>
               <Button size="sm" variant="outline" onClick={() => window.location.href = '/notifications'}>
@@ -1659,7 +1659,7 @@ export default function Settings() {
           <div>
             <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Email verification</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
-              Verify new leads automatically when they are added to a campaign.
+              Automatycznie weryfikuj nowe kontakty po dodaniu ich do kampanii.
             </p>
             <EmailVerificationSettings />
           </div>
@@ -1716,7 +1716,7 @@ export default function Settings() {
                   onChange={e => setNewKeyExpiry(e.target.value)}
                 />
               </div>
-              <Button size="sm" onClick={createApiKey} disabled={!newKeyName.trim()}>Create</Button>
+              <Button size="sm" onClick={createApiKey} disabled={!newKeyName.trim()}>Utwórz</Button>
             </div>
           </Card>
 
@@ -1852,7 +1852,7 @@ export default function Settings() {
                   {wh.description && <p className="text-xs text-gray-500 mb-1">{wh.description}</p>}
                   <div className="flex flex-wrap gap-1">
                     {isAllEvents(wh.events || []) ? (
-                      <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded-full px-2 py-0.5 font-medium">All Events</span>
+                      <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded-full px-2 py-0.5 font-medium">Wszystkie zdarzenia</span>
                     ) : (
                       (wh.events || []).map(evt => (
                         <span key={evt} className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border rounded px-1.5 py-0.5">{EVENT_LABELS[evt] || evt}</span>
@@ -1970,7 +1970,7 @@ export default function Settings() {
             </p>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={testMode} onChange={e => submitTestMode(e.target.checked)} />
-              <span className="text-sm">Enabled</span>
+              <span className="text-sm">Włączone</span>
             </label>
           </section>
         )}
