@@ -244,7 +244,7 @@ export default function Notifications() {
     try {
       const res = await api.put('/notifications/config', notifConfig);
       setNotifConfig(res);
-      notify({ message: 'Notification preferences saved', type: 'success' });
+      notify({ message: 'Preferencje powiadomień zapisane.', type: 'success' });
     } catch (e) {
       console.error(e);
       notify({ message: 'Nie udało się zapisać preferencji.', type: 'error' });
