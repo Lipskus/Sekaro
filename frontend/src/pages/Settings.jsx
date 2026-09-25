@@ -12,11 +12,11 @@ import EmailVerificationSettings from '../components/EmailVerificationSettings';
 import { SectionTabs, SettingsCard, Switch } from '../redesign/ui';
 
 const SETTINGS_TABS = [
-  { id: 'general', label: 'Ogólne' },
-  { id: 'setup', label: 'Kopia i dane' },
-  { id: 'features', label: 'Funkcje' },
-  { id: 'integrating', label: 'Integracje' },
-  { id: 'dev', label: 'Deweloperskie' },
+  { id: 'general', label: 'Ogólne', icon: 'settings' },
+  { id: 'setup', label: 'Kopia i przywracanie', icon: 'history' },
+  { id: 'features', label: 'Funkcje', icon: 'flash' },
+  { id: 'integrating', label: 'Integracje', icon: 'link' },
+  { id: 'dev', label: 'Tryb testowy', icon: 'warning' },
 ];
 
 /** In-tab section anchors (DOM id = `settings-${id}`). */
