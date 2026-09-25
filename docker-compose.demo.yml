@@ -1,0 +1,50 @@
+# Dedicated QA instance. Does not use the production .env, DB, network or backups.
+name: sekaro-demo
+services:
+  demo-db:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sekaro_demo
+      POSTGRES_DB: sekaro_demo
+      POSTGRES_PASSWORD: ${DEMO_DB_PASSWORD:?Run bash scripts/sekaro-demo.sh up}
+    volumes:
+      - demo_pgdata:/var/lib/postgresql/data
+    networks: [demo-only]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U sekaro_demo -d sekaro_demo]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  demo-app:
+    image: sekaro:local
+    pull_policy: never
+    restart: unless-stopped
+    depends_on:
+      demo-db:
+        condition: service_healthy
+    command: [uvicorn, app.demo.server:create_app, --factory, --host, 0.0.0.0, --port, '8000']
+    environment:
+      DATABASE_URL: postgresql+asyncpg://sekaro_demo:${DEMO_DB_PASSWORD}@demo-db:5432/sekaro_demo
+      SEKARO_DEMO_MODE: '1'
+      DEMO_ADMIN_PASSWORD: ${DEMO_ADMIN_PASSWORD:?Missing demo admin password}
+      QUICKLY_SECRET_KEY: ${DEMO_SECRET_KEY:?Missing demo signing key}
+      QUICKLY_ENCRYPTION_KEY: ${DEMO_ENCRYPTION_KEY:?Missing demo encryption key}
+      QUICKLY_MODE: production
+      QUICKLY_PREBUILT_IMAGE: '1'
+    ports:
+      - '127.0.0.1:5051:8000'
+    volumes:
+      - ./app/demo:/app/app/demo:ro
+    networks: [demo-only]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/demo/status', timeout=5)"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+      start_period: 20s
+networks:
+  demo-only:
+    internal: true
+volumes:
+  demo_pgdata:
