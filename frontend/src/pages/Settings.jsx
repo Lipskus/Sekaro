@@ -34,6 +34,8 @@ export default function Settings() {
   const [generalError, setGeneralError] = useState(null);
   const [generalSaved, setGeneralSaved] = useState(false);
   const generalSaveLock = useRef(false);
+  useEffect(() => { setDraftTheme(themePreference); }, [themePreference]);
+  useEffect(() => { setDraftLanguage(language); }, [language]);
   const [testMode, setTestMode] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsError, setSettingsError] = useState(null);
@@ -776,7 +778,7 @@ export default function Settings() {
             </SettingsCard>
 
             <SettingsCard
-              id="settings-known-ips" hidden={activeTab !== 'general' && activeTab !== 'known-ips'}
+              id="settings-known-ips" hidden={activeTab !== 'known-ips'}
               span={5}
               icon="globe"
               title="Znane adresy IP"

@@ -611,6 +611,8 @@ describe('system settings navigation and save semantics', () => {
   it('searches categories without accents and can clear a no-results state', async () => {
     mount(Settings);
     const search = await screen.findByRole('searchbox', {name:'Szukaj ustawienia'});
+    fireEvent.change(search,{target:{value:'wyglad'}});
+    expect(nav().getByRole('button', {name:'Wygląd i język'})).toBeTruthy();
     fireEvent.change(search,{target:{value:'klucze'}});
     expect(nav().getByRole('button', {name:'Klucze API'})).toBeTruthy();
     expect(nav().queryByRole('button', {name:'Ogólne'})).toBeNull();
