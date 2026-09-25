@@ -392,11 +392,11 @@ export default function Analytics() {
           <table className="sk-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th className="text-center">Leads</th>
+                <th>Nazwa</th>
+                <th className="text-center">Kontakty</th>
                 <th className="text-center">Wysłane</th>
-                <th className="text-center">Pending</th>
-                <th className="text-center">Progress</th>
+                <th className="text-center">Oczekujące</th>
+                <th className="text-center">Postęp</th>
                 <th className="text-center">Odpowiedzi</th>
                 <th className="text-center">Odpowiedzi %</th>
                 <th className="text-center">Otwarcia %</th>
