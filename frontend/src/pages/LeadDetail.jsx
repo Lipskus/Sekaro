@@ -37,8 +37,8 @@ export default function LeadDetail() {
       setEditName(l.name || '');
       setEditCustom({ ...(l.custom_data || {}) });
     } catch (e) {
-      setError(e.message || 'Failed to load lead');
-      notify({ type: 'error', message: 'Could not load lead' });
+      setError(e.message || 'Nie udało się wczytać kontaktu.');
+      notify({ type: 'error', message: 'Nie udało się wczytać kontaktu.' });
     } finally {
       loading.stop();
     }
@@ -153,14 +153,14 @@ export default function LeadDetail() {
                     </span>
                   )}
                   <span className="rounded-full bg-gray-50 px-2 py-0.5">
-                    opened {c.opened ? 'yes' : 'no'} · clicked {c.clicked ? 'yes' : 'no'} · replied{' '}
-                    {c.replied ? 'yes' : 'no'}
+                    otwarto {c.opened ? 'tak' : 'nie'} · kliknięto {c.clicked ? 'tak' : 'nie'} · odpowiedź{' '}
+                    {c.replied ? 'tak' : 'nie'}
                   </span>
                   {c.sending_paused && (
-                    <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">paused</span>
+                    <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">wstrzymane</span>
                   )}
                 </div>
-                <span className="text-sm text-gray-500">enrolled {formatDt(c.enrolled_at)}</span>
+                <span className="text-sm text-gray-500">dodano {formatDt(c.enrolled_at)}</span>
               </li>
             ))}
           </ul>
@@ -236,7 +236,7 @@ export default function LeadDetail() {
           Historia
         </h2>
         <p className="text-xs text-gray-500 mb-3">
-          Outbound sends and inbound messages we can associate (mirrored mail + reply markers). Full threads: Unibox.
+          Wysłane i odebrane wiadomości, które Sekaro może powiązać z kontaktem. Pełne wątki znajdziesz w sekcji Wątki.
         </p>
         {lead.interactions?.length ? (
           <ul className="space-y-3 text-sm">
@@ -248,7 +248,7 @@ export default function LeadDetail() {
                 }`}
               >
                 <div className="font-medium">
-                  {row.direction === 'outbound' ? 'Sent' : 'Received'}{' '}
+                  {row.direction === 'outbound' ? 'Wysłano' : 'Odebrano'}{' '}
                   {row.kind && row.kind !== 'sent' ? `· ${row.kind.replace(/_/g, ' ')}` : ''}
                 </div>
                 <div className="text-gray-500 text-xs mt-0.5">
