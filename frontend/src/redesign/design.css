@@ -1011,3 +1011,24 @@ html[data-theme=dark] .sk-login-submit{
  .sk-modal-footer>*{min-width:0}
  .sk-legacy-campaign{overflow-x:auto;overflow-y:visible}
 }
+
+
+/* Legacy onboarding kept for compatibility, but rendered with Sekaro theme tokens. */
+.sk-onboarding-card{
+ background:var(--sk-surface);color:var(--sk-text);border:1px solid var(--sk-line)
+}
+.sk-onboarding-footer{
+ background:var(--sk-surface-alt);border-color:var(--sk-line)!important
+}
+.sk-onboarding-logo{
+ display:grid;place-items:center;width:54px;height:54px;border-radius:14px;
+ background:var(--sk-green-soft);color:var(--sk-text)
+}
+.sk-onboarding-card .text-gray-700,.sk-onboarding-card .text-gray-800{color:var(--sk-text)!important}
+.sk-onboarding-card .text-gray-400,.sk-onboarding-card .text-gray-500,.sk-onboarding-card .text-gray-600{color:var(--sk-muted)!important}
+.sk-onboarding-card .bg-gray-50,.sk-onboarding-card .bg-gray-100,.sk-onboarding-card .bg-gray-200{background:var(--sk-surface-alt)!important}
+.sk-onboarding-card .border-gray-100,.sk-onboarding-card .border-gray-200{border-color:var(--sk-line)!important}
+@media(max-width:560px){
+ .sk-onboarding-card .p-8{padding:20px!important}
+ .sk-onboarding-footer{padding:14px 18px!important;gap:12px;flex-wrap:wrap}
+}
