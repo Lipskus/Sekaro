@@ -31,11 +31,11 @@ import {
 // ─── tabs ─────────────────────────────────────────────────────────────────────
 const TABS = ['analytics', 'sequences', 'leads', 'queue', 'settings'];
 const TAB_LABELS = {
-  sequences: 'Sequences',
-  leads: 'Leads',
-  analytics: 'Analytics',
-  queue: 'Queue',
-  settings: 'Settings',
+  sequences: 'Sekwencje',
+  leads: 'Kontakty',
+  analytics: 'Analityka',
+  queue: 'Kolejka',
+  settings: 'Ustawienia',
 };
 
 // ─── Main page ────────────────────────────────────────────────────────────────
@@ -95,7 +95,7 @@ export default function CampaignDetail({ embedded = false }) {
       setSentData(s);
     } catch (e) {
       setError(e.message);
-      notify({ type: 'error', message: 'Failed to load campaign data' });
+      notify({ type: 'error', message: 'Nie udało się wczytać danych kampanii.' });
     } finally {
       loadingCtrl.stop();
       setLoading(false);
@@ -139,7 +139,7 @@ export default function CampaignDetail({ embedded = false }) {
     const tomorrow = addDaysToDateKey(today, 1);
 
     if (!sent.length && !upcoming.length)
-      return <p className="text-gray-500">No emails sent or scheduled.</p>;
+      return <p className="text-gray-500">Brak wysłanych lub zaplanowanych wiadomości.</p>;
 
     return (
       <>
@@ -150,13 +150,13 @@ export default function CampaignDetail({ embedded = false }) {
               onClick={() => setPastExpanded(p => !p)}
             >
               <span className={`inline-block transition-transform ${pastExpanded ? 'rotate-90' : ''}`}>▶</span>
-              Sent ({sent.length})
+              Wysłane ({sent.length})
             </div>
             {pastExpanded && (
               <table className="w-full text-sm border-collapse mb-3">
                 <thead>
                   <tr className="bg-gray-50">
-                    {['Date','Time','From','Lead','Sequence','Subject'].map(h => (
+                    {['Data','Czas','Od','Kontakt','Sekwencja','Temat'].map(h => (
                       <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600">{h}</th>
                     ))}
                   </tr>
@@ -170,7 +170,7 @@ export default function CampaignDetail({ embedded = false }) {
                         <td className="px-3 py-1.5">{formatTime(s.sent_at)}</td>
                         <td className="px-3 py-1.5 font-mono text-xs max-w-[200px] truncate" title={s.inbox_email || ''}>{s.inbox_email || '—'}</td>
                         <td className="px-3 py-1.5 font-mono">{s.lead_email}</td>
-                        <td className="px-3 py-1.5">Seq {s.sequence_index+1}</td>
+                        <td className="px-3 py-1.5">Sekw. {s.sequence_index+1}</td>
                         <td className="px-3 py-1.5">{s.subject||''}</td>
                       </tr>
                     )))}
@@ -181,11 +181,11 @@ export default function CampaignDetail({ embedded = false }) {
         )}
         {upcoming.length > 0 && (
           <>
-            <div className="text-gray-600 font-semibold py-2">Upcoming ({upcoming.length} scheduled)</div>
+            <div className="text-gray-600 font-semibold py-2">Nadchodzące ({upcoming.length} zaplanowanych)</div>
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  {['Date','Est. time','#','From','Lead','Sequence'].map(h=>(
+                  {['Data','Szac. czas','#','Od','Kontakt','Sekwencja'].map(h=>(
                     <th key={h} className="px-3 py-2 text-left font-semibold text-gray-600">{h}</th>
                   ))}
                 </tr>
@@ -205,8 +205,8 @@ export default function CampaignDetail({ embedded = false }) {
                             {i===0 ? (
                               <>
                                 {d}
-                                {d === today && <span className="ml-1 text-xs text-green-600">today</span>}
-                                {d === tomorrow && <span className="ml-1 text-xs text-blue-600">tomorrow</span>}
+                                {d === today && <span className="ml-1 text-xs text-green-600">dzisiaj</span>}
+                                {d === tomorrow && <span className="ml-1 text-xs text-blue-600">jutro</span>}
                               </>
                             ) : ''}
                           </td>
@@ -214,7 +214,7 @@ export default function CampaignDetail({ embedded = false }) {
                           <td className="px-3 py-1.5">{q.position_in_day}</td>
                           <td className="px-3 py-1.5 font-mono text-xs max-w-[200px] truncate" title={q.inbox_email || ''}>{q.inbox_email || '—'}</td>
                           <td className="px-3 py-1.5 font-mono">{q.lead_email}</td>
-                          <td className="px-3 py-1.5">Seq {q.sequence_index+1}</td>
+                          <td className="px-3 py-1.5">Sekw. {q.sequence_index+1}</td>
                         </tr>
                       );
                     }))}
@@ -223,7 +223,7 @@ export default function CampaignDetail({ embedded = false }) {
           </>
         )}
         {!upcoming.length && !sent.length && (
-          <p className="text-gray-500">No scheduled emails in queue.</p>
+          <p className="text-gray-500">Brak zaplanowanych wiadomości w kolejce.</p>
         )}
       </>
     );
@@ -234,7 +234,7 @@ export default function CampaignDetail({ embedded = false }) {
     try {
       const res = await api.post(`/campaigns/${id}/recalculate-queue`);
       if (res?.slots != null) {
-        notify({ type: 'success', message: `Queue recalculated (${res.slots} slots)` });
+        notify({ type: 'success', message: `Kolejka przeliczona (${res.slots} pozycji)` });
         const [q, s] = await Promise.all([
           api.get(`/campaigns/${id}/queue`),
           api.get(`/campaigns/${id}/sent`),
@@ -250,7 +250,7 @@ export default function CampaignDetail({ embedded = false }) {
   }
 
   if (error)            return <div className="min-h-0 flex-1 overflow-y-auto p-8 text-red-600">{error}</div>;
-  if (loading||!campaign) return <div className="min-h-0 flex-1 overflow-y-auto p-8 text-gray-400">Loading…</div>;
+  if (loading||!campaign) return <div className="min-h-0 flex-1 overflow-y-auto p-8 text-gray-400">Wczytywanie…</div>;
 
   return (
     <div className="max-w-full min-h-0 min-w-0 flex-1 overflow-y-auto p-6">
@@ -258,7 +258,7 @@ export default function CampaignDetail({ embedded = false }) {
       <div className={embedded ? "sk-legacy-header" : "flex items-center gap-3 mb-6"}>
         <h1 className="text-2xl font-bold flex-1 truncate">{campaign.name}</h1>
         {campaign.paused && (
-          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Paused</span>
+          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">Wstrzymana</span>
         )}
       </div>
 
@@ -321,11 +321,11 @@ export default function CampaignDetail({ embedded = false }) {
         <div>
           <div className="flex flex-wrap items-center gap-2 mb-4" ref={queueRef}>
             <Button variant="outline" size="sm" onClick={recalculateQueue} disabled={recalcInProgress}>
-              {recalcInProgress ? 'Recalculating…' : 'Recalculate queue'}
+              {recalcInProgress ? 'Przeliczanie…' : 'Przelicz kolejkę'}
             </Button>
             {queueFilter && (
               <span className="text-sm text-teal-600 font-medium flex items-center gap-1">
-                Showing: {queueFilter}
+                Widok dla: {queueFilter}
                 <button className="ml-1 text-gray-400 hover:text-gray-600" onClick={() => setQueueFilter(null)}>✕</button>
               </span>
             )}
@@ -374,11 +374,19 @@ const BADGE_STYLES = {
   pending:        'bg-blue-100 text-blue-600',
   needs_custom_email: 'bg-purple-100 text-purple-700',
 };
+const STATUS_LABELS = {
+  active:'Aktywny', contacted:'Skontaktowany', completed:'Zakończony', unsubscribed:'Wypisany',
+  bounced:'Odbity', wrong_person:'Niewłaściwa osoba', replied:'Odpowiedział', opened:'Otworzył',
+  clicked:'Kliknął', interested:'Zainteresowany', not_interested:'Niezainteresowany',
+  out_of_office:'Poza biurem', auto_reply:'Automatyczna odpowiedź', paused:'Wstrzymany',
+  valid:'Poprawny', invalid:'Niepoprawny', risky:'Ryzykowny', catch_all:'Catch-all',
+  unknown:'Nieznany', pending:'W toku', needs_custom_email:'Wymaga nowego e-maila',
+};
 
 function StatusBadge({ label }) {
   return (
     <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium ${BADGE_STYLES[label] || 'bg-gray-100 text-gray-600'}`}>
-      {label}
+      {STATUS_LABELS[label] || label}
     </span>
   );
 }
@@ -515,12 +523,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       }
 
       if (res.queued === 0) {
-        notify({ type: 'info', message: 'No leads to verify.' });
+        notify({ type: 'info', message: 'Brak kontaktów do weryfikacji.' });
         setVerifying(false);
         return;
       }
 
-      notify({ type: 'success', message: `Verifying ${res.queued} lead(s)…` });
+      notify({ type: 'success', message: `Weryfikacja kontaktów: ${res.queued}…` });
 
       // Poll verification-status every 5 s and show a toast per change
       let prevStatuses = { ...(verificationSummary?.statuses || {}) };
@@ -538,7 +546,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               const isWarn = status === 'invalid' || status === 'risky';
               notify({
                 type: isWarn ? 'warning' : 'success',
-                message: `${delta} lead(s) verified → ${status}`,
+                message: `Zweryfikowano ${delta} kontaktów → ${STATUS_LABELS[status] || status}`, 
               });
             }
           });
@@ -578,7 +586,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
     const newCustom = { ...(lead.custom_data || {}), [editCell.field]: editValue };
     try {
       await api.patch(`/leads/${leadId}`, { custom_data: newCustom });
-      notify({ type: 'success', message: 'Saved' });
+      notify({ type: 'success', message: 'Zapisano.' });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -587,11 +595,11 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   };
 
   const removeLead = async (lid, email) => {
-    const ok = await confirm(`Remove ${email} from this campaign?`);
+    const ok = await confirm(`Usunąć ${email} z tej kampanii?`);
     if (!ok) return;
     try {
       await api.del(`/campaigns/${campaignId}/leads/${lid}`);
-      notify({ type: 'success', message: 'Lead removed' });
+      notify({ type: 'success', message: 'Kontakt usunięty z kampanii.' });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -614,7 +622,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         custom_data,
       }]);
       setSingle({ email: '', name: '', custom: '' });
-      notify({ type: 'success', message: 'Lead added' });
+      notify({ type: 'success', message: 'Kontakt dodany.' });
       refresh();
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
@@ -702,12 +710,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       if (confirmPayload) {
         res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, confirmPayload);
         setBulk('');
-        const dupMsg = res.duplicate_leads?.length ? ` (${res.duplicate_leads.length} duplicate(s) skipped)` : '';
-        notify({ type: 'success', message: `${res.added || confirmPayload.length} lead(s) added${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? ` (pominięto duplikaty: ${res.duplicate_leads.length})` : '';
+        notify({ type: 'success', message: `Dodano kontaktów: ${res.added || confirmPayload.length}${dupMsg}` });
       } else if (importFile) {
         res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, importFile);
-        const dupMsg = res.duplicate_leads?.length ? `, ${res.duplicate_leads.length} duplicate(s) skipped` : '';
-        notify({ type: 'success', message: `Imported: ${res.added} added, ${res.already_enrolled} already enrolled, ${res.errors} errors${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? `, pominięto duplikaty: ${res.duplicate_leads.length}` : '';
+        notify({ type: 'success', message: `Import: dodano ${res.added}, już przypisanych ${res.already_enrolled}, błędów ${res.errors}${dupMsg}` });
       }
       setShowLeadsConfirm(false);
       setConfirmPreview(null);
@@ -736,7 +744,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       }
       const qs = params.toString() ? `?${params.toString()}` : '';
       const res = await api.download(`/campaigns/${campaignId}/leads/export${qs}`);
-      if (!res.ok) throw new Error('Export failed');
+      if (!res.ok) throw new Error('Eksport nie powiódł się.');
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -773,11 +781,11 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </FileUploadArea>
         {emailVerifEnabled && (
           <Button size="sm" variant="outline" onClick={verifyAllLeads} disabled={verifying}>
-            {verifying ? 'Verifying…' : 'Verify All Emails'}
+            {verifying ? 'Weryfikowanie…' : 'Zweryfikuj wszystkie e-maile'}
           </Button>
         )}
         <span className="text-xs text-gray-400 ml-1">
-          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} lead{filteredLeads.length !== 1 ? 's' : ''}
+          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} kontaktów
         </span>
         {hasActiveFilter && (
           <button
@@ -799,20 +807,20 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       {/* Duplicate leads notice */}
       {lastDuplicates.length > 0 && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm font-medium text-yellow-800 mb-1">{lastDuplicates.length} duplicate(s) skipped — already enrolled in a campaign:</p>
+          <p className="text-sm font-medium text-yellow-800 mb-1">Pominięte duplikaty ({lastDuplicates.length}) — już przypisane do kampanii:</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {lastDuplicates.map(email => (
               <span key={email} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{email}</span>
             ))}
           </div>
-          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>Dismiss</button>
+          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>Ukryj</button>
         </div>
       )}
 
       {/* Add leads */}
       <div className="bg-white rounded-lg border border-gray-200 p-5">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800">Add leads</h3>
+          <h3 className="font-semibold text-gray-800">Dodaj kontakty</h3>
           <button
             className="text-gray-400 hover:text-teal-600 transition-colors"
             onClick={() => setShowFormatInfo(v => !v)}
@@ -830,7 +838,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               <li><strong>Tab-separated (Excel / Sheets copy-paste)</strong> — first row = headers<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
               <li><strong>Comma-separated with headers</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
             </ul>
-            <p className="text-xs text-teal-600 mt-1">Columns beyond <em>email</em> and <em>name</em> are saved as custom fields.</p>
+            <p className="text-xs text-teal-600 mt-1">Kolumny poza <em>email</em> i <em>name</em> są zapisywane jako pola niestandardowe.</p>
             <p className="font-semibold mt-2">CSV file import:</p>
             <p className="text-xs">Upload a <code className="bg-teal-100 px-1 rounded">.csv</code> or <code className="bg-teal-100 px-1 rounded">.tsv</code> file with an <em>email</em> header column. Extra columns become custom fields.</p>
           </div>
@@ -847,7 +855,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
             onChange={e => { setSkipDuplicates(e.target.checked); setLastDuplicates([]); }}
             className="rounded"
           />
-          Skip duplicates (checks all campaigns)
+          Pomijaj duplikaty (sprawdza wszystkie kampanie)
         </label>
         {emailVerifEnabled && (
           <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-4">
@@ -892,13 +900,13 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 onChange={e => setSingle(s=>({...s, custom: e.target.value}))}
               />
             </div>
-            <Button size="sm" variant="default">Add lead</Button>
+            <Button size="sm" variant="default">Dodaj kontakt</Button>
           </form>
         )}
         {mode === 'bulk' && (
           <form onSubmit={addBulk} className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Paste leads — emails, CSV rows, or Excel copy-paste (see ⓘ above)</label>
+              <label className="block text-sm text-gray-600 mb-1">Wklej kontakty — adresy e-mail, wiersze CSV lub dane skopiowane z Excela (zobacz ⓘ powyżej)</label>
               <textarea
                 rows={6}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -907,7 +915,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 onChange={e => setBulk(e.target.value)}
               />
             </div>
-            <Button size="sm" variant="default">Add leads</Button>
+            <Button size="sm" variant="default">Dodaj kontakty</Button>
           </form>
         )}
       </div>
@@ -926,14 +934,14 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
         {/* Interest (per-campaign enrollment) */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Interest:</span>
+          <span className="font-medium text-gray-500 whitespace-nowrap">Zainteresowanie:</span>
           {[
             { v: 'all', l: 'All' },
             { v: 'unset', l: 'None' },
             { v: 'interested', l: 'Interested' },
             { v: 'not_interested', l: 'Not interested' },
             { v: 'out_of_office', l: 'OOO' },
-            { v: 'auto_reply', l: 'Auto-reply' },
+            { v: 'auto_reply', l: 'Automatyczna odpowiedź' },
           ].map(o => (
             <button
               key={o.v}
@@ -951,7 +959,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
         {/* Opened */}
         <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Opened:</span>
+          <span className="font-medium text-gray-500 whitespace-nowrap">Otwarte:</span>
           {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
             <button key={o.v} onClick={() => setFilter('opened', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
@@ -961,7 +969,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
         {/* Replied */}
         <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Replied:</span>
+          <span className="font-medium text-gray-500 whitespace-nowrap">Odpowiedzi:</span>
           {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
             <button key={o.v} onClick={() => setFilter('replied', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
@@ -971,7 +979,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
         {/* Clicked */}
         <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Clicked:</span>
+          <span className="font-medium text-gray-500 whitespace-nowrap">Kliknięte:</span>
           {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
             <button key={o.v} onClick={() => setFilter('clicked', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
@@ -1056,7 +1064,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   {/* inbox that last sent or will send next */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
                     {l.from_inbox_email ? (
-                      <span className="font-mono text-xs text-gray-700" title="Last sent from this inbox, or next scheduled sender if none sent yet">
+                      <span className="font-mono text-xs text-gray-700" title="Ostatnia skrzynka nadawcza albo następna zaplanowana, jeśli jeszcze nic nie wysłano">
                         {l.from_inbox_email}
                       </span>
                     ) : (
@@ -1081,34 +1089,34 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               sending_paused: !l.sending_paused,
                             });
-                            notify({ type: 'success', message: l.sending_paused ? 'Sending resumed' : 'Sending paused' });
+                            notify({ type: 'success', message: l.sending_paused ? 'Wysyłka wznowiona' : 'Wysyłka wstrzymana' });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
-                        title={l.sending_paused ? 'Click to resume sending' : 'Click to pause sending'}
+                        title={l.sending_paused ? 'Kliknij, aby wznowić wysyłkę' : 'Kliknij, aby wstrzymać wysyłkę'}
                       >
                         {l.sending_paused ? 'Paused' : 'Active'}
                       </button>
                       <select
                         className={`text-[10px] font-medium rounded px-1.5 py-0.5 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-300 ${BADGE_STYLES[l.interest || l.interest_status] || 'bg-gray-50 text-gray-500 border-gray-200'}`}
                         value={l.interest || l.interest_status || ''}
-                        title="Reply intent (per campaign) — click to change or remove"
+                        title="Intencja odpowiedzi w tej kampanii — kliknij, aby zmienić lub usunąć"
                         onChange={async (e) => {
                           const newStatus = e.target.value;
                           try {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               interest: newStatus,
                             });
-                            notify({ type: 'success', message: newStatus ? `Marked as ${newStatus.replace(/_/g, ' ')}` : 'Cleared' });
+                            notify({ type: 'success', message: newStatus ? `Ustawiono: ${STATUS_LABELS[newStatus] || newStatus.replace(/_/g, ' ')}` : 'Wyczyszczono' });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
                       >
-                        <option value="">— no interest —</option>
+                        <option value="">— brak oceny —</option>
                         <option value="interested">Interested</option>
                         <option value="not_interested">Not Interested</option>
                         <option value="out_of_office">Out of Office</option>
-                        <option value="auto_reply">Auto Reply</option>
+                        <option value="auto_reply">Automatyczna odpowiedź</option>
                       </select>
                     </div>
                   </td>
@@ -1134,7 +1142,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                           <button
                             className="w-full text-left px-2 py-1 rounded-md border border-transparent hover:border-teal-200 hover:bg-teal-50 transition-colors group"
                             onClick={() => startEdit(l.lead_id, f, val)}
-                            title="Click to edit"
+                            title="Kliknij, aby edytować"
                           >
                             {val != null
                               ? <span className="text-gray-800">{String(val)}</span>
@@ -1171,16 +1179,16 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
             className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
                         onClick={e => e.stopPropagation()}
           >
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Review leads before adding</h2>
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">Sprawdź kontakty przed dodaniem</h2>
 
             <div className="mb-4 text-center">
               <div className="text-3xl font-bold text-teal-600">{confirmPreview.total_valid}</div>
-              <div className="text-sm text-gray-500">valid {confirmPreview.total_valid === 1 ? 'lead' : 'leads'}</div>
+              <div className="text-sm text-gray-500">poprawnych kontaktów: {confirmPreview.total_valid}</div>
             </div>
 
             {confirmPreview.providers && Object.keys(confirmPreview.providers).length > 0 && (
               <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Email providers</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">Dostawcy poczty</h3>
                 <div className="space-y-1">
                   {Object.entries(confirmPreview.providers).map(([provider, count]) => (
                     <div key={provider} className="flex justify-between text-sm py-1 px-2 rounded odd:bg-gray-50">
@@ -1206,15 +1214,15 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   </div>
                 )}
                 {confirmPreview.flagged?.duplicates_in_batch > 0 && (
-                  <p className="text-xs text-yellow-700 mt-1">{confirmPreview.flagged.duplicates_in_batch} duplicate(s) within batch</p>
+                  <p className="text-xs text-yellow-700 mt-1">Duplikaty w tej partii: {confirmPreview.flagged.duplicates_in_batch}</p>
                 )}
               </div>
             )}
 
             <div className="flex justify-end gap-2 mt-6 pt-3 border-t border-gray-100">
-              <Button variant="outline" size="sm" onClick={() => setShowLeadsConfirm(false)}>Cancel</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowLeadsConfirm(false)}>Anuluj</Button>
               <Button variant="default" size="sm" onClick={handleConfirmAdd} disabled={confirmAddLoading}>
-                {confirmAddLoading ? 'Adding…' : `Confirm & Add ${confirmPreview.total_valid} lead${confirmPreview.total_valid !== 1 ? 's' : ''}`}
+                {confirmAddLoading ? 'Dodawanie…' : `Potwierdź i dodaj (${confirmPreview.total_valid})`}
               </Button>
             </div>
           </div>
@@ -2941,7 +2949,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
         </div>
 
         <div className="px-6 py-3 border-t flex justify-end gap-2">
-          <Button size="sm" variant="outline" onClick={onClose}>Cancel</Button>
+          <Button size="sm" variant="outline" onClick={onClose}>Anuluj</Button>
           <Button size="sm" variant="default" onClick={save} disabled={saving}>
             {saving ? 'Saving…' : 'Save'}
           </Button>
@@ -3309,7 +3317,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
               </div>
               <div className="flex gap-2 pt-2">
                 <Button size="sm" variant="default">Save Changes</Button>
-                <Button type="button" size="sm" variant="outline" onClick={tryCloseEdit}>Cancel</Button>
+                <Button type="button" size="sm" variant="outline" onClick={tryCloseEdit}>Anuluj</Button>
               </div>
             </form>
           </div>
@@ -3433,7 +3441,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                       <Button size="sm" variant="default" onClick={editingVariant ? saveVariant : createVariant} type="button">
                         {editingVariant ? 'Save Variant' : 'Create Variant'}
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => { setShowVariantForm(false); setEditingVariant(null); }} type="button">Cancel</Button>
+                      <Button size="sm" variant="outline" onClick={() => { setShowVariantForm(false); setEditingVariant(null); }} type="button">Anuluj</Button>
                     </div>
                   </div>
                 )}
