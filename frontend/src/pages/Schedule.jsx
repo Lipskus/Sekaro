@@ -113,7 +113,7 @@ export default function Schedule() {
 
   // button states for recalc/validate so React can re-render correctly
   const [recalcState, setRecalcState] = useState({ busy: false, text: '⚡ Przelicz kampanie' });
-  const [validateState, setValidateState] = useState({ busy: false, text: '🔍 Validate Queue' });
+  const [validateState, setValidateState] = useState({ busy: false, text: '🔍 Sprawdź kolejkę' });
 
   const filterCampaignOptions = useRef([]);
 
@@ -257,18 +257,18 @@ export default function Schedule() {
   const renderLastRun = iso => {
     if (!iso) return '—';
     const d = new Date(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
-    return diff < 1 ? 'Przed chwilą' : diff + 'm ago';
+    return diff < 1 ? 'Przed chwilą' : `${diff} min temu`;
   };
   const recalculateAll = async () => {
-    setRecalcState({ busy: true, text: '⚡ Recalculating...' });
+    setRecalcState({ busy: true, text: '⚡ Przeliczanie…' });
     const baselineStats = await api.get('/schedule/stats').catch(() => ({}));
     try {
       const res = await fetch('/api/schedule/recalculate-all',{method:'POST'});
       if (res.ok) {
         const data = await res.json();
-        const stratLabel = strategy==='priority'?'Priority':'Round-Robin';
+        const stratLabel = strategy==='priority'?'Priorytet':'Równomiernie';
         if (data.accepted) {
-          setRecalcState({ busy: true, text: '⚡ Recalculation running…' });
+          setRecalcState({ busy: true, text: '⚡ Trwa przeliczanie…' });
           // Server sets global_recalc_finished_at when the job completes; polling
           // slot counts is unreliable (same total as before, or no visible "empty" window).
           const baselineToken = baselineStats?.global_recalc_finished_at ?? null;
@@ -283,20 +283,20 @@ export default function Schedule() {
           }
           await loadData();
           const finalStats = await api.get('/schedule/stats').catch(() => ({}));
-          const message = `✓ Done! [${stratLabel}] (${finalStats.total_campaigns ?? '—'} campaigns, ${finalStats.total_scheduled ?? '—'} scheduled)`;
+          const message = `✓ Gotowe [${stratLabel}] (${finalStats.total_campaigns ?? '—'} kampanii, ${finalStats.total_scheduled ?? '—'} zaplanowanych)`;
           setRecalcState({ busy: true, text: message });
         } else {
-          const message = `✓ Done! [${stratLabel}] (${data.campaigns_processed} campaigns, ${data.total_slots} slots)`;
+          const message = `✓ Gotowe [${stratLabel}] (${data.campaigns_processed} kampanii, ${data.total_slots} pozycji)`;
           setRecalcState({ busy: true, text: message });
           setTimeout(loadData, 100);
         }
       } else {
         const t = await res.text();
-        notify({ type: 'error', message: 'Error recalculating: ' + t });
+        notify({ type: 'error', message: 'Błąd podczas przeliczania: ' + t });
         setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
       }
     } catch(err) {
-      notify({ type: 'error', message: 'Error: ' + err.message });
+      notify({ type: 'error', message: 'Błąd: ' + err.message });
       setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
     } finally {
       setTimeout(()=>{
@@ -305,31 +305,31 @@ export default function Schedule() {
     }
   };
   const validateQueue = async () => {
-    setValidateState({ busy: true, text: '🔍 Validating...' });
+    setValidateState({ busy: true, text: '🔍 Sprawdzanie…' });
     try {
       const res = await fetch('/api/schedule/validate-queue',{method:'POST'});
       if (res.ok) {
         const data = await res.json();
         const issues = data.issues||[];
-        const txt = `✓ Validated (${data.total_slots_checked} slots, ${issues.length} issue${issues.length!==1?'s':''})`;
+        const txt = `✓ Sprawdzono (${data.total_slots_checked} pozycji, problemy: ${issues.length})`;
         setValidateState({ busy: true, text: txt });
         if (issues.length) {
-          notify({ type: 'error', message: `Validation completed — ${issues.length} issue(s) found. Open console for details.` });
-          console.log('Validation result:', data);
+          notify({ type: 'error', message: `Sprawdzanie zakończone — znaleziono ${issues.length} problemów. Szczegóły są w konsoli.` });
+          console.log('Wynik sprawdzania kolejki:', data);
         }
         loadData();
       } else {
         const t = await res.text();
-        notify({ type: 'error', message: 'Validation failed: ' + t });
-        setValidateState({ busy: false, text: '🔍 Validate Queue' });
+        notify({ type: 'error', message: 'Sprawdzanie kolejki nie powiodło się: ' + t });
+        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
       }
     } catch(err){
-      notify({ type: 'error', message: 'Error: ' + err.message });
-      setValidateState({ busy: false, text: '🔍 Validate Queue' });
+      notify({ type: 'error', message: 'Błąd: ' + err.message });
+      setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
     }
     finally {
       setTimeout(()=>{
-        setValidateState({ busy: false, text: '🔍 Validate Queue' });
+        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
       },2000);
     }
   };
@@ -419,7 +419,7 @@ export default function Schedule() {
                 <div><span className="dp-label">Wariant A/B</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
               )}
               {isSent && item.message_id && (
-                <div className="dp-full"><span className="dp-label">Message ID</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
+                <div className="dp-full"><span className="dp-label">ID wiadomości</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
               )}
               <div><span className="dp-label">Okno wysyłki</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
               <div><span className="dp-label">Dni wysyłki</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
@@ -469,7 +469,7 @@ export default function Schedule() {
       parts.push(
         <div key="past">
           <div className="section-hdr" onClick={() => setPastExpanded(pe=>!pe)}>
-            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości{totalSent!==1?'s':''})
+            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości)
           </div>
           {pastExpanded && groupByDate(filteredSent,true).map(group => (
             <div key={`${group.tz}-${group.dateKey}`}>
@@ -488,7 +488,7 @@ export default function Schedule() {
       parts.push(
         <div key="upcoming">
           <div className="section-hdr" onClick={() => setScheduledExpanded(se => !se)}>
-            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości{totalScheduled!==1?'s':''})
+            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości)
           </div>
           {scheduledExpanded && groupByDate(filteredScheduled,false).map(group => {
             if (!todayByTz.has(group.tz)) {
@@ -541,7 +541,7 @@ export default function Schedule() {
               <div>
                 <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
               </div>
-              <div title="Backend server clock (UTC). Campaign sending windows are interpreted in their configured timezone and stored as UTC, then displayed here in your browser's local time.">
+              <div title="Zegar serwera (UTC). Okna wysyłki kampanii są interpretowane w skonfigurowanej strefie czasowej, zapisywane jako UTC i wyświetlane tutaj w lokalnym czasie przeglądarki.">
                 <span className="text-sm text-gray-500">Serwer (UTC):</span>{' '}
                 <span className="font-mono text-xs">
                   {serverStatus.server_time
@@ -554,7 +554,7 @@ export default function Schedule() {
                   </span>
                 )}
               </div>
-              <div title="Time until the next scheduled email fires (calculated from server UTC time)">
+              <div title="Czas do następnej zaplanowanej wiadomości, obliczony na podstawie czasu UTC serwera.">
                 <span className="text-sm text-gray-500">Następna wiadomość za:</span>{' '}
                 <span className="font-semibold">{timeToNext || '—'}</span>
               </div>
