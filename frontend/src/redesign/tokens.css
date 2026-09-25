@@ -1197,3 +1197,97 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   .sk-template-sidebar{position:static;max-height:none}
   .sk-template-aside{grid-template-columns:1fr}
 }
+
+
+/* Analytics */
+.sk-analytics-metrics {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--sk-space-4);
+  margin-bottom:var(--sk-space-5);
+}
+.sk-analytics-metrics .sk-metric {
+  min-height:128px;
+  padding:16px;
+}
+.sk-analytics-metrics .sk-metric-icon {
+  width:42px;
+  height:42px;
+  margin-bottom:2px;
+}
+.sk-analytics-metrics .sk-metric-value {
+  margin:4px 0 2px;
+  font-size:25px;
+}
+.sk-analytics-presets {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:var(--sk-space-4);
+}
+.sk-analytics-presets button {
+  min-height:32px;
+  padding:5px 11px;
+  border:1px solid var(--sk-line);
+  border-radius:999px;
+  background:var(--sk-surface);
+  color:var(--sk-muted);
+  font-size:11px;
+  font-weight:650;
+}
+.sk-analytics-presets button:hover {
+  border-color:var(--sk-accent);
+  color:var(--sk-text);
+}
+.sk-analytics-presets button.is-active {
+  border-color:var(--sk-accent);
+  background:var(--sk-green-soft);
+  color:var(--sk-green-text);
+}
+.sk-analytics-chart-panel,
+.sk-analytics-table-panel {
+  border:1px solid var(--sk-line)!important;
+  background:var(--sk-surface)!important;
+  color:var(--sk-text);
+  border-radius:var(--sk-radius-lg)!important;
+  box-shadow:var(--sk-shadow);
+}
+.sk-analytics-campaign-filter {
+  display:flex;
+  align-items:flex-start;
+  gap:var(--sk-space-4);
+  margin:var(--sk-space-5) 0;
+  padding:14px;
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-radius-lg);
+  background:var(--sk-surface);
+}
+.sk-analytics-page [class*="text-gray-500"],
+.sk-analytics-page [class*="text-gray-400"] {color:var(--sk-muted)!important}
+.sk-analytics-page [class*="text-gray-700"],
+.sk-analytics-page [class*="text-gray-800"],
+.sk-analytics-page [class*="text-gray-900"] {color:var(--sk-text)!important}
+.sk-analytics-page [class*="bg-gray-50"],
+.sk-analytics-page [class*="bg-gray-100"],
+.sk-analytics-page [class*="bg-gray-200"] {background:var(--sk-surface-alt)!important}
+.sk-analytics-page input,
+.sk-analytics-page select {
+  background:var(--sk-surface)!important;
+  color:var(--sk-text)!important;
+  border-color:var(--sk-line)!important;
+}
+.sk-analytics-page .recharts-cartesian-grid line {stroke:var(--sk-line)}
+.sk-analytics-page .recharts-text {fill:var(--sk-muted)}
+.sk-analytics-page .recharts-default-tooltip {
+  border-color:var(--sk-line)!important;
+  background:var(--sk-surface)!important;
+  color:var(--sk-text)!important;
+}
+@media(max-width:1180px){
+  .sk-analytics-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:760px){
+  .sk-analytics-metrics{grid-template-columns:1fr}
+  .sk-analytics-campaign-filter{flex-direction:column}
+}
