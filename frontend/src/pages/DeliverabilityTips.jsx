@@ -184,7 +184,7 @@ function Rule({ rule, index }) {
           </p>
         </div>
       </div>
-    </PageFrame>
+    </div>
   );
 }
 
@@ -254,6 +254,6 @@ export default function DeliverabilityTips() {
         </div>
       </div>
 
-    </div>
+    </PageFrame>
   );
 }
