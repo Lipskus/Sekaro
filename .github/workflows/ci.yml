@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify real Docker host access and private app network
+      - name: Verify Docker network migration, data preservation and host access
         run: bash scripts/check-demo-network.sh
   validate:
     runs-on: ubuntu-latest
