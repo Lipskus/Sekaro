@@ -39,3 +39,5 @@ AGENTS.md
 tasks.md
 .omo/
 .commandcode/
+# Local demo credentials; never commit or share them.
+.sekaro-demo/
