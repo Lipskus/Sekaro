@@ -6,7 +6,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { PageFrame, Metric, Icon } from '../redesign/ui';
+import { PageFrame, Metric, Icon, StatePanel } from '../redesign/ui';
 import {
   addDaysToDateKey,
   formatDateKey,
@@ -28,7 +28,7 @@ function buildQuery(path, params) {
 // ── Email Preview Modal for schedule items ────────────────────────────────────
 function ScheduleEmailPreviewModal({ item, onClose }) {
   const isHtml = item.sequence_is_html || (item.sequence_body || '').trim().startsWith('<');
-  const subject = item.subject || '(no subject)';
+  const subject = item.subject || '(bez tematu)';
   const body = item.sequence_body || '';
   const backdropDown = useRef(false);
 
@@ -536,10 +536,10 @@ export default function Schedule() {
                   {group.dateKey}
                   <span className="ml-2 text-xs text-gray-400">{group.tz}</span>
                   {group.dateKey === todayKey && (
-                    <span style={{color:'var(--success)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>today</span>
+                    <span style={{color:'var(--sk-success)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>dzisiaj</span>
                   )}
                   {group.dateKey === tomorrowKey && (
-                    <span style={{color:'var(--info)',fontWeight:400,fontSize:'0.8rem',marginLeft:'0.5rem'}}>tomorrow</span>
+                    <span style={{color:'var(--sk-info)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>jutro</span>
                   )}
                 </div>
                 {group.items
@@ -555,7 +555,7 @@ export default function Schedule() {
       // add header bar at top of list
       parts.unshift(header);
     }
-    if (!parts.length) return <p style={{color:'var(--muted)',padding:'1rem 0'}}>No emails match your filters.</p>;
+    if (!parts.length) return <StatePanel icon="calendar" title="Brak wiadomości" description="Żadne wiadomości nie pasują do bieżących filtrów." />;
     return parts;
   };
 
