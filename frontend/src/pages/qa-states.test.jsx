@@ -1,10 +1,12 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useLocation } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { formatDateKey, formatTimeKey } from '../utils/datetime';
 import Campaigns from './Campaigns';
+import AddCampaign from './AddCampaign';
+import CampaignPreflight from '../redesign/CampaignPreflight';
 import Dashboard from '../redesign/pages/Dashboard';
 import LeadDetail from './LeadDetail';
 import Inbox from '../redesign/pages/Inbox';
@@ -39,7 +41,7 @@ vi.mock('recharts', () => ({
   Tooltip: () => null, Legend: () => null, CartesianGrid: () => null,
 }));
 
-function Location() { const l = useLocation(); return <output data-testid="location">{l.pathname}{l.search}</output>; }
+function Location() { const l = useLocation(); return <output data-testid="location">{l.pathname}{l.search}{l.hash}</output>; }
 function mount(Page) { return render(<MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}><Page /><Location /></MemoryRouter>); }
 function deferred() { let resolve, reject; const promise = new Promise((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 
@@ -407,4 +409,97 @@ it('interprets backend timestamps without offsets as UTC across the Warsaw DST c
   expect(formatTimeKey('2026-03-29T00:30:00', 'Europe/Warsaw')).toBe('01:30');
   expect(formatTimeKey('2026-03-29T01:30:00', 'Europe/Warsaw')).toBe('03:30');
   expect(formatTimeKey('2026-03-29T03:30:00+02:00', 'Europe/Warsaw')).toBe('03:30');
+});
+
+
+it('creates one paused draft and continues to contacts without starting it', async () => {
+  const pending = deferred();
+  api.post.mockReturnValue(pending.promise);
+  mount(AddCampaign);
+  fireEvent.change(screen.getByRole('textbox', { name: /Nazwa kampanii/ }), { target: { value: '  Kreator QA  ' } });
+  const next = screen.getByRole('button', { name: 'Dalej' });
+  fireEvent.click(next); fireEvent.click(next);
+  expect(api.post).toHaveBeenCalledTimes(1);
+  expect(api.post).toHaveBeenCalledWith('/campaigns', expect.objectContaining({ name: 'Kreator QA', paused: true, inbox_ids: [], track_opens: false }));
+  await act(async () => pending.resolve({ id: 42 }));
+  expect(screen.getByTestId('location').textContent).toBe('/campaigns/42?setup=1#leads');
+});
+
+it('retains the campaign name after a draft creation failure', async () => {
+  api.post.mockRejectedValueOnce(new Error('Nie zapisano kampanii'));
+  mount(AddCampaign);
+  fireEvent.change(screen.getByRole('textbox', { name: /Nazwa kampanii/ }), { target: { value: 'Zachowaj nazwę' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Dalej' }));
+  await screen.findByText('Nie zapisano kampanii');
+  expect(screen.getByDisplayValue('Zachowaj nazwę')).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Dalej' }).disabled).toBe(false);
+});
+
+it('shows schedule, limit and unknown blockers in preflight and prevents starting', () => {
+  const onStart = vi.fn();
+  const props = { campaign: { name: 'QA', paused: true }, inboxes: [], sequences: [], busy: false, onCheck: vi.fn(), onStart };
+  const view = render(<MemoryRouter><CampaignPreflight {...props} report={null}/></MemoryRouter>);
+  expect(screen.getByRole('button', { name: 'Uruchom kampanię' }).disabled).toBe(true);
+  view.rerender(<MemoryRouter><CampaignPreflight {...props} report={{ ready: false, issues: [
+    { code: 'invalid_sending_window', severity: 'error', message: 'Niepoprawne godziny QA' },
+    { code: 'daily_limit_invalid', severity: 'error', message: 'Niepoprawny limit QA' },
+    { code: 'future_check', severity: 'error', message: 'Nowa kontrola QA' },
+  ] }}/></MemoryRouter>);
+  expect(screen.getByText('Niepoprawne godziny QA')).toBeTruthy();
+  expect(screen.getByText('Niepoprawny limit QA')).toBeTruthy();
+  expect(screen.getByText('Nowa kontrola QA')).toBeTruthy();
+  fireEvent.click(screen.getByRole('button', { name: 'Uruchom kampanię' }));
+  expect(onStart).not.toHaveBeenCalled();
+});
+
+function mountSetup(step) {
+  return render(<MemoryRouter initialEntries={[`/campaigns/42?setup=1#${step}`]}><Routes><Route path="/campaigns/:id" element={<CampaignWorkspace/>}/></Routes><Location/></MemoryRouter>);
+}
+function setupApi() {
+  api.get.mockImplementation(async path => {
+    if (path === '/campaigns/42') return { id: 42, name: 'Kreator QA', paused: true, inbox_ids: [], sending_days: [0,1,2,3,4], sending_hours_start: '09:00', sending_hours_end: '17:00', timezone: 'Europe/Warsaw' };
+    if (path.endsWith('/preflight')) return { ready: false, issues: [], summary: {} };
+    if (path === '/inboxes') return [{ id: 7, email: 'qa@example.test', max_emails_per_day: 20 }];
+    return [];
+  });
+}
+it('keeps the mailbox choice and step after a failed save', async () => {
+  setupApi(); api.patch.mockRejectedValueOnce(new Error('Nie zapisano skrzynek'));
+  mountSetup('inboxes');
+  const checkbox = await screen.findByRole('checkbox', { name: /qa@example.test/ });
+  fireEvent.click(checkbox);
+  fireEvent.click(screen.getByRole('button', { name: 'Zapisz i dalej' }));
+  await screen.findByText('Nie zapisano skrzynek');
+  expect(checkbox.checked).toBe(true);
+  expect(screen.getByTestId('location').textContent).toBe('/campaigns/42?setup=1#inboxes');
+  expect(api.patch).toHaveBeenCalledWith('/campaigns/42', { inbox_ids: [7] });
+});
+it('does not advance or save an invalid sending window', async () => {
+  setupApi(); mountSetup('schedule');
+  const end = await screen.findByLabelText('Koniec wysyłki');
+  fireEvent.change(end, { target: { value: '08:00' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Zapisz i dalej' }));
+  await screen.findByText('Wybierz dni wysyłki i godzinę końca późniejszą niż początek.');
+  expect(api.patch).not.toHaveBeenCalled();
+  expect(screen.getByTestId('location').textContent).toBe('/campaigns/42?setup=1#schedule');
+});
+
+it('saves the schedule before opening the summary', async () => {
+  setupApi(); api.patch.mockResolvedValue({}); mountSetup('schedule');
+  await screen.findByLabelText('Koniec wysyłki');
+  fireEvent.click(screen.getByRole('button', { name: 'Zapisz i dalej' }));
+  await waitFor(() => expect(screen.getByTestId('location').textContent).toBe('/campaigns/42?setup=1#overview'));
+  expect(api.patch).toHaveBeenCalledWith('/campaigns/42', expect.objectContaining({ sending_hours_start: '09:00', sending_hours_end: '17:00', sending_days: [0,1,2,3,4] }));
+  expect(api.post).not.toHaveBeenCalled();
+});
+it('rechecks readiness at start and does not start after a new blocker appears', async () => {
+  setupApi(); const original = api.get.getMockImplementation(); let blocked = false;
+  api.get.mockImplementation(path => path.endsWith('/preflight') ? Promise.resolve({ ready: !blocked, issues: blocked ? [{ severity: 'error', code: 'inbox_paused', message: 'Skrzynka została wstrzymana' }] : [] }) : original(path));
+  api.patch.mockResolvedValue({}); mountSetup('overview');
+  const start = await screen.findByRole('button', { name: 'Uruchom kampanię' });
+  await waitFor(() => expect(start.disabled).toBe(false));
+  blocked = true; fireEvent.click(start);
+  await screen.findByText('Skrzynka została wstrzymana');
+  expect(api.post).not.toHaveBeenCalled();
+  expect(screen.getByRole('button', { name: 'Uruchom kampanię' }).disabled).toBe(true);
 });
