@@ -1916,8 +1916,8 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
   const submit = async e => {
     e.preventDefault();
-    if (!form.name.trim())          { setMsg({type:'error',text:'Name is required'});           return; }
-    if (!form.inbox_ids.length)     { setMsg({type:'error',text:'Select at least one inbox'});  return; }
+    if (!form.name.trim())          { setMsg({type:'error',text:'Nazwa kampanii jest wymagana.'});           return; }
+    if (!form.inbox_ids.length)     { setMsg({type:'error',text:'Wybierz co najmniej jedną skrzynkę nadawczą.'});  return; }
     setSaving(true);
     try {
       await api.patch(`/campaigns/${campaignId}`, settingsPayload());
@@ -1926,12 +1926,12 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
       if (tzChanged) {
         try {
           await api.post(`/campaigns/${campaignId}/recalculate-queue`);
-          setMsg({ type: 'success', text: 'Settings saved · Queue recalculated for new timezone' });
+          setMsg({ type: 'success', text: 'Ustawienia zapisane · kolejka przeliczona dla nowej strefy czasowej' });
         } catch (_) {
-          setMsg({ type: 'success', text: 'Settings saved (queue recalculation failed — run it manually if needed)' });
+          setMsg({ type: 'success', text: 'Ustawienia zapisane (nie udało się przeliczyć kolejki — w razie potrzeby uruchom przeliczenie ręcznie)' });
         }
       } else {
-        setMsg({ type: 'success', text: 'Settings saved' });
+        setMsg({ type: 'success', text: 'Ustawienia zapisane' });
       }
       onSave();
     } catch (e) {
@@ -2174,7 +2174,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
             )}
           </div>
           <p className="text-xs text-gray-400 mt-1">
-            Sending window times are interpreted in this timezone. E-mails are stored internally in UTC and sent at the correct local time.
+            Godziny okna wysyłki są interpretowane w tej strefie czasowej. Terminy są wewnętrznie zapisywane w UTC i realizowane o właściwej godzinie lokalnej.
           </p>
         </div>
 
