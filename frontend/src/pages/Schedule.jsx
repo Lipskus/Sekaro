@@ -16,7 +16,7 @@ import {
   normalizeTimeZone,
 } from '../utils/datetime';
 
-const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAY_NAMES = ['Pn','Wt','Śr','Cz','Pt','So','Nd'];
 const SCHEDULE_DAYS_BACK = 7;
 const SCHEDULE_DAYS_AHEAD = 3;
 const SCHEDULE_LIMIT = 5000;
@@ -134,7 +134,7 @@ export default function Schedule() {
         return merged;
       }
     } catch (e) {
-      notify({ type: 'error', message: 'Failed to load email details' });
+      notify({ type: 'error', message: 'Nie udało się wczytać szczegółów wiadomości.' });
     }
     return item;
   };
@@ -193,7 +193,7 @@ export default function Schedule() {
       });
       filterCampaignOptions.current = [...camps.entries()].sort((a,b) => a[1].localeCompare(b[1]));
     } catch (e) {
-      notify({ type: 'error', message: 'Failed to load schedule data' });
+      notify({ type: 'error', message: 'Nie udało się wczytać harmonogramu.' });
     } finally {
       // loading.stop();
     }
@@ -358,21 +358,31 @@ export default function Schedule() {
     const time = isSent ? fmtTime(item.sent_at, tz) : fmtTime(item.scheduled_at, tz);
     const statusCls = isSent ? 'sent' : 'scheduled';
     const statusLabel = isSent ? 'Wysłano' : 'Zaplanowano';
-    const subject = item.subject || '(no subject)';
+    const subject = item.subject || '(bez tematu)';
     const inboxLabel = item.inbox_email || '—';
     const isExpanded = expandedId === uid;
+    const toggleExpanded = async () => {
+      if (isExpanded) {
+        setExpandedId(null);
+        return;
+      }
+      setExpandedId(uid);
+      await ensureDetail(item);
+    };
     return (
       <div key={uid}>
         <div
           className={`email-row${isExpanded?' expanded':''}`}
-          onClick={async () => {
-            if (isExpanded) {
-              setExpandedId(null);
-              return;
+          onClick={toggleExpanded}
+          onKeyDown={e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleExpanded();
             }
-            setExpandedId(uid);
-            await ensureDetail(item);
           }}
+          role="button"
+          tabIndex={0}
+          aria-expanded={isExpanded}
         >
           <div className="time-col">{time}</div>
           <div className="status-col"><span className={`badge-status ${statusCls}`}>{statusLabel}</span></div>
@@ -388,34 +398,34 @@ export default function Schedule() {
             <div className="dp-grid">
               <div><span className="dp-label">Status</span><br/><span className={`badge-status ${statusCls}`} style={{fontSize:'0.8rem'}}>{statusLabel}</span></div>
               {isSent ? (
-                <div><span className="dp-label">Sent at</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
+                <div><span className="dp-label">Wysłano</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
               ) : (
                 <div><span className="dp-label">Zaplanowano na</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
               )}
-              <div><span className="dp-label">Lead</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
-              <div><span className="dp-label">Campaign</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
-              <div><span className="dp-label">Sequence step</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
-              <div><span className="dp-label">Wait after previous</span><br/><span className="dp-val">{item.sequence_wait_days??0} day(s)</span></div>
-              <div className="dp-full"><span className="dp-label">Subject</span><br/><span className="dp-val">{subject}</span></div>
+              <div><span className="dp-label">Kontakt</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
+              <div><span className="dp-label">Kampania</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
+              <div><span className="dp-label">Krok sekwencji</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
+              <div><span className="dp-label">Przerwa po poprzedniej</span><br/><span className="dp-val">{item.sequence_wait_days??0} dni</span></div>
+              <div className="dp-full"><span className="dp-label">Temat</span><br/><span className="dp-val">{subject}</span></div>
               {!isSent && (
                 <>
-                  <div><span className="dp-label">Inbox</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
-                  <div><span className="dp-label">Send method</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
-                  <div><span className="dp-label">Inbox max/day</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
-                  <div><span className="dp-label">Position in day</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
+                  <div><span className="dp-label">Skrzynka</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
+                  <div><span className="dp-label">Metoda wysyłki</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
+                  <div><span className="dp-label">Limit skrzynki/dzień</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
+                  <div><span className="dp-label">Pozycja w dniu</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
                 </>
               )}
               {item.has_variants && (
-                <div><span className="dp-label">A/B variant</span><br/><span className="dp-val">{item.variant_id ? `Variant #${item.variant_id}` : 'Default'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B active</span> : ''}</span></div>
+                <div><span className="dp-label">Wariant A/B</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
               )}
               {isSent && item.message_id && (
                 <div className="dp-full"><span className="dp-label">Message ID</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
               )}
-              <div><span className="dp-label">Sending window</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
-              <div><span className="dp-label">Sending days</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
-              <div><span className="dp-label">Stop on reply</span><br/><span className="dp-val">{item.campaign_stop_on_reply?'Yes':'No'}</span></div>
+              <div><span className="dp-label">Okno wysyłki</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
+              <div><span className="dp-label">Dni wysyłki</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
+              <div><span className="dp-label">Zatrzymaj po odpowiedzi</span><br/><span className="dp-val">{item.campaign_stop_on_reply?'Tak':'Nie'}</span></div>
               {item.sequence_body && (
-                <div className="dp-full"><span className="dp-label">Email body</span>
+                <div className="dp-full"><span className="dp-label">Treść wiadomości</span>
                   <div className="flex items-center gap-2 mt-1 mb-1">
                     <Button
                       size="sm"
@@ -426,7 +436,7 @@ export default function Schedule() {
                         setPreviewItem(full);
                       }}
                     >
-                      View full preview
+                      Pełny podgląd
                     </Button>
                   </div>
                   <div className="body-preview" dangerouslySetInnerHTML={{__html:item.sequence_body.trim().startsWith('<')?item.sequence_body:escapeHtml(item.sequence_body)}} />
@@ -443,12 +453,12 @@ export default function Schedule() {
     // add header row before items
     const header = (
       <div className="email-row header" key="header">
-        <div className="time-col">Time</div>
+        <div className="time-col">Czas</div>
         <div className="status-col">Status</div>
-        <div className="lead-col">Lead</div>
-        <div className="subj-col">Subject</div>
-        <div className="camp-col">Campaign</div>
-        <div className="inbox-col">Inbox</div>
+        <div className="lead-col">Kontakt</div>
+        <div className="subj-col">Temat</div>
+        <div className="camp-col">Kampania</div>
+        <div className="inbox-col">Skrzynka</div>
       </div>
     );
     const todayByTz = new Map();
@@ -529,10 +539,10 @@ export default function Schedule() {
           {!isProduction && (
             <>
               <div>
-                <span className="text-sm text-gray-500">Test Mode:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'ON':'OFF'}</span>
+                <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
               </div>
               <div title="Backend server clock (UTC). Campaign sending windows are interpreted in their configured timezone and stored as UTC, then displayed here in your browser's local time.">
-                <span className="text-sm text-gray-500">Server (UTC):</span>{' '}
+                <span className="text-sm text-gray-500">Serwer (UTC):</span>{' '}
                 <span className="font-mono text-xs">
                   {serverStatus.server_time
                     ? new Date(serverStatus.server_time).toISOString().replace('T',' ').slice(0,19) + ' UTC'
@@ -540,12 +550,12 @@ export default function Schedule() {
                 </span>
                 {serverStatus.server_time && (
                   <span className="ml-1 text-xs text-gray-400">
-                    = {new Date(serverStatus.server_time).toLocaleTimeString()} local
+                    = {new Date(serverStatus.server_time).toLocaleTimeString()} lokalnie
                   </span>
                 )}
               </div>
               <div title="Time until the next scheduled email fires (calculated from server UTC time)">
-                <span className="text-sm text-gray-500">Next email in:</span>{' '}
+                <span className="text-sm text-gray-500">Następna wiadomość za:</span>{' '}
                 <span className="font-semibold">{timeToNext || '—'}</span>
               </div>
             </>
