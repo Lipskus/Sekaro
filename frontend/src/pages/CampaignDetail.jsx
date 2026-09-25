@@ -2456,7 +2456,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
             value={leadId}
             onChange={e => setLeadId(e.target.value)}
           >
-            <option value="">No lead — show placeholders</option>
+            <option value="">Bez kontaktu — pokaż zmienne</option>
             {leads.map(l => (
               <option key={l.lead_id} value={l.lead_id}>
                 {l.email}{l.name ? ` — ${l.name}` : ''}
@@ -2524,14 +2524,14 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
               {testState === 'sending' ? 'Wysyłanie…' : 'Wyślij test'}
             </Button>
             {testState === 'success' && (
-              <span className="text-xs text-green-600 font-medium">✓ Sent!</span>
+              <span className="text-xs text-green-600 font-medium">✓ Wysłano!</span>
             )}
             {testState?.error && (
               <span className="text-xs text-red-600">{testState.error}</span>
             )}
           </div>
           <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={onClose}>Close</Button>
+            <Button variant="outline" size="sm" onClick={onClose}>Zamknij</Button>
           </div>
         </div>
       </div>
@@ -2543,7 +2543,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
 function PersonalizedSequenceSection({ sequence, sequences, personalizedSequences, leads, campaignId, campaign, onWriteCustom, onRefresh }) {
   const [filter, setFilter] = useState('needs_writing');
   const [searchQuery, setSearchQuery] = useState('');
-  const [bulkState, setBulkState] = useState({ busy: false, text: 'Use fallback for remaining' });
+  const [bulkState, setBulkState] = useState({ busy: false, text: 'Użyj treści zastępczej dla pozostałych' });
   const confirm = useConfirm();
   const notify = useNotify();
 
@@ -2612,15 +2612,15 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
   const applyFallbackToRemaining = async () => {
     if (!remainingLeads.length) return;
     if ((sequence.position ?? 0) === 0 && !sequence?.fallback_subject?.trim()) {
-      notify({ type: 'error', message: 'Temat zastępczy is required for the first email.' });
+      notify({ type: 'error', message: 'Temat zastępczy jest wymagany dla pierwszego e-maila.' });
       return;
     }
     if (!sequence?.fallback_body?.trim()) {
-      notify({ type: 'error', message: 'Treść zastępcza is required before applying to all remaining leads.' });
+      notify({ type: 'error', message: 'Treść zastępcza jest wymagana przed zastosowaniem jej do pozostałych kontaktów.' });
       return;
     }
-    if (!await confirm(`Use the fallback content for ${remainingLeads.length} remaining lead(s)?`)) return;
-    setBulkState({ busy: true, text: 'Applying…' });
+    if (!await confirm(`Użyć treści zastępczej dla pozostałych kontaktów (${remainingLeads.length})?`)) return;
+    setBulkState({ busy: true, text: 'Stosowanie…' });
     try {
       await Promise.all(
         remainingLeads.map(l => api.patch(
@@ -2628,20 +2628,20 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
           { subject: null, body: null, is_html: sequence?.is_html ?? false },
         ))
       );
-      notify({ type: 'success', message: 'Fallback applied to remaining leads' });
+      notify({ type: 'success', message: 'Treść zastępcza zastosowana do pozostałych kontaktów' });
       onRefresh?.();
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
-      setBulkState({ busy: false, text: 'Use fallback for remaining' });
+      setBulkState({ busy: false, text: 'Użyj treści zastępczej dla pozostałych' });
     }
   };
 
   if (leadsForCurrentStep.length === 0) {
     return (
       <div className="mt-6 pt-6 border-t border-gray-200">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Custom E-mails per Lead</span>
-        <p className="text-xs text-gray-400 italic">No leads enrolled yet.</p>
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Indywidualne wiadomości dla kontaktów</span>
+        <p className="text-xs text-gray-400 italic">Brak przypisanych kontaktów.</p>
       </div>
     );
   }
@@ -2658,15 +2658,15 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
     const perLead = lead.personalized || [];
     const entry = perLead.find(p => p.sequence_id === sid);
     const stepNum = (personalizedSequences.find(s => s.id === sid)?.position ?? 0) + 1;
-    if (entry?.already_sent) return `Step ${stepNum}: Written (sent)`;
-    if (entry?.written) return `Step ${stepNum}: Written`;
-    return `Step ${stepNum}: Needs writing`;
+    if (entry?.already_sent) return `Krok ${stepNum}: Gotowe (wysłane)`;
+    if (entry?.written) return `Krok ${stepNum}: Gotowe`;
+    return `Krok ${stepNum}: Wymaga przygotowania`;
   };
 
   const FILTERS = [
-    { key: 'needs_writing', label: 'Needs writing' },
-    { key: 'written', label: 'Written' },
-    { key: 'all', label: 'All' },
+    { key: 'needs_writing', label: 'Do przygotowania' },
+    { key: 'written', label: 'Gotowe' },
+    { key: 'all', label: 'Wszystkie' },
   ];
 
   const campaignMode = campaign?.custom_sequence_mode || 'wait_for_all';
@@ -2675,25 +2675,25 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
     <div className="mt-6 pt-6 border-t border-gray-200">
       {campaignMode === 'asap' && (
         <div className="mb-3 p-2 bg-teal-50 border border-teal-200 rounded-lg text-xs text-teal-700">
-          <strong>Wysyłaj od razu mode is on.</strong> Each custom email will be scheduled and sent as soon as it's written — no need to wait for all leads.
+          <strong>Tryb „Wysyłaj od razu” jest włączony.</strong> Każda indywidualna wiadomość może zostać zaplanowana i wysłana po jej przygotowaniu.
         </div>
       )}
       {campaignMode !== 'asap' && (
         <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-          <strong>Wait-for-all mode is on.</strong> E-mails won't be sent until every custom email is written for each lead.
+          <strong>Tryb „Czekaj na wszystkie” jest włączony.</strong> Wysyłka nie rozpocznie się, dopóki wszystkie indywidualne wiadomości nie będą przygotowane.
         </div>
       )}
       <div className="flex items-center justify-between mb-3 gap-2">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Custom E-mails per Lead</span>
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Indywidualne wiadomości dla kontaktów</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">{writtenCount} of {leadsForCurrentStep.length} written</span>
+          <span className="text-xs text-gray-400">{writtenCount} z {leadsForCurrentStep.length} gotowych</span>
           <Button
             size="sm"
             variant="outline"
             onClick={applyFallbackToRemaining}
             disabled={bulkState.busy || remainingLeads.length === 0}
           >
-            {bulkState.busy ? 'Applying…' : bulkState.text}
+            {bulkState.busy ? 'Stosowanie…' : bulkState.text}
           </Button>
         </div>
       </div>
@@ -2718,7 +2718,7 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
         className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 mb-3"
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
-        placeholder="Search by email or name…"
+        placeholder="Szukaj po e-mailu lub nazwie…"
       />
 
       <div className="max-h-[280px] overflow-y-auto border border-gray-200 rounded-lg">
@@ -2736,12 +2736,12 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
                 </th>
               )}
               <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2 text-right">Action</th>
+              <th className="px-3 py-2 text-right">Akcja</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={personalizedSequences.length > 1 ? 4 : 3} className="px-3 py-8 text-center text-gray-400 text-sm">No leads match your filter.</td></tr>
+              <tr><td colSpan={personalizedSequences.length > 1 ? 4 : 3} className="px-3 py-8 text-center text-gray-400 text-sm">Brak kontaktów pasujących do filtra.</td></tr>
             ) : (
               filtered.map(l => {
                 const ps = (l.personalized || []).find(p => p.sequence_id === sequence.id);
@@ -2770,24 +2770,24 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
                     )}
                     <td className="px-3 py-2">
                       {alreadySent ? (
-                        <span className="text-green-600 text-xs font-medium">✓ Written</span>
+                        <span className="text-green-600 text-xs font-medium">✓ Gotowe</span>
                       ) : isTerminal ? (
                         <span className="text-gray-400 text-xs font-medium">{terminalLabel}</span>
                       ) : isWritten ? (
-                        <span className="text-green-600 text-xs font-medium">✓ Written</span>
+                        <span className="text-green-600 text-xs font-medium">✓ Gotowe</span>
                       ) : (
-                        <span className="text-purple-600 text-xs font-medium">Needs writing</span>
+                        <span className="text-purple-600 text-xs font-medium">Do przygotowania</span>
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
       {(alreadySent || isTerminal) ? (
-        <span className="text-xs text-gray-400 italic">{alreadySent ? 'Sent' : terminalLabel}</span>
+        <span className="text-xs text-gray-400 italic">{alreadySent ? 'Wysłano' : terminalLabel}</span>
                       ) : (
                         <button
                           onClick={() => onWriteCustom(l, sequence)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-300 transition-colors hover:bg-purple-50 hover:border-purple-300"
                         >
-                          {isWritten ? 'Edit' : 'Write'}
+                          {isWritten ? 'Edytuj' : 'Napisz'}
                         </button>
                       )}
                     </td>
@@ -2840,11 +2840,11 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
     setBodyError('');
     let hasError = false;
     if ((sequence.position ?? 0) === 0 && !subject.trim() && !sequence?.fallback_subject?.trim()) {
-      setSubjectError('Temat is required for the first email');
+      setSubjectError('Temat jest wymagany dla pierwszego e-maila');
       hasError = true;
     }
     if (!body.trim() && !sequence?.fallback_body?.trim()) {
-      setBodyError('Body is required when no fallback is set');
+      setBodyError('Treść jest wymagana, jeśli nie ustawiono treści zastępczej');
       hasError = true;
     }
     if (hasError) return;
@@ -2855,7 +2855,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
         body: body || null,
         is_html: isHtml,
       });
-      notify({ type: 'success', message: 'Custom email saved' });
+      notify({ type: 'success', message: 'Indywidualna wiadomość zapisana' });
       onSaved?.();
       onClose();
     } catch (e) {
@@ -2880,10 +2880,10 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
       >
         <div className="px-6 py-4 border-b flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-gray-800">Custom E-mail</h2>
+            <h2 className="font-semibold text-gray-800">Indywidualna wiadomość</h2>
             <p className="text-xs text-gray-400">
               {lead.email}{lead.name ? ` — ${lead.name}` : ''}
-              {' · '}Step {(sequence.position ?? 0) + 1}
+              {' · '}Krok {(sequence.position ?? 0) + 1}
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
@@ -2894,12 +2894,12 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
             <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700 space-y-1">
               {sequence.fallback_subject && <p><span className="font-semibold">Temat zastępczy:</span> {sequence.fallback_subject}</p>}
               {sequence.fallback_body && <p><span className="font-semibold">Treść zastępcza:</span> {sequence.fallback_body}</p>}
-              <p className="text-purple-500 mt-1">Shown as placeholder text when composing a custom email; used automatically if the field is left empty.</p>
+              <p className="text-purple-500 mt-1">Wyświetlane jako podpowiedź podczas tworzenia indywidualnej wiadomości i używane automatycznie, jeśli pole pozostanie puste.</p>
             </div>
           )}
           {!hasFallback && (
             <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-              Compose your custom email for this lead.
+              Przygotuj indywidualną wiadomość dla tego kontaktu.
             </div>
           )}
 
@@ -2913,8 +2913,8 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
                 sequence?.fallback_subject
                   ? sequence.fallback_subject
                   : (sequence.position ?? 0) === 0
-                    ? "Temat is required for the first email"
-                    : "Leave blank to reply in same thread"
+                    ? "Temat jest wymagany dla pierwszego e-maila"
+                    : "Pozostaw puste, aby odpowiedzieć w tym samym wątku"
               }
             />
             {subjectError && <p className="text-xs text-red-500 mt-1">{subjectError}</p>}
@@ -2939,7 +2939,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
                 value={body}
                 onChange={e => { setBody(e.target.value); setBodyError(''); }}
                 rows={8}
-                placeholder={sequence?.fallback_body ? sequence.fallback_body : "Write your custom email body"}
+                placeholder={sequence?.fallback_body ? sequence.fallback_body : "Wpisz treść indywidualnej wiadomości"}
               />
             )}
             {bodyError && <p className="text-xs text-red-500 mt-1">{bodyError}</p>}
@@ -2951,7 +2951,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
         <div className="px-6 py-3 border-t flex justify-end gap-2">
           <Button size="sm" variant="outline" onClick={onClose}>Anuluj</Button>
           <Button size="sm" variant="default" onClick={save} disabled={saving}>
-            {saving ? 'Saving…' : 'Save'}
+            {saving ? 'Zapisywanie…' : 'Zapisz'}
           </Button>
         </div>
       </div>
