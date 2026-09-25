@@ -94,7 +94,12 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
     ok:      { headline: 'Wszystko wygląda dobrze', sub: 'Monitorowane elementy działają poprawnie.' },
     unknown: { headline: 'Stan nieznany',          sub: 'Nie udało się pobrać danych diagnostycznych.' },
   };
-  const msg = heroMessages[status] || heroMessages.unknown;
+  const msg = loading && status === 'unknown'
+    ? { headline: 'Sprawdzanie systemu', sub: 'Pobieramy aktualny stan usług i zasobów.' }
+    : (heroMessages[status] || heroMessages.unknown);
+  const summary = status === 'ok' || status === 'unknown'
+    ? msg.sub
+    : `${issueCount} problem${issueCount !== 1 ? 'ów' : ''} — ${msg.sub}`;
 
   return (
     <div className={`sk-health-summary sk-health-summary-${status} rounded-xl border p-6 flex items-center justify-between gap-4`}>
@@ -108,11 +113,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
         </div>
         <div>
           <h2 className={`text-xl font-semibold ${col.text}`}>{msg.headline}</h2>
-          <p className="text-sm text-gray-500 mt-0.5">
-            {status === 'ok'
-              ? msg.sub
-              : `${issueCount} problem${issueCount !== 1 ? 'ów' : ''} — ${msg.sub}`}
-          </p>
+          <p className="text-sm text-gray-500 mt-0.5">{summary}</p>
         </div>
       </div>
       <div className="flex items-center gap-3 flex-shrink-0">
@@ -147,12 +148,12 @@ function CheckCard({ check, muted, onToggleMute }) {
 
   return (
     <div
-      className={`rounded-xl border bg-white shadow-sm flex flex-col overflow-hidden transition-opacity ${
+      className={`sk-health-check sk-health-check-${displayStatus} rounded-xl border bg-white shadow-sm flex flex-col overflow-hidden transition-opacity ${
         isMuted ? 'opacity-60' : ''
       } ${col.border}`}
     >
       {/* Card header */}
-      <div className={`flex items-center justify-between px-4 py-3 ${col.bg} border-b ${col.border}`}>
+      <div className={`sk-health-check-head flex items-center justify-between px-4 py-3 ${col.bg} border-b ${col.border}`}>
         <div className="flex items-center gap-2.5">
           <div className={col.text}>
             <CategoryIcon icon={check.icon} size={18} />
