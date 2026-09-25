@@ -621,7 +621,7 @@ export default function Schedule() {
       <Card className="sk-schedule-list p-4" id="schedule-body">
         {renderSection()}
         <div ref={sentinelRef} style={{ height: 1 }} />
-        {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--muted)' }}>Wczytywanie…</p>}
+        {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--sk-muted)' }}>Wczytywanie…</p>}
       </Card>
 
       {/* Email preview modal */}
