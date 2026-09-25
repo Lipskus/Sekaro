@@ -1263,6 +1263,27 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   border-radius:var(--sk-radius-lg);
   background:var(--sk-surface);
 }
+.sk-analytics-custom-range {
+  display:flex;
+  align-items:center;
+  gap:var(--sk-space-4);
+  flex-wrap:wrap;
+  margin-bottom:var(--sk-space-4);
+}
+.sk-analytics-custom-range label {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:var(--sk-text);
+  font-size:12px;
+}
+.sk-analytics-campaign-picker {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.sk-analytics-campaign-picker select {max-width:100%}
 .sk-analytics-page [class*="text-gray-500"],
 .sk-analytics-page [class*="text-gray-400"] {color:var(--sk-muted)!important}
 .sk-analytics-page [class*="text-gray-700"],
@@ -1290,6 +1311,8 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 @media(max-width:760px){
   .sk-analytics-metrics{grid-template-columns:1fr}
   .sk-analytics-campaign-filter{flex-direction:column}
+  .sk-analytics-custom-range{align-items:stretch;flex-direction:column;gap:8px}
+  .sk-analytics-custom-range label{justify-content:space-between;gap:10px}
 }
 
 
