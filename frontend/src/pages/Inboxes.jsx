@@ -40,7 +40,7 @@ function CollapsibleInfo({ children }) {
           {children}
         </div>
       )}
-    </PageFrame>
+    </div>
   );
 }
 
@@ -1826,6 +1826,6 @@ export default function Inboxes() {
           </div>
         </div>
       )}
-    </div>
+    </PageFrame>
   );
 }
