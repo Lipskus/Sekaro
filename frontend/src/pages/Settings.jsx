@@ -602,15 +602,15 @@ export default function Settings() {
     'email.sent': 'Wiadomość wysłana',
     'email.opened': 'Wiadomość otwarta',
     'email.clicked': 'Kliknięto link',
-    'email.bounced': 'Email Bounced',
+    'email.bounced': 'Wiadomość odbita',
     'lead.replied': 'Kontakt odpowiedział',
     'lead.unsubscribed': 'Kontakt wypisany',
     'lead.status_changed': 'Zmiana statusu',
-    'lead.interested': 'Lead Interested (AI)',
-    'lead.not_interested': 'Lead Not Interested (AI)',
+    'lead.interested': 'Kontakt zainteresowany (AI)',
+    'lead.not_interested': 'Kontakt niezainteresowany (AI)',
     'daily_limit': 'Osiągnięto limit dzienny',
-    'rate_limit': 'Rate Limit',
-    'token_expired': 'Token Expired',
+    'rate_limit': 'Limit szybkości',
+    'token_expired': 'Token wygasł',
   };
 
   const isAllEvents = (events) => eventTypes.length > 0 && events.length === eventTypes.length;
@@ -631,7 +631,7 @@ export default function Settings() {
     return (
       <div className="space-y-2">
         <div className="flex items-center gap-3">
-          <span className="text-xs font-medium text-gray-600">Events:</span>
+          <span className="text-xs font-medium text-gray-600">Zdarzenia:</span>
           <select
             className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300"
             value={mode}
@@ -641,7 +641,7 @@ export default function Settings() {
             }}
           >
             <option value="all">Wszystkie zdarzenia</option>
-            <option value="specific">Specific Events</option>
+            <option value="specific">Wybrane zdarzenia</option>
           </select>
         </div>
         {mode === 'specific' && (
@@ -684,7 +684,7 @@ export default function Settings() {
           </div>
         )}
         {mode === 'all' && (
-          <p className="text-xs text-gray-400 pl-1">This webhook will receive all event types.</p>
+          <p className="text-xs text-gray-400 pl-1">Ten webhook będzie odbierał wszystkie typy zdarzeń.</p>
         )}
       </div>
     );
@@ -901,8 +901,7 @@ export default function Settings() {
           </p>
 
           <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-4">
-            <strong>Password loss:</strong> if you encrypt a backup and lose the password, the file cannot be decrypted — your data is
-            unrecoverable from that file. The optional hint is stored in the file in plain text; it is not a secret.
+            <strong>Utrata hasła:</strong> jeśli zaszyfrujesz kopię i utracisz hasło, pliku nie będzie można odszyfrować, a danych z tej kopii nie da się odzyskać. Opcjonalna podpowiedź jest zapisywana w pliku jako zwykły tekst i nie jest tajna.
           </div>
 
           <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">Ustawienia kopii</h3>
@@ -924,14 +923,14 @@ export default function Settings() {
             </label>
             {!backupCfg.encrypt_backups && (
               <p className="text-xs text-amber-700 dark:text-amber-400">
-                Unencrypted backups are readable by anyone with the file. Download, Run backup now, and scheduled backups will not use encryption.
+                Niezaszyfrowaną kopię może odczytać każda osoba mająca dostęp do pliku. Pobieranie, ręczne uruchamianie kopii i kopie zaplanowane nie będą korzystać z szyfrowania.
               </p>
             )}
             {backupCfg.encrypt_backups && (
               <div className="space-y-2 max-w-md">
                 {backupMeta.backup_encryption_configured && (
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    A password is already saved. Leave the fields blank to keep it, or enter a new password to replace it.
+                    Hasło jest już zapisane. Pozostaw pola puste, aby je zachować, albo wpisz nowe hasło, aby je zastąpić.
                   </p>
                 )}
                 <div>
@@ -949,7 +948,7 @@ export default function Settings() {
                 </div>
                 <div>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                    Password hint (optional, stored in plain text in each .qbk)
+                    Podpowiedź hasła (opcjonalna, zapisywana jawnie w każdym pliku .qbk)
                   </label>
                   <input
                     type="text"
@@ -978,7 +977,7 @@ export default function Settings() {
                 <div className="space-y-3 sm:border-l-2 border-gray-200 dark:border-gray-600 sm:pl-3">
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Cron (minute hour day month day-of-week, UTC)
+                      Cron (minuta godzina dzień miesiąc dzień-tygodnia, UTC)
                     </label>
                     <input
                       className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
@@ -990,9 +989,9 @@ export default function Settings() {
                   {!backupMeta.local_disk_available && (
                     <p className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
                       Zapisywanie kopii na serwerze wymaga ustawienia w środowisku wdrożeniowym{' '}
-                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> and a persistent{' '}
-                      <code className="text-[11px]">backups</code> folder (Docker Compose in this repo does). On hosts without that, use{' '}
-                      <strong>POST to webhook</strong> below.
+                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> oraz trwałego{' '}
+                      folderu <code className="text-[11px]">backups</code> (Docker Compose z tego repozytorium go zapewnia). Na hostach bez trwałego dysku użyj{' '}
+                      poniższej opcji <strong>POST do webhooka</strong>.
                     </p>
                   )}
                   <label className={`flex items-center gap-2 ${backupMeta.local_disk_available ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
@@ -1006,7 +1005,7 @@ export default function Settings() {
                   </label>
                   <div>
                     <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
-                      Folder (under the app directory, default <code className="text-[11px]">backups</code>)
+                      Folder (w katalogu aplikacji, domyślnie <code className="text-[11px]">backups</code>)
                     </label>
                     <input
                       className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600 disabled:opacity-50"
@@ -1017,7 +1016,7 @@ export default function Settings() {
                     />
                     {backupMeta.local_disk_available && backupMeta.local_backup_resolved && (
                       <p className="text-xs text-gray-400 mt-1 break-all">
-                        Resolves to: {backupMeta.local_backup_resolved}
+                        Ścieżka docelowa: {backupMeta.local_backup_resolved}
                       </p>
                     )}
                   </div>
@@ -1030,7 +1029,7 @@ export default function Settings() {
                     <span>Wyślij plik kopii metodą POST na adres webhooka</span>
                   </label>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Webhook URL</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Adres webhooka</label>
                     <input
                       type="url"
                       className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
@@ -1040,7 +1039,7 @@ export default function Settings() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Authorization header (optional)</label>
+                    <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Nagłówek Authorization (opcjonalny)</label>
                     <input
                       type="text"
                       name="backup_webhook_authorization"
@@ -1059,7 +1058,7 @@ export default function Settings() {
             </div>
 
             <Button size="sm" disabled={backupSaving} onClick={saveBackupSettings}>
-              {backupSaving ? 'Saving…' : 'Zapisz ustawienia'}
+              {backupSaving ? 'Zapisywanie…' : 'Zapisz ustawienia'}
             </Button>
           </div>
 
@@ -1070,7 +1069,7 @@ export default function Settings() {
             Pobierz, uruchom lub przywróć
           </h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-            Uses encryption and schedule options from <strong>Ustawienia kopii</strong> above. Zapisz ustawienia before downloading if you changed them.
+            Pobieranie korzysta z opcji szyfrowania i harmonogramu z sekcji <strong>Ustawienia kopii</strong> powyżej. Jeśli je zmieniono, zapisz ustawienia przed pobraniem.
           </p>
           <div className="space-y-4 mb-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -1130,13 +1129,13 @@ export default function Settings() {
                     URL.revokeObjectURL(a.href);
                     notify({ type: 'success', message: 'Kopia zapasowa pobrana' });
                   } catch (e) {
-                    notify({ type: 'error', message: e.message || 'Download failed' });
+                    notify({ type: 'error', message: e.message || 'Pobieranie nie powiodło się.' });
                   } finally {
                     setBackupDownloadBusy(false);
                   }
                 }}
               >
-                {backupDownloadBusy ? 'Preparing…' : 'Download backup'}
+                {backupDownloadBusy ? 'Przygotowywanie…' : 'Pobierz kopię'}
               </Button>
             </div>
 
@@ -1150,11 +1149,11 @@ export default function Settings() {
                   try {
                     const r = await api.post('/settings/backup/run', {});
                     const parts = [];
-                    if (r.local_path) parts.push(`Saved ${r.local_path}`);
-                    if (r.webhook_ok) parts.push('Webhook sent');
-                    if (r.webhook_error) parts.push(`Webhook error: ${r.webhook_error}`);
+                    if (r.local_path) parts.push(`Zapisano ${r.local_path}`);
+                    if (r.webhook_ok) parts.push('Webhook wysłany');
+                    if (r.webhook_error) parts.push(`Błąd webhooka: ${r.webhook_error}`);
                     if (r.local_skipped) parts.push(r.local_skipped);
-                    notify({ type: 'success', message: parts.join(' · ') || 'Backup completed' });
+                    notify({ type: 'success', message: parts.join(' · ') || 'Kopia zakończona' });
                   } catch (e) {
                     notify({ type: 'error', message: e.message });
                   } finally {
@@ -1162,14 +1161,14 @@ export default function Settings() {
                   }
                 }}
               >
-                {backupRunning ? 'Running…' : 'Run backup now'}
+                {backupRunning ? 'Uruchamianie…' : 'Uruchom kopię teraz'}
               </Button>
             </div>
 
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-              <p className="text-sm font-medium mb-2">Restore from file</p>
+              <p className="text-sm font-medium mb-2">Przywróć z pliku</p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
-                Restoring replaces the entire database. After you choose a file, we show what is in the backup before you enter a password (if encrypted).
+                Przywracanie zastępuje całą bazę danych. Po wybraniu pliku pokażemy zawartość kopii przed podaniem hasła, jeśli plik jest zaszyfrowany.
               </p>
               <div className="flex items-stretch gap-2 mb-2">
                 <FileUploadArea
@@ -1186,7 +1185,7 @@ export default function Settings() {
                   {restoreFile ? (
                     <span className="truncate text-gray-900 dark:text-gray-100">{restoreFile.name}</span>
                   ) : (
-                    <span className="text-gray-500 dark:text-gray-400">Choose backup file (.qbk)</span>
+                    <span className="text-gray-500 dark:text-gray-400">Wybierz plik kopii (.qbk)</span>
                   )}
                 </FileUploadArea>
                 {restoreFile ? (
@@ -1195,7 +1194,7 @@ export default function Settings() {
                     size="sm"
                     variant="outline"
                     className="shrink-0 px-3"
-                    title="Remove file"
+                    title="Usuń plik"
                     disabled={restoreMetaBusy || restorePreviewBusy || restoreExecuteBusy}
                     onClick={clearRestoreWizard}
                   >
@@ -1205,37 +1204,37 @@ export default function Settings() {
               </div>
 
               {restoreMetaBusy && (
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Reading backup…</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Odczytywanie kopii…</p>
               )}
 
               {restoreMeta && !restoreMetaBusy && !restorePreview && (
                 <div className="rounded-lg border border-gray-200 dark:border-gray-600 p-3 text-sm space-y-3 mb-3 bg-gray-50 dark:bg-gray-900/40">
                   {restoreMeta.password_hint ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Hint: <span className="font-mono">{restoreMeta.password_hint}</span>
+                      Podpowiedź: <span className="font-mono">{restoreMeta.password_hint}</span>
                     </p>
                   ) : null}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">This backup</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Ta kopia</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <li>Backed up: {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString() : '—'}</li>
-                        <li>Leads: {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
-                        <li>Inboxes: {restoreMeta.backup_preview?.inbox_count ?? '—'}</li>
-                        <li>Campaigns: {restoreMeta.backup_preview?.campaign_count ?? '—'}</li>
-                        <li>Users: {restoreMeta.backup_preview?.user_count ?? '—'}</li>
-                        <li>Admins: {(restoreMeta.backup_preview?.admin_emails || []).join(', ') || '—'}</li>
-                        <li>Encrypted: {restoreMeta.encrypted ? 'yes' : 'no'}</li>
+                        <li>Data kopii: {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString() : '—'}</li>
+                        <li>Kontakty: {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
+                        <li>Skrzynki: {restoreMeta.backup_preview?.inbox_count ?? '—'}</li>
+                        <li>Kampanie: {restoreMeta.backup_preview?.campaign_count ?? '—'}</li>
+                        <li>Użytkownicy: {restoreMeta.backup_preview?.user_count ?? '—'}</li>
+                        <li>Administratorzy: {(restoreMeta.backup_preview?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>Szyfrowana: {restoreMeta.encrypted ? 'tak' : 'nie'}</li>
                       </ul>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Current database (will be replaced)</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Bieżąca baza danych (zostanie zastąpiona)</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <li>Leads: {restoreMeta.current_database?.lead_count ?? '—'}</li>
-                        <li>Inboxes: {restoreMeta.current_database?.inbox_count ?? '—'}</li>
-                        <li>Campaigns: {restoreMeta.current_database?.campaign_count ?? '—'}</li>
-                        <li>Users: {restoreMeta.current_database?.user_count ?? '—'}</li>
-                        <li>Admins: {(restoreMeta.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>Kontakty: {restoreMeta.current_database?.lead_count ?? '—'}</li>
+                        <li>Skrzynki: {restoreMeta.current_database?.inbox_count ?? '—'}</li>
+                        <li>Kampanie: {restoreMeta.current_database?.campaign_count ?? '—'}</li>
+                        <li>Użytkownicy: {restoreMeta.current_database?.user_count ?? '—'}</li>
+                        <li>Administratorzy: {(restoreMeta.current_database?.admin_emails || []).join(', ') || '—'}</li>
                       </ul>
                     </div>
                   </div>
@@ -1316,40 +1315,40 @@ export default function Settings() {
 
               {restorePreview && (
                 <div className="rounded-lg border border-gray-200 dark:border-gray-600 p-3 text-sm space-y-3 mb-3 bg-gray-50 dark:bg-gray-900/40">
-                  <p className="font-medium text-gray-900 dark:text-gray-100">Verified — confirm restore</p>
+                  <p className="font-medium text-gray-900 dark:text-gray-100">Zweryfikowano — potwierdź przywracanie</p>
                   {restorePreview.password_hint ? (
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Hint: <span className="font-mono">{restorePreview.password_hint}</span>
+                      Podpowiedź: <span className="font-mono">{restorePreview.password_hint}</span>
                     </p>
                   ) : null}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Backup snapshot</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Zawartość kopii</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <li>Backed up: {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString() : '—'}</li>
-                        <li>Leads: {restorePreview.backup?.lead_count ?? '—'}</li>
-                        <li>Inboxes: {restorePreview.backup?.inbox_count ?? '—'}</li>
-                        <li>Campaigns: {restorePreview.backup?.campaign_count ?? '—'}</li>
-                        <li>Users: {restorePreview.backup?.user_count ?? '—'}</li>
-                        <li>Admins: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
-                        <li>Encrypted: {restorePreview.backup?.encrypted ? 'yes' : 'no'}</li>
+                        <li>Data kopii: {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString() : '—'}</li>
+                        <li>Kontakty: {restorePreview.backup?.lead_count ?? '—'}</li>
+                        <li>Skrzynki: {restorePreview.backup?.inbox_count ?? '—'}</li>
+                        <li>Kampanie: {restorePreview.backup?.campaign_count ?? '—'}</li>
+                        <li>Użytkownicy: {restorePreview.backup?.user_count ?? '—'}</li>
+                        <li>Administratorzy: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>Szyfrowana: {restorePreview.backup?.encrypted ? 'tak' : 'nie'}</li>
                       </ul>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Current database (will be replaced)</p>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">Bieżąca baza danych (zostanie zastąpiona)</p>
                       <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
-                        <li>Leads: {restorePreview.current_database?.lead_count ?? '—'}</li>
-                        <li>Inboxes: {restorePreview.current_database?.inbox_count ?? '—'}</li>
-                        <li>Campaigns: {restorePreview.current_database?.campaign_count ?? '—'}</li>
-                        <li>Users: {restorePreview.current_database?.user_count ?? '—'}</li>
-                        <li>Admins: {(restorePreview.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>Kontakty: {restorePreview.current_database?.lead_count ?? '—'}</li>
+                        <li>Skrzynki: {restorePreview.current_database?.inbox_count ?? '—'}</li>
+                        <li>Kampanie: {restorePreview.current_database?.campaign_count ?? '—'}</li>
+                        <li>Użytkownicy: {restorePreview.current_database?.user_count ?? '—'}</li>
+                        <li>Administratorzy: {(restorePreview.current_database?.admin_emails || []).join(', ') || '—'}</li>
                       </ul>
                     </div>
                   </div>
                   {(restorePreview.current_database?.lead_count > 0 ||
                     restorePreview.current_database?.user_count > 0) && (
                     <div className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded px-2 py-2">
-                      You are about to overwrite existing data. Download a backup of your current state first if you need to keep it.
+                      Za chwilę nadpiszesz istniejące dane. Jeśli chcesz zachować bieżący stan, najpierw pobierz jego kopię.
                       <Button
                         size="sm"
                         variant="outline"
@@ -1361,7 +1360,7 @@ export default function Settings() {
                     </div>
                   )}
                   <p className="text-xs text-red-700 dark:text-red-400">
-                    This cannot be undone. Encrypted backups are useless without the password.
+                    Tej operacji nie można cofnąć. Zaszyfrowana kopia jest bezużyteczna bez hasła.
                   </p>
                   <Button
                     size="sm"
@@ -1369,7 +1368,7 @@ export default function Settings() {
                     disabled={restoreExecuteBusy}
                     onClick={async () => {
                       const ok = await confirm(
-                        'Replace the live database with this backup? This permanently deletes current data in the database.',
+                        'Zastąpić bieżącą bazę danych tą kopią? Obecne dane w bazie zostaną trwale usunięte.',
                       );
                       if (!ok) return;
                       setRestoreExecuteBusy(true);
@@ -1377,7 +1376,7 @@ export default function Settings() {
                         await api.post('/settings/backup/restore/execute', {
                           restore_token: restorePreview.restore_token,
                         });
-                        notify({ type: 'success', message: 'Restore completed. Reloading…' });
+                        notify({ type: 'success', message: 'Przywracanie zakończone. Ponowne ładowanie…' });
                       } catch (e) {
                         notify({ type: 'error', message: e.message });
                       } finally {
@@ -1385,7 +1384,7 @@ export default function Settings() {
                       }
                     }}
                   >
-                    {restoreExecuteBusy ? 'Restoring…' : 'Confirm and restore'}
+                    {restoreExecuteBusy ? 'Przywracanie…' : 'Potwierdź i przywróć'}
                   </Button>
                 </div>
               )}
@@ -1399,10 +1398,9 @@ export default function Settings() {
         {activeTab === 'features' && (
           <>
         <section id="settings-ai" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">AI Features</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Funkcje AI</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Each AI feature can use a different provider and model. Configure the provider and
-            API key first — the available models will load automatically in the background.
+            Każda funkcja AI może korzystać z innego dostawcy i modelu. Najpierw skonfiguruj dostawcę i klucz API — dostępne modele zostaną automatycznie wczytane w tle.
           </p>
 
           {Object.values(aiFeatures).map(feature => {
@@ -1458,7 +1456,7 @@ export default function Settings() {
                       onChange={e => {
                         const next = e.target.checked;
                         if (next && !feature.connection_tested) {
-                          notify({ type: 'error', message: 'Test the connection successfully before enabling this feature.' });
+                          notify({ type: 'error', message: 'Przed włączeniem tej funkcji wykonaj poprawny test połączenia.' });
                           return;
                         }
                         // update state without marking dirty — enabled auto-saves immediately
@@ -1523,7 +1521,7 @@ export default function Settings() {
                       </label>
                       <input
                         type="password"
-                        placeholder={feature.api_key_set ? `Saved key: ${feature.api_key_masked}` : 'Enter your API key'}
+                        placeholder={feature.api_key_set ? `Zapisany klucz: ${feature.api_key_masked}` : 'Wpisz klucz API'}
                         className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                         value={feature.api_key || ''}
                         onChange={e => setFeature({ api_key: e.target.value, connection_tested: false })}
@@ -1594,7 +1592,7 @@ export default function Settings() {
                         !!feature.api_key
                       );
                       return aiFeatDirty ? (
-                        <p className="text-xs text-amber-600 font-medium">⚠ Unsaved changes — click Save to apply</p>
+                        <p className="text-xs text-amber-600 font-medium">⚠ Niezapisane zmiany — kliknij Zapisz, aby zastosować</p>
                       ) : null;
                     })()}
                     <div className="flex items-center gap-3 flex-wrap">
@@ -1607,14 +1605,14 @@ export default function Settings() {
                       >
                         {verifying ? 'Testowanie…' : feature.connection_tested ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
                       </Button>
-                      <Button size="sm" onClick={() => saveAiFeature(fid)}>Save</Button>
+                      <Button size="sm" onClick={() => saveAiFeature(fid)}>Zapisz</Button>
                       {verifyResult && !verifyResult.ok && (
                         <span className="text-sm font-medium text-red-500">
                           ✗ {verifyResult.error}
                         </span>
                       )}
                       {!feature.connection_tested && (
-                        <span className="text-xs text-amber-600">Test connection before enabling</span>
+                        <span className="text-xs text-amber-600">Przetestuj połączenie przed włączeniem</span>
                       )}
                     </div>
                     </div>
@@ -1625,25 +1623,25 @@ export default function Settings() {
           })}
 
           {Object.keys(aiFeatures).length === 0 && (
-            <p className="text-sm text-gray-400 italic">Loading AI features…</p>
+            <p className="text-sm text-gray-400 italic">Wczytywanie funkcji AI…</p>
           )}
 
         </section>
 
         <section id="settings-other" className="mb-10 scroll-mt-6">
-          <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">Other</h2>
+          <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">Inne</h2>
           <p className="mb-6 text-xs text-gray-500 dark:text-gray-400">
-            Email notifications and lead verification — optional additions to your workflow.
+            Powiadomienia e-mail i weryfikacja kontaktów — opcjonalne elementy procesu.
           </p>
 
           <div className="mb-8">
-            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Notifications</h3>
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Powiadomienia</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
-              View your in-app notification history and manage email delivery preferences.
+              Przeglądaj historię powiadomień w aplikacji i zarządzaj preferencjami dostarczania e-mail.
             </p>
             <Card className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Notification center</h4>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">Centrum powiadomień</h4>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {notifConfig.enabled
                     ? 'Powiadomienia e-mail są włączone. Kliknij, aby zobaczyć historię i preferencje.'
@@ -1657,7 +1655,7 @@ export default function Settings() {
           </div>
 
           <div>
-            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Email verification</h3>
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Weryfikacja e-mail</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
               Automatycznie weryfikuj nowe kontakty po dodaniu ich do kampanii.
             </p>
@@ -1671,45 +1669,45 @@ export default function Settings() {
           <>
         {/* ──────────────── API Keys ──────────────── */}
         <section id="settings-api-keys" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">API Keys</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Klucze API</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Create keys to access the API programmatically. The full key is shown only once — copy it immediately.
+            Twórz klucze do programistycznego dostępu do API. Pełny klucz jest wyświetlany tylko raz — skopiuj go od razu.
           </p>
 
           {/* One-time key display */}
           {createdKey && (
             <Card className="mb-4 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
-              <h3 className="text-sm font-semibold mb-1 text-green-700 dark:text-green-400">New API Key Created</h3>
-              <p className="text-xs text-gray-500 mb-2">Copy this key now — you won't be able to see it again.</p>
+              <h3 className="text-sm font-semibold mb-1 text-green-700 dark:text-green-400">Utworzono nowy klucz API</h3>
+              <p className="text-xs text-gray-500 mb-2">Skopiuj ten klucz teraz — później nie będzie można wyświetlić go ponownie.</p>
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs bg-white dark:bg-gray-800 border rounded p-2 break-all select-all">{createdKey}</code>
-                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Copied!' }); }}>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Skopiowano!' }); }}>
                   Copy
                 </Button>
               </div>
-              <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>Dismiss</Button>
+              <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>Ukryj</Button>
             </Card>
           )}
 
           {/* Create key form */}
           <Card className="mb-4">
-            <h3 className="text-sm font-semibold mb-3">Create API Key</h3>
+            <h3 className="text-sm font-semibold mb-3">Utwórz klucz API</h3>
             <div className="flex gap-2 items-end">
               <div className="flex-1">
-                <label className="text-xs text-gray-500">Name</label>
+                <label className="text-xs text-gray-500">Nazwa</label>
                 <input
                   type="text"
-                  placeholder="e.g. CI/CD Pipeline"
+                  placeholder="np. Pipeline CI/CD"
                   className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newKeyName}
                   onChange={e => setNewKeyName(e.target.value)}
                 />
               </div>
               <div className="w-32">
-                <label className="text-xs text-gray-500">Expires (days)</label>
+                <label className="text-xs text-gray-500">Wygasa po (dni)</label>
                 <input
                   type="number"
-                  placeholder="Never"
+                  placeholder="Nigdy"
                   min="1"
                   className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newKeyExpiry}
@@ -1722,7 +1720,7 @@ export default function Settings() {
 
           {/* Existing keys */}
           {apiKeys.length === 0 && (
-            <p className="text-sm text-gray-400 italic">No API keys yet.</p>
+            <p className="text-sm text-gray-400 italic">Brak kluczy API.</p>
           )}
           {apiKeys.length > 0 && (
             <div className="space-y-2">
@@ -1732,11 +1730,11 @@ export default function Settings() {
                     <span className="text-sm font-medium">{k.name}</span>
                     <span className="ml-2 text-xs text-gray-400">{k.prefix}•••</span>
                     <span className="ml-2 text-xs text-gray-400">
-                      Created {new Date(k.created_at).toLocaleDateString()}
-                      {k.expires_at && <> · Expires {new Date(k.expires_at).toLocaleDateString()}</>}
+                      Utworzono {new Date(k.created_at).toLocaleDateString()}
+                      {k.expires_at && <> · wygasa {new Date(k.expires_at).toLocaleDateString()}</>}
                     </span>
                   </div>
-                  <Button size="sm" variant="danger" onClick={() => revokeApiKey(k.id)}>Revoke</Button>
+                  <Button size="sm" variant="danger" onClick={() => revokeApiKey(k.id)}>Unieważnij</Button>
                 </Card>
               ))}
             </div>
@@ -1747,13 +1745,12 @@ export default function Settings() {
         <section id="settings-webhooks" className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooks</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Register one or more outbound webhook endpoints. Each webhook can subscribe to specific event types.
-            When an event occurs every matching active webhook receives a POST request.
+            Zarejestruj jeden lub więcej wychodzących endpointów webhook. Każdy webhook może subskrybować wybrane typy zdarzeń. Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.
           </p>
 
           {/* New webhook form */}
           <Card className="mb-4">
-            <h3 className="text-sm font-semibold mb-3">Add Webhook</h3>
+            <h3 className="text-sm font-semibold mb-3">Dodaj webhook</h3>
             <div className="space-y-3">
               <input
                 type="text"
@@ -1765,14 +1762,14 @@ export default function Settings() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder="Bearer secret (optional)"
+                  placeholder="Sekret Bearer (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.secret}
                   onChange={e => setNewWh(p => ({ ...p, secret: e.target.value }))}
                 />
                 <input
                   type="text"
-                  placeholder="Description (optional)"
+                  placeholder="Opis (opcjonalny)"
                   className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={newWh.description}
                   onChange={e => setNewWh(p => ({ ...p, description: e.target.value }))}
@@ -1782,13 +1779,13 @@ export default function Settings() {
                 events={newWh.events}
                 onChange={evts => setNewWh(p => ({ ...p, events: evts }))}
               />
-              <Button size="sm" onClick={createWebhook}>Add Webhook</Button>
+              <Button size="sm" onClick={createWebhook}>Dodaj webhook</Button>
             </div>
           </Card>
 
           {/* Existing webhooks */}
           {webhooks.length === 0 && (
-            <p className="text-sm text-gray-400 italic">No webhooks configured yet.</p>
+            <p className="text-sm text-gray-400 italic">Nie skonfigurowano jeszcze webhooków.</p>
           )}
           {webhooks.map(wh => (
             <Card key={wh.id} className="mb-3">
@@ -1804,14 +1801,14 @@ export default function Settings() {
                   <div className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Bearer secret"
+                      placeholder="Sekret Bearer"
                       className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                       value={editForm.secret}
                       onChange={e => setEditForm(p => ({ ...p, secret: e.target.value }))}
                     />
                     <input
                       type="text"
-                      placeholder="Description"
+                      placeholder="Opis"
                       className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                       value={editForm.description}
                       onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
@@ -1822,8 +1819,8 @@ export default function Settings() {
                     onChange={evts => setEditForm(p => ({ ...p, events: evts }))}
                   />
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => saveEdit(wh.id)}>Save</Button>
-                    <Button size="sm" variant="outline" onClick={cancelEdit}>Cancel</Button>
+                    <Button size="sm" onClick={() => saveEdit(wh.id)}>Zapisz</Button>
+                    <Button size="sm" variant="outline" onClick={cancelEdit}>Anuluj</Button>
                   </div>
                 </div>
               ) : (
@@ -1833,7 +1830,7 @@ export default function Settings() {
                     <div className="flex items-center gap-2">
                       <span
                         className={`inline-block w-2 h-2 rounded-full ${wh.active ? 'bg-green-500' : 'bg-gray-300'}`}
-                        title={wh.active ? 'Active' : 'Inactive'}
+                        title={wh.active ? 'Aktywny' : 'Nieaktywny'}
                       />
                       <span className="text-sm font-medium truncate max-w-xs" title={wh.url}>{wh.url}</span>
                     </div>
@@ -1841,12 +1838,12 @@ export default function Settings() {
                       <Button size="sm" variant="ghost" onClick={() => toggleActive(wh.id, wh.active)}>
                         Enable
                       </Button>
-                      <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edit</Button>
-                      <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Test</Button>
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edytuj</Button>
+                      <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Testuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => { setTestEventWh(testEventWh === wh.id ? null : wh.id); setTestEventType(''); setTestEventResult(null); }}>
                         Simulate Event
                       </Button>
-                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>Delete</Button>
+                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>Usuń</Button>
                     </div>
                   </div>
                   {wh.description && <p className="text-xs text-gray-500 mb-1">{wh.description}</p>}
@@ -1862,14 +1859,14 @@ export default function Settings() {
                   {/* Simulate event panel */}
                   {testEventWh === wh.id && (
                     <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 border rounded-lg space-y-2">
-                      <p className="text-xs font-semibold text-gray-600">Simulate a specific event to see the exact payload:</p>
+                      <p className="text-xs font-semibold text-gray-600">Zasymuluj konkretne zdarzenie, aby zobaczyć dokładny payload:</p>
                       <div className="flex items-center gap-2">
                         <select
                           className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 flex-1"
                           value={testEventType}
                           onChange={e => { setTestEventType(e.target.value); setTestEventResult(null); }}
                         >
-                          <option value="">— Select event type —</option>
+                          <option value="">— Wybierz typ zdarzenia —</option>
                           {eventTypes.map(evt => (
                             <option key={evt} value={evt}>{EVENT_LABELS[evt] || evt}</option>
                           ))}
@@ -1880,7 +1877,7 @@ export default function Settings() {
                       </div>
                       {testEventResult && (
                         <div className="mt-2">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Payload sent:</p>
+                          <p className="text-xs font-medium text-gray-500 mb-1">Wysłany payload:</p>
                           <pre className="text-xs bg-white dark:bg-gray-900 border rounded p-2 overflow-auto max-h-48 font-mono">
                             {JSON.stringify(testEventResult, null, 2)}
                           </pre>
@@ -1896,48 +1893,48 @@ export default function Settings() {
 
         {/* ──────────────── MCP (AI agents) ──────────────── */}
         <section id="settings-mcp" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (AI agents)</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (agenci AI)</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Create an API key under API keys, then point Cursor at it with
+            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Utwórz klucz API w sekcji Klucze API, a następnie skonfiguruj Cursor poleceniem
             <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">npx mcp-remote</code>
-            (Node 18+). No Python install on your machine.
+            (Node 18+). Instalacja Pythona na lokalnym komputerze nie jest wymagana.
           </p>
           <Card className="mb-4 space-y-3">
             <h3 className="text-sm font-semibold">1. Endpoint</h3>
             <p className="text-xs text-gray-500">
-              Streamable HTTP MCP URL (same auth as the REST API):
+              Adres Streamable HTTP MCP (to samo uwierzytelnianie co REST API):
             </p>
             {mcpSetup?.mcp_http_url ? (
               <code className="block text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-2 break-all font-mono">{mcpSetup.mcp_http_url}</code>
             ) : (
-              <p className="text-xs text-amber-600">Could not load — use <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
+              <p className="text-xs text-amber-600">Nie udało się wczytać — użyj <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
             )}
             <p className="text-xs text-gray-500">
-              For plain HTTP (local dev only), add
+              Dla zwykłego HTTP (tylko lokalny development) dodaj
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--allow-http</code>
-              to the <code className="text-[10px] font-mono">mcp-remote</code> args after the URL.
+              do argumentów <code className="text-[10px] font-mono">mcp-remote</code> po adresie URL.
             </p>
-            <h3 className="text-sm font-semibold pt-2">2. Tools exposed to the agent</h3>
+            <h3 className="text-sm font-semibold pt-2">2. Narzędzia udostępniane agentowi</h3>
             <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-5 space-y-1">
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">list_leads</code> — search / filter (q, status, bad_only, interest; stack)</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">get_lead</code> — one lead by id</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">update_lead</code> — patch name, status, custom_data</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">delete_lead</code> — remove a lead</li>
-              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">add_campaign_leads</code> — bulk add to a campaign</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">list_leads</code> — wyszukiwanie / filtrowanie (q, status, bad_only, interest; stack)</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">get_lead</code> — jeden kontakt po ID</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">update_lead</code> — aktualizacja name, status, custom_data</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">delete_lead</code> — usunięcie kontaktu</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">add_campaign_leads</code> — zbiorcze dodanie do kampanii</li>
             </ul>
-            <h3 className="text-sm font-semibold pt-2">3. Cursor MCP config</h3>
+            <h3 className="text-sm font-semibold pt-2">3. Konfiguracja MCP w Cursorze</h3>
             <p className="text-xs text-gray-500">
-              Merge the JSON into your MCP settings. Replace
+              Połącz ten JSON z ustawieniami MCP. Zastąp
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">QUICKLY_MCP_API_KEY</code>
-              with a key from the API keys section. To use a JWT instead, use
+              kluczem z sekcji Klucze API. Aby użyć JWT, użyj
               <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--header</code>
               <code className="text-[10px] font-mono">{'Authorization:${QUICKLY_MCP_AUTH}'}</code>
-              {' '}and set the env value to <code className="text-[10px] font-mono">Bearer …</code>
-              (same as REST). App base URL:
+              {' '}i ustaw wartość zmiennej środowiskowej na <code className="text-[10px] font-mono">Bearer …</code>
+              (tak jak w REST). Bazowy URL aplikacji:
               {mcpSetup?.api_base_url ? (
                 <span className="ml-1 font-mono text-[11px]">{mcpSetup.api_base_url}</span>
               ) : (
-                <span className="ml-1 text-amber-600">(load failed)</span>
+                <span className="ml-1 text-amber-600">(nie udało się wczytać)</span>
               )}
             </p>
             {mcpSetup?.cursor_mcp_fragment && (
@@ -1950,7 +1947,7 @@ export default function Settings() {
                   variant="outline"
                   onClick={() => {
                     navigator.clipboard.writeText(JSON.stringify(mcpSetup.cursor_mcp_fragment, null, 2));
-                    notify({ type: 'success', message: 'MCP fragment copied — merge into your mcp.json' });
+                    notify({ type: 'success', message: 'Fragment MCP skopiowany — połącz go z plikiem mcp.json' });
                   }}
                 >
                   Copy MCP fragment
