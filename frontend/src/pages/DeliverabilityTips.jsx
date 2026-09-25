@@ -17,24 +17,24 @@ const sections = [
     icon: RiShieldCheckLine,
     rules: [
       {
-        title: 'Verify your sending domain',
-        body: 'Your domain needs four authentication records so mail servers trust your emails. SPF and DKIM are required.',
-        tag: 'Required',
+        title: 'Zweryfikuj domenę nadawczą',
+        body: 'Domena nadawcza potrzebuje poprawnych rekordów uwierzytelniających, aby serwery pocztowe mogły ufać wiadomościom. SPF i DKIM są wymagane.',
+        tag: 'Wymagane',
       },
       {
-        title: 'Use a separate domain for cold outreach',
-        body: 'Never send cold emails from your main business domain. Use a separate domain or subdomain just for outreach. If something goes wrong — high bounces, spam complaints — only that domain takes the hit. Your main domain stays clean.',
-        tag: 'Required',
+        title: 'Używaj osobnej domeny do cold outreach',
+        body: 'Nie wysyłaj cold mailingu z głównej domeny firmowej. Użyj osobnej domeny lub subdomeny przeznaczonej tylko do outreachu. W razie wysokiej liczby odbić lub skarg reputacja głównej domeny pozostanie odizolowana.',
+        tag: 'Wymagane',
       },
       {
-        title: 'Warm up new inboxes',
-        body: 'Any new inbox must be warmed up before sending to real leads. Go to your inbox settings, open the inbox you want, and enable the warm-up toggle. Warming up gradually builds your sending reputation over 2-4 weeks. Skipping this is the most common reason emails land in spam.',
-        tag: 'Required',
+        title: 'Rozgrzewaj nowe skrzynki',
+        body: 'Nową skrzynkę należy rozgrzać przed rozpoczęciem regularnej wysyłki. W ustawieniach skrzynki włącz stopniowe zwiększanie limitu. Rozgrzewanie przez 2–4 tygodnie pomaga budować reputację nadawcy i ograniczać trafianie wiadomości do spamu.',
+        tag: 'Wymagane',
       },
       {
-        title: 'Verify your contact list',
-        body: 'Always verify your list before launching a campaign. Go to Settings → Features → Email verification and enable it. You can connect MailTester Ninja — it\'s cheap (under $20) and gives you a very high verification limit — or set up a custom provider. Once enabled, new leads added to any campaign are verified automatically.',
-        tag: 'Recommended',
+        title: 'Zweryfikuj listę kontaktów',
+        body: 'Przed uruchomieniem kampanii zweryfikuj adresy kontaktów. W Ustawieniach włącz weryfikację e-mail i skonfiguruj obsługiwanego dostawcę. Po włączeniu tej funkcji nowe kontakty dodawane do kampanii mogą być sprawdzane automatycznie.',
+        tag: 'Zalecane',
       },
     ],
   },
@@ -44,33 +44,33 @@ const sections = [
     icon: RiFileTextLine,
     rules: [
       {
-        title: 'Plain text vs HTML — what you actually need',
-        body: 'If you are not tracking opens or clicks, send plain text. It looks personal, performs better, and avoids spam filters entirely. If you want to track opens or clicks, your email must be sent as HTML — that\'s what makes tracking technically possible. But if you\'re just starting out or sending low volume, plain text and tracking reply rates is more than enough. Compare your reply rate to industry benchmarks and go from there.',
+        title: 'Czysty tekst czy HTML — kiedy czego używać',
+        body: 'Jeśli nie śledzisz otwarć ani kliknięć, rozważ wysyłkę w czystym tekście. Jest prostsza i nie wymaga elementów HTML używanych do trackingu. Śledzenie otwarć i kliknięć wymaga HTML; przy małej skali często wystarczy mierzenie odpowiedzi.',
         tag: null,
       },
       {
-        title: 'If you do use tracking, keep the first email plain',
-        body: 'If you want open or click tracking but still want the best deliverability, send the first email in every sequence as plain text with no tracking. Follow-ups can be HTML with tracking enabled. The first email is what builds the thread — getting that one into the inbox is what matters most.',
-        tag: 'Tip',
+        title: 'Przy trackingu rozważ pierwszy e-mail w czystym tekście',
+        body: 'Jeżeli korzystasz ze śledzenia otwarć lub kliknięć, pierwszy e-mail w sekwencji może pozostać w czystym tekście bez trackingu, a kolejne wiadomości mogą używać HTML. Ogranicza to złożoność pierwszej wiadomości budującej wątek.',
+        tag: 'Wskazówka',
       },
       {
-        title: 'Write like a human',
-        body: 'Short sentences. Direct point. No buzzwords, no "I hope this email finds you well." Write the way you\'d talk to someone in person. Long paragraphs and formal language get skimmed or ignored.',
+        title: 'Pisz naturalnie i konkretnie',
+        body: 'Stosuj krótkie zdania, konkretny cel i naturalny język. Unikaj pustych formułek i długich, formalnych akapitów, które utrudniają szybkie zrozumienie wiadomości.',
         tag: null,
       },
       {
-        title: 'Personalize beyond the first name',
-        body: 'Everyone uses first name. What actually gets replies is something specific — a detail about their business, a recent post they wrote, a challenge their industry faces. The more relevant your email feels to that one person, the better.',
+        title: 'Personalizuj więcej niż tylko imię',
+        body: 'Samo imię to podstawowa personalizacja. Wykorzystuj informacje rzeczywiście związane z odbiorcą — np. kontekst firmy, obszar działalności lub konkretny problem, do którego odnosi się wiadomość.',
         tag: null,
       },
       {
-        title: 'One ask per email',
-        body: 'End every email with a single, low-commitment request. Asking someone to book a call, check your site, and reply to a question all at once reduces the chance they do any of it. Pick one.',
+        title: 'Jedno główne wezwanie do działania',
+        body: 'Zakończ wiadomość jednym, prostym wezwaniem do działania. Kilka równoległych próśb utrudnia odbiorcy podjęcie decyzji i osłabia czytelność wiadomości.',
         tag: null,
       },
       {
-        title: 'No attachments',
-        body: 'Attachments on cold emails are a near-guaranteed spam trigger. If you need to share something, link to it.',
+        title: 'Unikaj załączników w pierwszym kontakcie',
+        body: 'Załączniki mogą zwiększać ryzyko filtracji i obniżać zaufanie do pierwszej wiadomości. Jeśli musisz udostępnić materiał, rozważ bezpieczny link.',
         tag: null,
       },
     ],
@@ -81,23 +81,23 @@ const sections = [
     icon: RiMailSendLine,
     rules: [
       {
-        title: 'Send during recipient business hours',
-        body: 'Send emails when your recipient is likely at their desk, not when it\'s convenient for you. An email that arrives at 3am sits under a pile of others by the time they wake up.',
+        title: 'Wysyłaj w godzinach pracy odbiorcy',
+        body: 'Dopasuj okno wysyłki do strefy czasowej i typowych godzin pracy odbiorcy. Wiadomość wysłana w środku nocy może zostać łatwo przeoczona.',
         tag: null,
       },
       {
-        title: '50 emails per inbox per day maximum',
-        body: 'Even with a fully warmed inbox, cap at 50 emails per day per mailbox. If you need more volume, add more inboxes rather than pushing one past its limit.',
+        title: 'Utrzymuj konserwatywny limit dzienny na skrzynkę',
+        body: 'Nawet po rozgrzaniu skrzynki utrzymuj umiarkowany dzienny wolumen. Jeśli potrzebujesz większej skali, rozdzielaj wysyłkę między skrzynki zamiast nadmiernie obciążać jedną.',
         tag: null,
       },
       {
-        title: 'Space out your sends',
-        body: 'Never blast your entire list at once. Spread emails throughout the day with random delays in between. Sending 500 emails in 10 minutes looks like automated bulk mail. Gradual sending looks human.',
+        title: 'Rozkładaj wysyłkę w czasie',
+        body: 'Nie wysyłaj całej listy jednocześnie. Rozłóż wiadomości w ciągu dnia i stosuj odstępy oraz jitter, aby ograniczyć gwałtowne skoki wolumenu.',
         tag: null,
       },
       {
-        title: 'Keep sequences to 2-3 emails',
-        body: 'More follow-ups do not mean more replies. Past the third email, response rates drop and spam complaint rates rise. Respect people\'s time.',
+        title: 'Utrzymuj krótkie sekwencje',
+        body: 'Większa liczba follow-upów nie zawsze zwiększa liczbę odpowiedzi. Ogranicz sekwencję do kilku wiadomości i przerwij ją po odpowiedzi lub wypisaniu.',
         tag: null,
       },
     ],
@@ -108,18 +108,18 @@ const sections = [
     icon: RiAlertLine,
     rules: [
       {
-        title: 'Remove bounced addresses immediately',
-        body: 'When an address bounces, it means it doesn\'t exist or can\'t receive mail. Remove it and never email it again. Keep your bounce rate under 2% — going above this triggers throttling and blocks from major mail providers. handled automatically if you enable email verification, but if you don\'t, make sure to check your bounce reports after every campaign and remove any bad addresses.',
-        tag: 'Critical',
+        title: 'Natychmiast obsługuj odbite adresy',
+        body: 'Odbicie oznacza, że adres nie przyjął wiadomości. Zatrzymaj dalszą wysyłkę do takich adresów i regularnie kontroluj poziom odbić. Weryfikacja e-mail może automatycznie ograniczać liczbę niepoprawnych adresów przed wysyłką.',
+        tag: 'Krytyczne',
       },
       {
-        title: 'Honor every unsubscribe',
-        body: 'Anyone who asks to stop receiving emails — whether they click unsubscribe or reply with "stop" or "remove me" — must be permanently removed from all campaigns. This is both a spam trigger and a legal requirement under CAN-SPAM, GDPR, and most other email laws. No exceptions. handled automatically if you have email classification enabled and use unsubscribe headers and links in the email.',
-        tag: 'Critical',
+        title: 'Respektuj każde wypisanie',
+        body: 'Każdą prośbę o zaprzestanie kontaktu należy respektować i blokować dalszą wysyłkę zgodnie z obowiązującymi zasadami oraz konfiguracją listy wykluczeń. Korzystaj z nagłówków i linków wypisania tam, gdzie są wymagane.',
+        tag: 'Krytyczne',
       },
       {
-        title: 'Track replies, not opens',
-        body: 'Reply rate is a real signal — someone actually responded. Open rates are unreliable because many apps count an open the moment an email arrives. Use reply rate as your main performance metric and compare it to industry benchmarks.',
+        title: 'Traktuj odpowiedzi jako kluczowy sygnał',
+        body: 'Wskaźnik odpowiedzi jest bezpośrednim sygnałem reakcji odbiorcy. Otwarcia mogą być zniekształcone przez mechanizmy ochrony prywatności i automatyczne pobieranie obrazów, dlatego interpretuj je ostrożnie.',
         tag: null,
       },
     ],
@@ -127,18 +127,18 @@ const sections = [
 ];
 
 const tagStyles = {
-  Required:    'bg-red-100 text-red-700 border border-red-200',
-  Critical:    'bg-red-100 text-red-700 border border-red-200',
-  Recommended: 'bg-amber-100 text-amber-700 border border-amber-200',
-  Tip:         'bg-teal-100 text-teal-700 border border-teal-200',
+  Wymagane:     'bg-red-100 text-red-700 border border-red-200',
+  Krytyczne:    'bg-red-100 text-red-700 border border-red-200',
+  Zalecane:     'bg-amber-100 text-amber-700 border border-amber-200',
+  Wskazówka:    'bg-teal-100 text-teal-700 border border-teal-200',
 };
 
 const metrics = [
-  { label: 'Bounce rate',             safe: 'Poniżej 2%',   danger: 'Powyżej 3%' },
+  { label: 'Wskaźnik odbić',          safe: 'Poniżej 2%',   danger: 'Powyżej 3%' },
   { label: 'Skargi spam',              safe: 'Poniżej 0,1%', danger: 'Powyżej 0,3%' },
   { label: 'E-maile / skrzynkę / dzień', safe: 'Do 50', danger: 'Powyżej 50' },
   { label: 'Follow-upy w sekwencji', safe: '2–3 wiadomości', danger: '4+ wiadomości' },
-  { label: 'Okres rozgrzewania', safe: '2–4 tygodnie', danger: 'Brak warmupu' },
+  { label: 'Okres rozgrzewania', safe: '2–4 tygodnie', danger: 'Brak rozgrzewania' },
 ];
 
 function Tag({ label }) {
@@ -202,20 +202,20 @@ export default function DeliverabilityTips() {
   return (
     <PageFrame
       className="sk-deliverability-page"
-      title="Deliverability Tips"
+      title="Dostarczalność"
       description="Praktyczne wskazówki poprawiające dostarczalność, reputację domeny i bezpieczeństwo wysyłki."
     >
       <div className="sk-deliverability-metrics">
-        <Metric icon="shield" title="Bounce rate" value="< 2%" detail="zalecany poziom" tone="green" />
+        <Metric icon="shield" title="Wskaźnik odbić" value="< 2%" detail="zalecany poziom" tone="green" />
         <Metric icon="send" title="Dzienny wolumen" value="≤ 50" detail="na jedną skrzynkę" tone="blue" />
-        <Metric icon="history" title="Warm-up" value="2–4 tyg." detail="dla nowych skrzynek" tone="amber" />
+        <Metric icon="history" title="Rozgrzewanie" value="2–4 tyg." detail="dla nowych skrzynek" tone="amber" />
         <Metric icon="mail" title="Follow-up" value="2–3" detail="wiadomości w sekwencji" tone="purple" />
       </div>
 
       <SectionTabs
         value={activeSection}
         onChange={setActiveSection}
-        ariaLabel="Sekcje deliverability"
+        ariaLabel="Sekcje dostarczalności"
         items={sections.map(item => ({ id: item.id, label: item.label }))}
       />
 
