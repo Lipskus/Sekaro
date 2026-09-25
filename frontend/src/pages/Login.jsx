@@ -4,7 +4,7 @@ import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { useLanguage } from '../context/LanguageContext';
 import { useDarkMode } from '../context/DarkModeContext';
 import Logo from '../redesign/Logo';
-import { RiLock2Line, RiMailLine, RiEyeLine, RiEyeOffLine, RiShieldCheckLine, RiBarChartLine, RiArrowRightLine } from 'react-icons/ri';
+import { RiLock2Line, RiMailLine, RiEyeLine, RiEyeOffLine, RiShieldCheckLine, RiBarChartLine, RiArrowRightLine, RiGlobalLine, RiSunLine, RiMoonLine, RiComputerLine, RiSendPlaneLine } from 'react-icons/ri';
 
 const BACKUP_MIN_PASSWORD_LEN = 8;
 
@@ -47,6 +47,7 @@ export default function Login() {
   });
 
   const isFirstUser = setupComplete === false;
+  const LoginThemeIcon = themePreference === 'dark' ? RiMoonLine : themePreference === 'system' ? RiComputerLine : RiSunLine;
 
   useEffect(() => {
     if (isFirstUser) return;
@@ -147,24 +148,31 @@ export default function Login() {
   return (
     <div className="sk-login-page" aria-busy={authBusy||restoreMetaBusy||restorePreviewBusy||restoreExecuteBusy}>
       <div className="sk-login-controls" aria-label="Ustawienia logowania">
-        <select
-          value={language}
-          onChange={event => setLanguage(event.target.value)}
-          aria-label="Język"
-        >
-          {languages.map(item => (
-            <option key={item.code} value={item.code}>{item.label}</option>
-          ))}
-        </select>
-        <select
-          value={themePreference}
-          onChange={event => setThemePreference(event.target.value)}
-          aria-label="Motyw"
-        >
-          <option value="light">Jasny motyw</option>
-          <option value="dark">Ciemny motyw</option>
-          <option value="system">Motyw systemowy</option>
-        </select>
+        <label className="sk-login-control sk-login-control-language">
+          <RiGlobalLine aria-hidden="true" />
+          <select
+            value={language}
+            onChange={event => setLanguage(event.target.value)}
+            aria-label="Język"
+          >
+            {languages.map(item => (
+              <option key={item.code} value={item.code}>{item.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="sk-login-control sk-login-control-theme">
+          <LoginThemeIcon aria-hidden="true" />
+          <select
+            value={themePreference}
+            onChange={event => setThemePreference(event.target.value)}
+            aria-label="Motyw"
+          >
+            <option value="light">Jasny motyw</option>
+            <option value="dark">Ciemny motyw</option>
+            <option value="system">Motyw systemowy</option>
+          </select>
+          <i className="sk-login-control-dot" aria-hidden="true" />
+        </label>
       </div>
 
       <section className="sk-login-brand-panel" aria-label="Sekaro">
@@ -197,7 +205,7 @@ export default function Login() {
             <div className="sk-login-chart-line"><b/><b/><b/><b/></div>
           </div>
           <div className="sk-login-float sk-login-float-mail"><RiMailLine /></div>
-          <div className="sk-login-float sk-login-float-send"><RiArrowRightLine /></div>
+          <div className="sk-login-float sk-login-float-send"><RiSendPlaneLine /></div>
           <div className="sk-login-float sk-login-float-chart"><RiBarChartLine /></div>
           <div className="sk-login-handwritten">Więcej<br/>możliwości<br/>w Twoich rękach</div>
         </div>
@@ -267,10 +275,13 @@ export default function Login() {
             )}
 
             {!isFirstUser && (
-              <label className="sk-login-remember">
-                <input type="checkbox" checked={rememberLogin} onChange={e => setRememberLogin(e.target.checked)} />
-                <span>Zapamiętaj login</span>
-              </label>
+              <div className="sk-login-options">
+                <label className="sk-login-remember">
+                  <input type="checkbox" checked={rememberLogin} onChange={e => setRememberLogin(e.target.checked)} />
+                  <span>Zapamiętaj mnie</span>
+                </label>
+                <span className="sk-login-forgot" aria-disabled="true" title="Odzyskiwanie hasła nie jest skonfigurowane">Nie pamiętasz hasła?</span>
+              </div>
             )}
 
             {authError && <div className="sk-login-error" role="alert">{authError}</div>}
@@ -565,7 +576,7 @@ export default function Login() {
         </div>
       </section>
 
-      <footer className="sk-login-footer">© 2026 Sekaro. Wszystkie prawa zastrzeżone.</footer>
+      <footer className="sk-login-footer">© 2025 Sekaro. Wszystkie prawa zastrzeżone.</footer>
     </div>
   );
 
