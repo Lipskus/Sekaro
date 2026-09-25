@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Card } from '../components/ui/Card';
+import { PageFrame, SectionTabs, Metric } from '../redesign/ui';
 import {
   RiShieldCheckLine,
   RiMailSendLine,
@@ -12,7 +13,7 @@ import {
 const sections = [
   {
     id: 'setup',
-    label: 'Before You Send',
+    label: 'Przed wysyłką',
     icon: RiShieldCheckLine,
     rules: [
       {
@@ -39,7 +40,7 @@ const sections = [
   },
   {
     id: 'writing',
-    label: 'Writing Emails',
+    label: 'Treść wiadomości',
     icon: RiFileTextLine,
     rules: [
       {
@@ -76,7 +77,7 @@ const sections = [
   },
   {
     id: 'sending',
-    label: 'Sending Smart',
+    label: 'Bezpieczna wysyłka',
     icon: RiMailSendLine,
     rules: [
       {
@@ -103,7 +104,7 @@ const sections = [
   },
   {
     id: 'reputation',
-    label: 'Protecting Your Reputation',
+    label: 'Reputacja nadawcy',
     icon: RiAlertLine,
     rules: [
       {
@@ -133,11 +134,11 @@ const tagStyles = {
 };
 
 const metrics = [
-  { label: 'Bounce rate',             safe: 'Under 2%',   danger: 'Above 3%' },
-  { label: 'Spam complaint rate',     safe: 'Under 0.1%', danger: 'Above 0.3%' },
-  { label: 'Emails per inbox / day',  safe: 'Up to 50',   danger: 'Above 50' },
-  { label: 'Follow-ups per sequence', safe: '2-3 emails', danger: '4+ emails' },
-  { label: 'Warm-up period',          safe: '2-4 weeks',  danger: 'Skipping it' },
+  { label: 'Bounce rate',             safe: 'Poniżej 2%',   danger: 'Powyżej 3%' },
+  { label: 'Skargi spam',              safe: 'Poniżej 0,1%', danger: 'Powyżej 0,3%' },
+  { label: 'E-maile / skrzynkę / dzień', safe: 'Do 50', danger: 'Powyżej 50' },
+  { label: 'Follow-upy w sekwencji', safe: '2–3 wiadomości', danger: '4+ wiadomości' },
+  { label: 'Okres rozgrzewania', safe: '2–4 tygodnie', danger: 'Brak warmupu' },
 ];
 
 function Tag({ label }) {
@@ -183,7 +184,7 @@ function Rule({ rule, index }) {
           </p>
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }
 
@@ -199,40 +200,27 @@ export default function DeliverabilityTips() {
   });
 
   return (
-    <div className="mx-auto min-h-0 max-w-5xl flex-1 space-y-8 overflow-y-auto p-8">
-
-      {/* Page header */}
-      <div>
-        <h1 className="text-2xl font-semibold text-gray-800 mb-1">Deliverability Tips</h1>
-        <p className="text-sm text-gray-500">
-          Best practices for landing in the inbox, getting read, and protecting your sender reputation.
-        </p>
+    <PageFrame
+      className="sk-deliverability-page"
+      title="Deliverability Tips"
+      description="Praktyczne wskazówki poprawiające dostarczalność, reputację domeny i bezpieczeństwo wysyłki."
+    >
+      <div className="sk-deliverability-metrics">
+        <Metric icon="shield" title="Bounce rate" value="< 2%" detail="zalecany poziom" tone="green" />
+        <Metric icon="send" title="Dzienny wolumen" value="≤ 50" detail="na jedną skrzynkę" tone="blue" />
+        <Metric icon="history" title="Warm-up" value="2–4 tyg." detail="dla nowych skrzynek" tone="amber" />
+        <Metric icon="mail" title="Follow-up" value="2–3" detail="wiadomości w sekwencji" tone="purple" />
       </div>
 
-      {/* Section tabs */}
-      <div className="flex flex-wrap gap-2">
-        {sections.map(s => {
-          const Icon = s.icon;
-          const active = activeSection === s.id;
-          return (
-            <button
-              key={s.id}
-              onClick={() => setActiveSection(s.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border transition-colors duration-150 ${
-                active
-                  ? 'bg-primary/10 text-primary border-primary/30'
-                  : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50 hover:text-gray-800'
-              }`}
-            >
-              <Icon size={15} />
-              {s.label}
-            </button>
-          );
-        })}
-      </div>
+      <SectionTabs
+        value={activeSection}
+        onChange={setActiveSection}
+        ariaLabel="Sekcje deliverability"
+        items={sections.map(item => ({ id: item.id, label: item.label }))}
+      />
 
       {/* Rules list */}
-      <div className="space-y-2">
+      <div className="sk-deliverability-rules">
         {section.rules.map((rule, i) => (
           <Rule key={rule.title} rule={rule} index={sectionOffsets[activeSection] + i} />
         ))}
@@ -240,10 +228,10 @@ export default function DeliverabilityTips() {
 
       {/* Quick reference table */}
       <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Quick Reference</h2>
+        <h2 className="text-base font-semibold text-gray-700 mb-3">Szybka referencja</h2>
         <div className="rounded-lg border border-gray-200 overflow-hidden">
           <div className="grid grid-cols-3 bg-gray-50 px-4 py-2.5 border-b border-gray-200">
-            {['Metric', 'Safe zone', 'Danger zone'].map(h => (
+            {['Metryka', 'Bezpiecznie', 'Ryzyko'].map(h => (
               <span key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</span>
             ))}
           </div>
