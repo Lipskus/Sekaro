@@ -584,3 +584,172 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   background:var(--sk-surface)!important;
   color:var(--sk-text);
 }
+
+
+/* Campaign list */
+.sk-campaign-summary {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:var(--sk-space-4);
+  margin-bottom:var(--sk-space-5);
+}
+.sk-campaign-summary .sk-metric {
+  min-height:128px;
+  padding:16px;
+}
+.sk-campaign-summary .sk-metric-icon {
+  width:42px;
+  height:42px;
+  margin-bottom:2px;
+}
+.sk-campaign-summary .sk-metric-value {
+  font-size:25px;
+  margin:4px 0 2px;
+}
+.sk-campaign-filterbar {
+  display:flex;
+  align-items:center;
+  gap:var(--sk-space-3);
+  padding:12px;
+  margin-bottom:var(--sk-space-3);
+  border:1px solid var(--sk-line);
+  border-radius:var(--sk-radius-lg);
+  background:var(--sk-surface);
+}
+.sk-campaign-filterbar .sk-search-input {
+  max-width:420px;
+  min-height:40px;
+}
+.sk-campaign-filter-tabs {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  min-width:0;
+}
+.sk-campaign-filter-tabs::-webkit-scrollbar{display:none}
+.sk-campaign-filter-tabs button {
+  min-height:34px;
+  border:1px solid var(--sk-line);
+  border-radius:999px;
+  padding:6px 12px;
+  background:var(--sk-surface-alt);
+  color:var(--sk-muted);
+  white-space:nowrap;
+  font-size:11px;
+  font-weight:650;
+}
+.sk-campaign-filter-tabs button:hover {
+  border-color:var(--sk-accent);
+  color:var(--sk-text);
+}
+.sk-campaign-filter-tabs button.is-active {
+  border-color:var(--sk-accent);
+  background:var(--sk-green-soft);
+  color:var(--sk-green-text);
+}
+.sk-campaign-priority-note {
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:var(--sk-space-4);
+  color:var(--sk-muted);
+  font-size:11px;
+}
+.sk-campaign-priority-note svg {color:var(--sk-green-text)}
+.sk-campaign-priority-note a {
+  margin-left:auto;
+  color:var(--sk-green-text)!important;
+  font-weight:650;
+}
+.sk-campaign-table-panel {overflow:visible}
+.sk-campaign-table .sk-campaign-name {
+  display:block;
+  max-width:340px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:var(--sk-text)!important;
+  font-weight:680;
+}
+.sk-campaign-reasons,
+.sk-campaign-cell-detail {
+  display:block;
+  margin-top:3px;
+  color:var(--sk-muted);
+  font-size:10px;
+}
+.sk-campaign-drag {
+  width:34px;
+  color:var(--sk-muted);
+  cursor:grab;
+}
+.sk-campaign-drag:active{cursor:grabbing}
+.sk-campaign-progress-cell {min-width:190px}
+.sk-campaign-progress {
+  width:160px;
+  max-width:100%;
+  height:7px;
+  margin-bottom:5px;
+  overflow:hidden;
+  border-radius:999px;
+  background:var(--sk-neutral-soft);
+}
+.sk-campaign-progress>span {
+  display:block;
+  height:100%;
+  min-width:0;
+  border-radius:inherit;
+  background:var(--sk-accent);
+}
+.sk-campaign-progress>span[data-tone=amber]{background:var(--sk-amber-text)}
+.sk-campaign-progress>span[data-tone=blue]{background:var(--sk-blue)}
+.sk-campaign-progress>span[data-tone=red]{background:var(--sk-red-text)}
+.sk-campaign-progress>span[data-tone=neutral]{background:var(--sk-muted)}
+.sk-campaign-row-actions {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:6px;
+  white-space:nowrap;
+}
+.sk-campaign-row-actions .sk-btn {
+  min-height:30px;
+  padding:5px 9px;
+  font-size:11px!important;
+}
+.sk-campaign-savebar {
+  position:sticky;
+  bottom:14px;
+  z-index:12;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--sk-space-4);
+  max-width:760px;
+  margin:var(--sk-space-4) auto 0;
+  padding:12px 14px;
+  border:1px solid var(--sk-accent);
+  border-radius:var(--sk-radius-lg);
+  background:var(--sk-surface);
+  box-shadow:0 12px 36px #0003;
+}
+.sk-campaign-savebar strong,
+.sk-campaign-savebar small {display:block}
+.sk-campaign-savebar strong {font-size:12px}
+.sk-campaign-savebar small {margin-top:2px;color:var(--sk-muted);font-size:10px}
+.sk-campaign-empty-actions {
+  padding:0 20px 20px;
+}
+
+@media(max-width:1180px){
+  .sk-campaign-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sk-campaign-filterbar{align-items:stretch;flex-direction:column}
+  .sk-campaign-filterbar .sk-search-input{max-width:none}
+}
+@media(max-width:760px){
+  .sk-campaign-summary{grid-template-columns:1fr}
+  .sk-campaign-priority-note{align-items:flex-start;flex-wrap:wrap}
+  .sk-campaign-priority-note a{margin-left:0}
+}
