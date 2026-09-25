@@ -1682,7 +1682,7 @@ export default function Settings() {
               <div className="flex items-center gap-2">
                 <code className="flex-1 text-xs bg-white dark:bg-gray-800 border rounded p-2 break-all select-all">{createdKey}</code>
                 <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: 'Skopiowano!' }); }}>
-                  Copy
+                  Kopiuj
                 </Button>
               </div>
               <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>Ukryj</Button>
@@ -1743,9 +1743,9 @@ export default function Settings() {
 
         {/* ──────────────── Webhooks ──────────────── */}
         <section id="settings-webhooks" className="mb-10 scroll-mt-6">
-          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooks</h2>
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooki</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Zarejestruj jeden lub więcej wychodzących endpointów webhook. Każdy webhook może subskrybować wybrane typy zdarzeń. Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.
+            Zarejestruj jeden lub więcej wychodzących adresów webhook. Każdy webhook może subskrybować wybrane typy zdarzeń. Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.
           </p>
 
           {/* New webhook form */}
@@ -1754,7 +1754,7 @@ export default function Settings() {
             <div className="space-y-3">
               <input
                 type="text"
-                placeholder="https://your-endpoint.example.com/hook"
+                placeholder="https://twoj-endpoint.example.com/hook"
                 className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                 value={newWh.url}
                 onChange={e => setNewWh(p => ({ ...p, url: e.target.value }))}
@@ -1836,12 +1836,12 @@ export default function Settings() {
                     </div>
                     <div className="flex items-center gap-1">
                       <Button size="sm" variant="ghost" onClick={() => toggleActive(wh.id, wh.active)}>
-                        Enable
+                        {wh.active ? 'Wyłącz' : 'Włącz'}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>Edytuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>Testuj</Button>
                       <Button size="sm" variant="ghost" onClick={() => { setTestEventWh(testEventWh === wh.id ? null : wh.id); setTestEventType(''); setTestEventResult(null); }}>
-                        Simulate Event
+                        Symuluj zdarzenie
                       </Button>
                       <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>Usuń</Button>
                     </div>
@@ -1859,7 +1859,7 @@ export default function Settings() {
                   {/* Simulate event panel */}
                   {testEventWh === wh.id && (
                     <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 border rounded-lg space-y-2">
-                      <p className="text-xs font-semibold text-gray-600">Zasymuluj konkretne zdarzenie, aby zobaczyć dokładny payload:</p>
+                      <p className="text-xs font-semibold text-gray-600">Zasymuluj konkretne zdarzenie, aby zobaczyć dokładną treść żądania:</p>
                       <div className="flex items-center gap-2">
                         <select
                           className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 flex-1"
@@ -1872,12 +1872,12 @@ export default function Settings() {
                           ))}
                         </select>
                         <Button size="sm" onClick={() => testWebhookEvent(wh.id, testEventType)}>
-                          Send
+                          Wyślij
                         </Button>
                       </div>
                       {testEventResult && (
                         <div className="mt-2">
-                          <p className="text-xs font-medium text-gray-500 mb-1">Wysłany payload:</p>
+                          <p className="text-xs font-medium text-gray-500 mb-1">Wysłana treść żądania:</p>
                           <pre className="text-xs bg-white dark:bg-gray-900 border rounded p-2 overflow-auto max-h-48 font-mono">
                             {JSON.stringify(testEventResult, null, 2)}
                           </pre>
@@ -1895,14 +1895,14 @@ export default function Settings() {
         <section id="settings-mcp" className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (agenci AI)</h2>
           <p className="text-xs text-gray-500 mb-4">
-            Sekaro udostępnia zdalny endpoint MCP przez HTTPS. Utwórz klucz API w sekcji Klucze API, a następnie skonfiguruj Cursor poleceniem
+            Sekaro udostępnia zdalny punkt końcowy MCP przez HTTPS. Utwórz klucz API w sekcji Klucze API, a następnie skonfiguruj Cursor poleceniem
             <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">npx mcp-remote</code>
             (Node 18+). Instalacja Pythona na lokalnym komputerze nie jest wymagana.
           </p>
           <Card className="mb-4 space-y-3">
             <h3 className="text-sm font-semibold">1. Endpoint</h3>
             <p className="text-xs text-gray-500">
-              Adres Streamable HTTP MCP (to samo uwierzytelnianie co REST API):
+              Adres MCP Streamable HTTP (to samo uwierzytelnianie co REST API):
             </p>
             {mcpSetup?.mcp_http_url ? (
               <code className="block text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-2 break-all font-mono">{mcpSetup.mcp_http_url}</code>
@@ -1950,7 +1950,7 @@ export default function Settings() {
                     notify({ type: 'success', message: 'Fragment MCP skopiowany — połącz go z plikiem mcp.json' });
                   }}
                 >
-                  Copy MCP fragment
+                  Kopiuj fragment MCP
                 </Button>
               </div>
             )}
