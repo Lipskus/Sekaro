@@ -118,7 +118,7 @@ export default function CampaignDetail({ embedded = false }) {
     const [hStr, mStr] = start.split(':');
     let h = parseInt(hStr, 10) || 9;
     let m = parseInt(mStr, 10) || 0;
-    const offset = (positionInDzień - 1) * scheduleWaitMinutes;
+    const offset = (positionInDay - 1) * scheduleWaitMinutes;
     m += offset;
     h += Math.floor(m / 60);
     m = m % 60;
@@ -416,8 +416,8 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const [bulk, setBulk]   = useState('');
   const [msg, setMsg]     = useState(null);
   const [skipDuplicates, setSkipDuplicates] = useState(true);
-  const [verifyE-mails, setVerifyE-mails] = useState(false);
-  const [emailVerifEnabled, setE-mailVerifEnabled] = useState(() => {
+  const [verifyEmails, setVerifyEmails] = useState(false);
+  const [emailVerifEnabled, setEmailVerifEnabled] = useState(() => {
     try { return localStorage.getItem('emailVerifEnabled') === 'true'; } catch { return false; }
   });
   const [lastDuplicates, setLastDuplicates] = useState([]);
@@ -497,7 +497,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   useEffect(() => {
     api.get('/settings/email-verification').then(d => {
       const enabled = !!d.enabled;
-      setE-mailVerifEnabled(enabled);
+      setEmailVerifEnabled(enabled);
       try { localStorage.setItem('emailVerifEnabled', enabled ? 'true' : 'false'); } catch {}
     }).catch(() => {});
   }, []);
@@ -708,12 +708,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
     try {
       let res;
       if (confirmPayload) {
-        res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyE-mails}`, confirmPayload);
+        res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, confirmPayload);
         setBulk('');
         const dupMsg = res.duplicate_leads?.length ? ` (pominięto duplikaty: ${res.duplicate_leads.length})` : '';
         notify({ type: 'success', message: `Dodano kontaktów: ${res.added || confirmPayload.length}${dupMsg}` });
       } else if (importFile) {
-        res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyE-mails}`, importFile);
+        res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, importFile);
         const dupMsg = res.duplicate_leads?.length ? `, pominięto duplikaty: ${res.duplicate_leads.length}` : '';
         notify({ type: 'success', message: `Import: dodano ${res.added}, już przypisanych ${res.already_enrolled}, błędów ${res.errors}${dupMsg}` });
       }
@@ -861,8 +861,8 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-4">
             <input
               type="checkbox"
-              checked={verifyE-mails}
-              onChange={e => setVerifyE-mails(e.target.checked)}
+              checked={verifyEmails}
+              onChange={e => setVerifyEmails(e.target.checked)}
               className="rounded"
             />
             Verify emails after adding
@@ -1537,7 +1537,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
         <div className="p-4">
           {analyticsSub === 'steps' && (
             <StepAnalyticsPanel
-              krokStats={stepStats}
+              stepStats={stepStats}
               loading={stepStatsLoading}
               campaignId={campaignId}
               sequences={sequences}
@@ -1545,7 +1545,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
             />
           )}
           {analyticsSub === 'sent' && (
-            <SentE-mailsPanel
+            <SentEmailsPanel
               sentData={sentData}
               filter={sentFilter}
               onFilterChange={setSentFilter}
@@ -1558,7 +1558,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
 }
 
 // ─── Step Analytics Panel ─────────────────────────────────────────────────────
-function StepAnalyticsPanel({ krokStats, loading, campaignId, sequences, onToggleVariant }) {
+function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggleVariant }) {
   const [expandedSteps, setExpandedSteps] = useState({});
 
   const toggleStep = (idx) => setExpandedSteps(p => ({ ...p, [idx]: !p[idx] }));
@@ -1584,8 +1584,8 @@ function StepAnalyticsPanel({ krokStats, loading, campaignId, sequences, onToggl
         </thead>
         <tbody>
           {stepStats.map((step) => {
-            const seq = sequences.find(s => s.id === krok.sequence_id);
-            const hasVariants = krok.variants && krok.variants.length > 1; // >1 means default + at least one named
+            const seq = sequences.find(s => s.id === step.sequence_id);
+            const hasVariants = step.variants && step.variants.length > 1; // >1 means default + at least one named
             const expanded = expandedSteps[step.sequence_index];
             return (
               <>
@@ -1612,21 +1612,21 @@ function StepAnalyticsPanel({ krokStats, loading, campaignId, sequences, onToggl
                   </td>
                   <td className="px-3 py-2.5 text-right font-medium">{step.total_sent}</td>
                   <td className="px-3 py-2.5 text-right">
-                    {step.total_opens} <span className="text-gray-400 text-xs">({pct(step.total_opens, krok.total_sent)})</span>
+                    {step.total_opens} <span className="text-gray-400 text-xs">({pct(step.total_opens, step.total_sent)})</span>
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    {step.total_clicks} <span className="text-gray-400 text-xs">({pct(step.total_clicks, krok.total_sent)})</span>
+                    {step.total_clicks} <span className="text-gray-400 text-xs">({pct(step.total_clicks, step.total_sent)})</span>
                   </td>
                   <td className="px-3 py-2.5 text-right">
-                    {step.total_replies} <span className="text-gray-400 text-xs">({pct(step.total_replies, krok.total_sent)})</span>
+                    {step.total_replies} <span className="text-gray-400 text-xs">({pct(step.total_replies, step.total_sent)})</span>
                   </td>
                   <td className="px-3 py-2.5 text-right">
                     <span className="font-semibold text-green-600">{step.total_opportunities}</span>
-                    <span className="text-gray-400 text-xs ml-1">({pct(step.total_opportunities, krok.total_sent)})</span>
+                    <span className="text-gray-400 text-xs ml-1">({pct(step.total_opportunities, step.total_sent)})</span>
                   </td>
                 </tr>
                 {/* Variant breakdown rows */}
-                {hasVariants && expanded && krok.variants.map((variant) => (
+                {hasVariants && expanded && step.variants.map((variant) => (
                   <tr key={`${step.sequence_index}-v${variant.variant_id ?? 'default'}`} className="bg-purple-50/50 border-b border-purple-100 text-xs">
                     <td className="px-3 py-2"></td>
                     <td className="px-3 py-2 pl-8">
@@ -1687,7 +1687,7 @@ const SENT_FILTER_OPTIONS = [
   { value: 'unsubscribed', label: 'Unsubscribed' },
 ];
 
-function SentE-mailsPanel({ sentData = [], filter, onFilterChange }) {
+function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
   const filtered = useMemo(() => {
     switch (filter) {
       case 'opened':      return sentData.filter(e => e.opened);
@@ -1841,7 +1841,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
     ? tzList.filter(t => t.label.toLowerCase().includes(tzSearch.toLowerCase()))
     : tzList;
 
-  const toggleDzień   = d  => setForm(f => { const s=new Set(f.sending_days); s.has(d)?s.delete(d):s.add(d); return {...f, sending_days:[...s].sort()}; });
+  const toggleDay   = d  => setForm(f => { const s=new Set(f.sending_days); s.has(d)?s.delete(d):s.add(d); return {...f, sending_days:[...s].sort()}; });
   const toggleInbox = id => setForm(f => { const s=new Set(f.inbox_ids);   s.has(id)?s.delete(id):s.add(id); return {...f, inbox_ids:[...s]}; });
 
   const settingsPayload = () => {
@@ -2378,7 +2378,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   const [preview,   setPreview]   = useState(null);
   const [loading,   setLoading]   = useState(false);
   const [err,       setErr]       = useState(null);
-  const [testE-mail, setTestE-mail] = useState('');
+  const [testEmail, setTestEmail] = useState('');
   const [testState, setTestState] = useState(null); // null | 'sending' | 'success' | {error}
   const backdropDown = useRef(false);
 
@@ -2413,13 +2413,13 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   useEffect(() => { load(); }, [load]);
 
   const sendTest = async () => {
-    if (!testE-mail.trim()) return;
+    if (!testEmail.trim()) return;
     setTestState('sending');
     try {
       await api.post(`/campaigns/${campaignId}/send-test`, {
         sequence_id: sequence.id,
         lead_id: leadId ? Number(leadId) : null,
-        to_email: testE-mail.trim(),
+        to_email: testEmail.trim(),
         ...(variant ? { variant_id: variant.id } : {}),
       });
       setTestState('success');
@@ -2509,8 +2509,8 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
             <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Wyślij test do:</span>
             <input
               type="email"
-              value={testE-mail}
-              onChange={e => setTestE-mail(e.target.value)}
+              value={testEmail}
+              onChange={e => setTestEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && sendTest()}
               placeholder="you@example.com"
               className="flex-1 min-w-0 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -2519,7 +2519,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
               size="sm"
               variant="default"
               onClick={sendTest}
-              disabled={testState === 'sending' || !testE-mail.trim()}
+              disabled={testState === 'sending' || !testEmail.trim()}
             >
               {testState === 'sending' ? 'Wysyłanie…' : 'Wyślij test'}
             </Button>
@@ -2657,7 +2657,7 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
   const dotTitle = (sid, idx, lead) => {
     const perLead = lead.personalized || [];
     const entry = perLead.find(p => p.sequence_id === sid);
-    const krokNum = (personalizedSequences.find(s => s.id === sid)?.position ?? 0) + 1;
+    const stepNum = (personalizedSequences.find(s => s.id === sid)?.position ?? 0) + 1;
     if (entry?.already_sent) return `Step ${stepNum}: Written (sent)`;
     if (entry?.written) return `Step ${stepNum}: Written`;
     return `Step ${stepNum}: Needs writing`;
@@ -2802,13 +2802,13 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
   );
 }
 
-function CustomE-mailEditorModal({ target, campaignId, onClose, onSaved }) {
+function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
   const { lead, sequence } = target || {};
-  const [subject, setTemat] = useState('');
+  const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [isHtml, setIsHtml] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [subjectError, setTematError] = useState('');
+  const [subjectError, setSubjectError] = useState('');
   const [bodyError, setBodyError] = useState('');
   const notify = useNotify();
 
@@ -2817,14 +2817,14 @@ function CustomE-mailEditorModal({ target, campaignId, onClose, onSaved }) {
       const personalized = lead.personalized || [];
       const ps = personalized.find(p => p.sequence_id === sequence?.id);
       if (ps?.written || ps?.already_sent) {
-        setTemat(ps.subject ?? '');
+        setSubject(ps.subject ?? '');
         setBody(ps.body ?? '');
       } else {
-        setTemat('');
+        setSubject('');
         setBody('');
       }
       setIsHtml(sequence?.is_html ?? false);
-      setTematError('');
+      setSubjectError('');
       setBodyError('');
     }
   }, [target]);
@@ -2836,11 +2836,11 @@ function CustomE-mailEditorModal({ target, campaignId, onClose, onSaved }) {
   }, [onClose]);
 
   async function save() {
-    setTematError('');
+    setSubjectError('');
     setBodyError('');
     let hasError = false;
     if ((sequence.position ?? 0) === 0 && !subject.trim() && !sequence?.fallback_subject?.trim()) {
-      setTematError('Temat is required for the first email');
+      setSubjectError('Temat is required for the first email');
       hasError = true;
     }
     if (!body.trim() && !sequence?.fallback_body?.trim()) {
@@ -2908,7 +2908,7 @@ function CustomE-mailEditorModal({ target, campaignId, onClose, onSaved }) {
             <input
               className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${subjectError ? 'border-red-400 focus:ring-red-300' : 'focus:ring-teal-300'}`}
               value={subject}
-              onChange={e => { setTemat(e.target.value); setTematError(''); }}
+              onChange={e => { setSubject(e.target.value); setSubjectError(''); }}
               placeholder={
                 sequence?.fallback_subject
                   ? sequence.fallback_subject
@@ -2969,7 +2969,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   const [editing,         setEditing]         = useState(null);
   const [originalEditing, setOriginalEditing] = useState(null);
   const [editDirty,       setEditDirty]       = useState(false);
-  const [customE-mailTarget, setCustomE-mailTarget] = useState(null); // { lead, sequence }
+  const [customEmailTarget, setCustomEmailTarget] = useState(null); // { lead, sequence }
   const [showEditWarning, setShowEditWarning] = useState(false);
   const [previewSeq, setPreviewSeq] = useState(null);
   const [previewVariant, setPreviewVariant] = useState(null);
@@ -3121,7 +3121,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     }
   };
 
-  const getCumulativeDzień = (idx) => {
+  const getCumulativeDay = (idx) => {
     let days = 0;
     for (let i = 0; i <= idx; i++) days += sequences[i]?.wait_days_after_previous || 0;
     return days;
@@ -3142,7 +3142,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
           <div className="relative">
             {sequences.map((s, idx) => {
               const isActive = editing?.id === s.id || (selectedIdx === idx && !editing && !showAddForm);
-              const cumulDzień = getCumulativeDay(idx);
+              const cumulDay = getCumulativeDay(idx);
               return (
                 <div key={s.id}>
                   {/* Step row — circle column is always exactly w-8 so all cards are the same width */}
@@ -3368,7 +3368,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                   leads={leads}
                   campaignId={campaignId}
                   campaign={campaign}
-                  onWriteCustom={(lead, seq) => setCustomE-mailTarget({ lead, sequence: seq })}
+                  onWriteCustom={(lead, seq) => setCustomEmailTarget({ lead, sequence: seq })}
                   onRefresh={refresh}
                 />
               )}
@@ -3564,11 +3564,11 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
         <PreviewModal sequence={previewSeq} campaignId={campaignId} leads={leads} variant={previewVariant} editingOverride={previewOverride} onClose={() => { setPreviewSeq(null); setPreviewVariant(null); setPreviewOverride(null); }} />
       )}
 
-      {customE-mailTarget && (
-        <CustomE-mailEditorModal
-          target={customE-mailTarget}
+      {customEmailTarget && (
+        <CustomEmailEditorModal
+          target={customEmailTarget}
           campaignId={campaignId}
-          onClose={() => setCustomE-mailTarget(null)}
+          onClose={() => setCustomEmailTarget(null)}
           onSaved={refresh}
         />
       )}
