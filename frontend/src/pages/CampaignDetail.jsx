@@ -3027,7 +3027,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     try {
       await api.post(`/campaigns/${campaignId}/sequences`, { ...form, position: pos });
       setForm({ subject: '', body: '', wait_days_after_previous: 0, is_html: false, preview_text: '', sequence_type: 'standard', fallback_subject: '', fallback_body: '' });
-      setMsg({ type: 'success', text: 'Sequence added' });
+      setMsg({ type: 'success', text: 'Krok sekwencji dodany' });
       setShowAddForm(false);
       refresh();
     } catch (e) {
@@ -3041,7 +3041,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     try {
       const { _previous_type, ...payload } = editing || {};
       await api.patch(`/campaigns/${campaignId}/sequences/${editing.id}`, payload);
-      notify({ type: 'success', message: 'Sequence updated' });
+      notify({ type: 'success', message: 'Krok sekwencji zaktualizowany' });
       setEditing(null);
       setEditDirty(false);
       refresh();
@@ -3053,10 +3053,10 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   };
 
   const deleteSeq = async seq => {
-    if (!await confirm(`Delete sequence #${seq.position+1}?`)) return;
+    if (!await confirm(`Usunąć krok sekwencji #${seq.position+1}?`)) return;
     try {
       await api.del(`/campaigns/${campaignId}/sequences/${seq.id}`);
-      notify({ type: 'success', message: 'Sequence deleted' });
+      notify({ type: 'success', message: 'Krok sekwencji usunięty' });
       if (selectedIdx >= sequences.length - 1) setSelectedIdx(Math.max(0, sequences.length - 2));
       refresh();
     } catch (e) {
@@ -3084,7 +3084,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   };
 
   const deleteVariant = async (v) => {
-    if (!await confirm(`Delete variant "${v.label || 'Wariant'}"?`)) return;
+    if (!await confirm(`Usunąć wariant „${v.label || 'Wariant'}”?`)) return;
     try {
       await api.del(`/campaigns/${campaignId}/sequences/${selectedSeq.id}/variants/${v.id}`);
       refresh();
@@ -3133,11 +3133,11 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
       <div className="w-72 shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col">
         <div className="px-4 py-3 border-b border-gray-200">
           <h3 className="text-sm font-semibold text-gray-700">Kroki sekwencji</h3>
-          <p className="text-xs text-gray-400 mt-0.5">{sequences.length} krok{sequences.length !== 1 ? 's' : ''}</p>
+          <p className="text-xs text-gray-400 mt-0.5">{sequences.length} {sequences.length === 1 ? 'krok' : 'kroków'}</p>
         </div>
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {sequences.length === 0 && (
-            <p className="text-xs text-gray-400 text-center py-4">No kroks yet. Add one to get started.</p>
+            <p className="text-xs text-gray-400 text-center py-4">Brak kroków. Dodaj pierwszy, aby rozpocząć.</p>
           )}
           <div className="relative">
             {sequences.map((s, idx) => {
@@ -3167,7 +3167,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                           }
                         </span>
                         {s.is_html && <span className="text-[9px] bg-blue-100 text-blue-600 rounded px-1 py-0.5 font-medium shrink-0">HTML</span>}
-                        {s.sequence_type === 'personalized' && <span className="text-[9px] bg-purple-100 text-purple-600 rounded px-1 py-0.5 font-medium shrink-0">Personalized</span>}
+                        {s.sequence_type === 'personalized' && <span className="text-[9px] bg-purple-100 text-purple-600 rounded px-1 py-0.5 font-medium shrink-0">Spersonalizowana</span>}
                       </div>
                       <div className="text-[11px] text-gray-400 mt-0.5">Dzień {cumulDay}{idx === 0 ? ' (start)' : ''}</div>
                     </button>
@@ -3225,9 +3225,9 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
               {(editing.sequence_type || 'standard') === 'personalized' ? (
                 <>
                   <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-                    This is a personalized krok. Write fallback content that will appear as placeholder text when composing each lead's custom email.
+                    To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.
                     {campaign?.custom_sequence_mode === 'asap' && (
-                      <span className="block mt-1 font-medium text-purple-800">Campaign is in "Wysyłaj od razu" mode — emails will start sending as soon as each custom email is written.</span>
+                      <span className="block mt-1 font-medium text-purple-800">Kampania działa w trybie „Wysyłaj od razu” — każda wiadomość może zostać wysłana po jej przygotowaniu.</span>
                     )}
                     {(!campaign?.custom_sequence_mode || campaign?.custom_sequence_mode === 'wait_for_all') && (
                       <span className="block mt-1">Kampania działa w trybie „Czekaj na wszystkie” — wysyłka nie ruszy, dopóki wszystkie wiadomości nie będą przygotowane.</span>
@@ -3268,7 +3268,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                     <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">E-mail Body *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść wiadomości *</label>
                     <SequenceBodyEditor value={editing.body} onChange={val => updateEditing({ body: val })} isHtml={editing.is_html ?? false} onIsHtmlChange={v => updateEditing({ is_html: v })} previewText={editing.preview_text ?? ''} onPreviewTextChange={v => updateEditing({ preview_text: v })} isFirstSequence={editing.position === 0} campaign={campaign} required />
                   </div>
                 </>
@@ -3302,9 +3302,9 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                 </select>
                 {(editing.sequence_type || 'standard') === 'personalized' && (
                   <p className="text-xs text-purple-600 mt-1">
-                    Leads will need a custom email written for this krok before sending starts.
+                    Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.
                     {campaign?.custom_sequence_mode === 'asap' ? (
-                      <span className="block mt-0.5 font-medium">Wysyłaj od razu mode is on — each email will be sent as soon as it's written.</span>
+                      <span className="block mt-0.5 font-medium">Tryb „Wysyłaj od razu” jest włączony — wiadomość może zostać wysłana zaraz po przygotowaniu.</span>
                     ) : (
                       <span className="block mt-0.5">Tryb „Czekaj na wszystkie” jest włączony — nic nie zostanie wysłane, dopóki wszystkie wiadomości nie będą przygotowane.</span>
                     )}
@@ -3312,7 +3312,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Wait days after previous krok</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dni przerwy po poprzednim kroku</label>
                 <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={editing.wait_days_after_previous} onChange={e => updateEditing({ wait_days_after_previous: +e.target.value })} />
               </div>
               <div className="flex gap-2 pt-2">
@@ -3327,7 +3327,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-800">Step {selectedSeq.position + 1}{selectedSeq.sequence_type === 'personalized'
+                <h3 className="font-semibold text-gray-800" >Krok {selectedSeq.position + 1}{selectedSeq.sequence_type === 'personalized'
                   ? (selectedSeq.fallback_subject ? ` — ${selectedSeq.fallback_subject}` : ' — Indywidualna dla kontaktu')
                   : (selectedSeq.subject ? ` — ${selectedSeq.subject}` : ' — Odpowiedź w wątku')
                 }</h3>
@@ -3337,7 +3337,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                 {(selectedSeq.sequence_type || 'standard') !== 'personalized' && (
                   <Button size="sm" variant="outline" onClick={() => { setPreviewSeq(selectedSeq); setPreviewOverride(null); }}>Podgląd</Button>
                 )}
-                <Button size="sm" variant="default" onClick={() => openEdit(selectedSeq)}>Edit</Button>
+                <Button size="sm" variant="default" onClick={() => openEdit(selectedSeq)}>Edytuj</Button>
                 <Button size="sm" variant="destructive" onClick={() => deleteSeq(selectedSeq)}>Usuń</Button>
               </div>
             </div>
@@ -3406,7 +3406,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                               onClick={() => toggleVariantEnabled(v)}
                               className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors ${v.enabled ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}`}
                             >
-                              {v.enabled ? 'Enabled' : 'Disabled'}
+                              {v.enabled ? 'Włączony' : 'Wyłączony'}
                             </button>
                           </div>
                           {v.subject && <p className="text-xs text-gray-500 mt-0.5 truncate">Temat: {v.subject}</p>}
@@ -3430,12 +3430,12 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                       <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Wariant A" value={variantForm.label} onChange={e => setVariantForm(f => ({ ...f, label: e.target.value }))} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Temat <span className="text-gray-400">(blank = use krok's subject)</span></label>
-                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Leave blank to use krok subject" value={variantForm.subject} onChange={e => setVariantForm(f => ({ ...f, subject: e.target.value }))} />
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Temat <span className="text-gray-400">(puste = użyj tematu kroku)</span></label>
+                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Pozostaw puste, aby użyć tematu kroku" value={variantForm.subject} onChange={e => setVariantForm(f => ({ ...f, subject: e.target.value }))} />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1">Treść *</label>
-                      <textarea className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" placeholder="E-mail body..." value={variantForm.body} onChange={e => setVariantForm(f => ({ ...f, body: e.target.value }))} />
+                      <textarea className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" placeholder="Treść wiadomości…" value={variantForm.body} onChange={e => setVariantForm(f => ({ ...f, body: e.target.value }))} />
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="default" onClick={editingVariant ? saveVariant : createVariant} type="button">
@@ -3455,14 +3455,14 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
               <h3 className="font-semibold text-gray-800">Dodaj nowy krok</h3>
-              <p className="text-xs text-gray-400">This will become krok #{sequences.length + 1} in the sequence</p>
+              <p className="text-xs text-gray-400">To będzie krok #{sequences.length + 1} w sekwencji</p>
             </div>
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-5">
               {msg && <div className={`rounded-lg px-3 py-2 text-sm ${msg.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>{msg.text}</div>}
               {(form.sequence_type || 'standard') === 'personalized' ? (
                 <>
                   <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-                    This is a personalized krok. Write fallback content that will appear as placeholder text when composing each lead's custom email.
+                    To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Temat zastępczy</label>
@@ -3499,7 +3499,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                     <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">E-mail Body *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść wiadomości *</label>
                     <SequenceBodyEditor value={form.body} onChange={val => setForm(f => ({ ...f, body: val }))} isHtml={form.is_html} onIsHtmlChange={v => setForm(f => ({ ...f, is_html: v }))} previewText={form.preview_text ?? ''} onPreviewTextChange={v => setForm(f => ({ ...f, preview_text: v }))} isFirstSequence={pos === 0} campaign={campaign} required />
                   </div>
                 </>
@@ -3530,11 +3530,11 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                   <option value="personalized">Spersonalizowana — indywidualna treść dla kontaktu</option>
                 </select>
                 {(form.sequence_type || 'standard') === 'personalized' && (
-                  <p className="text-xs text-purple-600 mt-1">Leads will need a custom email written for this krok before sending starts.</p>
+                  <p className="text-xs text-purple-600 mt-1">Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Wait days after previous krok</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Dni przerwy po poprzednim kroku</label>
                 <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.wait_days_after_previous} onChange={e => setForm(f => ({ ...f, wait_days_after_previous: +e.target.value }))} />
               </div>
               <Button size="sm" variant="default">Dodaj krok</Button>
@@ -3543,7 +3543,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
         )}
 
         {!editing && !showAddForm && !selectedSeq && (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Select a krok or add a new one to get started.</div>
+          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Wybierz krok albo dodaj nowy, aby rozpocząć.</div>
         )}
       </div>
 
