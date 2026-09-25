@@ -33,7 +33,7 @@ services:
       QUICKLY_MODE: production
       QUICKLY_PREBUILT_IMAGE: '1'
     ports:
-      - '127.0.0.1:5051:8000'
+      - '127.0.0.1:5050:8000'
     volumes:
       - ./app/demo:/app/app/demo:ro
     networks: [demo-only]

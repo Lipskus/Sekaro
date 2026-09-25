@@ -117,8 +117,64 @@ def test_compose_does_not_share_production_resources():
     assert config["networks"]["demo-only"]["internal"] is True
     assert set(config["volumes"]) == {"demo_pgdata"}
     app = config["services"]["demo-app"]
-    assert app["ports"] == ["127.0.0.1:5051:8000"]
+    assert app["ports"] == ["127.0.0.1:5050:8000"]
     assert "env_file" not in app
     assert app["volumes"] == ["./app/demo:/app/app/demo:ro"]
     assert "app.demo.server:create_app" in app["command"]
     assert "app/demo" not in Path("app/main.py").read_text()
+
+
+@pytest.mark.parametrize("command,production_running,image_missing", [
+    ("replace-production", True, False),
+    ("replace-production", True, True),
+    ("up", True, False),
+    ("reset", True, False),
+])
+def test_demo_script_replacement_boundary(tmp_path, monkeypatch, command, production_running, image_missing):
+    """Exercise the real shell script without touching a Docker installation."""
+    import json
+    import os
+    import shutil
+    import subprocess
+    import sys
+
+    scripts = tmp_path / "scripts"
+    scripts.mkdir()
+    shutil.copy("scripts/sekaro-demo.sh", scripts / "sekaro-demo.sh")
+    binary = tmp_path / "bin"
+    binary.mkdir()
+    log_path = tmp_path / "docker-calls.jsonl"
+    docker = binary / "docker"
+    docker.write_text(f"#!{sys.executable}\n" + '''import json, os, sys
+args = sys.argv[1:]
+with open(os.environ["DEMO_TEST_CALLS"], "a") as stream:
+    stream.write(json.dumps(args) + "\\n")
+if args[:2] == ["image", "inspect"] and os.environ["DEMO_TEST_IMAGE_MISSING"] == "1":
+    sys.exit(1)
+if args[:2] == ["ps", "-q"] and os.environ["DEMO_TEST_PRODUCTION_RUNNING"] == "1":
+    print("existing-production-container")
+''')
+    docker.chmod(0o700)
+    # reset requires initialized credentials; keep fixture values synthetic.
+    demo_dir = tmp_path / ".sekaro-demo"
+    demo_dir.mkdir()
+    (demo_dir / "env").write_text("DEMO_ADMIN_PASSWORD=synthetic-test-only\n")
+    monkeypatch.setenv("PATH", str(binary) + os.pathsep + os.environ["PATH"])
+    monkeypatch.setenv("DEMO_TEST_CALLS", str(log_path))
+    monkeypatch.setenv("DEMO_TEST_IMAGE_MISSING", str(int(image_missing)))
+    monkeypatch.setenv("DEMO_TEST_PRODUCTION_RUNNING", str(int(production_running)))
+    result = subprocess.run(["bash", str(scripts / "sekaro-demo.sh"), command], capture_output=True, text=True)
+    calls = [json.loads(line) for line in log_path.read_text().splitlines()]
+    if command != "replace-production" or image_missing:
+        assert result.returncode != 0
+        assert not any("down" in call or "up" in call for call in calls)
+    else:
+        assert result.returncode == 0
+        destructive = [call for call in calls if "down" in call]
+        assert destructive == [["compose", "-p", "sekaro", "-f", "docker-compose.sekaro.yml", "down", "--volumes"]]
+        removed_at = calls.index(destructive[0])
+        started_at = next(i for i, call in enumerate(calls) if "up" in call)
+        assert removed_at < started_at
+        assert sum("config" in call for call in calls[:removed_at]) == 2
+        assert "sekaro-demo" in calls[started_at]
+        assert "127.0.0.1:5050" in result.stdout
