@@ -1537,7 +1537,7 @@ export default function Inboxes() {
                   {/* Action buttons */}
                   <div className="px-5 py-4 border-t border-gray-100 space-y-2">
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(selectedInbox)}>Edit</Button>
+                      <Button variant="outline" size="sm" className="flex-1" onClick={() => openEdit(selectedInbox)}>Edytuj</Button>
                       {selectedInbox.paused
                         ? <Button variant="outline" size="sm" className="flex-1 bg-green-50 text-green-700 border-green-300 hover:bg-green-100" onClick={() => resumeInbox(selectedInbox.id, selectedInbox.email)}>Wznów</Button>
                         : <Button variant="outline" size="sm" className="flex-1 bg-orange-50 text-orange-700 border-orange-300 hover:bg-orange-100" onClick={() => openPauseModal(selectedInbox)}>Wstrzymaj</Button>
@@ -1559,7 +1559,7 @@ export default function Inboxes() {
           onMouseDown={e => { addBackdropDown.current = e.target === e.currentTarget; }}
           onClick={() => { if (addBackdropDown.current) { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); } }}
         >
-          <div data-darkreader-ignore className="p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" style={{ backgroundColor: 'white' }} onClick={e => e.stopPropagation()}>
+          <div className="sk-inbox-modal-surface p-6 rounded-xl shadow-lg w-full min-w-0 max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden mx-auto" onClick={e => e.stopPropagation()}>
             <h2 className="text-xl font-semibold mb-2">Dodaj skrzynkę</h2>
             {message && <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{message.text}</div>}
             <form onSubmit={submit} className="space-y-4 min-w-0 max-w-full">
@@ -1762,7 +1762,7 @@ export default function Inboxes() {
       {/* Unsaved changes warning for inbox edit */}
       {showEditWarning && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div data-darkreader-ignore className="rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ backgroundColor: 'white' }}>
+          <div className="sk-inbox-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto">
             <h3 className="font-semibold text-gray-800 mb-1">Zapisać zmiany?</h3>
             <p className="text-sm text-gray-500 mb-4">Masz niezapisane zmiany w tej skrzynce.</p>
             <div className="flex gap-2 justify-end">
@@ -1777,7 +1777,7 @@ export default function Inboxes() {
       {/* Wstrzymaj inbox modal */}
       {showPauseModal && pausingInbox && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div data-darkreader-ignore className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md mx-auto">
+          <div className="sk-inbox-modal-surface p-6 rounded-xl shadow-lg w-full max-w-md mx-auto">
             <h2 className="text-xl font-semibold mb-1">Wstrzymaj skrzynkę</h2>
             <p className="text-sm text-gray-500 mb-4">
               Wstrzymujesz <span className="font-mono font-medium">{pausingInbox.email}</span>. Co zrobić z kontaktami przypisanymi do tej skrzynki?
