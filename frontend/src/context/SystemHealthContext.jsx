@@ -390,6 +390,7 @@ function buildChecks(d) {
 const STATUS_RANK = { error: 3, warning: 2, ok: 1, unknown: 0 };
 
 function computeOverall(checks) {
+  if (!checks?.length) return 'unknown';
   return checks.reduce((worst, check) => {
     const rank = STATUS_RANK[check.status] ?? 0;
     if (rank > (STATUS_RANK[worst] ?? 0)) return check.status;
