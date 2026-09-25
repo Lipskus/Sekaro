@@ -1505,7 +1505,7 @@ export default function Inboxes() {
                           ? <span className="text-indigo-700" title={selectedInbox.beacon_base_url}>Beacon</span>
                           : selectedInbox.tracking_domain
                             ? <span className="text-teal-700">{selectedInbox.tracking_domain}</span>
-                            : <span className="text-gray-400">app default</span>}
+                            : <span className="text-gray-400">Domyślne aplikacji</span>}
                       </span>
                     </div>
                     {selectedInbox.beacon_connected && selectedInbox.beacon_base_url && (
@@ -1514,7 +1514,7 @@ export default function Inboxes() {
 
                     {/* Created */}
                     <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">Added</span>
+                      <span className="text-gray-600">Dodano</span>
                       <span className="text-gray-900">{new Date(selectedInbox.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>

@@ -20,24 +20,24 @@ function campaignView(c) {
   const replyRate = emailsSent > 0 ? Math.round((replies / emailsSent) * 100) : 0;
   const isPaused = !!c.paused;
   const isCompleted = !isPaused && scheduled === 0 && emailsSent > 0;
-  const pausedPercent = isPaused && totalLeads > 0 ? Math.round((emailsSent / totalLeads) * 100) : 0;
+  // Progress uses messages in both states: one contact may receive several steps.
 
   let statusKey = 'active';
   let statusLabel = 'Aktywna';
   let tone = 'green';
   if (isPaused) {
     statusKey = 'paused'; statusLabel = 'Wstrzymana'; tone = 'amber';
+  } else if (needsCustom > 0) {
+    statusKey = 'issues'; statusLabel = 'Wymaga poprawek'; tone = 'red';
   } else if (isCompleted) {
     statusKey = 'completed'; statusLabel = 'Zakończona'; tone = 'blue';
-  } else if (needsCustom > 0 && totalLeads === needsCustom) {
-    statusKey = 'issues'; statusLabel = 'Wymaga poprawek'; tone = 'red';
   } else if (totalLeads === 0) {
     statusKey = 'draft'; statusLabel = 'Szkic'; tone = 'neutral';
   }
 
   return {
     totalLeads, emailsSent, scheduled, replies, bounced, unsubscribed, needsCustom,
-    percent, replyRate, isPaused, isCompleted, pausedPercent, statusKey, statusLabel, tone,
+    percent, replyRate, isPaused, isCompleted, statusKey, statusLabel, tone,
   };
 }
 
@@ -305,7 +305,7 @@ export default function Campaigns() {
                 {filteredRows.map(row => {
                   const c = row.campaign;
                   const idx = campaigns.findIndex(item => item.id === c.id);
-                  const progress = row.isPaused ? row.pausedPercent : row.percent;
+                  const progress = row.percent;
                   const reasonParts = [];
                   if (row.bounced > 0) reasonParts.push(`${row.bounced} odbitych`);
                   if (row.unsubscribed > 0) reasonParts.push(`${row.unsubscribed} wypisanych`);

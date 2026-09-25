@@ -8,7 +8,7 @@ import {useAppMode} from '../context/AppModeContext';
 import {useLanguage} from '../context/LanguageContext';
 import {Icon,Avatar,Badge} from './ui';
 import Logo from './Logo';
-const nav=[['/','home','Dashboard'],['/campaigns','campaign','Kampanie'],['/inboxes','mail','Skrzynki (SMTP/IMAP)'],['/leads','contacts','Kontakty'],['/templates','template','Szablony'],['/unibox','chat','Wątki (Inbox)'],['/analytics','chart','Analityka'],['/domains','globe','Domeny'],['/settings','settings','Ustawienia']];
+const nav=[['/','home','Dashboard'],['/campaigns','campaign','Kampanie'],['/inboxes','mail','Skrzynki (SMTP/IMAP)'],['/leads','contacts','Kontakty'],['/templates','template','Szablony'],['/unibox','chat','Wątki (Inbox)'],['/analytics','chart','Analityka'],['/schedule','calendar','Harmonogram'],['/domains','globe','Domeny'],['/settings','settings','Ustawienia']];
 export default function Shell({children}){
  const {user,logout}=useAuth();const {overallStatus,rawData,loading:healthLoading,fetchError:healthError}=useSystemHealth();const {count}=useNotifications();const {isProduction}=useAppMode();const {language,setLanguage,languages}=useLanguage();
  const [menu,setMenu]=useState(false),[profile,setProfile]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState([]),[searchBusy,setSearchBusy]=useState(false),[searchError,setSearchError]=useState(''),[showSearch,setShowSearch]=useState(false);
