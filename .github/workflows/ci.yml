@@ -7,6 +7,12 @@ on:
     branches: [main]
 
 jobs:
+  demo-network:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify real Docker host access and private app network
+        run: bash scripts/check-demo-network.sh
   validate:
     runs-on: ubuntu-latest
     services:

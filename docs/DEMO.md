@@ -1,6 +1,8 @@
 # Sekaro — jedna instancja z danymi demo do QA
 
 Demo zastępuje pustą produkcję: na VPS działa jedna aplikacja i jedna baza.
+Lekki kontener Nginx zapewnia dostęp z hosta na porcie `5050`; nie jest drugą
+instancją aplikacji. Aplikacja i baza pozostają w sieci bez dostępu do Internetu.
 Korzysta z istniejącego obrazu `sekaro:local` oraz bazy PostgreSQL.
 Nie wymaga budowania obrazu: dodatkowy moduł `app/demo` jest montowany tylko do
 kontenera demo. Wersja interfejsu pochodzi z obecnego obrazu; aktualizacja kodu
@@ -21,6 +23,7 @@ Pozostawia katalog backupów na hoście i dane już istniejącego demo.
 
 Potrzebne są Docker Compose v2 obsługujący `--wait`, Python 3 oraz lokalne obrazy
 `sekaro:local` i `postgres:15-alpine` z dotychczasowej instalacji.
+Obraz bramki `nginx:1.28-alpine` jest pobierany automatycznie przy pierwszym starcie.
 Skrypt tworzy losowe hasła w `.sekaro-demo/env` (0600,
 wykluczony z Git). Po udanym uruchomieniu wyświetla login `demo` i hasło.
 Nie trzeba korzystać z produkcyjnego konta użytkownika ani podawać jego hasła.
@@ -61,6 +64,8 @@ kampanii, lokalnych parametrów skrzynek i szablonów pozostaje dostępna.
 Przeliczenie kolejki po edycji może zmienić jej demonstracyjny układ.
 
 Kontenery używają sieci Docker `internal` i własnych sekretów.
+Bramka ma dodatkową sieć bridge do publikacji portu wyłącznie na localhost.
+Sama sieć `internal` nie zapewnia publikacji portu hosta na części wersji Docker.
 Baza demo nie ma portu hosta.
 Seeder odmawia działania na innej bazie/użytkowniku/hoście i w bazie z istniejącymi
 danymi bez znacznika demo. Zwykły `app.main:app` nie importuje modułu demo.
@@ -81,5 +86,6 @@ bash scripts/sekaro-demo.sh remove  # usuń kontenery i bazę TYLKO demo
 `up` i `reset` odmawiają uruchomienia drugiej instancji, gdy projekt `sekaro`
 jest aktywny. Do zamiany pustej produkcji służy `replace-production`.
 Po zamianie używaj powyższego skryptu zamiast uruchamiać Compose produkcyjne.
+Przy aktualizacji użyj `up`, bez `reset` lub ponownego `replace-production`.
 Plik haseł pozostaje po usunięciu demo. Reset przywraca zapisane w nim hasło
 początkowe, również jeśli wcześniej zmieniono je w interfejsie.

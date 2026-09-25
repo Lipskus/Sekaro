@@ -117,7 +117,12 @@ def test_compose_does_not_share_production_resources():
     assert config["networks"]["demo-only"]["internal"] is True
     assert set(config["volumes"]) == {"demo_pgdata"}
     app = config["services"]["demo-app"]
-    assert app["ports"] == ["127.0.0.1:5050:8000"]
+    assert "ports" not in app
+    assert app["networks"] == ["demo-only"]
+    assert config["services"]["demo-db"]["networks"] == ["demo-only"]
+    gateway = config["services"]["demo-gateway"]
+    assert gateway["ports"] == ["127.0.0.1:5050:8080"]
+    assert set(gateway["networks"]) == {"demo-only", "demo-ingress"}
     assert "env_file" not in app
     assert app["volumes"] == ["./app/demo:/app/app/demo:ro"]
     assert "app.demo.server:create_app" in app["command"]

@@ -32,6 +32,7 @@ preflight() {
   docker image inspect sekaro:local >/dev/null
   docker image inspect postgres:15-alpine >/dev/null
   "${compose[@]}" config --quiet
+  docker image inspect nginx:1.28-alpine >/dev/null 2>&1 || docker pull nginx:1.28-alpine
 }
 start_demo() {
   "${compose[@]}" up -d --wait --wait-timeout 180
@@ -59,7 +60,7 @@ case "$demo_command" in
     "${production[@]}" down --volumes
     start_demo;;
   status) "${compose[@]}" ps;;
-  logs) "${compose[@]}" logs --tail=100 demo-app;;
+  logs) "${compose[@]}" logs --tail=100 demo-app demo-gateway;;
   login) show_login;;
   stop) "${compose[@]}" stop;;
   reset)
