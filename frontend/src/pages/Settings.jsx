@@ -10,39 +10,10 @@ import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
-import { SectionTabs, SettingsCard, Field, PageFrame, StatePanel, ErrorNotice } from '../redesign/ui';
+import { Icon, SettingsCard, Field, PageFrame, StatePanel, ErrorNotice } from '../redesign/ui';
 import Modal from '../redesign/Modal';
-
-const SETTINGS_TABS = [
-  { id: 'general', label: 'Ogólne', icon: 'settings' },
-  { id: 'setup', label: 'Kopia i przywracanie', icon: 'history' },
-  { id: 'features', label: 'Funkcje', icon: 'flash' },
-  { id: 'integrating', label: 'Integracje', icon: 'link' },
-  { id: 'dev', label: 'Tryb testowy', icon: 'warning' },
-];
-
-/** In-tab section anchors (DOM id = `settings-${id}`). */
-const SECTIONS_BY_TAB = {
-  general: [
-    { id: 'scheduling', label: 'Harmonogram' },
-    { id: 'appearance', label: 'Wygląd' },
-    { id: 'account', label: 'Konto i bezpieczeństwo' },
-    { id: 'known-ips', label: 'Znane adresy IP' },
-  ],
-  setup: [
-    { id: 'backup-restore', label: 'Kopia i przywracanie' },
-  ],
-  features: [
-    { id: 'ai', label: 'Funkcje AI' },
-    { id: 'other', label: 'Pozostałe' },
-  ],
-  integrating: [
-    { id: 'api-keys', label: 'Klucze API' },
-    { id: 'webhooks', label: 'Webhooki' },
-    { id: 'mcp', label: 'MCP' },
-  ],
-  dev: [{ id: 'test-mode', label: 'Tryb testowy' }],
-};
+import { settingsGroupsFor, resolveSettingsSection } from '../redesign/systemSettings';
+import '../redesign/system-settings.css';
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
@@ -56,6 +27,13 @@ export default function Settings() {
 
   /* ── state ── */
   const [strategy, setStrategy] = useState('priority');
+  const [savedStrategy, setSavedStrategy] = useState('priority');
+  const [draftTheme, setDraftTheme] = useState(themePreference);
+  const [draftLanguage, setDraftLanguage] = useState(language);
+  const [generalSaving, setGeneralSaving] = useState(false);
+  const [generalError, setGeneralError] = useState(null);
+  const [generalSaved, setGeneralSaved] = useState(false);
+  const generalSaveLock = useRef(false);
   const [testMode, setTestMode] = useState(false);
   const [settingsLoading, setSettingsLoading] = useState(true);
   const [settingsError, setSettingsError] = useState(null);
@@ -240,7 +218,7 @@ export default function Settings() {
 
   const [activeTab, setActiveTab] = useState('general');
   const tabContentRef = useRef(null);
-  const [activeSectionDomId, setActiveSectionDomId] = useState('');
+  const [settingsSearch, setSettingsSearch] = useState('');
 
   /* ── load data ── */
   const loadAll = useCallback(async () => {
@@ -260,6 +238,7 @@ export default function Settings() {
         api.get('/settings/mcp-setup').catch(() => null),
       ]);
       setStrategy(stratData.scheduling_strategy || 'priority');
+      setSavedStrategy(stratData.scheduling_strategy || 'priority');
       setTestMode(tmData.test_mode || false);
       setWebhooks(whList || []);
       setEventTypes(evtData.events || []);
@@ -316,104 +295,54 @@ export default function Settings() {
 
   useEffect(() => { loadAll(); }, [loadAll]);
 
-  const visibleTabs = useMemo(
-    () => (isProduction ? SETTINGS_TABS.filter(t => t.id !== 'dev') : SETTINGS_TABS),
-    [isProduction],
-  );
-
-  const sectionNav = SECTIONS_BY_TAB[activeTab] || [];
+  const allGroups = useMemo(() => settingsGroupsFor({ isProduction, isAdmin: user?.role === 'admin' }), [isProduction, user?.role]);
+  const allSections = useMemo(() => allGroups.flatMap(group => group.items), [allGroups]);
+  const navigationGroups = settingsGroupsFor({ isProduction, isAdmin: user?.role === 'admin', search: settingsSearch });
+  const currentSection = allSections.find(item => item.id === activeTab) || allSections[0];
+  const generalDirty = strategy !== savedStrategy || draftTheme !== themePreference || draftLanguage !== language;
 
   useEffect(() => {
-    const syncFromHash = () => {
-      let raw = (window.location.hash || '').replace(/^#/, '');
-      if (!raw) raw = 'general';
-      const id = visibleTabs.some(t => t.id === raw) ? raw : 'general';
+    const sync = () => {
+      const id = resolveSettingsSection(window.location.hash, allSections);
       setActiveTab(id);
-      if (window.location.hash !== `#${id}`) {
-        window.history.replaceState(null, '', `#${id}`);
-      }
+      if (window.location.hash !== '#' + id) window.history.replaceState(null, '', '#' + id);
     };
-    syncFromHash();
-    window.addEventListener('hashchange', syncFromHash);
-    return () => window.removeEventListener('hashchange', syncFromHash);
-  }, [visibleTabs]);
-
+    sync();
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, [allSections]);
+  useEffect(() => { tabContentRef.current?.scrollTo?.(0, 0); }, [activeTab]);
   useEffect(() => {
-    tabContentRef.current?.scrollTo(0, 0);
-  }, [activeTab, settingsLoading, settingsError]);
-
-  useEffect(() => {
-    const ids = (SECTIONS_BY_TAB[activeTab] || []).map(s => `settings-${s.id}`);
-    const root = tabContentRef.current;
-    setActiveSectionDomId(ids[0] || '');
-    if (!root || ids.length === 0) return;
-
-    let raf = 0;
-    const updateActiveFromScroll = () => {
-      const rootRect = root.getBoundingClientRect();
-      const margin = 20;
-      let current = ids[0];
-      for (const domId of ids) {
-        const el = document.getElementById(domId);
-        if (!el) continue;
-        const top = el.getBoundingClientRect().top - rootRect.top;
-        if (top <= margin) current = domId;
-      }
-      setActiveSectionDomId(prev => (prev === current ? prev : current));
-    };
-
-    const schedule = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        updateActiveFromScroll();
-      });
-    };
-
-    root.addEventListener('scroll', schedule, { passive: true });
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(schedule) : null;
-    ro?.observe(root);
-    schedule();
-
-    return () => {
-      root.removeEventListener('scroll', schedule);
-      ro?.disconnect();
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [activeTab, settingsLoading, settingsError]);
-
-  const selectTab = id => {
-    if (!visibleTabs.some(t => t.id === id)) return;
+    if (!generalDirty) return;
+    const warn = event => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [generalDirty]);
+  const selectSection = id => {
+    if (!allSections.some(item => item.id === id)) return;
     setActiveTab(id);
-    window.history.replaceState(null, '', `#${id}`);
+    window.location.hash = id;
   };
-
-  const scrollToSection = useCallback(sid => {
-    const domId = `settings-${sid}`;
-    setActiveSectionDomId(domId);
-    const el = document.getElementById(domId);
-    if (!el) return;
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, []);
-
-  /* ── scheduling strategy ── */
-  const submitStrategy = async val => {
-    if (val !== strategy) {
-      try {
-        const { has_leads } = await api.get('/campaigns/has-leads');
-        if (has_leads) {
-          const ok = await confirm(
-            'Zmiana strategii planowania spowoduje przeliczenie wszystkich kampanii. Kontynuować?',
-          );
-          if (!ok) return;
-        }
-      } catch {}
-    }
+  const cancelGeneral = () => {
+    setStrategy(savedStrategy); setDraftTheme(themePreference); setDraftLanguage(language);
+    setGeneralError(null); setGeneralSaved(false);
+  };
+  const saveGeneral = async () => {
+    if (generalSaveLock.current || !generalDirty) return;
+    generalSaveLock.current = true; setGeneralSaving(true); setGeneralError(null); setGeneralSaved(false);
     try {
-      await api.post('/settings/scheduling-strategy', { scheduling_strategy: val });
-      setStrategy(val);
-      notify({ type: 'success', message: 'Strategia zapisana' });
-    } catch (e) { notify({ type: 'error', message: e.message }); }
+      if (strategy !== savedStrategy) {
+        const { has_leads } = await api.get('/campaigns/has-leads');
+        if (has_leads && !await confirm('Zmiana strategii planowania spowoduje przeliczenie wszystkich kampanii. Kontynuować?')) return;
+        await api.post('/settings/scheduling-strategy', { scheduling_strategy: strategy });
+        setSavedStrategy(strategy);
+      }
+      setThemePreference(draftTheme);
+      setLanguage(draftLanguage);
+      setGeneralSaved(true);
+      notify({ type: 'success', message: 'Ustawienia zapisane.' });
+    } catch (error) { setGeneralError(error); }
+    finally { generalSaveLock.current = false; setGeneralSaving(false); }
   };
 
   /* ── test mode ── */
@@ -701,71 +630,36 @@ export default function Settings() {
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
   if (settingsLoading || settingsError) return (
-    <PageFrame title="Ustawienia" description="Dostosuj działanie systemu do swoich potrzeb.">
+    <PageFrame title="Ustawienia systemu" description="Konfiguracja aplikacji, bezpieczeństwa i integracji.">
       {settingsLoading ? <StatePanel icon="refresh" title="Ładowanie ustawień" description="Pobieramy zapisaną konfigurację." /> : <ErrorNotice error={settingsError} onRetry={loadAll} />}
     </PageFrame>
   );
 
   return (
-    <div className="sk-settings-page relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="sk-settings-page-head shrink-0">
-        <div>
-          <h1>Ustawienia</h1>
-          <p>Dostosuj działanie systemu do swoich potrzeb.</p>
-        </div>
-        <SectionTabs
-          items={visibleTabs}
-          value={activeTab}
-          onChange={selectTab}
-          ariaLabel="Sekcje ustawień"
-          className="sk-settings-main-tabs"
-        />
+    <div className="sk-settings-page sk-system-settings">
+      <header className="sk-system-head">
+        <div><div className="sk-system-breadcrumb"><Icon name="home" size={15}/> System <span>/</span> Ustawienia</div>
+          <h1>Ustawienia systemu</h1><p>Konfiguracja aplikacji, bezpieczeństwa i integracji.</p></div>
+        <label className="sk-system-search"><Icon name="search"/><input type="search" aria-label="Szukaj ustawienia" placeholder="Szukaj ustawienia…" value={settingsSearch} onChange={e => setSettingsSearch(e.target.value)}/></label>
       </header>
-
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row lg:items-stretch">
-        <aside
-          className="flex min-h-0 w-full shrink-0 flex-col border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-900/60 lg:h-full lg:min-h-0 lg:w-44 lg:border-b-0 lg:border-r lg:bg-gray-100 lg:dark:bg-gray-900/50"
-          aria-label="Na tej stronie"
-        >
-          <div className="flex min-h-0 flex-1 flex-col px-4 py-3 lg:py-5 lg:pl-5 lg:pr-3">
-            <p className="mb-2 block shrink-0 text-[10px] font-semibold uppercase tracking-wider text-gray-700 dark:text-gray-300">
-              Na tej stronie
-            </p>
-            <nav className="flex min-h-0 flex-1 flex-row flex-wrap content-start gap-1 overflow-y-auto lg:flex-col lg:flex-nowrap">
-              {sectionNav.map(s => {
-                const domId = `settings-${s.id}`;
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => scrollToSection(s.id)}
-                    className={
-                      'rounded-md px-2 py-1.5 text-left text-xs transition-colors lg:text-sm whitespace-nowrap lg:whitespace-normal ' +
-                      (activeSectionDomId === domId
-                        ? 'bg-primary/15 text-primary ring-1 ring-primary/30 dark:bg-primary/20 font-semibold'
-                        : 'text-gray-700 hover:bg-gray-200/80 hover:text-primary dark:text-gray-300 dark:hover:bg-gray-800/80')
-                    }
-                  >
-                    {s.label}
-                  </button>
-                );
-              })}
-            </nav>
-          </div>
+      <div className="sk-system-layout">
+        <aside className="sk-system-sidebar" aria-label="Kategorie ustawień">
+          <nav aria-label="Sekcje ustawień">{navigationGroups.map(group => <div className="sk-system-nav-group" key={group.label}>
+            <h2>{group.label}</h2>{group.items.map(item => <button type="button" key={item.id} className={activeTab === item.id ? 'is-active' : ''} aria-current={activeTab === item.id ? 'page' : undefined} onClick={() => selectSection(item.id)}><Icon name={item.icon} size={19}/><span>{item.label}</span></button>)}
+          </div>)}</nav>
+          {!navigationGroups.length && <div role="status" className="sk-system-search-empty">Brak pasujących ustawień.<button type="button" onClick={() => setSettingsSearch('')}>Wyczyść wyszukiwanie</button></div>}
         </aside>
-
-        <div
-          ref={tabContentRef}
-          className="min-h-0 min-w-0 flex-1 overflow-y-auto px-6 py-6 lg:px-8"
-        >
-
-        {activeTab === 'general' && (
-          <div className="sk-settings-grid" aria-label="Ustawienia ogólne">
+        <div className="sk-system-workspace">
+        <div ref={tabContentRef} className="sk-system-content" data-section={activeTab}>
+          <header className="sk-system-section-heading"><h2>{currentSection.label}</h2><p>{currentSection.description}</p></header>
+          <ErrorNotice error={generalError}/>
+        {true && (
+          <div className="sk-settings-grid sk-system-general-grid" hidden={!["general","appearance","account","known-ips"].includes(activeTab)} aria-label="Ustawienia ogólne">
             <SettingsCard
-              id="settings-scheduling"
+              id="settings-scheduling" hidden={activeTab !== 'general' && activeTab !== 'scheduling'} className="sk-system-scheduling"
               span={6}
               icon="calendar"
-              title="Domyślny harmonogram"
+              title="Planowanie wysyłki"
               description="Określa sposób rozdzielania wiadomości pomiędzy aktywne kampanie."
             >
               <label className="sk-settings-choice">
@@ -774,7 +668,7 @@ export default function Settings() {
                   name="strategy"
                   value="priority"
                   checked={strategy === 'priority'}
-                  onChange={() => submitStrategy('priority')}
+                  disabled={generalSaving} onChange={() => { setStrategy('priority'); setGeneralSaved(false); }}
                 />
                 <span>
                   <strong>Priorytet kampanii</strong>
@@ -790,7 +684,7 @@ export default function Settings() {
                   name="strategy"
                   value="round_robin"
                   checked={strategy === 'round_robin'}
-                  onChange={() => submitStrategy('round_robin')}
+                  disabled={generalSaving} onChange={() => { setStrategy('round_robin'); setGeneralSaved(false); }}
                 />
                 <span>
                   <strong>Równomierny podział</strong>
@@ -800,44 +694,45 @@ export default function Settings() {
                 </span>
               </label>
               <div className="sk-settings-note">
-                Ustawienia na poziomie kampanii mają wyższy priorytet i mogą nadpisywać tę wartość.
+                Limity skrzynek, dni i godziny wysyłki ustawisz w skrzynkach i kampaniach.
               </div>
             </SettingsCard>
 
             <SettingsCard
-              id="settings-appearance"
+              id="settings-appearance" hidden={activeTab !== 'general' && activeTab !== 'appearance'}
               span={6}
               icon="system"
-              title="Wygląd"
+              title="Wygląd i język"
               description="Dostosuj wygląd interfejsu do swoich preferencji."
             >
               <Field
                 label="Język interfejsu"
                 help="Zmiana języka jest zapisywana lokalnie dla tej przeglądarki."
               >
-                <select value={language} onChange={e => setLanguage(e.target.value)}>
-                  {languages.map(item => (
+                <select value={draftLanguage} disabled={generalSaving} onChange={e => { setDraftLanguage(e.target.value); setGeneralSaved(false); }}>
+                  {(languages.length ? languages : [{code: language, label: language === 'pl' ? 'Polski' : language}]).map(item => (
                     <option key={item.code} value={item.code}>{item.label}</option>
                   ))}
                 </select>
               </Field>
               <div className="sk-theme-options" role="radiogroup" aria-label="Motyw aplikacji">
                 {[
-                  ['dark', 'Ciemny', 'moon'],
                   ['light', 'Jasny', 'sun'],
+                  ['dark', 'Ciemny', 'moon'],
                   ['system', 'System', 'system'],
                 ].map(([value, label]) => (
                   <label
                     key={value}
-                    className={`sk-theme-option ${themePreference === value ? 'is-selected' : ''}`}
+                    className={`sk-theme-option ${draftTheme === value ? 'is-selected' : ''}`}
                   >
                     <input
                       type="radio"
                       name="appearance"
                       value={value}
-                      checked={themePreference === value}
-                      onChange={() => setThemePreference(value)}
+                      checked={draftTheme === value}
+                      disabled={generalSaving} onChange={() => { setDraftTheme(value); setGeneralSaved(false); }}
                     />
+                    <span className={'sk-system-theme-preview theme-' + value} aria-hidden="true"><i/><span><b/><b/><b/></span></span>
                     <span>{label}</span>
                   </label>
                 ))}
@@ -848,11 +743,11 @@ export default function Settings() {
             </SettingsCard>
 
             <SettingsCard
-              id="settings-account"
+              id="settings-account" hidden={activeTab !== 'general' && activeTab !== 'account'}
               span={7}
               icon="shield"
               title="Konto i bezpieczeństwo"
-              description="Podstawowe informacje o bieżącej sesji administratora."
+              description="Informacje o bieżącej sesji użytkownika."
               action={user ? <span className="sk-coming-soon">{user.role || 'admin'}</span> : null}
             >
               {user ? (
@@ -881,7 +776,7 @@ export default function Settings() {
             </SettingsCard>
 
             <SettingsCard
-              id="settings-known-ips"
+              id="settings-known-ips" hidden={activeTab !== 'general' && activeTab !== 'known-ips'}
               span={5}
               icon="globe"
               title="Znane adresy IP"
@@ -902,13 +797,14 @@ export default function Settings() {
                 Otwarcia i kliknięcia z zapisanych adresów IP są ignorowane w statystykach aktywności.
               </div>
             </SettingsCard>
+            <SettingsCard span={12} icon="history" title="Kopia i przywracanie" hidden={activeTab !== 'general' || user?.role !== 'admin'} description="Chroń konfigurację oraz dane swojej instalacji." action={<Button size="sm" variant="outline" onClick={() => selectSection('backup-restore')}>Przejdź do kopii</Button>}/>
           </div>
         )}
 
-        {activeTab === 'setup' && (
+        {true && (
           <>
         {user?.role === 'admin' && (
-        <section id="settings-backup-restore" className="mb-10 scroll-mt-6">
+        <section id="settings-backup-restore" hidden={activeTab !== 'backup-restore'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2 dark:border-gray-700">Kopia i przywracanie</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
             Twórz kopie bazy Sekaro i przywracaj kontakty, kampanie, konfigurację oraz historię.
@@ -1369,7 +1265,7 @@ export default function Settings() {
                         className="mt-2"
                         onClick={() => document.getElementById('settings-backup-manual')?.scrollIntoView({ behavior: 'smooth' })}
                       >
-                        Jump to download
+                        Przejdź do pobierania
                       </Button>
                     </div>
                   )}
@@ -1409,9 +1305,9 @@ export default function Settings() {
           </>
         )}
 
-        {activeTab === 'features' && (
+        {true && (
           <>
-        <section id="settings-ai" className="mb-10 scroll-mt-6">
+        <section id="settings-ai" hidden={activeTab !== 'ai'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">Funkcje AI</h2>
           <p className="text-xs text-gray-500 mb-4">
             Każda funkcja AI może korzystać z innego dostawcy i modelu. Najpierw skonfiguruj dostawcę i klucz API — dostępne modele zostaną automatycznie wczytane w tle.
@@ -1447,7 +1343,9 @@ export default function Settings() {
               <Card key={fid} className="mb-4 overflow-visible">
                 {/* ── Collapsed header (always visible) ── */}
                 <div
-                  className="flex items-center justify-between cursor-pointer select-none"
+                  className="sk-system-ai-heading flex items-center justify-between cursor-pointer select-none"
+                  role="button" tabIndex={0} aria-expanded={isOpen} aria-label={'Konfiguracja: ' + feature.label}
+                  onKeyDown={event => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] })); } }}
                   onClick={() => setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] }))}
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -1637,12 +1535,12 @@ export default function Settings() {
           })}
 
           {Object.keys(aiFeatures).length === 0 && (
-            <p className="text-sm text-gray-400 italic">Wczytywanie funkcji AI…</p>
+            <p className="text-sm text-gray-400 italic">Brak dostępnych funkcji AI.</p>
           )}
 
         </section>
 
-        <section id="settings-other" className="mb-10 scroll-mt-6">
+        <section id="settings-other" hidden={activeTab !== 'other'} className="mb-10 scroll-mt-6">
           <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">Inne</h2>
           <p className="mb-6 text-xs text-gray-500 dark:text-gray-400">
             Powiadomienia e-mail i weryfikacja kontaktów — opcjonalne elementy procesu.
@@ -1663,26 +1561,27 @@ export default function Settings() {
                 </p>
               </div>
               <Button size="sm" variant="outline" onClick={() => window.location.href = '/notifications'}>
-                Open notifications
+                Otwórz powiadomienia
               </Button>
             </Card>
           </div>
 
-          <div>
+
+        </section>
+        <section id="settings-verification" hidden={activeTab !== 'verification'} className="sk-system-verification">          <div>
             <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">Weryfikacja e-mail</h3>
             <p className="mb-3 text-xs text-gray-500 dark:text-gray-400">
               Automatycznie weryfikuj nowe kontakty po dodaniu ich do kampanii.
             </p>
-            <EmailVerificationSettings />
-          </div>
-        </section>
+            <EmailVerificationSettings initialExpanded />
+          </div></section>
           </>
         )}
 
-        {activeTab === 'integrating' && (
+        {true && (
           <>
         {/* ──────────────── API Keys ──────────────── */}
-        <section id="settings-api-keys" className="mb-10 scroll-mt-6">
+        <section id="settings-api-keys" hidden={activeTab !== 'api-keys'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">Klucze API</h2>
           <p className="text-xs text-gray-500 mb-4">
             Twórz klucze do programistycznego dostępu do API. Pełny klucz jest wyświetlany tylko raz — skopiuj go od razu.
@@ -1756,7 +1655,7 @@ export default function Settings() {
         </section>
 
         {/* ──────────────── Webhooks ──────────────── */}
-        <section id="settings-webhooks" className="mb-10 scroll-mt-6">
+        <section id="settings-webhooks" hidden={activeTab !== 'webhooks'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">Webhooki</h2>
           <p className="text-xs text-gray-500 mb-4">
             Zarejestruj jeden lub więcej wychodzących adresów webhook. Każdy webhook może subskrybować wybrane typy zdarzeń. Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.
@@ -1906,7 +1805,7 @@ export default function Settings() {
         </section>
 
         {/* ──────────────── MCP (AI agents) ──────────────── */}
-        <section id="settings-mcp" className="mb-10 scroll-mt-6">
+        <section id="settings-mcp" hidden={activeTab !== 'mcp'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2">MCP (agenci AI)</h2>
           <p className="text-xs text-gray-500 mb-4">
             Sekaro udostępnia zdalny punkt końcowy MCP przez HTTPS. Utwórz klucz API w sekcji Klucze API, a następnie skonfiguruj Cursor poleceniem
@@ -1973,8 +1872,8 @@ export default function Settings() {
           </>
         )}
 
-        {activeTab === 'dev' && !isProduction && (
-          <section id="settings-test-mode" className="mb-10 scroll-mt-6">
+        {!isProduction && (
+          <section id="settings-test-mode" hidden={activeTab !== 'test-mode'} className="mb-10 scroll-mt-6">
             <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Tryb testowy</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
               Po włączeniu wiadomości są symulowane — żadne realne wiadomości nie są wysyłane.
@@ -1985,6 +1884,11 @@ export default function Settings() {
             </label>
           </section>
         )}
+        </div>
+        {(["general","appearance"].includes(activeTab) || generalDirty) && <footer className="sk-system-savebar">
+          <span role="status"><Icon name={generalDirty ? 'clock' : 'check'} size={17}/>{generalSaving ? 'Zapisywanie…' : generalDirty ? 'Masz niezapisane ustawienia ogólne.' : generalSaved ? 'Ustawienia zapisane.' : 'Brak niezapisanych zmian.'}</span>
+          <div><Button variant="outline" onClick={cancelGeneral} disabled={!generalDirty || generalSaving}>Anuluj</Button><Button onClick={saveGeneral} disabled={!generalDirty || generalSaving}>{generalSaving ? 'Zapisywanie…' : 'Zapisz zmiany'}</Button></div>
+        </footer>}
         </div>
       </div>
 

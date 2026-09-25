@@ -1,6 +1,6 @@
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { api } from '../api';
 import { formatDateKey, formatTimeKey } from '../utils/datetime';
@@ -577,5 +577,80 @@ describe('campaign settings and activity safeguards', () => {
     mount(() => <CampaignActivity campaign={campaign} inboxes={inboxes}/>);
     await screen.findByText('Diagnostyka niedostępna');
     expect(screen.queryByText('Brak niepewnych prób wysyłki.')).toBeNull();
+  });
+});
+
+describe('system settings navigation and save semantics', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/#general');
+    mocks.user = {role:'admin',username:'Adam'};
+    api.get.mockImplementation(async path => {
+      if (path === '/settings/scheduling-strategy') return {scheduling_strategy:'priority'};
+      if (path === '/settings/ai') return {features:[]};
+      if (path === '/settings/ai/providers') return {providers:[]};
+      if (path === '/settings/webhooks/events') return {events:['email.sent']};
+      if (path === '/settings/known-ips') return {known_ips:[],current_ip:'127.0.0.1'};
+      if (path === '/settings/webhooks' || path === '/auth/api-keys') return [];
+      if (path === '/campaigns/has-leads') return {has_leads:true};
+      return {};
+    });
+  });
+  afterEach(() => { mocks.user = {role:'user'}; window.history.replaceState(null, '', '/'); });
+  const nav = () => within(screen.getByRole('navigation', {name:'Sekcje ustawień'}));
+  it('opens every available category and keeps legacy deep links working', async () => {
+    window.history.replaceState(null, '', '/#integrating');
+    mount(Settings);
+    await screen.findByRole('heading', {level:1,name:'Ustawienia systemu'});
+    expect(nav().getByRole('button', {name:'Klucze API'}).getAttribute('aria-current')).toBe('page');
+    for (const name of ['Ogólne','Wygląd i język','Konto i bezpieczeństwo','Znane adresy IP','Kopia i przywracanie','Funkcje AI','Weryfikacja e-mail','Pozostałe','Klucze API','Webhooki','MCP']) {
+      fireEvent.click(nav().getByRole('button', {name,exact:true}));
+      expect(nav().getByRole('button', {name,exact:true}).getAttribute('aria-current')).toBe('page');
+    }
+    expect(nav().queryByRole('button', {name:'Tryb testowy'})).toBeNull();
+  });
+  it('searches categories without accents and can clear a no-results state', async () => {
+    mount(Settings);
+    const search = await screen.findByRole('searchbox', {name:'Szukaj ustawienia'});
+    fireEvent.change(search,{target:{value:'klucze'}});
+    expect(nav().getByRole('button', {name:'Klucze API'})).toBeTruthy();
+    expect(nav().queryByRole('button', {name:'Ogólne'})).toBeNull();
+    fireEvent.change(search,{target:{value:'zaden-wynik'}});
+    fireEvent.click(screen.getByRole('button',{name:'Wyczyść wyszukiwanie'}));
+    expect(nav().getByRole('button',{name:'Ogólne'})).toBeTruthy();
+  });
+  it('does not expose backup controls to a non-admin through a URL', async () => {
+    mocks.user = {role:'user'};
+    window.history.replaceState(null, '', '/#setup');
+    mount(Settings);
+    await screen.findByRole('heading',{level:1,name:'Ustawienia systemu'});
+    expect(nav().queryByRole('button',{name:'Kopia i przywracanie'})).toBeNull();
+    expect(nav().getByRole('button',{name:'Ogólne'}).getAttribute('aria-current')).toBe('page');
+  });
+  it('stages scheduling changes and respects declined recalculation confirmation', async () => {
+    mount(Settings);
+    fireEvent.click(await screen.findByRole('radio',{name:/Równomierny podział/}));
+    expect(api.post).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button',{name:'Zapisz zmiany'}));
+    await waitFor(()=>expect(mocks.confirm).toHaveBeenCalled());
+    expect(api.post).not.toHaveBeenCalled();
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Anuluj'}).disabled).toBe(false));
+    fireEvent.click(screen.getByRole('button',{name:'Anuluj'}));
+    expect(screen.getByRole('radio',{name:/Priorytet kampanii/}).checked).toBe(true);
+  });
+  it('preserves drafts across navigation and failed save', async () => {
+    mount(Settings);
+    fireEvent.click(await screen.findByRole('radio',{name:/Równomierny podział/}));
+    fireEvent.click(nav().getByRole('button',{name:'Webhooki'}));
+    const url = screen.getByPlaceholderText('https://twoj-endpoint.example.com/hook');
+    fireEvent.change(url,{target:{value:'https://example.com/draft'}});
+    fireEvent.click(nav().getByRole('button',{name:'Ogólne'}));
+    expect(screen.getByRole('radio',{name:/Równomierny podział/}).checked).toBe(true);
+    mocks.confirm.mockResolvedValueOnce(true);
+    api.post.mockRejectedValueOnce(new Error('Nie zapisano strategii'));
+    fireEvent.click(screen.getByRole('button',{name:'Zapisz zmiany'}));
+    await screen.findByText('Nie zapisano strategii');
+    expect(screen.getByRole('radio',{name:/Równomierny podział/}).checked).toBe(true);
+    fireEvent.click(nav().getByRole('button',{name:'Webhooki'}));
+    expect(screen.getByPlaceholderText('https://twoj-endpoint.example.com/hook').value).toBe('https://example.com/draft');
   });
 });
