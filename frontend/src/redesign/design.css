@@ -1031,3 +1031,14 @@ html[data-theme=dark] .sk-login-submit{
  .sk-onboarding-card .p-8{padding:20px!important}
  .sk-onboarding-footer{padding:14px 18px!important;gap:12px;flex-wrap:wrap}
 }
+
+
+.sk-login-restore-confirm{
+ display:flex;align-items:flex-start;justify-content:space-between;gap:10px;
+ padding:10px 12px;border:1px solid color-mix(in srgb,var(--sk-red-text) 38%,var(--sk-line));
+ border-radius:8px;background:var(--sk-red-soft);color:var(--sk-red-text);font-size:11px;line-height:1.4
+}
+.sk-login-restore-confirm strong{font-weight:650}
+.sk-login-restore-confirm button{
+ flex-shrink:0;border:0;background:transparent;color:inherit;font-weight:700;text-decoration:underline
+}
