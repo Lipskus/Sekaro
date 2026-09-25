@@ -104,7 +104,7 @@ export default function Analytics() {
         setEndDate(last7.end);
         setActivePreset('Ostatnie 7 dni');
       } catch (e) {
-        setError('Failed to load analytics');
+        setError('Nie udało się wczytać analityki.');
       }
     })();
   }, []);
@@ -275,14 +275,14 @@ export default function Analytics() {
           onClick={() => setActivePreset('custom')}
           className={activePreset === 'custom' ? 'is-active' : ''}
         >
-          Custom
+          Własny zakres
         </button>
       </div>
 
       {activePreset === 'custom' && (
-        <div className="flex items-center gap-4">
-          <label className="text-sm flex items-center gap-1">From <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
-          <label className="text-sm flex items-center gap-1">To <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
+        <div className="sk-analytics-custom-range">
+          <label>Od <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} /></label>
+          <label>Do <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} /></label>
         </div>
       )}
 
@@ -331,14 +331,14 @@ export default function Analytics() {
       <div className="sk-analytics-campaign-filter">
         <div className="flex-1">
           <label htmlFor="campaign-select" className="sr-only">Kampanie</label>
-          <div className="flex items-center gap-2">
+          <div className="sk-analytics-campaign-picker">
             <select
               id="campaign-select"
               value={currentChoice}
               onChange={e => setCurrentChoice(e.target.value)}
               className="border rounded px-2 py-1"
             >
-              <option value="">Add a campaign…</option>
+              <option value="">Dodaj kampanię…</option>
               {campaigns
                 .filter(c => !selectedIds.includes(String(c.id)))
                 .map(c => (
