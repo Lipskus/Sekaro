@@ -39,13 +39,13 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-brand{display:flex;align-items:center;gap:9px;padding:24px 25px 18px;color:var(--sk-primary)!important}
 .sk-brand strong{display:block;font-size:29px;line-height:1.15;letter-spacing:-1px;font-weight:760;color:var(--sk-text)}
 .sk-brand small{display:block;color:var(--sk-muted);font-size:11px;margin-top:2px}
-.sk-sidebar nav{padding:12px 13px}
+.sk-sidebar nav{padding:12px 13px;min-height:0;overflow-y:auto}
 .sk-nav-item{display:flex;align-items:center;gap:10px;height:44px;padding:0 11px;border-radius:9px;margin:5px 0;color:var(--sk-text)!important;font-size:13px;transition:background .12s}
 .sk-nav-item svg{color:var(--sk-muted)}
 .sk-nav-item.active{background:var(--sk-green-soft);color:var(--sk-green-text)!important;font-weight:600}
 .sk-nav-item.active svg{color:inherit}
 .sk-nav-item:hover{background:var(--sk-green-soft)}
-.sk-sidebar-bottom{margin-top:auto;padding:16px 13px 28px;display:grid;gap:22px}
+.sk-sidebar-bottom{flex-shrink:0;margin-top:auto;padding:16px 13px 28px;display:grid;gap:22px}
 .sk-system-card,.sk-selfhost{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:10px;padding:16px 14px}
 .sk-system-card>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:5px}
 .sk-system-card .sk-badge{font-size:10px;background:transparent;padding:0}

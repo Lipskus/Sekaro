@@ -56,6 +56,27 @@ beforeEach(() => {
 afterEach(() => { cleanup(); vi.unstubAllGlobals(); });
 
 describe('reference board loading / empty / error states', () => {
+  it.each([0, 12])('shows missing custom content instead of draft/completed after %s sends', async emailsSent => {
+    api.get.mockImplementation(async path => path === '/campaigns' ? [{
+      id: 6, name: 'Personalizacja', paused: false,
+      stats: { total_leads: 0, emails_sent: emailsSent, scheduled: 0, needs_custom_email: 8 },
+    }] : { scheduling_strategy: 'priority' });
+    mount(Campaigns);
+    expect(await screen.findByText('Wymaga poprawek', { selector: '.sk-badge' })).toBeTruthy();
+    expect(screen.queryByText('Szkic')).toBeNull();
+    expect(screen.queryByText('Zakończona')).toBeNull();
+  });
+
+  it.each([false, true])('keeps multi-step campaign progress consistent when paused=%s', async paused => {
+    api.get.mockImplementation(async path => path === '/campaigns' ? [{
+      id: 3, name: 'Wielokrokowa kampania', paused,
+      stats: { total_leads: 8, emails_sent: 33, scheduled: 16, replies: 2 },
+    }] : { scheduling_strategy: 'priority' });
+    mount(Campaigns);
+    expect(await screen.findByText('33 wysłano · 67%')).toBeTruthy();
+    expect(screen.queryByText(/413%/)).toBeNull();
+  });
+
   it.each([
     [Campaigns, '/campaigns', 'Ładowanie kampanii', /Brak kampanii\./],
     [Inboxes, '/inboxes', 'Ładowanie skrzynek', /Brak skrzynek\./],
