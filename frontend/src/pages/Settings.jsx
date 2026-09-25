@@ -9,6 +9,7 @@ import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
+import { SectionTabs } from '../redesign/ui';
 
 const SETTINGS_TABS = [
   { id: 'general', label: 'Ogólne' },
@@ -689,29 +690,19 @@ export default function Settings() {
   /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
   return (
-    <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="shrink-0 px-6 lg:px-8 pt-6 lg:pt-8 pb-0 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-transparent">
-        <h1 className="text-2xl font-bold">Ustawienia</h1>
-        <nav
-          className="mt-4 flex flex-wrap gap-x-1 gap-y-0 items-end"
-          aria-label="Sekcje ustawień"
-        >
-          {visibleTabs.map(t => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => selectTab(t.id)}
-              className={
-                'px-3 py-2 text-sm font-medium leading-none transition-colors border-b-2 -mb-px ' +
-                (activeTab === t.id
-                  ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600')
-              }
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
+    <div className="sk-settings-page relative flex min-h-0 flex-1 flex-col overflow-hidden">
+      <header className="sk-settings-page-head shrink-0">
+        <div>
+          <h1>Ustawienia</h1>
+          <p>Dostosuj działanie systemu do swoich potrzeb.</p>
+        </div>
+        <SectionTabs
+          items={visibleTabs}
+          value={activeTab}
+          onChange={selectTab}
+          ariaLabel="Sekcje ustawień"
+          className="sk-settings-main-tabs"
+        />
       </header>
 
       <div className="flex min-h-0 min-w-0 flex-1 flex-col lg:flex-row lg:items-stretch">
