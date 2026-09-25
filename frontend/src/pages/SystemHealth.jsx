@@ -20,6 +20,7 @@ import {
   RiGlobalLine,
   RiHardDrive2Line,
 } from 'react-icons/ri';
+import { PageFrame, Metric, Button, ErrorNotice, StatePanel } from '../redesign/ui';
 
 /* ─── helpers ───────────────────────────────────────────────────────────── */
 
@@ -106,7 +107,7 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
           )}
         </div>
         <div>
-          <h1 className={`text-xl font-semibold ${col.text}`}>{msg.headline}</h1>
+          <h2 className={`text-xl font-semibold ${col.text}`}>{msg.headline}</h2>
           <p className="text-sm text-gray-500 mt-0.5">
             {status === 'ok'
               ? msg.sub
@@ -121,14 +122,16 @@ function OverallHeader({ status, loading, lastChecked, onRefresh, issueCount }) 
             <span>Sprawdzono <RelativeTime date={lastChecked} /></span>
           </div>
         )}
-        <button
-          onClick={onRefresh}
-          disabled={loading}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-        >
-          <RiRefreshLine size={15} className={loading ? 'animate-spin' : ''} />
-          {loading ? 'Sprawdzanie…' : 'Odśwież'}
-        </button>
+        {onRefresh && (
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="sk-btn"
+          >
+            <RiRefreshLine size={15} className={loading ? 'animate-spin' : ''} />
+            {loading ? 'Sprawdzanie…' : 'Odśwież'}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -365,9 +368,16 @@ function CheckMeta({ check }) {
 /* ─── Main page ─────────────────────────────────────────────────────────── */
 
 export default function SystemHealth() {
-  const { checks, loading, lastChecked, fetchError, refresh, muted, toggleMute, overallStatus } = useSystemHealth();
+  const { checks, loading, lastChecked, fetchError, refresh, muted, toggleMute, overallStatus, rawData } = useSystemHealth();
 
   const issueCount = checks.reduce((n, c) => n + c.issues.length, 0);
+  const errorChecks = checks.filter(check => check.status === 'error').length;
+  const warningChecks = checks.filter(check => check.status === 'warning').length;
+  const okChecks = checks.filter(check => check.status === 'ok').length;
+  const mailboxCount = rawData?.inboxes?.length || rawData?.smtp?.accounts?.length || 0;
+  const storageUsed = rawData?.storage?.available
+    ? Math.max(0, Math.min(100, Number(rawData.storage.used_percent) || 0))
+    : null;
 
   const mutedCount = checks.filter(c => muted.has(c.id)).length;
 
@@ -384,44 +394,45 @@ export default function SystemHealth() {
   }, [checks, muted, toggleMute]);
 
   return (
-    <div className="mx-auto min-h-0 max-w-5xl flex-1 space-y-6 overflow-y-auto p-6">
-      {/* Page title */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Stan systemu</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Stan skrzynek SMTP/IMAP, synchronizacji, śledzenia i konfiguracji funkcji Sekaro.
-          </p>
-        </div>
-        {mutedCount > 0 && (
-          <button
-            onClick={unmuteAll}
-            className="text-xs text-teal-600 hover:text-teal-700 border border-teal-200 rounded-lg px-3 py-1.5 transition-colors"
-          >
-            Wyłącz wyciszenie ({mutedCount})
-          </button>
-        )}
+    <PageFrame
+      className="sk-system-health-page"
+      title="System Health"
+      description="Status usług, zasobów, skrzynek i najważniejszych incydentów Sekaro."
+      actions={
+        <>
+          {mutedCount > 0 && (
+            <Button variant="outline" onClick={unmuteAll}>Wyłącz wyciszenie ({mutedCount})</Button>
+          )}
+          <Button variant="outline" icon="refresh" onClick={refresh} disabled={loading}>
+            {loading ? 'Sprawdzanie…' : 'Odśwież diagnostykę'}
+          </Button>
+        </>
+      }
+    >
+      <ErrorNotice error={fetchError ? `Nie udało się pobrać diagnostyki: ${fetchError}` : null} onRetry={refresh} />
+
+      <div className="sk-health-metrics">
+        <Metric
+          icon="shield"
+          title="Status systemu"
+          value={overallStatus === 'error' ? 'Błąd' : overallStatus === 'warning' ? 'Ostrzeżenie' : overallStatus === 'ok' ? 'Dostępny' : 'Nieznany'}
+          detail={issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
+          tone={overallStatus === 'error' ? 'red' : overallStatus === 'warning' ? 'amber' : overallStatus === 'ok' ? 'green' : 'neutral'}
+        />
+        <Metric icon="mail" title="SMTP / IMAP" value={mailboxCount} detail={mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={mailboxCount ? 'green' : 'red'} />
+        <Metric icon="server" title="Kontrole" value={checks.length} detail={`${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów`} tone={errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
+        <Metric icon="chart" title="Dysk" value={storageUsed == null ? '—' : `${storageUsed.toFixed(0)}%`} detail={rawData?.storage?.available ? 'wykorzystanie magazynu danych' : 'brak danych o pojemności'} tone={storageUsed == null ? 'neutral' : storageUsed >= 95 ? 'red' : storageUsed >= 85 ? 'amber' : 'green'} />
       </div>
 
-      {/* Error fetching */}
-      {fetchError && (
-        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-700">
-          Nie udało się pobrać diagnostyki: {fetchError}
-        </div>
-      )}
-
-      {/* Overall summary */}
       <OverallHeader
         status={overallStatus}
         loading={loading}
         lastChecked={lastChecked}
-        onRefresh={refresh}
         issueCount={issueCount}
       />
 
-      {/* Check cards grid */}
       {checks.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="sk-health-grid">
           {sortedChecks.map(check => (
             <CheckCard
               key={check.id}
@@ -432,17 +443,15 @@ export default function SystemHealth() {
           ))}
         </div>
       ) : loading ? (
-        <div className="text-center py-16 text-gray-400">
-          <RiRefreshLine size={32} className="animate-spin mx-auto mb-3" />
-          <p>Wczytywanie danych diagnostycznych…</p>
-        </div>
-      ) : null}
+        <StatePanel tone="info" icon="refresh" title="Wczytywanie diagnostyki" description="Sprawdzamy usługi, skrzynki i konfigurację Sekaro." />
+      ) : (
+        <StatePanel tone="warning" icon="warning" title="Brak danych diagnostycznych" description="Uruchom ponownie diagnostykę systemu." actions={<Button onClick={refresh}>Sprawdź ponownie</Button>} />
+      )}
 
-      {/* Footer note */}
-      <p className="text-xs text-center text-gray-400 pb-4">
-        Dane diagnostyczne odświeżają się automatycznie co 5 minut oraz po kliknięciu „Odśwież”. 
-        Wyciszenie jest zapisywane lokalnie i ukrywa szczegóły kategorii, ale nie zmienia rzeczywistej oceny stanu systemu.
+      <p className="sk-health-footer">
+        Dane diagnostyczne odświeżają się automatycznie co 5 minut. Wyciszenie ukrywa szczegóły kategorii,
+        ale nie zmienia rzeczywistej oceny stanu systemu.
       </p>
-    </div>
+    </PageFrame>
   );
 }

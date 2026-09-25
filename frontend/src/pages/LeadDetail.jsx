@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { PageFrame, Metric, Badge, ErrorNotice, StatePanel } from '../redesign/ui';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
 
@@ -73,53 +74,58 @@ export default function LeadDetail() {
 
   if (error && !lead) {
     return (
-      <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-8">
-        <h1 className="text-2xl font-semibold mb-4">Lead</h1>
-        <p className="text-red-600">{error}</p>
+      <PageFrame title="Kontakt" description="Nie udało się wczytać danych kontaktu.">
+        <ErrorNotice error={error} onRetry={load} />
         <Button as={Link} to="/leads" variant="outline">Wróć do kontaktów</Button>
-      </div>
+      </PageFrame>
     );
   }
 
   if (!lead) {
     return (
-      <div className="min-h-0 flex-1 overflow-y-auto p-8">
-        <p className="text-gray-500">Wczytywanie…</p>
-      </div>
+      <PageFrame title="Kontakt" description="Wczytywanie danych kontaktu…">
+        <StatePanel tone="info" icon="refresh" title="Wczytywanie" description="Pobieramy profil, kampanie i historię kontaktu." />
+      </PageFrame>
     );
   }
 
+  const interactions = lead.interactions || [];
+  const outboundCount = interactions.filter(row => row.direction === 'outbound').length;
+  const inboundCount = interactions.filter(row => row.direction !== 'outbound').length;
+  const campaignsCount = lead.campaigns?.length || 0;
+
   return (
-    <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <div className="text-sm text-gray-500 mb-1">
-            <Link to="/leads" className="text-teal-500 hover:underline">Leads</Link>
-            <span className="mx-2">/</span>
-            <span className="font-mono text-xs">#{lead.id}</span>
-          </div>
-          <h1 className="text-2xl font-semibold">{lead.name || lead.email}</h1>
-          <p className="text-gray-600 mt-1 font-mono text-sm">{lead.email}</p>
-        </div>
-        <Button as={Link} to="/unibox" variant="outline" size="sm">
-          Otwórz Odebrane
-        </Button>
-      </div>
-
-      <div className="flex flex-wrap gap-2 text-sm">
+    <PageFrame
+      className="sk-contact-detail-page"
+      title={lead.name || lead.email}
+      description={lead.email}
+      actions={
+        <>
+          <Button as={Link} to="/leads" variant="outline" size="sm">Wróć do kontaktów</Button>
+          <Button as={Link} to="/unibox" variant="outline" size="sm">Otwórz Wątki</Button>
+        </>
+      }
+    >
+      <div className="sk-contact-detail-meta">
+        <span className="sk-contact-detail-id">Kontakt #{lead.id}</span>
         {lead.email_verification_status && (
-          <span className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 rounded-full px-2 py-0.5">
-            verify: {lead.email_verification_status}
-          </span>
+          <Badge dot tone={lead.email_verification_status === 'invalid' ? 'red' : lead.email_verification_status === 'valid' ? 'green' : 'neutral'}>
+            {lead.email_verification_status}
+          </Badge>
         )}
-        {lead.provider && (
-          <span className="bg-slate-100 text-slate-700 rounded-full px-2 py-0.5 text-xs">
-            {lead.provider}
-          </span>
-        )}
+        {lead.provider && <Badge tone="blue">{lead.provider}</Badge>}
       </div>
 
-      <Card className="p-4">
+      <div className="sk-contact-detail-metrics">
+        <Metric icon="campaign" title="Kampanie" value={campaignsCount} detail="powiązane kampanie" tone="green" />
+        <Metric icon="send" title="Wysłane" value={outboundCount} detail="zdarzenia outbound" tone="blue" />
+        <Metric icon="reply" title="Odebrane" value={inboundCount} detail="odpowiedzi i wiadomości" tone="purple" />
+        <Metric icon="history" title="Historia" value={interactions.length} detail="zarejestrowane zdarzenia" tone="green" />
+      </div>
+
+      <div className="sk-contact-detail-layout">
+
+      <Card className="sk-contact-detail-campaigns p-4">
         <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
           Kampanie
         </h2>
@@ -163,7 +169,7 @@ export default function LeadDetail() {
         )}
       </Card>
 
-      <Card className="p-4">
+      <Card className="sk-contact-detail-fields p-4">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 pb-3 dark:border-gray-700">
           <div>
             <h2 className="text-lg font-semibold">Dane kontaktu i zmienne</h2>
@@ -225,7 +231,7 @@ export default function LeadDetail() {
         )}
       </Card>
 
-      <Card className="p-4 overflow-auto">
+      <Card className="sk-contact-detail-history p-4 overflow-auto">
         <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
           Historia
         </h2>
@@ -260,6 +266,7 @@ export default function LeadDetail() {
           <p className="text-gray-500 text-sm">Brak historii kontaktu.</p>
         )}
       </Card>
-    </div>
+      </div>
+    </PageFrame>
   );
 }
