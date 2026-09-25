@@ -123,8 +123,8 @@ export function StatePanel({title,description,icon='info',tone='neutral',actions
  </section>;
 }
 
-export function SettingsCard({title,description,icon='settings',action,span=12,children,className=''}) {
- return <section className={`sk-settings-card sk-span-${span} ${className}`}>
+export function SettingsCard({title,description,icon='settings',action,span=12,children,className='',...props}) {
+ return <section className={`sk-settings-card sk-span-${span} ${className}`} {...props}>
   <header className="sk-settings-card-head">
    <div className="sk-settings-card-title">
     <span><Icon name={icon} size={20}/></span>
