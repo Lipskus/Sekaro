@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api, apiCache } from '../api';
-import { Input } from '../components/ui/Input';
-import { Button } from '../components/ui/Button';
+import { PageFrame, Panel, Button, Field, Switch, Badge, Icon } from '../redesign/ui';
 
 export default function AddCampaign() {
   const [inboxes, setInboxes] = useState(() => apiCache.get('/inboxes') || []);
@@ -86,191 +85,248 @@ export default function AddCampaign() {
     }
   }
 
+  const selectedInboxes = inboxes.filter(inbox => form.inbox_ids.includes(inbox.id));
+  const dayLabels = ['Pon','Wt','Śr','Czw','Pt','Sob','Nie'];
+
   return (
-    <div className="min-h-0 max-w-xl flex-1 overflow-y-auto p-8">
-      <h1 className="text-2xl font-bold mb-4">Nowa kampania</h1>
+    <PageFrame
+      className="sk-campaign-builder"
+      title="Nowa kampania"
+      description="Skonfiguruj podstawowe zasady wysyłki. Kampania zostanie utworzona jako wstrzymana i wymaga pre-flight przed startem."
+      actions={
+        <Button variant="outline" to="/campaigns" icon="back">Wróć do kampanii</Button>
+      }
+    >
       {message && (
-        <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>
-          {message.text}
+        <div className={`sk-notice ${message.type === 'error' ? 'tone-red' : 'tone-green'}`} role={message.type === 'error' ? 'alert' : 'status'}>
+          <Icon name={message.type === 'error' ? 'warning' : 'success'} />
+          <span>{message.text}</span>
         </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <Input
-            label="Nazwa kampanii *"
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">
-            Skrzynki nadawcze
-          </label>
-          <div className="mt-1 space-y-1 max-h-52 overflow-y-auto p-2 border border-gray-300 rounded">
-            {inboxes.map(i => (
-              <label key={i.id} className="flex items-center gap-2">
+
+      <form onSubmit={handleSubmit} className="sk-campaign-builder-grid">
+        <div className="sk-campaign-builder-main">
+          <Panel title="Podstawowe informacje" icon="campaign" className="sk-builder-panel">
+            <div className="sk-builder-panel-body">
+              <Field
+                label="Nazwa kampanii *"
+                help="Wybierz krótką nazwę, po której łatwo rozpoznasz kampanię."
+              >
                 <input
-                  type="checkbox"
-                  name="inbox_id"
-                  value={i.id}
-                  checked={form.inbox_ids.includes(i.id)}
-                  onChange={handleCheckboxChange}
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                  required
+                  maxLength={120}
+                  placeholder="np. Q4 — pozyskiwanie agencji marketingowych"
                 />
-                <span className="text-sm">
-                  {i.email}{i.display_name ? ` (${i.display_name})` : ''} — maks. {i.max_emails_per_day}/dzień
-                  {i.max_emails_per_hour > 0 ? ` · ${i.max_emails_per_hour}/godz.` : ''}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Dni wysyłki</label>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {[0,1,2,3,4,5,6].map(d => (
-              <label key={d} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="day"
-                  value={d}
-                  checked={form.sending_days.includes(d)}
-                  onChange={handleCheckboxChange}
-                />
-                <span className="text-sm">
-                  {['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d]}
-                </span>
-              </label>
-            ))}
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sending window start</label>
-            <input
-              type="time"
-              name="sending_hours_start"
-              value={form.sending_hours_start}
-              onChange={handleChange}
-              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sending window end</label>
-            <input
-              type="time"
-              name="sending_hours_end"
-              value={form.sending_hours_end}
-              onChange={handleChange}
-              className="border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
-          </div>
-        </div>
-        {/* Strefa czasowa */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Strefa czasowa</label>
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Szukaj strefy czasowej…"
-              value={tzSearch || form.timezone}
-              onFocus={e => { setTzSearch(''); e.target.select(); }}
-              onChange={e => { setTzSearch(e.target.value); }}
-              onBlur={() => setTimeout(() => setTzSearch(''), 200)}
-              className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-            />
-            {tzSearch !== '' && (
-              <ul className="absolute z-50 mt-1 w-full max-h-52 overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg">
-                {filteredTz.slice(0, 100).map(t => (
-                  <li
-                    key={t.value}
-                    className={`px-3 py-2 text-sm cursor-pointer hover:bg-teal-50 ${
-                      form.timezone === t.value ? 'bg-teal-100 font-medium' : ''
-                    }`}
-                    onMouseDown={() => { setForm(f => ({ ...f, timezone: t.value })); setTzSearch(''); }}
-                  >
-                    {t.label}
-                  </li>
-                ))}
-                {filteredTz.length === 0 && <li className="px-3 py-2 text-sm text-gray-400">No match</li>}
-              </ul>
-            )}
-          </div>
-          <p className="text-xs text-gray-400 mt-1">Godziny wysyłki above are interpreted in this timezone</p>
-        </div>
-        <div>
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              name="stop_on_reply"
-              checked={form.stop_on_reply}
-              onChange={handleChange}
-            />
-            <span className="text-sm">Zatrzymaj sekwencję, gdy kontakt odpowie</span>
-          </label>
-        </div>
+              </Field>
+              <div className="sk-builder-inline-note">
+                <Badge tone="amber" dot>Wstrzymana po utworzeniu</Badge>
+                <span>Uruchomienie będzie możliwe po pozytywnym pre-flight.</span>
+              </div>
+            </div>
+          </Panel>
 
-        {/* Tracking */}
-        <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Tracking</p>
-          <div className="space-y-1 pl-1">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="track_opens" checked={form.track_opens} onChange={handleChange} />
-              <span className="text-sm">Śledź otwarcia wiadomości</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="track_clicks" checked={form.track_clicks} onChange={handleChange} />
-              <span className="text-sm">Śledź kliknięcia linków</span>
-            </label>
-          </div>
-        </div>
+          <Panel title="Skrzynki nadawcze" icon="mail" className="sk-builder-panel">
+            <div className="sk-builder-panel-body">
+              {inboxes.length === 0 ? (
+                <div className="sk-builder-empty">
+                  <Icon name="warning" size={24} />
+                  <div>
+                    <strong>Brak skonfigurowanych skrzynek SMTP/IMAP</strong>
+                    <span>Dodaj skrzynkę, zanim zaczniesz wysyłać wiadomości.</span>
+                  </div>
+                  <Button variant="outline" to="/inboxes">Skonfiguruj skrzynki</Button>
+                </div>
+              ) : (
+                <div className="sk-builder-mailbox-list">
+                  {inboxes.map(inbox => {
+                    const checked = form.inbox_ids.includes(inbox.id);
+                    return (
+                      <label key={inbox.id} className={`sk-builder-mailbox ${checked ? 'is-selected' : ''}`}>
+                        <input
+                          type="checkbox"
+                          name="inbox_id"
+                          value={inbox.id}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                        <span className="sk-builder-mailbox-icon"><Icon name="mail" size={18}/></span>
+                        <span className="sk-builder-mailbox-copy">
+                          <strong>{inbox.email}</strong>
+                          <small>
+                            {inbox.display_name || 'SMTP / IMAP'} · maks. {inbox.max_emails_per_day}/dzień
+                            {inbox.max_emails_per_hour > 0 ? ` · ${inbox.max_emails_per_hour}/godz.` : ''}
+                          </small>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </Panel>
 
-        {/* Unsubscribe */}
-        <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Unsubscribe</p>
-          <div className="space-y-1 pl-1">
-            <label className="flex items-center gap-2">
-              <input type="checkbox" name="add_unsubscribe_header" checked={form.add_unsubscribe_header} onChange={handleChange} />
-              <span className="text-sm">Dodaj nagłówek List-Unsubscribe (recommended)</span>
-            </label>
-          </div>
-        </div>
+          <Panel title="Harmonogram wysyłki" icon="calendar" className="sk-builder-panel">
+            <div className="sk-builder-panel-body">
+              <div>
+                <span className="sk-field-label">Dni wysyłki</span>
+                <div className="sk-builder-days" role="group" aria-label="Dni wysyłki">
+                  {[0,1,2,3,4,5,6].map(day => {
+                    const checked=form.sending_days.includes(day);
+                    return (
+                      <label key={day} className={checked ? 'is-selected' : ''}>
+                        <input
+                          type="checkbox"
+                          name="day"
+                          value={day}
+                          checked={checked}
+                          onChange={handleCheckboxChange}
+                        />
+                        <span>{dayLabels[day]}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
 
-        {/* Sending format */}
-        <div className="border-t pt-3">
-          <p className="text-sm font-semibold text-gray-700 mb-1">Sending format</p>
-          <div className="space-y-1 pl-1">
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="send_first_as_text"
+              <div className="sk-builder-two-col">
+                <Field label="Godzina rozpoczęcia">
+                  <input
+                    type="time"
+                    name="sending_hours_start"
+                    value={form.sending_hours_start}
+                    onChange={handleChange}
+                  />
+                </Field>
+                <Field label="Godzina zakończenia">
+                  <input
+                    type="time"
+                    name="sending_hours_end"
+                    value={form.sending_hours_end}
+                    onChange={handleChange}
+                  />
+                </Field>
+              </div>
+
+              <Field
+                label="Strefa czasowa"
+                help="Okno wysyłki jest interpretowane w wybranej strefie czasowej."
+              >
+                <div className="sk-builder-timezone">
+                  <input
+                    type="text"
+                    placeholder="Szukaj strefy czasowej…"
+                    value={tzSearch || form.timezone}
+                    onFocus={e => { setTzSearch(''); e.target.select(); }}
+                    onChange={e => setTzSearch(e.target.value)}
+                    onBlur={() => setTimeout(() => setTzSearch(''), 200)}
+                  />
+                  {tzSearch !== '' && (
+                    <ul className="sk-builder-timezone-menu">
+                      {filteredTz.slice(0, 100).map(t => (
+                        <li key={t.value}>
+                          <button
+                            type="button"
+                            className={form.timezone === t.value ? 'is-selected' : ''}
+                            onMouseDown={e => {
+                              e.preventDefault();
+                              setForm(prev => ({ ...prev, timezone: t.value }));
+                              setTzSearch('');
+                            }}
+                          >
+                            {t.label}
+                          </button>
+                        </li>
+                      ))}
+                      {filteredTz.length === 0 && <li className="sk-muted sk-small">Brak dopasowania</li>}
+                    </ul>
+                  )}
+                </div>
+              </Field>
+            </div>
+          </Panel>
+
+          <Panel title="Zasady i śledzenie" icon="shield" className="sk-builder-panel">
+            <div className="sk-builder-panel-body">
+              <Switch
+                checked={form.stop_on_reply}
+                onChange={value => setForm(prev => ({ ...prev, stop_on_reply: value }))}
+                label="Zatrzymaj sekwencję po odpowiedzi"
+                description="Kontakt nie otrzyma kolejnych kroków po wykryciu odpowiedzi."
+              />
+              <div className="sk-settings-divider"/>
+              <Switch
+                checked={form.track_opens}
+                onChange={value => setForm(prev => ({ ...prev, track_opens: value }))}
+                label="Śledź otwarcia wiadomości"
+                description="Rejestruj zdarzenia open dla wiadomości kampanii."
+              />
+              <Switch
+                checked={form.track_clicks}
+                onChange={value => setForm(prev => ({ ...prev, track_clicks: value }))}
+                label="Śledź kliknięcia linków"
+                description="Rejestruj kliknięcia w linki znajdujące się w wiadomościach."
+              />
+              <Switch
+                checked={form.add_unsubscribe_header}
+                onChange={value => setForm(prev => ({ ...prev, add_unsubscribe_header: value }))}
+                label="Dodaj nagłówek List-Unsubscribe"
+                description="Zalecane dla bezpiecznej i zgodnej wysyłki."
+              />
+              <div className="sk-settings-divider"/>
+              <Switch
                 checked={form.send_first_as_text}
                 disabled={form.send_all_as_text}
-                onChange={handleChange}
+                onChange={value => setForm(prev => ({ ...prev, send_first_as_text: value }))}
+                label="Pierwszą wiadomość wyślij jako zwykły tekst"
+                description="Dotyczy tylko pierwszego kroku sekwencji."
               />
-              <span className="text-sm">Pierwszą wiadomość wyślij jako zwykły tekst</span>
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                name="send_all_as_text"
+              <Switch
                 checked={form.send_all_as_text}
-                onChange={e => setForm(f => ({
-                  ...f,
-                  send_all_as_text: e.target.checked,
-                  send_first_as_text: e.target.checked ? false : f.send_first_as_text,
+                onChange={value => setForm(prev => ({
+                  ...prev,
+                  send_all_as_text: value,
+                  send_first_as_text: value ? false : prev.send_first_as_text,
                 }))}
+                label="Wszystkie wiadomości wysyłaj jako zwykły tekst"
+                description="Wyłącza formatowanie HTML dla całej kampanii."
               />
-              <span className="text-sm">Wszystkie wiadomości wysyłaj jako zwykły tekst</span>
-            </label>
-          </div>
+            </div>
+          </Panel>
         </div>
 
-        <div className="flex gap-2">
-          <Button type="submit" variant="default">Utwórz kampanię</Button>
-        </div>
+        <aside className="sk-campaign-builder-summary">
+          <Panel title="Podsumowanie kampanii" icon="chart" className="sk-builder-summary-panel">
+            <dl className="sk-builder-summary-list">
+              <div><dt>Nazwa</dt><dd>{form.name || '—'}</dd></div>
+              <div><dt>Skrzynki</dt><dd>{selectedInboxes.length}</dd></div>
+              <div><dt>Dni wysyłki</dt><dd>{form.sending_days.length ? form.sending_days.map(day => dayLabels[day]).join(', ') : 'Brak'}</dd></div>
+              <div><dt>Okno wysyłki</dt><dd>{form.sending_hours_start}–{form.sending_hours_end}</dd></div>
+              <div><dt>Strefa</dt><dd>{form.timezone}</dd></div>
+              <div><dt>Stop on reply</dt><dd>{form.stop_on_reply ? 'Tak' : 'Nie'}</dd></div>
+              <div><dt>Tracking</dt><dd>{form.track_opens || form.track_clicks ? 'Włączony' : 'Wyłączony'}</dd></div>
+            </dl>
+          </Panel>
+
+          <Panel title="Lista kontrolna" icon="check" className="sk-builder-summary-panel">
+            <div className="sk-builder-checklist">
+              <div className={form.name.trim() ? 'is-ok' : ''}><Icon name={form.name.trim() ? 'check' : 'clock'} size={17}/><span>Nazwa kampanii</span></div>
+              <div className={selectedInboxes.length ? 'is-ok' : ''}><Icon name={selectedInboxes.length ? 'check' : 'clock'} size={17}/><span>Skrzynka nadawcza</span></div>
+              <div className={form.sending_days.length ? 'is-ok' : ''}><Icon name={form.sending_days.length ? 'check' : 'clock'} size={17}/><span>Dni wysyłki</span></div>
+              <div className="is-ok"><Icon name="check" size={17}/><span>Bezpieczny start: wstrzymana</span></div>
+            </div>
+          </Panel>
+
+          <div className="sk-builder-submit">
+            <Button type="button" variant="outline" to="/campaigns">Anuluj</Button>
+            <Button type="submit" variant="primary" icon="plus" disabled={!form.name.trim()}>
+              Utwórz kampanię
+            </Button>
+          </div>
+        </aside>
       </form>
-    </div>
+    </PageFrame>
   );
 }
