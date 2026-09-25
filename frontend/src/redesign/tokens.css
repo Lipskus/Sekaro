@@ -2085,6 +2085,12 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
   background:var(--sk-surface)!important;
   color:var(--sk-text);
 }
+.sk-campaign-modal-surface {
+  border:1px solid var(--sk-line);
+  background:var(--sk-surface)!important;
+  color:var(--sk-text);
+  box-shadow:0 20px 60px #0003;
+}
 .sk-legacy-campaign .fixed.inset-0 [style*="background-color: white"],
 .sk-legacy-campaign .fixed.inset-0 [style*="backgroundColor"] {
   background:var(--sk-surface)!important;
