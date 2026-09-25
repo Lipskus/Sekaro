@@ -11,6 +11,7 @@ import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
 import { SectionTabs, SettingsCard, Field } from '../redesign/ui';
+import Modal from '../redesign/Modal';
 
 const SETTINGS_TABS = [
   { id: 'general', label: 'Ogólne', icon: 'settings' },
@@ -1441,7 +1442,7 @@ export default function Settings() {
                     <span className={`text-gray-400 transition-transform text-xs ${isOpen ? 'rotate-90' : ''}`}>▶</span>
                     <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{feature.label}</h3>
                     {feature.enabled
-                      ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Enabled</span>
+                      ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączony</span>
                       : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
                     }
                   </div>
@@ -1965,7 +1966,7 @@ export default function Settings() {
           <section id="settings-test-mode" className="mb-10 scroll-mt-6">
             <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Tryb testowy</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-              When enabled emails are simulated — no real messages are sent.
+              Po włączeniu wiadomości są symulowane — żadne realne wiadomości nie są wysyłane.
             </p>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={testMode} onChange={e => submitTestMode(e.target.checked)} />
@@ -1978,92 +1979,82 @@ export default function Settings() {
 
       {/* ──────────────── Known IPs Dialog ──────────────── */}
       {knownIpsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-full max-w-2xl mx-4 p-6 max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Znane adresy IP</h2>
-              <button
-                onClick={() => setKnownIpsOpen(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-xl leading-none"
-              >✕</button>
-            </div>
-            <p className="text-xs text-gray-500 mb-4">
-              Opens and clicks from these IPs are ignored (self-open filtering). IPs from your browser sessions are collected automatically and expire after one week. You can also add permanent IPs manually.
-            </p>
+        <Modal title="Znane adresy IP" onClose={() => setKnownIpsOpen(false)}>
+          <p className="text-xs text-gray-500 mb-4">
+            Otwarcia i kliknięcia z tych adresów IP są ignorowane przy filtrowaniu własnej aktywności.
+            Adresy z sesji przeglądarki są dodawane automatycznie i wygasają po tygodniu; możesz też dodać stały adres ręcznie.
+          </p>
 
-            {/* Add new IP */}
-            <div className="flex gap-2 mb-4">
-              <input
-                type="text"
-                placeholder="e.g. 203.0.113.5"
-                value={newIpAddress}
-                onChange={e => setNewIpAddress(e.target.value)}
-                className="flex-1 border rounded px-2 py-1 text-sm dark:bg-gray-800 dark:border-gray-600"
-              />
-              <Button size="sm" onClick={async () => {
-                const ip = newIpAddress.trim();
-                if (!ip) return;
-                try {
-                  await api.post('/settings/known-ips', { ip_address: ip, permanent: true });
-                  setNewIpAddress('');
-                  const d = await api.get('/settings/known-ips');
-                  setKnownIps(d.known_ips || []);
-                  notify('IP added', 'success');
-                } catch (e) { notify(e.message, 'error'); }
-              }}>Add Permanent</Button>
-            </div>
-
-            {/* IP list */}
-            <div className="overflow-y-auto flex-1">
-              {knownIps.length === 0 ? (
-                <p className="text-sm text-gray-400 italic">No known IPs yet. Your browser IP will be registered automatically.</p>
-              ) : (
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-gray-500 border-b">
-                      <th className="pb-1">IP Address</th>
-                      <th className="pb-1">Type</th>
-                      <th className="pb-1">Last Seen</th>
-                      <th className="pb-1">Expires</th>
-                      <th className="pb-1"></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {knownIps.map(ip => (
-                      <tr key={ip.id} className={`border-b ${ip.is_current ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
-                        <td className="py-1.5">
-                          {ip.ip_address}
-                          {ip.is_current && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">(you)</span>}
-                        </td>
-                        <td className="py-1.5">
-                          {ip.permanent
-                            ? <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">permanent</span>
-                            : <span className="text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-1.5 py-0.5 rounded">auto</span>
-                          }
-                        </td>
-                        <td className="py-1.5 text-gray-500">{ip.last_seen_at ? new Date(ip.last_seen_at).toLocaleDateString() : '—'}</td>
-                        <td className="py-1.5 text-gray-500">{ip.expires_at ? new Date(ip.expires_at).toLocaleDateString() : '—'}</td>
-                        <td className="py-1.5 text-right">
-                          <button
-                            className="text-xs text-red-500 hover:underline"
-                            onClick={async () => {
-                              try {
-                                await api.del(`/settings/known-ips/${ip.id}`);
-                                const d = await api.get('/settings/known-ips');
-                                setKnownIps(d.known_ips || []);
-                                notify('IP removed', 'success');
-                              } catch (e) { notify(e.message, 'error'); }
-                            }}
-                          >Remove</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="np. 203.0.113.5"
+              value={newIpAddress}
+              onChange={e => setNewIpAddress(e.target.value)}
+              className="flex-1 border rounded px-2 py-1 text-sm"
+            />
+            <Button size="sm" onClick={async () => {
+              const ip = newIpAddress.trim();
+              if (!ip) return;
+              try {
+                await api.post('/settings/known-ips', { ip_address: ip, permanent: true });
+                setNewIpAddress('');
+                const d = await api.get('/settings/known-ips');
+                setKnownIps(d.known_ips || []);
+                notify({ type: 'success', message: 'Adres IP dodany.' });
+              } catch (e) { notify({ type: 'error', message: e.message }); }
+            }}>Dodaj na stałe</Button>
           </div>
-        </div>
+
+          <div className="overflow-y-auto max-h-[52vh]">
+            {knownIps.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">Brak znanych adresów IP. Adres bieżącej przeglądarki zostanie zarejestrowany automatycznie.</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-gray-500 border-b">
+                    <th className="pb-1">Adres IP</th>
+                    <th className="pb-1">Typ</th>
+                    <th className="pb-1">Ostatnio widziany</th>
+                    <th className="pb-1">Wygasa</th>
+                    <th className="pb-1"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {knownIps.map(ip => (
+                    <tr key={ip.id} className={`border-b ${ip.is_current ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
+                      <td className="py-1.5">
+                        {ip.ip_address}
+                        {ip.is_current && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">(bieżący)</span>}
+                      </td>
+                      <td className="py-1.5">
+                        {ip.permanent
+                          ? <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">stały</span>
+                          : <span className="text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-1.5 py-0.5 rounded">auto</span>
+                        }
+                      </td>
+                      <td className="py-1.5 text-gray-500">{ip.last_seen_at ? new Date(ip.last_seen_at).toLocaleDateString('pl-PL') : '—'}</td>
+                      <td className="py-1.5 text-gray-500">{ip.expires_at ? new Date(ip.expires_at).toLocaleDateString('pl-PL') : '—'}</td>
+                      <td className="py-1.5 text-right">
+                        <button
+                          className="text-xs text-red-500 hover:underline"
+                          onClick={async () => {
+                            try {
+                              await api.del(`/settings/known-ips/${ip.id}`);
+                              const d = await api.get('/settings/known-ips');
+                              setKnownIps(d.known_ips || []);
+                              notify({ type: 'success', message: 'Adres IP usunięty.' });
+                            } catch (e) { notify({ type: 'error', message: e.message }); }
+                          }}
+                        >Usuń</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Modal>
       )}
     </div>
   );
