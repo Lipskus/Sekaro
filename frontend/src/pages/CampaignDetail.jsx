@@ -546,7 +546,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               const isWarn = status === 'invalid' || status === 'risky';
               notify({
                 type: isWarn ? 'warning' : 'success',
-                message: `Zweryfikowano ${delta} kontaktów → ${STATUS_LABELS[status] || status}`, 
+                message: `Zweryfikowano ${delta} kontaktów → ${STATUS_LABELS[status] || status}`,
               });
             }
           });
