@@ -7,7 +7,7 @@ import {Panel,Metric,Button,Badge,Avatar,Icon,Empty,ErrorNotice,dateTime} from '
 import ActivityChart from '../ActivityChart';
 
 export default function Dashboard(){
- const {user}=useAuth(),{overallStatus}=useSystemHealth();
+ const {user}=useAuth(),{overallStatus,loading:healthLoading,fetchError:healthError}=useSystemHealth();
  const [data,setData]=useState(null),[error,setError]=useState(''),[days,setDays]=useState(7);
  const load=useCallback(async()=>{
   setError('');const start=new Date();start.setUTCDate(start.getUTCDate()-days+1);
