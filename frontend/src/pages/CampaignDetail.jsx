@@ -506,8 +506,8 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
       // Nothing queued – ask the user if they want to re-verify existing ones
       if (res.queued === 0 && res.needs_reverify && !forceReverify) {
-        const confirmed = window.confirm(
-          `All ${res.total_verified} lead(s) are already verified.\nRe-verify them all?`
+        const confirmed = await confirm(
+          `Wszystkie kontakty (${res.total_verified}) są już zweryfikowane.\nZweryfikować je ponownie?`
         );
         setVerifying(false);
         if (confirmed) verifyAllLeads(true);
@@ -1168,10 +1168,8 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           onMouseDown={e => { if (e.target === e.currentTarget) setShowLeadsConfirm(false); }}
         >
           <div
-            data-darkreader-ignore
-            className="rounded-xl shadow-lg p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
-            style={{ backgroundColor: 'white' }}
-            onClick={e => e.stopPropagation()}
+            className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
+                        onClick={e => e.stopPropagation()}
           >
             <h2 className="text-lg font-semibold text-gray-800 mb-4">Review leads before adding</h2>
 
@@ -2430,10 +2428,8 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
       onClick={() => { if (backdropDown.current) onClose(); }}
     >
       <div
-        data-darkreader-ignore
-        className="rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
-        style={{ backgroundColor: 'white' }}
-        onClick={e => e.stopPropagation()}
+        className="sk-campaign-modal-surface rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
+                onClick={e => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b">
@@ -2871,10 +2867,8 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
       onMouseDown={e => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
-        data-darkreader-ignore
-        className="rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
-        style={{ backgroundColor: 'white' }}
-        onClick={e => e.stopPropagation()}
+        className="sk-campaign-modal-surface rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
+                onClick={e => e.stopPropagation()}
       >
         <div className="px-6 py-4 border-b flex items-center justify-between">
           <div>
@@ -3547,7 +3541,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
 
       {showEditWarning && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div data-darkreader-ignore className="rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" style={{ backgroundColor: 'white' }}>
+          <div data-darkreader-ignore className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" >
             <h3 className="font-semibold text-gray-800 mb-1">Discard changes?</h3>
             <p className="text-sm text-gray-500 mb-4">You have unsaved changes. Closing will discard them.</p>
             <div className="flex gap-2 justify-end">
