@@ -13,18 +13,18 @@ import {
   RiCloseLine,
   RiCheckLine,
 } from 'react-icons/ri';
-import logo from '../assets/quickly_logo.svg';
+import Logo from '../redesign/Logo';
 
 /* ── step definitions ─────────────────────────────────────────────────────── */
 const steps = [
   {
     id: 'welcome',
     icon: <RiRocketLine size={40} />,
-    title: 'Welcome to Quickly',
-    subtitle: 'Your email outreach platform',
+    title: 'Witaj w Sekaro',
+    subtitle: 'Twoja platforma do outreachu',
     description:
-      'Quickly helps you send personalized cold email campaigns at scale using your Gmail accounts. ' +
-      'This quick tour will walk you through the key features so you can hit the ground running.',
+      'Sekaro pomaga prowadzić spersonalizowane kampanie e-mail z wielu skrzynek SMTP/IMAP. ' +
+      'Ten krótki przewodnik pokazuje najważniejsze elementy konfiguracji i codziennej pracy.',
     highlights: [
       'Send multi-step email sequences automatically',
       'Track opens, clicks, and replies in real-time',
@@ -57,8 +57,8 @@ const steps = [
     title: 'Create Campaigns',
     subtitle: 'Multi-step email sequences',
     description:
-      'Campaigns are the core of Quickly. Each campaign contains a sequence of emails that are ' +
-      'sent automatically at intervals you define.',
+      'Kampanie są centralnym elementem Sekaro. Każda kampania zawiera sekwencję wiadomości ' +
+      'wysyłanych automatycznie w zdefiniowanych odstępach.',
     highlights: [
       'Build multi-step sequences (initial email + follow-ups)',
       'Set wait days between each step (e.g. 3 days between emails)',
@@ -93,8 +93,8 @@ const steps = [
     title: 'Smart Scheduling',
     subtitle: 'Queue engine & strategies',
     description:
-      'Quickly\'s scheduling engine automatically queues emails based on your inbox limits, ' +
-      'campaign settings, and sending windows. No manual scheduling needed.',
+      'Silnik harmonogramu Sekaro automatycznie buduje kolejkę na podstawie limitów skrzynek, ' +
+      'ustawień kampanii i okien wysyłki.',
     highlights: [
       'Priority mode — drag campaigns to set send order',
       'Round-robin mode — distribute sends evenly across campaigns',
@@ -202,7 +202,7 @@ function StepDots({ current, total, onDotClick }) {
                 ? 'w-2.5 h-2.5 bg-primary/40 hover:bg-primary/60'
                 : 'w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400'
           }`}
-          aria-label={`Go to step ${i + 1}`}
+          aria-label={`Przejdź do kroku ${i + 1}`}
         />
       ))}
     </div>
@@ -260,14 +260,14 @@ export default function Onboarding() {
       tabIndex={0}
       role="dialog"
       aria-modal="true"
-      aria-label="Onboarding wizard"
+      aria-label="Przewodnik po Sekaro"
     >
-      <div className="relative w-full max-w-lg mx-4 bg-white rounded-2xl shadow-2xl overflow-hidden animate-in">
+      <div className="sk-onboarding-card relative w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden animate-in">
         {/* skip button */}
         <button
           onClick={completeOnboarding}
           className="absolute top-4 right-4 z-10 text-gray-400 hover:text-gray-600 transition-colors rounded-full p-1 hover:bg-gray-100"
-          aria-label="Skip onboarding"
+          aria-label="Pomiń przewodnik"
         >
           <RiCloseLine size={20} />
         </button>
@@ -277,13 +277,13 @@ export default function Onboarding() {
           {/* logo watermark for welcome step */}
           {current === 0 && (
             <div className="flex justify-center mb-4">
-              <img src={logo} alt="Quickly" className="h-12 w-12 opacity-80" />
+              <span className="sk-onboarding-logo" aria-label="Sekaro"><Logo /></span>
             </div>
           )}
 
           {/* step counter */}
           <div className="text-xs text-gray-400 font-medium mb-4 uppercase tracking-wider">
-            Step {current + 1} of {steps.length}
+            Krok {current + 1} z {steps.length}
           </div>
 
           {/* step content */}
@@ -295,7 +295,7 @@ export default function Onboarding() {
         </div>
 
         {/* footer — dots + nav buttons */}
-        <div className="px-8 py-5 bg-gray-50 flex items-center justify-between border-t border-gray-100">
+        <div className="sk-onboarding-footer px-8 py-5 flex items-center justify-between border-t">
           <StepDots current={current} total={steps.length} onDotClick={goTo} />
 
           <div className="flex items-center gap-2">
@@ -305,7 +305,7 @@ export default function Onboarding() {
                 className="flex items-center gap-1 px-3 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 <RiArrowLeftLine size={16} />
-                Back
+                Wstecz
               </button>
             )}
             {isFirst && (
@@ -313,7 +313,7 @@ export default function Onboarding() {
                 onClick={completeOnboarding}
                 className="px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors"
               >
-                Skip tour
+                Pomiń
               </button>
             )}
             <button
@@ -322,12 +322,12 @@ export default function Onboarding() {
             >
               {isLast ? (
                 <>
-                  Get Started
+                  Zaczynamy
                   <RiRocketLine size={16} />
                 </>
               ) : (
                 <>
-                  Next
+                  Dalej
                   <RiArrowRightLine size={16} />
                 </>
               )}
