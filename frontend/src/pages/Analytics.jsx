@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { PageFrame, Metric, ErrorNotice, Empty } from '../redesign/ui';
 import DatePicker from '../components/ui/DatePicker';
 // Recharts for charts
 import {
@@ -245,48 +246,34 @@ export default function Analytics() {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8 space-y-6">
-      <h1 className="text-2xl font-semibold mb-4">Analityka</h1>
-      {error && <div className="text-red-600">{error}</div>}
+    <PageFrame
+      className="sk-analytics-page"
+      title="Analityka"
+      description="Monitoruj wysyłkę, odpowiedzi, otwarcia i kliknięcia w wybranym zakresie czasu."
+    >
+      <ErrorNotice error={error} />
 
-      {/* KPI cards */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        <Card className="p-4">
-          <div className="text-sm text-gray-500">Wysłane</div>
-          <div className="text-2xl font-bold">{rangeSent}</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm text-gray-500">Wskaźnik odpowiedzi</div>
-          <div className="text-2xl font-bold">{replyRateRange}%</div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-sm text-gray-500">Wskaźnik kliknięć</div>
-          <div className="text-2xl font-bold">{clickRateRange}%</div>
-        </Card>
+      <div className="sk-analytics-metrics">
+        <Metric icon="send" title="Wysłane" value={rangeSent.toLocaleString('pl-PL')} detail="w wybranym zakresie" tone="blue" />
+        <Metric icon="reply" title="Wskaźnik odpowiedzi" value={`${replyRateRange}%`} detail={`${rangeReplies.toLocaleString('pl-PL')} odpowiedzi`} tone="green" />
+        <Metric icon="link" title="Wskaźnik kliknięć" value={`${clickRateRange}%`} detail={`${rangeClicks.toLocaleString('pl-PL')} kliknięć`} tone="purple" />
+        <Metric icon="campaign" title="Kampanie" value={filtered.length} detail={selectedIds.length ? 'wybrane do porównania' : 'wszystkie kampanie'} tone="green" />
       </div>
 
       {/* Date range presets */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="sk-analytics-presets">
         {presets.map(p => (
           <button
             key={p.label}
             onClick={() => applyPreset(p)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-              activePreset === p.label
-                ? 'bg-teal-500 text-white border-teal-500'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
-            }`}
+            className={activePreset === p.label ? 'is-active' : ''}
           >
             {p.label}
           </button>
         ))}
         <button
           onClick={() => setActivePreset('custom')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-            activePreset === 'custom'
-              ? 'bg-teal-500 text-white border-teal-500'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
-          }`}
+          className={activePreset === 'custom' ? 'is-active' : ''}
         >
           Custom
         </button>
@@ -300,7 +287,7 @@ export default function Analytics() {
       )}
 
       {/* timeline area chart — scroll to zoom, centered on hovered day */}
-      <Card className="p-4">
+      <Card className="sk-analytics-chart-panel p-4">
         <div ref={chartContainerRef} style={{ width: '100%', height: 290 }}>
           <ResponsiveContainer>
             <ReAreaChart data={displayData} onMouseMove={handleChartMouseMove} margin={{ top: 20, right: 30, left: 0, bottom: 20 }}>
@@ -341,7 +328,7 @@ export default function Analytics() {
           </ResponsiveContainer>
         </div>
       </Card>
-      <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
+      <div className="sk-analytics-campaign-filter">
         <div className="flex-1">
           <label htmlFor="campaign-select" className="sr-only">Kampanie</label>
           <div className="flex items-center gap-2">
@@ -399,16 +386,10 @@ export default function Analytics() {
       </div>
 
       {filtered.length === 0 ? (
-        <Card>
-          {campaigns.length === 0 ? (
-            'No campaigns to analyze.'
-          ) : (
-            'No matching campaigns.'
-          )}
-        </Card>
+        <Card><Empty icon="chart">{campaigns.length === 0 ? 'Brak kampanii do analizy.' : 'Brak kampanii pasujących do filtra.'}</Empty></Card>
       ) : (
-        <Card className="overflow-auto">
-          <table className="w-full table-auto border-collapse">
+        <Card className="sk-analytics-table-panel overflow-auto">
+          <table className="sk-table">
             <thead>
               <tr>
                 <th>Name</th>
@@ -469,6 +450,6 @@ export default function Analytics() {
           </table>
         </Card>
       )}
-    </div>
+    </PageFrame>
   );
 }

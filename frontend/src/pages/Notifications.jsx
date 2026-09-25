@@ -5,6 +5,7 @@ import { useNotifications } from '../context/NotificationsContext';
 import { useNotify } from '../context/NotificationContext';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PageFrame, SectionTabs, StatePanel, Icon } from '../redesign/ui';
 import {
   RiMailOpenLine,
   RiMailSendLine,
@@ -273,51 +274,34 @@ export default function Notifications() {
   const isFiltered = searchQuery.trim() || filterCategory;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="shrink-0 px-6 lg:px-8 pt-6 lg:pt-8 pb-0 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-transparent">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold">Notifications</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-              Stay updated on campaign activity, lead replies, and system events.
-            </p>
-          </div>
-          {unread > 0 && (
-            <Button size="sm" variant="outline" onClick={markAllRead}>
-              <RiCheckDoubleLine className="mr-1" size={16} />
-              Mark all as read
-            </Button>
-          )}
-        </div>
-        <nav className="mt-4 flex flex-wrap gap-x-1 gap-y-0 items-end" aria-label="Notification tabs">
-          {[
-            { id: 'all', label: `All (${total})` },
-            { id: 'unread', label: `Unread (${unread})` },
-            { id: 'preferences', label: 'Preferences' },
-          ].map(t => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => { setSearchQuery(''); setFilterCategory(null); setActiveTab(t.id); }}
-              className={
-                'px-3 py-2 text-sm font-medium leading-none transition-colors border-b-2 -mb-px ' +
-                (activeTab === t.id
-                  ? 'border-teal-500 text-teal-600 dark:text-teal-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600')
-              }
-            >
-              {t.label}
-            </button>
-          ))}
-        </nav>
-      </header>
+    <PageFrame
+      className="sk-notifications-page"
+      title="Powiadomienia"
+      description="Śledź odpowiedzi, zdarzenia kampanii i alerty systemowe."
+      actions={unread > 0 ? (
+        <Button size="sm" variant="outline" onClick={markAllRead}>
+          <RiCheckDoubleLine className="mr-1" size={16} />
+          Oznacz wszystkie jako przeczytane
+        </Button>
+      ) : null}
+    >
+      <SectionTabs
+        value={activeTab}
+        onChange={id => { setSearchQuery(''); setFilterCategory(null); setActiveTab(id); }}
+        ariaLabel="Sekcje powiadomień"
+        items={[
+          { id: 'all', label: `Wszystkie (${total})`, icon: 'bell' },
+          { id: 'unread', label: `Nieprzeczytane (${unread})`, icon: 'mail' },
+          { id: 'preferences', label: 'Preferencje', icon: 'settings' },
+        ]}
+      />
 
-      <div className="min-h-0 flex-1 overflow-y-auto px-6 py-6 lg:px-8">
+      <div className="sk-notifications-content">
         {activeTab !== 'preferences' && (
           <>
             {/* Search and filter bar */}
-            <div className="max-w-3xl mb-4 space-y-3">
-              <div className="relative">
+            <div className="sk-notification-filterbar">
+              <div className="sk-notification-search">
                 <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <input
                   type="text"
@@ -333,11 +317,7 @@ export default function Notifications() {
                     key={cat.key ?? 'all'}
                     type="button"
                     onClick={() => setFilterCategory(cat.key)}
-                    className={`px-2.5 py-1 text-xs font-medium rounded-full border transition-colors ${
-                      filterCategory === cat.key
-                        ? 'bg-teal-500 text-white border-teal-500'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-teal-300 dark:hover:border-teal-500'
-                    }`}
+                    className={filterCategory === cat.key ? 'is-active' : ''}
                   >
                     {cat.label}
                   </button>
@@ -347,38 +327,33 @@ export default function Notifications() {
 
             {/* Loading state — first load */}
             {loading && items.length === 0 && (
-              <div className="text-center py-20 text-gray-500 dark:text-gray-400">
-                <div className="mx-auto mb-4 h-8 w-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-sm">Loading notifications...</p>
-              </div>
+              <StatePanel
+                tone="info"
+                icon="refresh"
+                title="Ładowanie powiadomień"
+                description="Pobieramy najnowsze zdarzenia z Sekaro."
+              />
             )}
 
             {/* Empty state */}
             {!loading && filteredItems.length === 0 && (
-              <div className="text-center py-20 text-gray-500 dark:text-gray-400">
-                <RiMailOpenLine size={48} className="mx-auto mb-4 opacity-50" />
-                <p className="text-lg font-medium">
-                  {isFiltered ? 'No matching notifications' : 'No notifications'}
-                </p>
-                <p className="text-sm mt-1">
-                  {isFiltered
-                    ? 'Try adjusting your search or filter.'
-                    : activeTab === 'unread'
-                      ? "You're all caught up!"
-                      : 'Notifications will appear here when events occur.'}
-                </p>
-              </div>
+              <StatePanel
+                tone="success"
+                icon="mail"
+                title={isFiltered ? 'Brak pasujących powiadomień' : activeTab === 'unread' ? 'Wszystko przeczytane' : 'Brak powiadomień'}
+                description={isFiltered ? 'Zmień wyszukiwanie lub filtr.' : 'Nowe zdarzenia pojawią się tutaj automatycznie.'}
+              />
             )}
 
             {/* Notification list */}
             {filteredItems.length > 0 && (
               <>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3 max-w-3xl">
+                <p className="sk-notification-count">
                   {isFiltered
                     ? `Showing ${filteredItems.length} of ${items.length} loaded`
                     : `Showing ${items.length} of ${total} notifications`}
                 </p>
-                <div className="space-y-2 max-w-3xl">
+                <div className="sk-notification-list">
                   {filteredItems.map(n => (
                     <NotificationItem
                       key={n.id}
@@ -392,9 +367,9 @@ export default function Notifications() {
               </>
             )}
 
-            {/* Load more — only on All tab */}
+            {/* Wczytaj więcej — only on All tab */}
             {activeTab !== 'unread' && items.length < total && !loading && (
-              <div className="mt-6 text-center max-w-3xl">
+              <div className="sk-notification-load-more">
                 <Button size="sm" variant="outline" onClick={loadMore}>
                   Load more
                 </Button>
@@ -403,18 +378,18 @@ export default function Notifications() {
 
             {/* Loading more indicator */}
             {loading && items.length > 0 && (
-              <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400 max-w-3xl">
+              <div className="sk-notification-loading-more">
                 <div className="inline-block h-4 w-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mr-2 align-middle" />
-                Loading more...
+                Wczytywanie…
               </div>
             )}
           </>
         )}
 
         {activeTab === 'preferences' && (
-          <div className="max-w-2xl space-y-8">
-            <section>
-              <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Email Notifications</h2>
+          <div className="sk-notification-preferences">
+            <section className="sk-notification-pref-card">
+              <h2>Powiadomienia e-mail</h2>
               <div className="space-y-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -423,21 +398,21 @@ export default function Notifications() {
                     onChange={e => setNotifConfig(prev => ({ ...prev, enabled: e.target.checked }))}
                     className="rounded"
                   />
-                  <span className="text-sm">Send me email notifications</span>
+                  <span className="text-sm">Wysyłaj powiadomienia e-mail</span>
                 </label>
                 {notifConfig.enabled && (
                   <>
                     <Input
-                      label="Notification email (optional)"
+                      label="Adres powiadomień (opcjonalny)"
                       type="email"
                       value={notifConfig.notification_email}
                       onChange={e => setNotifConfig(prev => ({ ...prev, notification_email: e.target.value }))}
-                      placeholder="Leave empty to use your account email"
+                      placeholder="Pozostaw puste, aby użyć adresu konta"
                       size="sm"
                       className="max-w-md dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
                     />
                     <Input
-                      label="Rate limit per hour"
+                      label="Limit powiadomień na godzinę"
                       type="number"
                       min={1}
                       max={100}
@@ -451,11 +426,10 @@ export default function Notifications() {
               </div>
             </section>
 
-            <section>
-              <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">Event Types</h2>
+            <section className="sk-notification-pref-card">
+              <h2>Typy zdarzeń</h2>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Choose which events generate notifications. In-app notifications are always created.
-                Email is sent only when the email channel is enabled above.
+                Wybierz zdarzenia generujące powiadomienia. Powiadomienia w aplikacji są zawsze tworzone; e-mail jest wysyłany tylko po włączeniu kanału powyżej.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {eventTypes.map(evt => (
@@ -470,22 +444,22 @@ export default function Notifications() {
                   </label>
                 ))}
                 {eventTypes.length === 0 && (
-                  <p className="text-sm text-gray-400">Loading event types...</p>
+                  <p className="text-sm text-gray-400">Ładowanie typów zdarzeń…</p>
                 )}
               </div>
               {notifConfig.events.length === 0 && (
-                <p className="text-xs text-amber-600 mt-2">All events selected (no filter applied).</p>
+                <p className="text-xs text-amber-600 mt-2">Brak filtra — wszystkie zdarzenia są dozwolone.</p>
               )}
             </section>
 
             <div className="pt-2">
               <Button onClick={saveConfig} disabled={configSaving}>
-                {configSaving ? 'Saving...' : 'Save Preferences'}
+                {configSaving ? 'Zapisywanie…' : 'Zapisz preferencje'}
               </Button>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </PageFrame>
   );
 }

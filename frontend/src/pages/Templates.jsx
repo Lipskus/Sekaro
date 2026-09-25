@@ -6,6 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 import { api } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { PageFrame, Icon } from '../redesign/ui';
 import { useNotify } from '../context/NotificationContext';
 import { useConfirm } from '../context/ConfirmContext';
 
@@ -233,22 +234,16 @@ export default function Templates() {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-8">
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Szablony wiadomości</h1>
-          <p className="mt-1 max-w-3xl text-sm text-gray-500">
-            Sekaro nie narzuca pól biznesowych. Tworzysz własne pola kontaktów i używasz ich jako
-            dynamicznych zmiennych w postaci <code className="rounded bg-gray-100 px-1">{'{{klucz}}'}</code>.
-          </p>
-        </div>
-        <Button type="button" variant="default" onClick={newTemplate}>Nowy szablon</Button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-[260px_minmax(0,1fr)_330px]">
-        <Card className="overflow-hidden h-fit">
+    <PageFrame
+      className="sk-templates-page"
+      title="Szablony wiadomości"
+      description="Twórz, wersjonuj i testuj szablony. Dynamiczne zmienne korzystają z pól kontaktów w formacie {{klucz}}."
+      actions={<Button type="button" variant="default" onClick={newTemplate}>Nowy szablon</Button>}
+    >
+      <div className="sk-template-layout">
+        <Card className="sk-template-sidebar overflow-hidden h-fit">
           <div className="border-b px-4 py-3">
-            <div className="text-sm font-semibold text-gray-800">Szablony</div>
+            <div className="sk-template-sidebar-title"><Icon name="template" size={18}/><span>Szablony</span></div>
           </div>
           <div className="max-h-[70vh] overflow-y-auto p-2">
             {templates.length === 0 ? (
@@ -272,8 +267,8 @@ export default function Templates() {
           </div>
         </Card>
 
-        <div className="space-y-5 min-w-0">
-          <Card className="p-5 space-y-4">
+        <div className="sk-template-main min-w-0">
+          <Card className="sk-template-editor p-5 space-y-4">
             <div className="flex flex-wrap items-end gap-3">
               <div className="min-w-[240px] flex-1">
                 <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa szablonu</label>
@@ -380,7 +375,7 @@ export default function Templates() {
             </div>
           </Card>
 
-          <Card className="p-5 space-y-4">
+          <Card className="sk-template-preview p-5 space-y-4">
             <div>
               <h2 className="font-semibold text-gray-900">Podgląd dla kontaktu</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -449,7 +444,7 @@ export default function Templates() {
             )}
           </Card>
 
-          <Card className="p-5 space-y-3">
+          <Card className="sk-template-test p-5 space-y-3">
             <div>
               <h2 className="font-semibold text-gray-900">Wysyłka testowa</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -483,8 +478,8 @@ export default function Templates() {
           </Card>
         </div>
 
-        <div className="space-y-5">
-          <Card className="p-4">
+        <div className="sk-template-aside">
+          <Card className="sk-template-variables p-4">
             <div className="mb-3">
               <h2 className="font-semibold text-gray-900">Zmienne</h2>
               <p className="mt-1 text-xs text-gray-500">
@@ -522,13 +517,13 @@ export default function Templates() {
             </div>
           </Card>
 
-          <Card className="p-4">
+          <Card className="sk-template-fields p-4">
             <h2 className="font-semibold text-gray-900">Własne pola kontaktów</h2>
             <p className="mt-1 text-xs text-gray-500">Dodawaj, edytuj i usuwaj pola w Kontaktach. Tutaj są automatycznie dostępne jako zmienne szablonu.</p>
             <Link to="/leads?fields=1" className="sk-btn sk-full-width" style={{marginTop:12}}>Zarządzaj polami</Link>
           </Card>
         </div>
       </div>
-    </div>
+    </PageFrame>
   );
 }
