@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 
-const DAYS = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Pn', 'Wt', 'Śr', 'Cz', 'Pt', 'So', 'Nd'];
+const MONTHS = ['styczeń','luty','marzec','kwiecień','maj','czerwiec','lipiec','sierpień','wrzesień','październik','listopad','grudzień'];
+
+function localDateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
 
 function daysInMonth(year, month) {
   return new Date(year, month + 1, 0).getDate();
@@ -21,7 +25,7 @@ function startDay(year, month) {
 export default function DatePicker({ value, onChange, className = '' }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = localDateKey(new Date());
 
   // Parse value or default to today
   const parsed = value ? new Date(value + 'T00:00:00') : new Date();
@@ -61,6 +65,14 @@ export default function DatePicker({ value, onChange, className = '' }) {
     setOpen(false);
   };
 
+  const selectToday = () => {
+    const now = new Date();
+    setViewYear(now.getFullYear());
+    setViewMonth(now.getMonth());
+    onChange(localDateKey(now));
+    setOpen(false);
+  };
+
   const days = daysInMonth(viewYear, viewMonth);
   const start = startDay(viewYear, viewMonth);
   const cells = [];
@@ -68,7 +80,7 @@ export default function DatePicker({ value, onChange, className = '' }) {
   for (let d = 1; d <= days; d++) cells.push(d);
 
   const displayValue = value
-    ? new Date(value + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+    ? new Date(value + 'T00:00:00').toLocaleDateString('pl-PL', { year: 'numeric', month: 'short', day: 'numeric' })
     : '';
 
   return (
@@ -82,7 +94,7 @@ export default function DatePicker({ value, onChange, className = '' }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
         <span className={value ? 'text-gray-800' : 'text-gray-400'}>
-          {displayValue || 'Select date'}
+          {displayValue || 'Wybierz datę'}
         </span>
       </button>
 
@@ -92,7 +104,7 @@ export default function DatePicker({ value, onChange, className = '' }) {
         >
           {/* Month nav */}
           <div className="flex items-center justify-between mb-2">
-            <button type="button" onClick={prevMonth} className="p-1 rounded hover:bg-gray-100 text-gray-500">
+            <button type="button" onClick={prevMonth} aria-label="Poprzedni miesiąc" className="p-1 rounded hover:bg-gray-100 text-gray-500">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
@@ -100,7 +112,7 @@ export default function DatePicker({ value, onChange, className = '' }) {
             <span className="text-sm font-semibold text-gray-800">
               {MONTHS[viewMonth]} {viewYear}
             </span>
-            <button type="button" onClick={nextMonth} className="p-1 rounded hover:bg-gray-100 text-gray-500">
+            <button type="button" onClick={nextMonth} aria-label="Następny miesiąc" className="p-1 rounded hover:bg-gray-100 text-gray-500">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
               </svg>
@@ -126,6 +138,9 @@ export default function DatePicker({ value, onChange, className = '' }) {
                   key={day}
                   type="button"
                   onClick={() => selectDate(day)}
+                  aria-label={`${day} ${MONTHS[viewMonth]} ${viewYear}`}
+                  aria-pressed={isSelected}
+                  aria-current={isToday ? 'date' : undefined}
                   className={`
                     w-9 h-9 rounded-lg text-sm transition-colors flex items-center justify-center mx-auto
                     ${isSelected
@@ -146,10 +161,10 @@ export default function DatePicker({ value, onChange, className = '' }) {
           <div className="mt-2 pt-2 border-t flex justify-center">
             <button
               type="button"
-              onClick={() => selectDate(new Date().getDate())}
+              onClick={selectToday}
               className="text-xs text-teal-600 hover:text-teal-800 font-medium"
             >
-              Today
+              Dzisiaj
             </button>
           </div>
         </div>
