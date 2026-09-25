@@ -1461,18 +1461,18 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
               : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
           }`}
         >
-          Custom
+          Własny zakres
         </button>
       </div>
 
       {activePreset === 'custom' && (
         <div className="flex flex-wrap items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-gray-600">
-            From
+            Od
             <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} />
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-600">
-            To
+            Do
             <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} />
           </label>
         </div>
