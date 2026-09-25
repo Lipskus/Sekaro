@@ -473,7 +473,6 @@ html.sekaro-ui body,html.sekaro-ui #root{height:auto;min-height:100dvh;overflow:
 .sk-legacy-button[data-sk-variant=ghost],.sk-legacy-button[data-sk-variant=link]{color:var(--sk-green-text)!important}
 .sk-legacy-button[data-sk-variant=destructive]{background:var(--sk-red-soft)!important;color:var(--sk-red-text)!important;border:1px solid var(--sk-red-text)}
 .sk-legacy-button:hover{filter:brightness(.97)}
-html[data-theme=dark] .sk-main [data-darkreader-ignore]{background:var(--sk-surface)!important;color:var(--sk-text)!important}
 .sk-shell .sk-template-list-item{display:block;text-align:left}
 
 
