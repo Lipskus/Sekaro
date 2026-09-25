@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { useConfirm } from '../context/ConfirmContext';
@@ -20,6 +20,11 @@ export default function CampaignSettings({ campaign, inboxes, onSaved }) {
   const lock = useRef(false), confirm = useConfirm(), navigate = useNavigate();
   const selected = inboxes.filter(i => form.inbox_ids.includes(i.id));
   const dirty = JSON.stringify(form) !== baseline;
+  useEffect(() => {
+    setPaused(campaign.paused);
+    if (!dirty) { const fresh = campaignSettingsForm(campaign); setForm(fresh); setBaseline(JSON.stringify(fresh)); }
+    // Background refresh may update pristine fields, but must not discard edits.
+  }, [campaign]);
   const zones = useMemo(() => [...new Set([form.timezone, 'UTC', ...(Intl.supportedValuesOf?.('timeZone') || [])])], [form.timezone]);
   const update = (key, value) => { setForm(f => ({ ...f, [key]: value, ...(key === 'send_all_as_text' && value ? { send_first_as_text: false } : {}) })); setReport(null); setMessage(''); };
   const validate = () => {

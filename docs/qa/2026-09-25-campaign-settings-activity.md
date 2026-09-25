@@ -15,7 +15,7 @@ Full-size PNGs inspected: 021 (dark settings), 026 (light settings), 024/025 (da
 - Uncertain-attempt reset remains available with explicit delivery-verification confirmation. Backend preflight returns up to 50 slot IDs; the panel explains additional items when present.
 
 ## Verification
-45 frontend component tests pass, production build passes, git whitespace check passes. Six added regression cases cover save payload semantics, invalid schedule and failed-save retention, fresh start blockers, contact filtering and global recalculation confirmation, uncertain-attempt confirmation, and diagnostics failures.
+46 frontend component tests pass, production build passes, git whitespace check passes. Seven added regression cases cover save payload semantics, invalid schedule and failed-save retention, fresh start blockers, contact filtering and global recalculation confirmation, uncertain-attempt confirmation, diagnostics failures, and background refresh preserving unsaved edits.
 
 No send/start/reset/delete operations were executed against deployed campaigns during this implementation. Existing demo data is retained. No new service or second deployment is introduced.
 

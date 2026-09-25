@@ -518,6 +518,14 @@ describe('campaign settings and activity safeguards', () => {
     expect(api.patch.mock.calls[0][1]).not.toHaveProperty('paused');
     expect(api.post).not.toHaveBeenCalled();
   });
+  it('refreshes pristine settings without overwriting in-progress edits', () => {
+    const view = render(<MemoryRouter><CampaignSettings campaign={campaign} inboxes={inboxes}/></MemoryRouter>);
+    view.rerender(<MemoryRouter><CampaignSettings campaign={{...campaign,name:'Odświeżona'}} inboxes={inboxes}/></MemoryRouter>);
+    expect(screen.getByLabelText('Nazwa kampanii').value).toBe('Odświeżona');
+    fireEvent.change(screen.getByLabelText('Nazwa kampanii'), {target:{value:'Moja edycja'}});
+    view.rerender(<MemoryRouter><CampaignSettings campaign={{...campaign,name:'Z serwera'}} inboxes={inboxes}/></MemoryRouter>);
+    expect(screen.getByLabelText('Nazwa kampanii').value).toBe('Moja edycja');
+  });
   it('blocks invalid schedules and preserves unsaved values after save failure', async () => {
     mount(() => <CampaignSettings campaign={campaign} inboxes={inboxes}/>);
     fireEvent.change(screen.getByLabelText('Koniec okna'), { target: { value: '08:00' } });
