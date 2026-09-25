@@ -344,7 +344,7 @@ html[data-theme=dark] {
   color:var(--sk-text);
 }
 .sk-settings-page-head {
-  padding:26px 28px 0;
+  padding:24px 24px 0;
   border-bottom:1px solid var(--sk-line);
   background:var(--sk-bg);
 }
