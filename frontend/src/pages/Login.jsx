@@ -34,6 +34,7 @@ export default function Login() {
   const [restorePreview, setRestorePreview] = useState(null);
   const [restorePreviewBusy, setRestorePreviewBusy] = useState(false);
   const [restoreExecuteBusy, setRestoreExecuteBusy] = useState(false);
+  const [restoreConfirmArmed, setRestoreConfirmArmed] = useState(false);
   const [restoreMsg, setRestoreMsg] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -99,6 +100,7 @@ export default function Login() {
     setRestoreMetaBusy(true);
     setRestoreMeta(null);
     setRestorePreview(null);
+    setRestoreConfirmArmed(false);
     setRestoreMsg(null);
     (async () => {
       try {
@@ -416,6 +418,7 @@ export default function Login() {
                               throw new Error(parseDetailMessage(text) || res.statusText);
                             }
                             setRestorePreview(data);
+                            setRestoreConfirmArmed(false);
                           } catch (e) {
                             setRestoreMsg({ type: 'err', text: e.message || 'Nie udało się zweryfikować kopii zapasowej' });
                           } finally {
@@ -469,6 +472,7 @@ export default function Login() {
                                 throw new Error(parseDetailMessage(text) || res.statusText);
                               }
                               setRestorePreview(data);
+                            setRestoreConfirmArmed(false);
                             } catch (e) {
                               setRestoreMsg({ type: 'err', text: e.message || 'Nieprawidłowe hasło lub uszkodzona kopia' });
                             } finally {
@@ -492,19 +496,25 @@ export default function Login() {
                           <li>Użytkownicy: {restorePreview.backup?.user_count ?? '—'}</li>
                           <li>Administratorzy: {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
                         </ul>
+                        {restoreConfirmArmed && (
+                          <div className="sk-login-restore-confirm" role="alert">
+                            <strong>Ta operacja zastąpi obecną bazę danych i nie można jej cofnąć.</strong>
+                            <button type="button" onClick={() => setRestoreConfirmArmed(false)} disabled={restoreExecuteBusy}>
+                              Anuluj
+                            </button>
+                          </div>
+                        )}
                         <button
                           type="button"
                           disabled={restoreExecuteBusy}
                           className="w-full py-2 px-4 rounded-lg text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 disabled:opacity-50"
                           onClick={async () => {
-                            if (
-                              !window.confirm(
-                                'Zastąpić obecną bazę danych tą kopią? Tej operacji nie można cofnąć.',
-                              )
-                            ) {
+                            if (!restoreConfirmArmed) {
+                              setRestoreConfirmArmed(true);
                               return;
                             }
                             setRestoreExecuteBusy(true);
+                            setRestoreConfirmArmed(false);
                             setRestoreMsg(null);
                             try {
                               const res = await fetch('/api/auth/restore-setup/execute', {
@@ -534,7 +544,7 @@ export default function Login() {
                             }
                           }}
                         >
-                          {restoreExecuteBusy ? 'Przywracanie…' : 'Potwierdź i przywróć'}
+                          {restoreExecuteBusy ? 'Przywracanie…' : restoreConfirmArmed ? 'Tak, zastąp bazę' : 'Potwierdź i przywróć'}
                         </button>
                       </div>
                     )}
