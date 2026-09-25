@@ -1221,6 +1221,50 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 }
 
 
+/* Shared date picker */
+.sk-date-picker {color:var(--sk-text)}
+.sk-date-trigger {
+  border:1px solid var(--sk-line);
+  background:var(--sk-surface);
+  color:var(--sk-text);
+}
+.sk-date-trigger:hover {border-color:var(--sk-accent)}
+.sk-date-popover {
+  border:1px solid var(--sk-line);
+  background:var(--sk-surface);
+  color:var(--sk-text);
+  box-shadow:0 14px 40px #0002;
+}
+.sk-date-muted {color:var(--sk-muted)}
+.sk-date-value {color:var(--sk-text)}
+.sk-date-nav {
+  border:0;
+  background:transparent;
+  color:var(--sk-muted);
+}
+.sk-date-nav:hover {background:var(--sk-surface-alt);color:var(--sk-text)}
+.sk-date-day {
+  border:0;
+  background:transparent;
+  color:var(--sk-text);
+}
+.sk-date-day:hover {background:var(--sk-surface-alt)}
+.sk-date-day.is-today {
+  background:var(--sk-green-soft);
+  color:var(--sk-green-text);
+}
+.sk-date-day.is-selected {
+  background:var(--sk-primary);
+  color:#fff;
+}
+.sk-date-footer {border-color:var(--sk-line)!important}
+.sk-date-today {
+  border:0;
+  background:transparent;
+  color:var(--sk-green-text);
+}
+.sk-date-today:hover {color:var(--sk-accent)}
+
 /* Analytics */
 .sk-analytics-metrics {
   display:grid;
