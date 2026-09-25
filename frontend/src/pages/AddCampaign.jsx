@@ -210,13 +210,12 @@ export default function AddCampaign() {
                 </Field>
               </div>
 
-              <Field
-                label="Strefa czasowa"
-                help="Okno wysyłki jest interpretowane w wybranej strefie czasowej."
-              >
+              <div className="sk-field">
+                <span className="sk-field-label">Strefa czasowa</span>
                 <div className="sk-builder-timezone">
                   <input
                     type="text"
+                    aria-label="Strefa czasowa"
                     placeholder="Szukaj strefy czasowej…"
                     value={tzSearch || form.timezone}
                     onFocus={e => { setTzSearch(''); e.target.select(); }}
@@ -244,7 +243,8 @@ export default function AddCampaign() {
                     </ul>
                   )}
                 </div>
-              </Field>
+                <span className="sk-field-help">Okno wysyłki jest interpretowane w wybranej strefie czasowej.</span>
+              </div>
             </div>
           </Panel>
 
