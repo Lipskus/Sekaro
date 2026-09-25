@@ -5,11 +5,12 @@ import { useConfirm } from '../context/ConfirmContext';
 import { useNotify } from '../context/NotificationContext';
 import { useAppMode } from '../context/AppModeContext';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import EmailVerificationSettings from '../components/EmailVerificationSettings';
-import { SectionTabs, SettingsCard, Switch } from '../redesign/ui';
+import { SectionTabs, SettingsCard, Field } from '../redesign/ui';
 
 const SETTINGS_TABS = [
   { id: 'general', label: 'Ogólne', icon: 'settings' },
@@ -50,6 +51,7 @@ export default function Settings() {
   const confirm = useConfirm();
   const { isProduction } = useAppMode();
   const { user, logout } = useAuth();
+  const { language, setLanguage, languages } = useLanguage();
 
   /* ── state ── */
   const [strategy, setStrategy] = useState('priority');
@@ -794,6 +796,16 @@ export default function Settings() {
               title="Wygląd"
               description="Dostosuj wygląd interfejsu do swoich preferencji."
             >
+              <Field
+                label="Język interfejsu"
+                help="Zmiana języka jest zapisywana lokalnie dla tej przeglądarki."
+              >
+                <select value={language} onChange={e => setLanguage(e.target.value)}>
+                  {languages.map(item => (
+                    <option key={item.code} value={item.code}>{item.label}</option>
+                  ))}
+                </select>
+              </Field>
               <div className="sk-theme-options" role="radiogroup" aria-label="Motyw aplikacji">
                 {[
                   ['dark', 'Ciemny', 'moon'],
