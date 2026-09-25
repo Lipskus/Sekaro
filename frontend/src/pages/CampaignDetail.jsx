@@ -2348,7 +2348,7 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
           value={value}
           onChange={e => onChange(e.target.value)}
           rows={5}
-          placeholder="E-mail body…"
+          placeholder="Treść wiadomości…"
         />
       )}
       {effectiveHtml && (
