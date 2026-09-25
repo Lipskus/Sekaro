@@ -14,8 +14,11 @@ export function LoadingProvider({ children }) {
     <LoadingContext.Provider value={value}>
       {children}
       {count > 0 && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="loader"></div>
+        <div className="sk-loading-overlay" role="status" aria-live="polite" aria-label="Trwa przetwarzanie">
+          <div className="sk-loading-card">
+            <span className="sk-loading-spinner" aria-hidden="true" />
+            <span>Trwa przetwarzanie…</span>
+          </div>
         </div>
       )}
     </LoadingContext.Provider>
