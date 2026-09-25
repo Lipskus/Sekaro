@@ -324,13 +324,20 @@ html[data-theme=dark] .sk-btn-primary{background:linear-gradient(110deg,#008763,
 .sk-inbox-page{display:flex;flex-direction:column;height:calc(100dvh - var(--sk-header));padding-bottom:18px}
 .sk-inbox-page .sk-page-heading{margin:0 0 18px;flex-shrink:0}
 .sk-mailbox-select{display:flex;align-items:center;gap:15px;border:1px solid var(--sk-line);border-radius:9px;background:var(--sk-surface);padding:8px 14px;min-width:275px}
+.sk-inbox-health{min-width:176px;min-height:54px;display:flex;align-items:center;gap:12px;padding:8px 14px;border:1px solid var(--sk-line);border-radius:9px;background:var(--sk-surface)}
+.sk-inbox-health>.sk-dot{width:9px;height:9px}
+.sk-inbox-health small,.sk-inbox-health strong{display:block}
+.sk-inbox-health small{font-size:11px;color:var(--sk-muted);font-weight:500}
+.sk-inbox-health strong{margin-top:2px;font-size:12px;font-weight:650}
+.sk-inbox-health.tone-green>.sk-dot,.sk-inbox-health.tone-green strong{color:var(--sk-green-text)}
+.sk-inbox-health.tone-amber>.sk-dot,.sk-inbox-health.tone-amber strong{color:var(--sk-amber-text)}
 .sk-mailbox-select label{font-size:11px;color:var(--sk-muted);display:block}
 .sk-mailbox-select select{font-size:13px!important;border:0!important;padding:0 22px 0 0!important;font-weight:600;width:100%}
 .sk-inbox-toolbar{display:flex;align-items:center;gap:12px;padding:6px 12px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:11px 11px 0 0;flex-shrink:0}
 .sk-inbox-toolbar .sk-tabs{border:0;margin:0;gap:7px;flex:1;min-width:0}
 .sk-inbox-toolbar .sk-tab{padding:8px 10px;font-size:12px}
 .sk-inbox-toolbar .sk-search-input{flex:0 1 250px;font-size:12px;padding:6px 10px}
-.sk-inbox-columns{display:grid;grid-template-columns:31% minmax(0,1fr) 256px;gap:10px;flex:1;min-height:0;padding-top:2px}
+.sk-inbox-columns{display:grid;grid-template-columns:29% minmax(0,1fr) 256px;gap:10px;flex:1;min-height:0;padding-top:2px}
 .sk-thread-list{border:1px solid var(--sk-line);border-radius:0 0 11px 11px;background:var(--sk-surface);padding:10px;overflow-y:auto;min-width:0}
 .sk-thread-item{display:flex!important;align-items:flex-start!important;text-align:left;width:100%;border:1px solid transparent;border-bottom:1px solid var(--sk-line);border-radius:0!important;background:transparent;padding:14px 7px;gap:12px;color:var(--sk-text)}
 .sk-thread-item.active{background:var(--sk-green-soft);border-color:var(--sk-line);border-left:2px solid var(--sk-accent);border-radius:8px!important}
