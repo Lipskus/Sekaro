@@ -7,6 +7,8 @@ import { formatDateKey, formatTimeKey } from '../utils/datetime';
 import Campaigns from './Campaigns';
 import AddCampaign from './AddCampaign';
 import CampaignPreflight from '../redesign/CampaignPreflight';
+import CampaignSettings from '../redesign/CampaignSettings';
+import CampaignActivity from '../redesign/CampaignActivity';
 import Dashboard from '../redesign/pages/Dashboard';
 import LeadDetail from './LeadDetail';
 import Inbox from '../redesign/pages/Inbox';
@@ -502,4 +504,78 @@ it('rechecks readiness at start and does not start after a new blocker appears',
   await screen.findByText('Skrzynka została wstrzymana');
   expect(api.post).not.toHaveBeenCalled();
   expect(screen.getByRole('button', { name: 'Uruchom kampanię' }).disabled).toBe(true);
+});
+
+describe('campaign settings and activity safeguards', () => {
+  const campaign = { id: 42, name: 'Test QA', paused: true, inbox_ids: [1], sending_days: [0,1,2,3,4], sending_hours_start: '09:00', sending_hours_end: '17:00', timezone: 'Europe/Warsaw' };
+  const inboxes = [{id:1,email:'sender@example.com',max_emails_per_day:40,wait_minutes_between:5}];
+  it('saves settings without changing paused state or duplicating queue recalculation', async () => {
+    mount(() => <CampaignSettings campaign={campaign} inboxes={inboxes}/>);
+    fireEvent.change(screen.getByLabelText('Nazwa kampanii'), { target: { value: '  Zmieniona  ' } });
+    fireEvent.click(screen.getByRole('button', {name:'Zapisz zmiany'}));
+    await screen.findByText('Ustawienia zapisane.');
+    expect(api.patch).toHaveBeenCalledWith('/campaigns/42', expect.objectContaining({name:'Zmieniona',inbox_ids:[1]}));
+    expect(api.patch.mock.calls[0][1]).not.toHaveProperty('paused');
+    expect(api.post).not.toHaveBeenCalled();
+  });
+  it('refreshes pristine settings without overwriting in-progress edits', () => {
+    const view = render(<MemoryRouter><CampaignSettings campaign={campaign} inboxes={inboxes}/></MemoryRouter>);
+    view.rerender(<MemoryRouter><CampaignSettings campaign={{...campaign,name:'Odświeżona'}} inboxes={inboxes}/></MemoryRouter>);
+    expect(screen.getByLabelText('Nazwa kampanii').value).toBe('Odświeżona');
+    fireEvent.change(screen.getByLabelText('Nazwa kampanii'), {target:{value:'Moja edycja'}});
+    view.rerender(<MemoryRouter><CampaignSettings campaign={{...campaign,name:'Z serwera'}} inboxes={inboxes}/></MemoryRouter>);
+    expect(screen.getByLabelText('Nazwa kampanii').value).toBe('Moja edycja');
+  });
+  it('blocks invalid schedules and preserves unsaved values after save failure', async () => {
+    mount(() => <CampaignSettings campaign={campaign} inboxes={inboxes}/>);
+    fireEvent.change(screen.getByLabelText('Koniec okna'), { target: { value: '08:00' } });
+    fireEvent.click(screen.getByRole('button', {name:'Zapisz zmiany'}));
+    await screen.findByText('Wybierz dni wysyłki i godzinę końca późniejszą niż początek.');
+    expect(api.patch).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Koniec okna'), { target: { value: '18:00' } });
+    api.patch.mockRejectedValueOnce(new Error('Zapis odrzucony'));
+    fireEvent.click(screen.getByRole('button', {name:'Zapisz zmiany'}));
+    await screen.findByText('Zapis odrzucony');
+    expect(screen.getByLabelText('Koniec okna').value).toBe('18:00');
+  });
+  it('never starts a campaign when fresh preflight blocks it', async () => {
+    api.get.mockResolvedValue({ready:false,issues:[{severity:'error',message:'Brak kontaktów'}]});
+    mount(() => <CampaignSettings campaign={campaign} inboxes={inboxes}/>);
+    fireEvent.click(screen.getByRole('button', {name:'Zapisz i sprawdź przed startem'}));
+    await screen.findByText('Brak kontaktów');
+    expect(api.post).not.toHaveBeenCalled();
+  });
+  function activityApi(report = {ready:true,issues:[]}) {
+    api.get.mockImplementation(async path => path.endsWith('/preflight') ? report : path.endsWith('/queue') ? [{slot_id:10,scheduled_date:'2026-09-25T09:00:00Z',lead_email:'one@example.com',inbox_email:'sender@example.com',inbox_id:1,sequence_index:0},{slot_id:11,scheduled_date:'2026-09-25T10:00:00Z',lead_email:'two@example.com',inbox_email:'sender@example.com',inbox_id:1,sequence_index:1}] : []);
+  }
+  it('keeps contact filters and confirms the real scope of global recalculation', async () => {
+    activityApi();
+    mount(() => <CampaignActivity campaign={campaign} inboxes={inboxes} contact="one@example.com"/>);
+    await screen.findByText('one@example.com');
+    expect(screen.queryByText('two@example.com')).toBeNull();
+    fireEvent.click(screen.getByRole('button', {name:'Przelicz harmonogram'}));
+    await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
+    expect(api.post).not.toHaveBeenCalled();
+    mocks.confirm.mockResolvedValueOnce(true);
+    fireEvent.click(screen.getByRole('button', {name:'Przelicz harmonogram'}));
+    await screen.findByText('Przeliczanie harmonogramu zlecone. Odśwież dane po zakończeniu zadania.');
+    expect(api.post).toHaveBeenCalledWith('/schedule/recalculate-all', {});
+  });
+  it('requires delivery verification before releasing uncertain slots', async () => {
+    activityApi({ready:false,issues:[{code:'uncertain_send_attempts',message:'Sprawdź dostarczenie',details:{slot_ids:[10],count:1}}]});
+    mount(() => <CampaignActivity campaign={campaign} inboxes={inboxes}/>);
+    const reset = await screen.findByRole('button', {name:'Odblokuj #10'});
+    fireEvent.click(reset);
+    await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
+    expect(api.post).not.toHaveBeenCalled();
+    mocks.confirm.mockResolvedValueOnce(true);
+    fireEvent.click(reset);
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith('/campaigns/42/send-attempts/10/reset', {}));
+  });
+  it('does not report a safe empty queue after a diagnostics failure', async () => {
+    api.get.mockRejectedValue(new Error('Diagnostyka niedostępna'));
+    mount(() => <CampaignActivity campaign={campaign} inboxes={inboxes}/>);
+    await screen.findByText('Diagnostyka niedostępna');
+    expect(screen.queryByText('Brak niepewnych prób wysyłki.')).toBeNull();
+  });
 });
