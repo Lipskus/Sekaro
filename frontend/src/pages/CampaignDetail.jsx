@@ -937,10 +937,10 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           <span className="font-medium text-gray-500 whitespace-nowrap">Zainteresowanie:</span>
           {[
             { v: 'all', l: 'Wszystkie' },
-            { v: 'unset', l: 'None' },
-            { v: 'interested', l: 'Interested' },
-            { v: 'not_interested', l: 'Not interested' },
-            { v: 'out_of_office', l: 'OOO' },
+            { v: 'unset', l: 'Brak oceny' },
+            { v: 'interested', l: 'Zainteresowany' },
+            { v: 'not_interested', l: 'Niezainteresowany' },
+            { v: 'out_of_office', l: 'Poza biurem' },
             { v: 'auto_reply', l: 'Automatyczna odpowiedź' },
           ].map(o => (
             <button
@@ -1113,9 +1113,9 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                         }}
                       >
                         <option value="">— brak oceny —</option>
-                        <option value="interested">Interested</option>
-                        <option value="not_interested">Not Interested</option>
-                        <option value="out_of_office">Out of Office</option>
+                        <option value="interested">Zainteresowany</option>
+                        <option value="not_interested">Niezainteresowany</option>
+                        <option value="out_of_office">Poza biurem</option>
                         <option value="auto_reply">Automatyczna odpowiedź</option>
                       </select>
                     </div>
@@ -2354,7 +2354,7 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
       {effectiveHtml && (
         <div className="mt-2">
           <label className="block text-xs font-medium text-gray-500 mb-1">
-            Preview text
+            Tekst podglądu
             <span className="ml-1 font-normal text-gray-400">— wyświetlany jako fragment wiadomości i w powiadomieniach</span>
           </label>
           <input
