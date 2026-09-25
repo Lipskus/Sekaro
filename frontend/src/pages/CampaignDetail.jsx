@@ -609,11 +609,11 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const addSingle = async e => {
     e.preventDefault();
     setMsg(null);
-    if (!single.email.trim()) { setMsg({ type: 'error', text: 'Email required' }); return; }
+    if (!single.email.trim()) { setMsg({ type: 'error', text: 'Adres e-mail jest wymagany.' }); return; }
     let custom_data;
     if (single.custom.trim()) {
       try { custom_data = JSON.parse(single.custom); }
-      catch { setMsg({ type: 'error', text: 'Custom data must be valid JSON' }); return; }
+      catch { setMsg({ type: 'error', text: 'Dane niestandardowe muszą być poprawnym JSON-em.' }); return; }
     }
     try {
       await api.post(`/campaigns/${campaignId}/leads`, [{
@@ -638,7 +638,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const addBulk = async e => {
     e.preventDefault();
     const lines = bulk.split('\n').map(s => s.trim()).filter(Boolean);
-    if (!lines.length) { setMsg({ type: 'error', text: 'No data entered' }); return; }
+    if (!lines.length) { setMsg({ type: 'error', text: 'Nie wprowadzono danych.' }); return; }
 
     // Detect if first line could be a header
     const firstLine = lines[0];
@@ -671,7 +671,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       payload = all.map(em => ({ email: em }));
     }
 
-    if (!payload.length) { setMsg({ type: 'error', text: 'No valid emails found' }); return; }
+    if (!payload.length) { setMsg({ type: 'error', text: 'Nie znaleziono poprawnych adresów e-mail.' }); return; }
 
     try {
       const preview = await api.post(`/campaigns/${campaignId}/leads?confirm_only=true&skip_duplicates=${skipDuplicates}`, payload);
@@ -832,21 +832,21 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
         {showFormatInfo && (
           <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-lg text-sm text-teal-800 space-y-2">
-            <p className="font-semibold">Accepted formats for bulk paste:</p>
+            <p className="font-semibold">Obsługiwane formaty wklejania zbiorczego:</p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
-              <li><strong>Emails only</strong> — one per line or comma-separated<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
-              <li><strong>Tab-separated (Excel / Sheets copy-paste)</strong> — first row = headers<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
-              <li><strong>Comma-separated with headers</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
+              <li><strong>Tylko adresy e-mail</strong> — jeden w wierszu lub rozdzielone przecinkami<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
+              <li><strong>Rozdzielone tabulatorami (Excel / Arkusze)</strong> — pierwszy wiersz to nagłówki<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
+              <li><strong>Rozdzielone przecinkami z nagłówkami</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
             </ul>
             <p className="text-xs text-teal-600 mt-1">Kolumny poza <em>email</em> i <em>name</em> są zapisywane jako pola niestandardowe.</p>
-            <p className="font-semibold mt-2">CSV file import:</p>
-            <p className="text-xs">Upload a <code className="bg-teal-100 px-1 rounded">.csv</code> or <code className="bg-teal-100 px-1 rounded">.tsv</code> file with an <em>email</em> header column. Extra columns become custom fields.</p>
+            <p className="font-semibold mt-2">Import pliku CSV:</p>
+            <p className="text-xs">Wgraj plik <code className="bg-teal-100 px-1 rounded">.csv</code> lub <code className="bg-teal-100 px-1 rounded">.tsv</code> z kolumną nagłówkową <em>email</em>. Dodatkowe kolumny staną się polami niestandardowymi.</p>
           </div>
         )}
 
         <div className="flex gap-2 mb-3">
-          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>Single</Button>
-          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>Bulk paste</Button>
+          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>Pojedynczo</Button>
+          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>Wklej zbiorczo</Button>
         </div>
         <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-2">
           <input
@@ -873,7 +873,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           <form onSubmit={addSingle} className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Email *</label>
+                <label className="block text-sm text-gray-600 mb-1">E-mail *</label>
                 <input
                   type="email" required
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -882,7 +882,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Name</label>
+                <label className="block text-sm text-gray-600 mb-1">Nazwa / imię</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={single.name}
@@ -891,7 +891,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Custom data (JSON)</label>
+              <label className="block text-sm text-gray-600 mb-1">Dane niestandardowe (JSON)</label>
               <textarea
                 rows={2}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
@@ -925,7 +925,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {/* Status */}
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-gray-500 whitespace-nowrap">Status:</span>
-          {[{v:'all',l:'All'},{v:'active',l:'Active'},{v:'contacted',l:'Contacted'},{v:'completed',l:'Completed'},{v:'bounced',l:'Bounced'},{v:'unsubscribed',l:'Unsub'},{v:'wrong_person',l:'Wrong person'},{v:'needs_custom_email',l:'Needs custom'}].map(o => (
+          {[{v:'all',l:'Wszystkie'},{v:'active',l:'Aktywne'},{v:'contacted',l:'Skontaktowane'},{v:'completed',l:'Zakończone'},{v:'bounced',l:'Odbite'},{v:'unsubscribed',l:'Wypisane'},{v:'wrong_person',l:'Niewłaściwa osoba'},{v:'needs_custom_email',l:'Wymaga nowego e-maila'}].map(o => (
             <button key={o.v} onClick={() => setFilter('status', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
                 filters.status === o.v ? 'bg-teal-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-teal-300'
@@ -936,7 +936,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         <div className="flex items-center gap-1.5 flex-wrap">
           <span className="font-medium text-gray-500 whitespace-nowrap">Zainteresowanie:</span>
           {[
-            { v: 'all', l: 'All' },
+            { v: 'all', l: 'Wszystkie' },
             { v: 'unset', l: 'None' },
             { v: 'interested', l: 'Interested' },
             { v: 'not_interested', l: 'Not interested' },
@@ -960,7 +960,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {/* Opened */}
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-gray-500 whitespace-nowrap">Otwarte:</span>
-          {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
+          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
             <button key={o.v} onClick={() => setFilter('opened', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
                 filters.opened === o.v ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-amber-300'
@@ -970,7 +970,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {/* Replied */}
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-gray-500 whitespace-nowrap">Odpowiedzi:</span>
-          {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
+          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
             <button key={o.v} onClick={() => setFilter('replied', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
                 filters.replied === o.v ? 'bg-violet-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-violet-300'
@@ -980,7 +980,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {/* Clicked */}
         <div className="flex items-center gap-1.5">
           <span className="font-medium text-gray-500 whitespace-nowrap">Kliknięte:</span>
-          {[{v:'all',l:'All'},{v:'yes',l:'Yes'},{v:'no',l:'No'}].map(o => (
+          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
             <button key={o.v} onClick={() => setFilter('clicked', o.v)}
               className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
                 filters.clicked === o.v ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-orange-300'
@@ -990,16 +990,16 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {/* Email verification */}
         {verificationSummary?.statuses && (
           <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-medium text-gray-500 whitespace-nowrap">Verified:</span>
+            <span className="font-medium text-gray-500 whitespace-nowrap">Weryfikacja:</span>
             {[
-              { v: 'all', l: 'All' },
-              { v: 'valid', l: 'Valid' },
-              { v: 'invalid', l: 'Invalid' },
-              { v: 'risky', l: 'Risky' },
-              { v: 'catch_all', l: 'Catch-All' },
-              { v: 'unknown', l: 'Unknown' },
+              { v: 'all', l: 'Wszystkie' },
+              { v: 'valid', l: 'Poprawne' },
+              { v: 'invalid', l: 'Niepoprawne' },
+              { v: 'risky', l: 'Ryzykowne' },
+              { v: 'catch_all', l: 'Catch-all' },
+              { v: 'unknown', l: 'Nieznane' },
               { v: 'pending', l: 'Pending' },
-              { v: 'unverified', l: 'Unverified' },
+              { v: 'unverified', l: 'Niezweryfikowane' },
             ].filter(o => o.v === 'all' || (verificationSummary.statuses[o.v] || 0) > 0).map(o => (
               <button key={o.v} onClick={() => setFilter('verification', o.v)}
                 className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
@@ -1146,7 +1146,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                           >
                             {val != null
                               ? <span className="text-gray-800">{String(val)}</span>
-                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">empty</span>
+                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">puste</span>
                             }
                           </button>
                         )}
@@ -1183,7 +1183,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
             <div className="mb-4 text-center">
               <div className="text-3xl font-bold text-teal-600">{confirmPreview.total_valid}</div>
-              <div className="text-sm text-gray-500">poprawnych kontaktów: {confirmPreview.total_valid}</div>
+              <div className="text-sm text-gray-500">poprawnych kontaktów</div>
             </div>
 
             {confirmPreview.providers && Object.keys(confirmPreview.providers).length > 0 && (
@@ -1202,10 +1202,10 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
             {confirmPreview.total_flagged > 0 && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm font-semibold text-yellow-800 mb-1">{confirmPreview.total_flagged} issue(s) — will be skipped</p>
+                <p className="text-sm font-semibold text-yellow-800 mb-1">Problemy: {confirmPreview.total_flagged} — te wpisy zostaną pominięte</p>
                 {confirmPreview.flagged?.invalid_format?.length > 0 && (
                   <div className="mt-1">
-                    <span className="text-xs text-yellow-700 font-medium">Invalid format:</span>
+                    <span className="text-xs text-yellow-700 font-medium">Niepoprawny format:</span>
                     <div className="flex flex-wrap gap-1 mt-0.5">
                       {confirmPreview.flagged.invalid_format.map((em, i) => (
                         <span key={i} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{em}</span>
@@ -1235,12 +1235,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
 // ─── Analytics Tab ────────────────────────────────────────────────────────────
 const SERIES_LIST = [
-  { key: 'sent',         name: 'Sent',          stroke: 'rgba(59,130,246,0.8)',  fill: 'rgba(59,130,246,0.15)' },
-  { key: 'totalOpens',   name: 'Total Opens',   stroke: 'rgba(234,179,8,0.8)',   fill: 'rgba(234,179,8,0.15)' },
-  { key: 'uniqueOpens',  name: 'Unique Opens',  stroke: 'rgba(16,185,129,0.8)',  fill: 'rgba(16,185,129,0.15)' },
-  { key: 'totalReplies', name: 'Replies',        stroke: 'rgba(45,212,191,0.8)',  fill: 'rgba(45,212,191,0.15)' },
-  { key: 'totalClicks',  name: 'Total Clicks',  stroke: 'rgba(234,88,12,0.8)',   fill: 'rgba(234,88,12,0.15)' },
-  { key: 'uniqueClicks', name: 'Unique Clicks', stroke: 'rgba(236,72,153,0.8)',  fill: 'rgba(236,72,153,0.15)' },
+  { key: 'sent',         name: 'Wysłane',          stroke: 'rgba(59,130,246,0.8)',  fill: 'rgba(59,130,246,0.15)' },
+  { key: 'totalOpens',   name: 'Wszystkie otwarcia',   stroke: 'rgba(234,179,8,0.8)',   fill: 'rgba(234,179,8,0.15)' },
+  { key: 'uniqueOpens',  name: 'Unikalne otwarcia',  stroke: 'rgba(16,185,129,0.8)',  fill: 'rgba(16,185,129,0.15)' },
+  { key: 'totalReplies', name: 'Odpowiedzi',        stroke: 'rgba(45,212,191,0.8)',  fill: 'rgba(45,212,191,0.15)' },
+  { key: 'totalClicks',  name: 'Wszystkie kliknięcia',  stroke: 'rgba(234,88,12,0.8)',   fill: 'rgba(234,88,12,0.15)' },
+  { key: 'uniqueClicks', name: 'Unikalne kliknięcia', stroke: 'rgba(236,72,153,0.8)',  fill: 'rgba(236,72,153,0.15)' },
 ];
 
 function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences = [], onRefresh }) {
@@ -1258,16 +1258,16 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
     const lastMonthStart = localIso(new Date(today.getFullYear(), today.getMonth() - 1, 1));
     const lastMonthEnd = localIso(new Date(today.getFullYear(), today.getMonth(), 0));
     return [
-      { label: 'Last 7 Days',  start: d(-6),          end: todayStr },
-      { label: 'Last Week',    start: lastWeekStart,  end: localIso(lastWeekEnd) },
-      { label: 'Last 30 Days', start: d(-29),         end: todayStr },
-      { label: 'Last Month',   start: lastMonthStart, end: lastMonthEnd },
-      { label: 'Last 90 Days', start: d(-89),         end: todayStr },
+      { label: 'Ostatnie 7 dni',  start: d(-6),          end: todayStr },
+      { label: 'Poprzedni tydzień',    start: lastWeekStart,  end: localIso(lastWeekEnd) },
+      { label: 'Ostatnie 30 dni', start: d(-29),         end: todayStr },
+      { label: 'Poprzedni miesiąc',   start: lastMonthStart, end: lastMonthEnd },
+      { label: 'Ostatnie 90 dni', start: d(-89),         end: todayStr },
     ];
   }, [todayStr]);
 
-  const [activePreset, setActivePreset] = useState('Last 7 Days');
-  const defaultRange = presets.find(p => p.label === 'Last 7 Days') || presets[0];
+  const [activePreset, setActivePreset] = useState('Ostatnie 7 dni');
+  const defaultRange = presets.find(p => p.label === 'Ostatnie 7 dni') || presets[0];
   const [startDate, setStartDate] = useState(defaultRange.start);
   const [endDate,   setEndDate]   = useState(defaultRange.end);
   const [analyticsData, setAnalyticsData] = useState([]);
@@ -1292,7 +1292,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
       const data = await api.get(`/campaigns/${campaignId}/analytics/steps`);
       setStepStats(data);
     } catch (e) {
-      console.error('Failed to load step analytics', e);
+      console.error('Nie udało się wczytać analityki kroków', e);
     } finally {
       setStepStatsLoading(false);
     }
@@ -1313,7 +1313,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
       await api.patch(`/campaigns/${campaignId}/sequences/${seqId}/variants/${variantId}`, { enabled });
       await loadStepStats();
       onRefresh?.();
-      notify({ type: 'success', message: enabled ? 'Variant enabled' : 'Variant disabled' });
+      notify({ type: 'success', message: enabled ? 'Wariant włączony' : 'Wariant wyłączony' });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     }
@@ -1424,12 +1424,12 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
       {/* Range KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
-          { label: 'Leads',      value: rangeLeads },
-          { label: 'Sent',       value: rangeSent },
+          { label: 'Kontakty',   value: rangeLeads },
+          { label: 'Wysłane',    value: rangeSent },
           { label: 'Replies',    value: rangeReplies },
-          { label: 'Open Rate',  value: `${openRate}%` },
-          { label: 'Reply Rate', value: `${replyRate}%` },
-          { label: 'Click Rate', value: `${clickRate}%` },
+          { label: 'Otwarcia',   value: `${openRate}%` },
+          { label: 'Odpowiedzi', value: `${replyRate}%` },
+          { label: 'Kliknięcia', value: `${clickRate}%` },
         ].map(({ label, value }) => (
           <Card key={label} className="p-4">
             <div className="text-xs text-gray-500 mb-1">{label}</div>
@@ -1518,7 +1518,7 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
         <div className="flex border-b border-gray-200">
           {[
             { key: 'steps', label: 'Step Analytics' },
-            { key: 'sent',  label: 'Sent Emails' },
+            { key: 'sent',  label: 'Wysłane wiadomości' },
           ].map(sub => (
             <button
               key={sub.key}
@@ -1565,7 +1565,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
 
   const pct = (n, total) => total > 0 ? `${Math.round(n / total * 100)}%` : '—';
 
-  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Loading step analytics…</div>;
+  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Wczytywanie analityki kroków…</div>;
   if (!stepStats.length) return <div className="py-8 text-center text-gray-400 text-sm">No data yet. Send some emails to see step analytics.</div>;
 
   return (
@@ -1575,7 +1575,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
           <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
             <th className="px-3 py-2 text-left w-8"></th>
             <th className="px-3 py-2 text-left">Step</th>
-            <th className="px-3 py-2 text-right">Sent</th>
+            <th className="px-3 py-2 text-right">Wysłane</th>
             <th className="px-3 py-2 text-right">Opens</th>
             <th className="px-3 py-2 text-right">Clicks</th>
             <th className="px-3 py-2 text-right">Replies</th>
@@ -1735,7 +1735,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white z-10">
               <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
-                <th className="px-3 py-2.5 text-left">Sent</th>
+                <th className="px-3 py-2.5 text-left">Wysłane</th>
                 <th className="px-3 py-2.5 text-left">From</th>
                 <th className="px-3 py-2.5 text-left">Lead</th>
                 <th className="px-3 py-2.5 text-left">Step</th>
