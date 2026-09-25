@@ -6,6 +6,7 @@ import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { PageFrame, Metric, Icon } from '../redesign/ui';
 import {
   addDaysToDateKey,
   formatDateKey,
@@ -559,14 +560,13 @@ export default function Schedule() {
   };
 
   return (
-    <div className="min-h-0 flex-1 overflow-y-auto p-8">
-      <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">Harmonogram</h1>
-        <span className="text-xs text-gray-400 bg-gray-100 rounded px-2 py-0.5" title="Times are stored in UTC and displayed in each campaign's timezone below">
-          🕐 Times in campaign timezone
-        </span>
-      </div>
-      <Card className="flex flex-wrap justify-between items-center mb-4 p-2">
+    <PageFrame
+      className="sk-schedule-page"
+      title="Harmonogram i kolejka"
+      description="Monitoruj zaplanowane i wysłane wiadomości w strefach czasowych kampanii."
+      actions={<Button size="sm" variant="outline" onClick={loadData}>↻ Odśwież</Button>}
+    >
+      <Card className="sk-schedule-statusbar flex flex-wrap justify-between items-center mb-4 p-2">
         <div className="flex flex-wrap gap-4 items-center">
           {!isProduction && (
             <>
@@ -607,15 +607,15 @@ export default function Schedule() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">Auto-odświeżanie: 30 s</span>
-          <Button size="sm" variant="outline" onClick={loadData}>↻ Odśwież</Button>
         </div>
       </Card>
-      <div className="stats-row mb-4">
-        <div className="stat-card"><div className="num" id="stat-sent">{stats.total_sent||0}</div><div className="lbl">Wysłane</div></div>
-        <div className="stat-card"><div className="num" id="stat-sched">{stats.total_scheduled||0}</div><div className="lbl">Zaplanowane</div></div>
-        <div className="stat-card"><div className="num" id="stat-camps">{stats.total_campaigns||0}</div><div className="lbl">Kampanie</div></div>
+      <div className="sk-schedule-metrics">
+        <Metric icon="send" title="Wysłane" value={(stats.total_sent||0).toLocaleString('pl-PL')} detail="w załadowanym zakresie" tone="blue" />
+        <Metric icon="calendar" title="Zaplanowane" value={(stats.total_scheduled||0).toLocaleString('pl-PL')} detail={timeToNext ? `następna za ${timeToNext}` : 'oczekujące w kolejce'} tone="green" />
+        <Metric icon="campaign" title="Kampanie" value={stats.total_campaigns||0} detail={strategy==='priority'?'strategia priorytetowa':'równomierny podział'} tone="purple" />
+        <Metric icon="server" title="Scheduler" value={serverStatus.schedule_running?'Online':'Stop'} detail={`ostatni przebieg: ${renderLastRun(serverStatus.last_send_job_run)}`} tone={serverStatus.schedule_running?'green':'red'} />
       </div>
-      <div className="cal-toolbar mb-4 flex flex-wrap gap-2 items-center">
+      <div className="sk-schedule-toolbar">
         <select value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
           <option value="">Wszystkie kampanie</option>
           {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
@@ -650,7 +650,7 @@ export default function Schedule() {
           </>
         )}
       </div>
-      <Card className="p-4" id="schedule-body">
+      <Card className="sk-schedule-list p-4" id="schedule-body">
         {renderSection()}
         <div ref={sentinelRef} style={{ height: 1 }} />
         {isLoadingMore && <p style={{ textAlign: 'center', padding: '0.5rem', color: 'var(--muted)' }}>Wczytywanie…</p>}
@@ -660,6 +660,6 @@ export default function Schedule() {
       {previewItem && (
         <ScheduleEmailPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
       )}
-    </div>
+    </PageFrame>
   );
 }
