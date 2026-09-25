@@ -48,3 +48,90 @@ export function errorText(err) {let message=typeof err==='string'?err:err?.messa
 export function dateTime(value,opts={}) {if(!value)return '—';const d=new Date(/[zZ]|[+-]\d\d:\d\d$/.test(value)?value:value+'Z');return Number.isNaN(+d)?'—':d.toLocaleString('pl-PL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',...opts});}
 export const statusLabels={active:'Aktywny',contacted:'Wysłano',completed:'Zakończony',replied:'Odpowiedział',bounced:'Odbicie',unsubscribed:'Wypisany',paused:'Wstrzymany',new:'Nowy',invalid:'Niepoprawny',valid:'Poprawny',pending:'Oczekuje',interested:'Zainteresowany',not_interested:'Niezainteresowany',needs_custom_email:'Do przygotowania',wrong_person:'Inny odbiorca',out_of_office:'Poza biurem',auto_reply:'Automatyczna odpowiedź'};
 export function ContactStatus({lead}) {const cs=lead?.campaigns||[];const s=lead?.email_verification_status==='invalid'?'invalid':cs.some(c=>c.status==='unsubscribed')?'unsubscribed':cs.some(c=>c.replied||c.status==='replied')?'replied':cs[0]?.status || lead?.lead_status || 'new';return <Badge dot tone={['bounced','invalid','unsubscribed'].includes(s)?'red':s==='replied'?'blue':s==='active'?'green':'neutral'}>{statusLabels[s]||s}</Badge>;}
+
+
+export function PageFrame({title,description,actions,children,className=''}) {
+ return <div className={`sk-page-frame ${className}`}>
+  {(title||description||actions)&&<header className="sk-page-header">
+   <div className="sk-page-header-copy">{title&&<h1>{title}</h1>}{description&&<p>{description}</p>}</div>
+   {actions&&<div className="sk-page-header-actions">{actions}</div>}
+  </header>}
+  {children}
+ </div>;
+}
+
+export function SectionTabs({items=[],value,onChange,className='',ariaLabel='Sekcje'}) {
+ return <div className={`sk-section-tabs ${className}`} role="tablist" aria-label={ariaLabel}>
+  {items.map(item=>{
+   const data=typeof item==='string'?{id:item,label:item}:item;
+   const active=data.id===value;
+   return <button
+    type="button"
+    key={data.id}
+    role="tab"
+    aria-selected={active}
+    disabled={data.disabled}
+    className={`sk-section-tab ${active?'is-active':''}`}
+    onClick={()=>!data.disabled&&onChange?.(data.id)}
+   >
+    {data.icon&&<Icon name={data.icon} size={17}/>}
+    <span>{data.label}</span>
+    {data.badge}
+    {data.comingSoon&&<ComingSoon/>}
+   </button>;
+  })}
+ </div>;
+}
+
+export function Field({label,help,error,disabled=false,children,className=''}) {
+ return <label className={`sk-field ${disabled?'is-disabled':''} ${className}`}>
+  {label&&<span className="sk-field-label">{label}</span>}
+  {children}
+  {error?<span className="sk-field-help sk-field-error">{error}</span>:help&&<span className="sk-field-help">{help}</span>}
+ </label>;
+}
+
+export function Switch({checked,onChange,label,description,disabled=false,className=''}) {
+ return <div className={`sk-switch-row ${className}`}>
+  <div className="sk-switch-copy">
+   {label&&<strong>{label}</strong>}
+   {description&&<small>{description}</small>}
+  </div>
+  <button
+   type="button"
+   role="switch"
+   aria-checked={!!checked}
+   aria-label={label}
+   disabled={disabled}
+   className="sk-switch"
+   onClick={()=>!disabled&&onChange?.(!checked)}
+  />
+ </div>;
+}
+
+export function ComingSoon({children='Wkrótce'}) {
+ return <span className="sk-coming-soon">{children}</span>;
+}
+
+export function StatePanel({title,description,icon='info',tone='neutral',actions,children,className=''}) {
+ return <section className={`sk-state-panel tone-${tone} ${className}`}>
+  <span className="sk-state-panel-icon"><Icon name={icon} size={25}/></span>
+  {title&&<h3>{title}</h3>}
+  {description&&<p>{description}</p>}
+  {children}
+  {actions&&<div className="sk-cluster">{actions}</div>}
+ </section>;
+}
+
+export function SettingsCard({title,description,icon='settings',action,span=12,children,className=''}) {
+ return <section className={`sk-settings-card sk-span-${span} ${className}`}>
+  <header className="sk-settings-card-head">
+   <div className="sk-settings-card-title">
+    <span><Icon name={icon} size={20}/></span>
+    <div><h2>{title}</h2>{description&&<p>{description}</p>}</div>
+   </div>
+   {action}
+  </header>
+  <div className="sk-settings-card-body">{children}</div>
+ </section>;
+}
