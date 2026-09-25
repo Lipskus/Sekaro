@@ -1905,11 +1905,11 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 }
 .sk-system-health-page .sk-health-summary-error {
   border-color:color-mix(in srgb,var(--sk-red-text) 48%,var(--sk-line))!important;
-  background:color-mix(in srgb,var(--sk-red-soft) 35%,var(--sk-surface))!important;
+  background:var(--sk-surface)!important;
 }
 .sk-system-health-page .sk-health-summary-warning {
   border-color:color-mix(in srgb,var(--sk-amber-text) 48%,var(--sk-line))!important;
-  background:color-mix(in srgb,var(--sk-amber-soft) 35%,var(--sk-surface))!important;
+  background:var(--sk-surface)!important;
 }
 .sk-system-health-page .sk-health-summary-ok {
   border-color:color-mix(in srgb,var(--sk-accent) 32%,var(--sk-line))!important;
