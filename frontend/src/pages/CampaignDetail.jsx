@@ -1677,14 +1677,14 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
 
 // ─── Sent E-mails Panel ────────────────────────────────────────────────────────
 const SENT_FILTER_OPTIONS = [
-  { value: 'all',        label: 'All' },
-  { value: 'opened',     label: 'Opened' },
-  { value: 'clicked',    label: 'Clicked' },
-  { value: 'replied',    label: 'Replied' },
-  { value: 'interested', label: 'Interested' },
-  { value: 'not_opened', label: 'Not Opened' },
-  { value: 'bounced',    label: 'Bounced' },
-  { value: 'unsubscribed', label: 'Unsubscribed' },
+  { value: 'all',        label: 'Wszystkie' },
+  { value: 'opened',     label: 'Otwarte' },
+  { value: 'clicked',    label: 'Kliknięte' },
+  { value: 'replied',    label: 'Z odpowiedzią' },
+  { value: 'interested', label: 'Zainteresowane' },
+  { value: 'not_opened', label: 'Nieotwarte' },
+  { value: 'bounced',    label: 'Odbite' },
+  { value: 'unsubscribed', label: 'Wypisane' },
 ];
 
 function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
@@ -1711,7 +1711,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
     <div className="space-y-3">
       {/* Filter bar */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <span className="text-xs font-medium text-gray-500 mr-1">Filter:</span>
+        <span className="text-xs font-medium text-gray-500 mr-1">Filtr:</span>
         {SENT_FILTER_OPTIONS.map(opt => (
           <button
             key={opt.value}
@@ -1725,25 +1725,25 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
             {opt.label}
           </button>
         ))}
-        <span className="text-xs text-gray-400 ml-2">{filtered.length} email{filtered.length !== 1 ? 's' : ''}</span>
+        <span className="text-xs text-gray-400 ml-2">{filtered.length} wiadomości</span>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-8 text-center text-gray-400 text-sm">No emails match this filter.</div>
+        <div className="py-8 text-center text-gray-400 text-sm">Brak wiadomości pasujących do filtra.</div>
       ) : (
         <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white z-10">
               <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
                 <th className="px-3 py-2.5 text-left">Wysłane</th>
-                <th className="px-3 py-2.5 text-left">From</th>
-                <th className="px-3 py-2.5 text-left">Lead</th>
+                <th className="px-3 py-2.5 text-left">Od</th>
+                <th className="px-3 py-2.5 text-left">Kontakt</th>
                 <th className="px-3 py-2.5 text-left">Krok</th>
                 <th className="px-3 py-2.5 text-left">Temat</th>
-                <th className="px-3 py-2.5 text-center">Opened</th>
-                <th className="px-3 py-2.5 text-center">Clicked</th>
-                <th className="px-3 py-2.5 text-center">Replied</th>
-                <th className="px-3 py-2.5 text-left">Variant</th>
+                <th className="px-3 py-2.5 text-center">Otwarte</th>
+                <th className="px-3 py-2.5 text-center">Kliknięte</th>
+                <th className="px-3 py-2.5 text-center">Odpowiedź</th>
+                <th className="px-3 py-2.5 text-left">Wariant</th>
                 <th className="px-3 py-2.5 text-left">Status</th>
               </tr>
             </thead>
@@ -1753,7 +1753,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
                   <td className="px-3 py-2 whitespace-nowrap text-gray-500 text-xs">{fmt(e.sent_at)}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-700 max-w-[200px] truncate" title={e.inbox_email || ''}>{e.inbox_email || '—'}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-800 max-w-[180px] truncate">{e.lead_email}</td>
-                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">Step {(e.sequence_index ?? 0) + 1}</td>
+                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">Krok {(e.sequence_index ?? 0) + 1}</td>
                   <td className="px-3 py-2 text-xs text-gray-700 max-w-[200px] truncate">{e.subject || '—'}</td>
                   <td className="px-3 py-2 text-center">
                     {e.opened
@@ -2725,7 +2725,7 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-gray-50">
             <tr className="border-b border-gray-200 text-xs text-gray-500">
-              <th className="px-3 py-2 text-left">Lead</th>
+              <th className="px-3 py-2 text-left">Kontakt</th>
               {personalizedSequences.length > 1 && (
                 <th className="px-3 py-2 text-center">
                   <div className="flex items-center justify-center gap-1.5">
