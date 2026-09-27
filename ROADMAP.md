@@ -207,6 +207,30 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 - Public installation guide
 - Stable API surface
 
+## Planned after redesign QA — configurable installer and optional antivirus
+
+Requested 2026-09-28. Planning only: no antivirus is installed or enabled by this entry, and no application rebuild is required for this documentation change.
+
+- [ ] Build an idempotent installation/configuration wizard with reviewable configuration, prerequisites/resource checks, generated Compose profiles, connection tests and an upgrade path that preserves data and secrets.
+- [ ] Offer explicit antivirus choices: **disabled**, **local optional ClamAV service**, or **existing remote scanner**. The disabled option must not install, start or allocate resources to an AV container.
+- [ ] Keep AV optional and separate from the minimal app/database/public-unsubscribe deployment. Allow changing the choice after installation.
+- [ ] Scope the initial integration to Sekaro uploads, imported files and mail attachments. Document that scanning application files is not whole-host endpoint protection; host-wide AV requires a separately designed deployment.
+- [ ] For local ClamAV, check available resources with headroom for Sekaro/PostgreSQL and signature reloads; warn when insufficient. Do not recommend this profile on the current approximately 1 GiB VPS. Establish requirements from benchmarks, not a claimed zero-overhead scanner.
+- [ ] For remote scanning, support streaming to an operator-controlled ClamAV instance over a private authenticated/encrypted network (e.g. NetBird/WireGuard), with connection tests, timeouts and a concurrency limit. Never expose the unauthenticated/unencrypted clamd TCP endpoint publicly.
+- [ ] Show separate clean/detected/not-scanned/error states; scanner downtime or an oversized/encrypted unscannable file must not be presented as clean. Define quarantine/release policy before implementation; no automatic destructive deletion.
+- [ ] Cap scan size, archive expansion, time and parallelism; keep scanning off interactive request paths where appropriate. Display scanner health and signature freshness.
+- [ ] Benchmark peak RAM/CPU during signature updates and scans, latency and queue behavior on representative MIME, PDF, Office and archive files. Validate with EICAR and outage tests.
+- [ ] Evaluate additional remote/commercial adapters only after checking integration API, licensing, privacy and measured resource needs. External cloud uploads must be an explicit opt-in; no default submission of correspondence to public scanning services.
+
+Research baseline (2026-09-28):
+- [ClamAV requirements](https://docs.clamav.net/): 3 GiB+ minimum recommended RAM, 3–4 GiB guidance for constrained environments; other applications require additional resources. Applies to both ClamScan and ClamD using the standard signature database. On-demand scanning removes a resident daemon but does not remove scan-time memory requirements.
+- [ClamAV scanning](https://docs.clamav.net/manual/Usage/Scanning.html): clamd TCP has no built-in authentication/protection; remote scanning requires network isolation and protected transport.
+- [ESET Server Security for Linux 12.1](https://help.eset.com/essl/12.1/en-US/system_requirements.html): installation minimum 2 GB RAM and 2 x64 CPU cores. These are vendor system requirements, not measured scanner RSS or proof of lower overhead for Sekaro.
+- [Linux Malware Detect](https://www.rfxn.com/projects/linux-malware-detect): focuses on shared-hosting threats such as web shells and injected backdoors; not established as an equivalent lower-resource scanner for general email attachments.
+- [VirusTotal API terms](https://docs.virustotal.com/reference/public-vs-premium-api): the public API is not suitable as a free commercial-product scanning backend.
+
+Recommendation: offer all three deployment choices, with remote operator-controlled ClamAV as the candidate for low-memory Sekaro hosts. No claim that a lighter equivalent has been demonstrated; validate before implementation. Schedule installer work after current redesign QA and the planned focused refactoring.
+
 ## After 1.0
 - Additional language coverage
 - REST API expansion
