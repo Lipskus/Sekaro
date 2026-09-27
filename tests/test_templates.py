@@ -213,3 +213,26 @@ async def test_template_test_send_renders_contact_and_uses_smtp(session, monkeyp
     assert captured["body"] == "Wartość: Rendered"
     assert captured["reply_to_address"] == "reply@example.com"
     assert captured["provider"] == "smtp"
+
+
+@pytest.mark.asyncio
+async def test_version_saves_name_and_content_together(session):
+    row = await create_template(MessageTemplateCreate(name='Before', subject='Old', body='Body'), db=session)
+    saved = await create_template_version(row.id, MessageTemplateVersionCreate(name='After', subject='New', body='Changed'), db=session)
+    assert saved.name == 'After'
+    assert saved.latest_version.version == 2
+    assert saved.latest_version.subject == 'New'
+    assert saved.versions[1].subject == 'Old'
+
+
+@pytest.mark.asyncio
+async def test_duplicate_name_does_not_partially_save_version(session):
+    from fastapi import HTTPException
+    from app.routers.templates import get_template
+    row = await create_template(MessageTemplateCreate(name='Source', subject='Old'), db=session)
+    await create_template(MessageTemplateCreate(name='Occupied'), db=session)
+    with pytest.raises(HTTPException) as exc:
+        await create_template_version(row.id, MessageTemplateVersionCreate(name='Occupied', subject='Should not save'), db=session)
+    assert exc.value.status_code == 409
+    fetched = await get_template(row.id, db=session)
+    assert fetched.name == 'Source' and len(fetched.versions) == 1 and fetched.latest_version.subject == 'Old'

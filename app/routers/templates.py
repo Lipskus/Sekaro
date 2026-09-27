@@ -132,7 +132,19 @@ async def create_template_version(
     data: MessageTemplateVersionCreate,
     db: AsyncSession = Depends(get_db),
 ):
+    # Serialize version numbering and save the name with the content atomically.
+    await db.execute(select(MessageTemplate.id).where(MessageTemplate.id == template_id).with_for_update())
     row = await _get_template(db, template_id)
+    if data.name is not None:
+        name = data.name.strip()
+        if not name:
+            raise HTTPException(400, "Template name cannot be empty")
+        duplicate = await db.execute(select(MessageTemplate.id).where(
+            func.lower(MessageTemplate.name) == name.lower(), MessageTemplate.id != template_id,
+        ).limit(1))
+        if duplicate.scalar_one_or_none() is not None:
+            raise HTTPException(409, "Template name already exists")
+        row.name = name
     max_result = await db.execute(
         select(func.max(MessageTemplateVersion.version)).where(
             MessageTemplateVersion.template_id == template_id

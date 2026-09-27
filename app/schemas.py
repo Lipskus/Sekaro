@@ -153,6 +153,7 @@ class MessageTemplateRename(BaseModel):
 
 
 class MessageTemplateVersionCreate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
     subject: str = Field(default="", max_length=512)
     body: str = ""
     is_html: bool = False
