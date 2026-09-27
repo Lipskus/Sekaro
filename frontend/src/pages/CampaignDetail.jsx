@@ -6,6 +6,10 @@ import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
+import Modal from '../redesign/Modal';
+import { Metric } from '../redesign/ui';
+import { recipientFilters, emptyRecipientFilters, filterRecipients, recipientsCsv } from '../redesign/campaignRecipients';
+import '../redesign/campaign-recipients.css';
 import DatePicker from '../components/ui/DatePicker';
 import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
@@ -405,13 +409,21 @@ function deriveStatuses(lead) {
   if (intr === 'auto_reply') badges.push('auto_reply');
   if (lead.sending_paused) badges.push('paused');
   if (lead.email_verification_status) badges.push(lead.email_verification_status);
-  return badges;
+  return [...new Set(badges)];
 }
 
 // ─── Leads Tab ────────────────────────────────────────────────────────────────
-function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
+export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const notify  = useNotify();
   const confirm = useConfirm();
+  const [showAdd, setShowAdd] = useState(false);
+  const [query, setQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showColumns, setShowColumns] = useState(false);
+  const [hiddenFields, setHiddenFields] = useState([]);
+  const [adding, setAdding] = useState(false);
   const [mode, setMode]   = useState('single');
   const [single, setSingle] = useState({ email: '', name: '', custom: '' });
   const [bulk, setBulk]   = useState('');
@@ -435,16 +447,10 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const [confirmAddLoading, setConfirmAddLoading] = useState(false);
   const [importFile, setImportFile] = useState(null);
   // filters: { status, interest, opened, replied, clicked, verification }
-  const [filters, setFilters] = useState({
-    status: 'all',
-    interest: 'all',
-    opened: 'all',
-    replied: 'all',
-    clicked: 'all',
-    verification: 'all',
-  });
-  const setFilter = (key, val) => setFilters(prev => ({ ...prev, [key]: val }));
-  const hasActiveFilter = Object.values(filters).some(v => v !== 'all');
+  const [filters, setFilters] = useState(emptyRecipientFilters);
+  const setFilter = (key, val) => { setFilters(prev => ({ ...prev, [key]: val })); setPage(1); };
+  const hasActiveFilter = !!query.trim() || Object.values(filters).some(v => v !== 'all');
+  const clearFilters = () => { setFilters(emptyRecipientFilters); setQuery(''); setPage(1); };
 
   // All custom field names across all leads
   const customFields = useMemo(() => {
@@ -453,37 +459,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
     return [...keys].sort();
   }, [leads]);
 
-  // Filtered leads based on all active filters
-  const filteredLeads = useMemo(() => {
-    return leads.filter(l => {
-      if (filters.status !== 'all') {
-        if (filters.status === 'active' && l.status !== 'active') return false;
-        if (filters.status === 'contacted' && l.status !== 'contacted') return false;
-        if (filters.status === 'bounced' && l.status !== 'bounced') return false;
-        if (filters.status === 'unsubscribed' && l.status !== 'unsubscribed') return false;
-        if (filters.status === 'wrong_person' && l.status !== 'wrong_person') return false;
-        if (filters.status === 'completed' && l.status !== 'completed') return false;
-        if (filters.status === 'needs_custom_email' && l.status !== 'needs_custom_email') return false;
-      }
-      if (filters.interest !== 'all') {
-        const intr = l.interest ?? l.interest_status ?? '';
-        if (filters.interest === 'unset') {
-          if (intr) return false;
-        } else if (intr !== filters.interest) return false;
-      }
-      if (filters.opened === 'yes' && !l.opened) return false;
-      if (filters.opened === 'no' && l.opened) return false;
-      if (filters.replied === 'yes' && !l.replied) return false;
-      if (filters.replied === 'no' && l.replied) return false;
-      if (filters.clicked === 'yes' && !l.clicked) return false;
-      if (filters.clicked === 'no' && l.clicked) return false;
-      if (filters.verification !== 'all') {
-        if (filters.verification === 'unverified' && l.email_verification_status) return false;
-        else if (filters.verification !== 'unverified' && l.email_verification_status !== filters.verification) return false;
-      }
-      return true;
-    });
-  }, [leads, filters]);
+  const visibleFields = customFields.filter(f => !hiddenFields.includes(f));
+  const filteredLeads = useMemo(() => filterRecipients(leads, filters, query), [leads, filters, query]);
+  const pageCount = Math.max(1, Math.ceil(filteredLeads.length / pageSize));
+  const currentPage = Math.min(page, pageCount);
+  const pageLeads = filteredLeads.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  useEffect(() => { if (page > pageCount) setPage(pageCount); }, [page, pageCount]);
 
   // Load verification summary
   const loadVerificationSummary = useCallback(async () => {
@@ -610,24 +591,28 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   const addSingle = async e => {
     e.preventDefault();
     setMsg(null);
+    if (adding) return;
     if (!single.email.trim()) { setMsg({ type: 'error', text: 'Adres e-mail jest wymagany.' }); return; }
     let custom_data;
     if (single.custom.trim()) {
       try { custom_data = JSON.parse(single.custom); }
       catch { setMsg({ type: 'error', text: 'Dane niestandardowe muszą być poprawnym JSON-em.' }); return; }
     }
+    setAdding(true);
     try {
-      await api.post(`/campaigns/${campaignId}/leads`, [{
+      const res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, [{
         email: single.email.trim(),
         name: single.name.trim() || undefined,
         custom_data,
       }]);
       setSingle({ email: '', name: '', custom: '' });
-      notify({ type: 'success', message: 'Kontakt dodany.' });
+      setShowAdd(false);
+      setLastDuplicates(res?.duplicate_leads || []);
+      notify({ type: 'success', message: `Dodano kontaktów: ${res?.added ?? 1}` });
       refresh();
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
-    }
+    } finally { setAdding(false); }
   };
 
   /* Enhanced bulk parser – supports:
@@ -638,6 +623,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   */
   const addBulk = async e => {
     e.preventDefault();
+    if (adding) return;
     const lines = bulk.split('\n').map(s => s.trim()).filter(Boolean);
     if (!lines.length) { setMsg({ type: 'error', text: 'Nie wprowadzono danych.' }); return; }
 
@@ -674,15 +660,17 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
     if (!payload.length) { setMsg({ type: 'error', text: 'Nie znaleziono poprawnych adresów e-mail.' }); return; }
 
+    setAdding(true);
     try {
       const preview = await api.post(`/campaigns/${campaignId}/leads?confirm_only=true&skip_duplicates=${skipDuplicates}`, payload);
       setConfirmPayload(payload);
       setConfirmPreview(preview);
       setImportFile(null);
+      setShowAdd(false);
       setShowLeadsConfirm(true);
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
-    }
+    } finally { setAdding(false); }
   };
 
   // ---- File import ----
@@ -696,6 +684,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       setImportFile(file);
       setConfirmPayload(null);
       setConfirmPreview(preview);
+      setShowAdd(false);
       setShowLeadsConfirm(true);
     } catch (err) {
       notify({ type: 'error', message: err.message });
@@ -712,7 +701,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, confirmPayload);
         setBulk('');
         const dupMsg = res.duplicate_leads?.length ? ` (pominięto duplikaty: ${res.duplicate_leads.length})` : '';
-        notify({ type: 'success', message: `Dodano kontaktów: ${res.added || confirmPayload.length}${dupMsg}` });
+        notify({ type: 'success', message: `Dodano kontaktów: ${res.added ?? confirmPayload.length}${dupMsg}` });
       } else if (importFile) {
         res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, importFile);
         const dupMsg = res.duplicate_leads?.length ? `, pominięto duplikaty: ${res.duplicate_leads.length}` : '';
@@ -735,22 +724,11 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   // ---- File export ----
   const handleExport = async () => {
     try {
-      const params = new URLSearchParams();
-      if (filters.status !== 'all') params.set('status', filters.status);
-      if (filters.interest !== 'all') {
-        params.set('interest', filters.interest === 'unset' ? 'unset' : filters.interest);
-      }
-      if (filters.verification !== 'all' && filters.verification !== 'unverified') {
-        params.set('verification_status', filters.verification);
-      }
-      const qs = params.toString() ? `?${params.toString()}` : '';
-      const res = await api.download(`/campaigns/${campaignId}/leads/export${qs}`);
-      if (!res.ok) throw new Error('Eksport nie powiódł się.');
-      const blob = await res.blob();
+      const blob = new Blob([recipientsCsv(filteredLeads)], { type: 'text/csv;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = res.headers.get('content-disposition')?.match(/filename="?(.+?)"?$/)?.[1] || 'leads.csv';
+      a.download = `odbiorcy-kampanii-${campaignId}.csv`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -761,10 +739,20 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   };
 
   return (
-    <div className="space-y-6 min-w-0 max-w-full">
+    <div className="sk-campaign-recipients">
+      <div className="sk-metrics four">
+        <Metric icon="contacts" title="Kontakty w kampanii" value={leads.length} detail="Wszyscy przypisani odbiorcy"/>
+        <Metric icon="chat" title="Odpowiedzi" value={leads.filter(l=>l.replied).length} detail="Kontakty, które odpowiedziały" tone="blue"/>
+        <Metric icon="warning" title="Treści do uzupełnienia" value={leads.filter(l=>l.status==='needs_custom_email').length} detail="Wymagają nowej wiadomości" tone="amber"/>
+        <Metric icon="shield" title="Odbite lub wypisane" value={leads.filter(l=>['bounced','unsubscribed'].includes(l.status)).length} detail="Status kontaktu w kampanii" tone="red"/>
+      </div>
       {/* Import / Export toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Button size="sm" variant="outline" onClick={handleExport} disabled={!leads.length}>
+      <div className="sk-recipient-toolbar">
+        <Button size="sm" onClick={()=>setShowAdd(true)}>Dodaj kontakty</Button>
+        <input type="search" aria-label="Szukaj odbiorców" placeholder="Szukaj po e-mailu, imieniu, firmie…" value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
+        <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>Filtry</Button>
+        {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>Kolumny</Button>}
+        <Button size="sm" variant="outline" onClick={handleExport} disabled={!filteredLeads.length}>
           <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" /></svg>
           Eksport{hasActiveFilter ? ' (filtrowany)' : ''} CSV
         </Button>
@@ -781,7 +769,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           {importing ? 'Importowanie…' : 'Import CSV'}
         </FileUploadArea>
         {emailVerifEnabled && (
-          <Button size="sm" variant="outline" onClick={verifyAllLeads} disabled={verifying}>
+          <Button size="sm" variant="outline" onClick={()=>verifyAllLeads()} disabled={verifying}>
             {verifying ? 'Weryfikowanie…' : 'Zweryfikuj wszystkie e-maile'}
           </Button>
         )}
@@ -791,16 +779,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         {hasActiveFilter && (
           <button
             className="text-xs text-teal-600 hover:underline ml-1"
-            onClick={() =>
-              setFilters({
-                status: 'all',
-                interest: 'all',
-                opened: 'all',
-                replied: 'all',
-                clicked: 'all',
-                verification: 'all',
-              })
-            }
+            onClick={clearFilters}
           >Wyczyść filtry</button>
         )}
       </div>
@@ -818,8 +797,9 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
       )}
 
-      {/* Add leads */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
+      {/* Add contacts stays out of the table flow; drafts survive closing the drawer. */}
+      {showAdd && <Modal title="Dodaj kontakty do kampanii" drawer busy={adding} onClose={()=>setShowAdd(false)}>
+      <div className="sk-recipient-add">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold text-gray-800">Dodaj kontakty</h3>
           <button
@@ -876,7 +856,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               <div>
                 <label className="block text-sm text-gray-600 mb-1">E-mail *</label>
                 <input
-                  type="email" required
+                  type="email" aria-label="E-mail kontaktu" required
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={single.email}
                   onChange={e => setSingle(s=>({...s, email: e.target.value}))}
@@ -886,7 +866,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 <label className="block text-sm text-gray-600 mb-1">Nazwa / imię</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  value={single.name}
+                  aria-label="Nazwa lub imię kontaktu" value={single.name}
                   onChange={e => setSingle(s=>({...s, name: e.target.value}))}
                 />
               </div>
@@ -897,11 +877,11 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 rows={2}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder='{"company": "Acme", "title": "CEO"}'
-                value={single.custom}
+                aria-label="Dane niestandardowe JSON" value={single.custom}
                 onChange={e => setSingle(s=>({...s, custom: e.target.value}))}
               />
             </div>
-            <Button size="sm" variant="default">Dodaj kontakt</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Dodawanie…' : 'Dodaj kontakt'}</Button>
           </form>
         )}
         {mode === 'bulk' && (
@@ -912,118 +892,32 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 rows={6}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder={"email,name,company\njohn@acme.com,John Doe,Acme Inc\njane@co.io,Jane Smith,Co"}
-                value={bulk}
+                aria-label="Kontakty do dodania zbiorczo" value={bulk}
                 onChange={e => setBulk(e.target.value)}
               />
             </div>
-            <Button size="sm" variant="default">Dodaj kontakty</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Sprawdzanie…' : 'Dodaj kontakty'}</Button>
           </form>
         )}
       </div>
 
-      {/* Filter bar */}
-      <div className="flex flex-wrap gap-x-6 gap-y-2 p-3 bg-gray-50 dark:bg-gray-800/40 rounded-lg border border-gray-200 dark:border-gray-700 text-xs">
-        {/* Status */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Status:</span>
-          {[{v:'all',l:'Wszystkie'},{v:'active',l:'Aktywne'},{v:'contacted',l:'Skontaktowane'},{v:'completed',l:'Zakończone'},{v:'bounced',l:'Odbite'},{v:'unsubscribed',l:'Wypisane'},{v:'wrong_person',l:'Niewłaściwa osoba'},{v:'needs_custom_email',l:'Wymaga nowego e-maila'}].map(o => (
-            <button key={o.v} onClick={() => setFilter('status', o.v)}
-              className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                filters.status === o.v ? 'bg-teal-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-teal-300'
-              }`}>{o.l}</button>
-          ))}
-        </div>
-        {/* Interest (per-campaign enrollment) */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Zainteresowanie:</span>
-          {[
-            { v: 'all', l: 'Wszystkie' },
-            { v: 'unset', l: 'Brak oceny' },
-            { v: 'interested', l: 'Zainteresowany' },
-            { v: 'not_interested', l: 'Niezainteresowany' },
-            { v: 'out_of_office', l: 'Poza biurem' },
-            { v: 'auto_reply', l: 'Automatyczna odpowiedź' },
-          ].map(o => (
-            <button
-              key={o.v}
-              type="button"
-              onClick={() => setFilter('interest', o.v)}
-              className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                filters.interest === o.v
-                  ? 'bg-emerald-600 text-white'
-                  : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-emerald-400'
-              }`}
-            >
-              {o.l}
-            </button>
-          ))}
-        </div>
-        {/* Opened */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Otwarte:</span>
-          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
-            <button key={o.v} onClick={() => setFilter('opened', o.v)}
-              className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                filters.opened === o.v ? 'bg-amber-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-amber-300'
-              }`}>{o.l}</button>
-          ))}
-        </div>
-        {/* Replied */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Odpowiedzi:</span>
-          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
-            <button key={o.v} onClick={() => setFilter('replied', o.v)}
-              className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                filters.replied === o.v ? 'bg-violet-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-violet-300'
-              }`}>{o.l}</button>
-          ))}
-        </div>
-        {/* Clicked */}
-        <div className="flex items-center gap-1.5">
-          <span className="font-medium text-gray-500 whitespace-nowrap">Kliknięte:</span>
-          {[{v:'all',l:'Wszystkie'},{v:'yes',l:'Tak'},{v:'no',l:'Nie'}].map(o => (
-            <button key={o.v} onClick={() => setFilter('clicked', o.v)}
-              className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                filters.clicked === o.v ? 'bg-orange-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-orange-300'
-              }`}>{o.l}</button>
-          ))}
-        </div>
-        {/* E-mail verification */}
-        {verificationSummary?.statuses && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="font-medium text-gray-500 whitespace-nowrap">Weryfikacja:</span>
-            {[
-              { v: 'all', l: 'Wszystkie' },
-              { v: 'valid', l: 'Poprawne' },
-              { v: 'invalid', l: 'Niepoprawne' },
-              { v: 'risky', l: 'Ryzykowne' },
-              { v: 'catch_all', l: 'Catch-all' },
-              { v: 'unknown', l: 'Nieznane' },
-              { v: 'pending', l: 'Pending' },
-              { v: 'unverified', l: 'Niezweryfikowane' },
-            ].filter(o => o.v === 'all' || (verificationSummary.statuses[o.v] || 0) > 0).map(o => (
-              <button key={o.v} onClick={() => setFilter('verification', o.v)}
-                className={`px-2 py-0.5 rounded-full font-medium transition-colors ${
-                  filters.verification === o.v ? 'bg-teal-500 text-white' : 'bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-gray-600 hover:border-teal-300'
-                }`}>
-                {o.l}{o.v !== 'all' ? ` (${verificationSummary.statuses[o.v] || 0})` : ''}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      </Modal>}
 
+      {showFilters && <div className="sk-recipient-filters" role="group" aria-label="Filtry odbiorców">
+        {recipientFilters.map(([key,label,options])=><label key={key}>{label}<select value={filters[key]} onChange={e=>setFilter(key,e.target.value)}>{options.map(([v,text])=><option key={v} value={v}>{text}</option>)}</select></label>)}
+      </div>}
+      {showColumns && <fieldset className="sk-recipient-columns"><legend>Widoczne pola niestandardowe</legend>{customFields.map(f=><label key={f}><input type="checkbox" checked={!hiddenFields.includes(f)} onChange={e=>setHiddenFields(old=>e.target.checked?old.filter(x=>x!==f):[...old,f])}/>{f}</label>)}</fieldset>}
 
       {/* Leads table */}
       {filteredLeads.length === 0 ? (
         <div className="bg-gray-50 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-400">
           {leads.length === 0
-            ? 'Brak kontaktów w kampanii. Dodaj je poniżej lub zaimportuj plik CSV.'
+            ? 'Brak kontaktów w kampanii. Użyj przycisku „Dodaj kontakty” lub zaimportuj plik CSV.'
             : 'Brak kontaktów pasujących do bieżącego filtra.'}
         </div>
       ) : (
         <div className="w-full max-w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-          <table className="min-w-max w-full text-sm bg-white">
+          <table className="sk-table sk-recipient-table">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">E-mail</th>
@@ -1033,14 +927,14 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Skrzynka</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Dodano</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Wysyłka</th>
-                {customFields.map(f => (
+                {visibleFields.map(f => (
                   <th key={f} className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap capitalize">{f}</th>
                 ))}
                 <th className="px-4 py-3 w-16"></th>
               </tr>
             </thead>
             <tbody>
-              {filteredLeads.map(l => (
+              {pageLeads.map(l => (
                 <tr key={l.lead_id} className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors">
                   {/* email */}
                   <td className="px-4 py-2.5">
@@ -1056,12 +950,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   <td className="px-4 py-2.5 text-gray-700">{l.name || <span className="text-gray-300">—</span>}</td>
                   {/* status badges */}
                   <td className="px-4 py-2.5">
-                    <div className="flex flex-wrap gap-1">
+                    <div className="sk-recipient-badges">
                       {deriveStatuses(l).map(s => <StatusBadge key={s} label={s} />)}
                     </div>
                   </td>
                   {/* stage */}
-                  <td className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{l.stage || '—'}</td>
+                  <td className="px-4 py-2.5 text-gray-600 whitespace-nowrap">{l.stage?.replace(/^Step /, 'Krok ') || '—'}</td>
                   {/* inbox that last sent or will send next */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
                     {l.from_inbox_email ? (
@@ -1096,7 +990,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                         }}
                         title={l.sending_paused ? 'Kliknij, aby wznowić wysyłkę' : 'Kliknij, aby wstrzymać wysyłkę'}
                       >
-                        {l.sending_paused ? 'Paused' : 'Active'}
+                        {l.sending_paused ? 'Wstrzymana' : 'Aktywna'}
                       </button>
                       <select
                         className={`text-[10px] font-medium rounded px-1.5 py-0.5 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-300 ${BADGE_STYLES[l.interest || l.interest_status] || 'bg-gray-50 text-gray-500 border-gray-200'}`}
@@ -1122,7 +1016,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     </div>
                   </td>
                   {/* custom data columns — inline editable */}
-                  {customFields.map(f => {
+                  {visibleFields.map(f => {
                     const isEditing = editCell?.leadId === l.lead_id && editCell?.field === f;
                     const val = (l.custom_data || {})[f];
                     return (
@@ -1160,7 +1054,7 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                       className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors"
                       onClick={() => removeLead(l.lead_id, l.email)}
                     >
-                      Remove
+                      Usuń z kampanii
                     </button>
                   </td>
                 </tr>
@@ -1170,18 +1064,17 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
         </div>
       )}
 
+      <div className="sk-recipient-pagination">
+        <span role="status">{filteredLeads.length ? (currentPage-1)*pageSize+1 : 0}–{Math.min(currentPage*pageSize,filteredLeads.length)} z {filteredLeads.length} kontaktów</span>
+        <label>Wierszy na stronę <select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[10,25,50,100].map(n=><option key={n}>{n}</option>)}</select></label>
+        <Button size="sm" variant="outline" disabled={currentPage<=1} onClick={()=>setPage(currentPage-1)}>Poprzednia</Button>
+        <span>Strona {currentPage} z {pageCount}</span>
+        <Button size="sm" variant="outline" disabled={currentPage>=pageCount} onClick={()=>setPage(currentPage+1)}>Następna</Button>
+      </div>
+
       {/* Confirm leads modal */}
       {showLeadsConfirm && confirmPreview && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-          onMouseDown={e => { if (e.target === e.currentTarget) setShowLeadsConfirm(false); }}
-        >
-          <div
-            className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-md mx-auto max-h-[90vh] overflow-y-auto"
-                        onClick={e => e.stopPropagation()}
-          >
-            <h2 className="text-lg font-semibold text-gray-800 mb-4">Sprawdź kontakty przed dodaniem</h2>
-
+        <Modal title="Sprawdź kontakty przed dodaniem" small busy={confirmAddLoading} onClose={()=>setShowLeadsConfirm(false)}>
             <div className="mb-4 text-center">
               <div className="text-3xl font-bold text-teal-600">{confirmPreview.total_valid}</div>
               <div className="text-sm text-gray-500">poprawnych kontaktów</div>
@@ -1221,13 +1114,12 @@ function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
             )}
 
             <div className="flex justify-end gap-2 mt-6 pt-3 border-t border-gray-100">
-              <Button variant="outline" size="sm" onClick={() => setShowLeadsConfirm(false)}>Anuluj</Button>
+              <Button variant="outline" size="sm" disabled={confirmAddLoading} onClick={() => setShowLeadsConfirm(false)}>Anuluj</Button>
               <Button variant="default" size="sm" onClick={handleConfirmAdd} disabled={confirmAddLoading}>
                 {confirmAddLoading ? 'Dodawanie…' : `Potwierdź i dodaj (${confirmPreview.total_valid})`}
               </Button>
             </div>
-          </div>
-        </div>
+        </Modal>
       )}
 
     </div>
