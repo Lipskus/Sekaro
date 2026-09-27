@@ -1,561 +1,153 @@
-import { Link } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import {Link, useNavigate} from 'react-router-dom';
+import {useEffect, useMemo, useRef, useState} from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-
-import { api } from '../api';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { PageFrame, Icon, ErrorNotice, StatePanel, dateTime } from '../redesign/ui';
+import {api} from '../api';
+import {Button} from '../components/ui/Button';
+import {Card} from '../components/ui/Card';
+import {PageFrame, ErrorNotice, StatePanel, dateTime} from '../redesign/ui';
 import SafeEmail from '../redesign/SafeEmail';
-import { useNotify } from '../context/NotificationContext';
-import { useConfirm } from '../context/ConfirmContext';
+import {useNotify} from '../context/NotificationContext';
+import {useConfirm} from '../context/ConfirmContext';
 
-function latestVersion(template) {
-  return template?.latest_version || template?.versions?.[0] || null;
-}
+const emptyDraft = {name:'', subject:'', body:'', is_html:false};
+const latestVersion = row => row?.latest_version || row?.versions?.[0] || null;
+const fromTemplate = row => ({name:row.name || '', subject:latestVersion(row)?.subject || '', body:latestVersion(row)?.body || '', is_html:!!latestVersion(row)?.is_html});
+const token = key => `{{${key}}}`;
+const valueText = value => value == null || value === '' ? 'Brak wartości' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
-function variableToken(key) {
-  return `{{${key}}}`;
-}
+export default function Templates(){
+ const notify=useNotify(), confirm=useConfirm(), navigate=useNavigate();
+ const [templates,setTemplates]=useState([]),[fields,setFields]=useState([]),[inboxes,setInboxes]=useState([]);
+ const [selected,setSelected]=useState(null),[versionId,setVersionId]=useState(null);
+ const [draft,setDraft]=useState(emptyDraft),[baseline,setBaseline]=useState(emptyDraft);
+ const [mode,setMode]=useState('edit'),[sourceMode,setSourceMode]=useState(false),[query,setQuery]=useState('');
+ const [busy,setBusy]=useState(false),[baseLoading,setBaseLoading]=useState(true),[baseError,setBaseError]=useState(null),[error,setError]=useState(null);
+ const operation=useRef(false),alive=useRef(true),baseSeq=useRef(0),previewSeq=useRef(0),searchSeq=useRef(0);
+ const [search,setSearch]=useState(''),[matches,setMatches]=useState([]),[searchState,setSearchState]=useState('idle'),[searchError,setSearchError]=useState(null);
+ const [contact,setContact]=useState(null),[preview,setPreview]=useState(null),[previewBusy,setPreviewBusy]=useState(false),[previewError,setPreviewError]=useState(null);
+ const [testInbox,setTestInbox]=useState(''),[testTo,setTestTo]=useState(''),[testBusy,setTestBusy]=useState(false),[testError,setTestError]=useState(null);
+ const testLock=useRef(false);
+ const dirty=JSON.stringify(draft)!==JSON.stringify(baseline), locked=busy||testBusy;
+ const previewKey=JSON.stringify([draft.subject,draft.body,draft.is_html,contact?.id]);
+ const currentPreviewKey=useRef(previewKey);currentPreviewKey.current=previewKey;
+ const currentSearch=useRef(search);currentSearch.current=search;
+ const shown=templates.filter(t=>t.name.toLocaleLowerCase('pl-PL').includes(query.toLocaleLowerCase('pl-PL')));
+ const smtpInboxes=useMemo(()=>inboxes.filter(i=>(i.provider||'smtp')==='smtp'),[inboxes]);
+ const activeVersion=selected?.versions?.find(v=>v.id===versionId);
+ const update=(key,value)=>setDraft(d=>({...d,[key]:value}));
 
-export default function Templates() {
-  const notify = useNotify();
-  const confirm = useConfirm();
-
-  const [templates, setTemplates] = useState([]);
-  const [fields, setFields] = useState([]);
-  const [inboxes, setInboxes] = useState([]);
-  const [selectedId, setSelectedId] = useState(null);
-  const [selectedTemplate, setSelectedTemplate] = useState(null);
-
-  const [name, setName] = useState('');
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
-  const [isHtml, setIsHtml] = useState(false);
-  const [htmlSourceMode, setHtmlSourceMode] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [baseLoading, setBaseLoading] = useState(true);
-  const [baseError, setBaseError] = useState(null);
-  const [templateQuery, setTemplateQuery] = useState('');
-  const [selectedVersionId, setSelectedVersionId] = useState(null);
-
-  const [contactSearch, setContactSearch] = useState('');
-  const [contactMatches, setContactMatches] = useState([]);
-  const [previewLeadId, setPreviewLeadId] = useState('');
-  const [editorMode, setEditorMode] = useState('edit');
-  const [preview, setPreview] = useState(null);
-  const [previewBusy, setPreviewBusy] = useState(false);
-
-  const [testInboxId, setTestInboxId] = useState('');
-  const [testTo, setTestTo] = useState('');
-  const [testBusy, setTestBusy] = useState(false);
-
-  const smtpInboxes = useMemo(
-    () => (inboxes || []).filter((i) => (i.provider || 'smtp') === 'smtp'),
-    [inboxes],
-  );
-
-  const loadBase = async () => {
-    setBaseLoading(true);
-    setBaseError(null);
-    try {
-      const [tpls, flds, ibxs] = await Promise.all([
-        api.get('/templates'),
-        api.get('/contact-fields'),
-        api.get('/inboxes'),
-      ]);
-      setTemplates(Array.isArray(tpls) ? tpls : []);
-      setFields(Array.isArray(flds) ? flds : []);
-      setInboxes(Array.isArray(ibxs) ? ibxs : []);
-      if (!testInboxId) {
-        const first = (ibxs || []).find((i) => (i.provider || 'smtp') === 'smtp' && !i.paused);
-        if (first) setTestInboxId(String(first.id));
-      }
-    } catch (e) {
-      setBaseError(e);
-    } finally {
-      setBaseLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadBase();
-  }, []);
-
-  const loadTemplate = async (id) => {
-    setBusy(true);
-    try {
-      const row = await api.get(`/templates/${id}`);
-      setSelectedId(row.id);
-      setSelectedTemplate(row);
-      setName(row.name || '');
-      const v = latestVersion(row);
-      setSelectedVersionId(v?.id ?? null);
-      setSubject(v?.subject || '');
-      setBody(v?.body || '');
-      setIsHtml(Boolean(v?.is_html));
-      setHtmlSourceMode(false);
-      setPreview(null);
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się wczytać szablonu.' });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const newTemplate = () => {
-    setEditorMode('edit');
-    setSelectedId(null);
-    setSelectedTemplate(null);
-    setSelectedVersionId(null);
-    setName('');
-    setSubject('');
-    setBody('');
-    setIsHtml(false);
-    setHtmlSourceMode(false);
-    setPreview(null);
-  };
-
-  const saveTemplate = async () => {
-    if (!name.trim()) {
-      notify({ type: 'error', message: 'Podaj nazwę szablonu.' });
-      return;
-    }
-    setBusy(true);
-    try {
-      let row;
-      if (!selectedId) {
-        row = await api.post('/templates', {
-          name: name.trim(),
-          subject,
-          body,
-          is_html: isHtml,
-        });
-        notify({ type: 'success', message: 'Szablon utworzony.' });
-      } else {
-        if (selectedTemplate?.name !== name.trim()) {
-          await api.patch(`/templates/${selectedId}`, { name: name.trim() });
-        }
-        row = await api.post(`/templates/${selectedId}/versions`, {
-          subject,
-          body,
-          is_html: isHtml,
-        });
-        notify({
-          type: 'success',
-          message: `Zapisano wersję ${row.latest_version?.version || ''}.`,
-        });
-      }
-      setSelectedId(row.id);
-      setSelectedTemplate(row);
-      setName(row.name || name.trim());
-      setSelectedVersionId(latestVersion(row)?.id ?? null);
-      await loadBase();
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się zapisać szablonu.' });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const deleteTemplate = async () => {
-    if (!selectedId) return;
-    const ok = await confirm(`Usunąć szablon „${name}” wraz z historią wersji?`);
-    if (!ok) return;
-    setBusy(true);
-    try {
-      await api.del(`/templates/${selectedId}`);
-      newTemplate();
-      await loadBase();
-      notify({ type: 'success', message: 'Szablon usunięty.' });
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się usunąć szablonu.' });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const loadVersion = (versionId) => {
-    const version = (selectedTemplate?.versions || []).find((v) => String(v.id) === String(versionId));
-    if (!version) return;
-    setEditorMode('edit');
-    setSelectedVersionId(version.id);
-    setSubject(version.subject || '');
-    setBody(version.body || '');
-    setIsHtml(Boolean(version.is_html));
-    setPreview(null);
-  };
-
-  const insertVariable = (key, target = 'body') => {
-    setEditorMode('edit');
-    const token = variableToken(key);
-    if (target === 'subject') {
-      setSubject((prev) => `${prev}${prev && !prev.endsWith(' ') ? ' ' : ''}${token}`);
-    } else {
-      setBody((prev) => `${prev}${prev && !prev.endsWith(' ') && !prev.endsWith('\n') ? ' ' : ''}${token}`);
-    }
-  };
-
-  const searchContacts = async () => {
-    if (!contactSearch.trim()) {
-      setContactMatches([]);
-      return;
-    }
-    try {
-      const rows = await api.get(`/leads?q=${encodeURIComponent(contactSearch.trim())}`);
-      setContactMatches(Array.isArray(rows) ? rows.slice(0, 25) : []);
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się wyszukać kontaktów.' });
-    }
-  };
-
-  const renderPreview = async () => {
-    setPreviewBusy(true);
-    setPreview(null);
-    try {
-      const row = await api.post('/templates/preview/render', {
-        subject,
-        body,
-        is_html: isHtml,
-        lead_id: previewLeadId ? Number(previewLeadId) : null,
-      });
-      setPreview(row);
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się wygenerować podglądu.' });
-    } finally {
-      setPreviewBusy(false);
-    }
-  };
-
-  const sendTest = async () => {
-    if (!testInboxId || !testTo.trim()) {
-      notify({ type: 'error', message: 'Wybierz skrzynkę i podaj adres testowy.' });
-      return;
-    }
-    setTestBusy(true);
-    try {
-      await api.post('/templates/actions/test-send', {
-        inbox_id: Number(testInboxId),
-        to_email: testTo.trim(),
-        subject,
-        body,
-        is_html: isHtml,
-        lead_id: previewLeadId ? Number(previewLeadId) : null,
-      });
-      notify({ type: 'success', message: `Wiadomość testowa wysłana do ${testTo.trim()}.` });
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Wysyłka testowa nie powiodła się.' });
-    } finally {
-      setTestBusy(false);
-    }
-  };
-
-  return (
-    <PageFrame
-      className="sk-templates-page"
-      title="Szablony wiadomości"
-      description="Twórz, wersjonuj i testuj szablony. Dynamiczne zmienne korzystają z pól kontaktów w formacie {{klucz}}."
-      actions={<Button type="button" variant="default" onClick={newTemplate} disabled={busy}>Nowy szablon</Button>}
-    >
-      <ErrorNotice error={baseError} onRetry={loadBase} />
-      <div className="sk-template-layout">
-        <Card className="sk-template-sidebar overflow-hidden h-fit">
-          <div className="border-b px-4 py-3">
-            <div className="sk-template-sidebar-title"><Icon name="template" size={18}/><span>Szablony</span></div>
-            <input aria-label="Szukaj szablonów" placeholder="Szukaj szablonów…" value={templateQuery} onChange={e => setTemplateQuery(e.target.value)} className="sk-template-search" />
-          </div>
-          <div className="max-h-[70vh] overflow-y-auto p-2">
-            {baseLoading && templates.length === 0 ? (
-              <StatePanel icon="refresh" title="Ładowanie szablonów" />
-            ) : baseError && templates.length === 0 ? null : templates.length === 0 ? (
-              <p className="p-3 text-sm text-gray-400">Brak szablonów.</p>
-            ) : templates.filter(t => t.name.toLocaleLowerCase('pl-PL').includes(templateQuery.toLocaleLowerCase('pl-PL'))).length === 0 ? (
-              <p className="p-3 text-sm text-gray-400">Brak pasujących szablonów.</p>
-            ) : templates.filter(t => t.name.toLocaleLowerCase('pl-PL').includes(templateQuery.toLocaleLowerCase('pl-PL'))).map((tpl) => (
-              <button
-                key={tpl.id}
-                type="button"
-                disabled={busy}
-                aria-pressed={selectedId === tpl.id}
-                onClick={() => { setEditorMode('edit'); loadTemplate(tpl.id); }}
-                className={`sk-template-list-item mb-1 w-full rounded-lg px-3 py-2 text-left transition-colors ${
-                  selectedId === tpl.id ? 'bg-teal-50 text-teal-800' : 'hover:bg-gray-50 text-gray-700'
-                }`}
-              >
-                <div className="truncate text-sm font-medium">{tpl.name}</div>
-                <div className="mt-0.5 text-[11px] text-gray-400">
-                  wersja {tpl.latest_version?.version || 1}
-                  {tpl.latest_version?.is_html ? ' · HTML' : ' · tekst'}
-                </div>
-              </button>
-            ))}
-          </div>
-        </Card>
-
-        <div className="sk-template-main min-w-0">
-          <div className="sk-template-mode" role="group" aria-label="Widok szablonu">
-            {[['edit', 'Edytor'], ['preview', 'Podgląd'], ['test', 'Wysyłka testowa']].map(([value, label]) => <button type="button" key={value} aria-pressed={editorMode === value} onClick={() => setEditorMode(value)}>{label}</button>)}
-          </div>
-          <Card hidden={editorMode !== 'edit'} className="sk-template-editor p-5 space-y-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <div className="min-w-0 flex-1">
-                <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa szablonu</label>
-                <input
-                  aria-label="Nazwa szablonu"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-lg border-gray-300 text-sm"
-                  placeholder="Nazwa widoczna tylko w Sekaro"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Temat</label>
-              <input
-                aria-label="Temat wiadomości"
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full rounded-lg border-gray-300 text-sm"
-                placeholder="Temat wiadomości"
-              />
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-medium text-gray-700">Format:</span>
-              <button
-                type="button"
-                onClick={() => setIsHtml(false)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                  !isHtml ? 'border-teal-500 bg-teal-500 text-white' : 'border-gray-300 text-gray-600'
-                }`}
-              >
-                Czysty tekst
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsHtml(true)}
-                className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                  isHtml ? 'border-teal-500 bg-teal-500 text-white' : 'border-gray-300 text-gray-600'
-                }`}
-              >
-                HTML
-              </button>
-              {isHtml && (
-                <button
-                  type="button"
-                  onClick={() => setHtmlSourceMode((v) => !v)}
-                  className="ml-auto text-xs text-teal-700 hover:underline"
-                >
-                  {htmlSourceMode ? 'Edytor wizualny' : 'Kod HTML'}
-                </button>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Treść</label>
-              {!isHtml ? (
-                <textarea
-                  rows={15}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="w-full rounded-lg border-gray-300 font-mono text-sm"
-                  placeholder="Napisz wiadomość…"
-                />
-              ) : htmlSourceMode ? (
-                <textarea
-                  rows={17}
-                  value={body}
-                  onChange={(e) => setBody(e.target.value)}
-                  className="w-full rounded-lg border-gray-300 font-mono text-sm"
-                  placeholder="<p>Treść HTML</p>"
-                />
-              ) : (
-                <div className="template-quill">
-                  <ReactQuill theme="snow" value={body} onChange={setBody} />
-                </div>
-              )}
-            </div>
-
-            <div className="flex flex-wrap gap-2 border-t pt-4">
-              <Button type="button" variant="default" onClick={saveTemplate} disabled={busy}>
-                {busy ? 'Przetwarzanie…' : selectedId ? 'Zapisz nową wersję' : 'Utwórz szablon'}
-              </Button>
-              {selectedId && (
-                <Button type="button" variant="destructive" onClick={deleteTemplate} disabled={busy}>
-                  Usuń
-                </Button>
-              )}
-            </div>
-          </Card>
-
-          <Card hidden={editorMode !== 'preview'} className="sk-template-preview p-5 space-y-4">
-            <div>
-              <h2 className="font-semibold text-gray-900">Podgląd dla kontaktu</h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Wybierz realny kontakt, żeby zobaczyć dokładnie jak Sekaro podstawi jego pola.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={contactSearch}
-                onChange={(e) => setContactSearch(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    searchContacts();
-                  }
-                }}
-                className="min-w-0 flex-1 rounded-lg border-gray-300 text-sm"
-                aria-label="Szukaj kontaktu do podglądu"
-                placeholder="Szukaj e-maila lub nazwy…"
-              />
-              <Button type="button" variant="outline" onClick={searchContacts}>Szukaj</Button>
-            </div>
-            {contactMatches.length > 0 && (
-              <select
-                aria-label="Kontakt do podglądu"
-                value={previewLeadId}
-                onChange={(e) => {
-                  setPreviewLeadId(e.target.value);
-                  setPreview(null);
-                }}
-                className="w-full rounded-lg border-gray-300 text-sm"
-              >
-                <option value="">Bez kontaktu</option>
-                {contactMatches.map((lead) => (
-                  <option key={lead.id} value={lead.id}>
-                    {lead.email}{lead.name ? ` · ${lead.name}` : ''}
-                  </option>
-                ))}
-              </select>
-            )}
-            <Button type="button" variant="outline" onClick={renderPreview} disabled={previewBusy}>
-              {previewBusy ? 'Generowanie…' : 'Generuj podgląd'}
-            </Button>
-
-            {preview && (
-              <div className="space-y-3 rounded-lg border bg-gray-50 p-4">
-                {preview.missing_variables?.length > 0 && (
-                  <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                    Brak wartości: {preview.missing_variables.map((v) => `{{${v}}}`).join(', ')}
-                  </div>
-                )}
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Temat</div>
-                  <div className="mt-1 text-sm font-medium text-gray-800">{preview.subject || '(brak)'}</div>
-                </div>
-                <div>
-                  <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Treść</div>
-                  {preview.is_html ? (
-                    <div className="mt-2 rounded-md p-4 text-sm sk-template-email"><SafeEmail html={preview.body} /></div>
-                  ) : (
-                    <pre className="mt-2 whitespace-pre-wrap rounded-md bg-white p-4 font-sans text-sm">{preview.body}</pre>
-                  )}
-                </div>
-              </div>
-            )}
-          </Card>
-
-          <Card hidden={editorMode !== 'test'} className="sk-template-test p-5 space-y-3">
-            <div>
-              <h2 className="font-semibold text-gray-900">Wysyłka testowa</h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Wiadomość jest renderowana z wybranym powyżej kontaktem, ale wysyłana na wskazany adres testowy.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <select
-                aria-label="Skrzynka do wysyłki testowej"
-                value={testInboxId}
-                onChange={(e) => setTestInboxId(e.target.value)}
-                className="rounded-lg border-gray-300 text-sm"
-              >
-                <option value="">Wybierz skrzynkę SMTP</option>
-                {smtpInboxes.map((inbox) => (
-                  <option key={inbox.id} value={inbox.id}>
-                    {inbox.display_name || inbox.email} · {inbox.email}{inbox.paused ? ' · wstrzymana' : ''}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="email"
-                aria-label="Adres odbiorcy testowego"
-                value={testTo}
-                onChange={(e) => setTestTo(e.target.value)}
-                className="rounded-lg border-gray-300 text-sm"
-                placeholder="Adres odbiorcy testowego"
-              />
-            </div>
-            <Button type="button" variant="default" onClick={sendTest} disabled={testBusy}>
-              {testBusy ? 'Wysyłanie…' : 'Wyślij test'}
-            </Button>
-          </Card>
-        </div>
-
-        <div className="sk-template-aside">
-          <Card className="sk-template-history p-4">
-            <h2>Historia wersji</h2>
-            <p>Wybór wersji wczytuje ją do edytora. Zapis tworzy nową wersję.</p>
-            {selectedTemplate?.versions?.length ? (
-              <ol>
-                {selectedTemplate.versions.map(v => (
-                  <li key={v.id}>
-                    <button type="button" aria-pressed={selectedVersionId === v.id} onClick={() => loadVersion(v.id)} disabled={busy}>
-                      <span><strong>Wersja {v.version}</strong>{v.id === selectedTemplate.latest_version?.id && <small>Aktualna</small>}</span>
-                      <time dateTime={v.created_at}>{dateTime(v.created_at)}</time>
-                    </button>
-                  </li>
-                ))}
-              </ol>
-            ) : <p>Zapisane wersje szablonu pojawią się tutaj.</p>}
-          </Card>
-          <Card className="sk-template-variables p-4">
-            <div className="mb-3">
-              <h2 className="font-semibold text-gray-900">Zmienne</h2>
-              <p className="mt-1 text-xs text-gray-500">
-                Lista jest dynamiczna. Oprócz pól systemowych widzisz tylko pola utworzone przez Ciebie lub obecne w danych kontaktów.
-              </p>
-            </div>
-            <div className="max-h-[360px] space-y-2 overflow-y-auto pr-1">
-              {fields.map((field) => (
-                <div key={`${field.system ? 'system' : field.id || 'detected'}-${field.key}`} className="rounded-lg border p-2.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="truncate text-sm font-medium text-gray-800">{field.label || field.key}</div>
-                      <code className="text-[11px] text-teal-700">{variableToken(field.key)}</code>
-                    </div>
-
-                  </div>
-                  <div className="mt-2 flex gap-1">
-                    <button
-                      type="button"
-                      onClick={() => insertVariable(field.key, 'subject')}
-                      className="rounded bg-gray-100 px-2 py-1 text-[11px] text-gray-600 hover:bg-gray-200"
-                    >
-                      do tematu
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => insertVariable(field.key, 'body')}
-                      className="rounded bg-teal-50 px-2 py-1 text-[11px] text-teal-700 hover:bg-teal-100"
-                    >
-                      do treści
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="sk-template-fields p-4">
-            <h2 className="font-semibold text-gray-900">Własne pola kontaktów</h2>
-            <p className="mt-1 text-xs text-gray-500">Dodawaj, edytuj i usuwaj pola w Kontaktach. Tutaj są automatycznie dostępne jako zmienne szablonu.</p>
-            <Link to="/leads?fields=1" className="sk-btn sk-full-width" style={{marginTop:12}}>Zarządzaj polami</Link>
-          </Card>
-        </div>
-      </div>
-    </PageFrame>
-  );
+ async function loadBase(){
+  const seq=++baseSeq.current;setBaseLoading(true);setBaseError(null);
+  try{const [tpls,flds,ibxs]=await Promise.all([api.get('/templates'),api.get('/contact-fields'),api.get('/inboxes')]);
+   if(!alive.current||seq!==baseSeq.current)return;
+   setTemplates(Array.isArray(tpls)?tpls:[]);setFields(Array.isArray(flds)?flds:[]);setInboxes(Array.isArray(ibxs)?ibxs:[]);
+   setTestInbox(old=>old||String((ibxs||[]).find(i=>(i.provider||'smtp')==='smtp'&&!i.paused)?.id||''));
+  }catch(e){if(alive.current&&seq===baseSeq.current)setBaseError(e);}finally{if(alive.current&&seq===baseSeq.current)setBaseLoading(false);}
+ }
+ useEffect(()=>{alive.current=true;loadBase();return()=>{alive.current=false;++previewSeq.current;++searchSeq.current;++baseSeq.current;};},[]);
+ useEffect(()=>{++previewSeq.current;setPreview(null);setPreviewBusy(false);setPreviewError(null);setTestError(null);},[previewKey]);
+ useEffect(()=>{++searchSeq.current;setMatches([]);setSearchState('idle');setSearchError(null);},[search]);
+ useEffect(()=>{const leave=e=>{if(dirty||locked){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',leave);return()=>window.removeEventListener('beforeunload',leave);},[dirty,locked]);
+ // BrowserRouter does not expose useBlocker. Guard ordinary in-app links in capture phase.
+ useEffect(()=>{const leave=e=>{const a=e.target.closest?.('a[href]');if(!a||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||a.target==='_blank')return;
+  const url=new URL(a.href,window.location.href);if(url.origin!==window.location.origin||url.pathname===window.location.pathname)return;
+  if(dirty||locked){e.preventDefault();e.stopPropagation();if(!locked)choose(()=>navigate(url.pathname+url.search+url.hash));}
+ };document.addEventListener('click',leave,true);return()=>document.removeEventListener('click',leave,true);},[dirty,locked,navigate]);
+ async function run(action){
+  if(operation.current||testLock.current)return;operation.current=true;setBusy(true);setError(null);
+  try{await action();}catch(e){if(alive.current)setError(e.message||'Nie udało się wykonać operacji.');}finally{operation.current=false;if(alive.current)setBusy(false);}
+ }
+ function choose(action){
+  if(operation.current||testLock.current)return;
+  if(!dirty){action();return;}
+  operation.current=true;setBusy(true);
+  confirm('Masz niezapisane zmiany szablonu. Odrzucić je i kontynuować?').then(ok=>{operation.current=false;if(alive.current){setBusy(false);if(ok)action();}});
+ }
+ function apply(row){const next=fromTemplate(row);setSelected(row);setDraft(next);setBaseline(next);setVersionId(latestVersion(row)?.id??null);setMode('edit');setSourceMode(false);setPreview(null);}
+ function open(id){choose(()=>run(async()=>apply(await api.get(`/templates/${id}`))));}
+ function reset(){setSelected(null);setVersionId(null);setDraft(emptyDraft);setBaseline(emptyDraft);setMode('edit');setSourceMode(false);setPreview(null);setError(null);}
+ function duplicate(){if(locked)return;setSelected(null);setVersionId(null);setBaseline(emptyDraft);setDraft(d=>({...d,name:`${d.name} — kopia`.slice(0,255)}));setMode('edit');setError(null);}
+ function save(){if(!draft.name.trim()){setError('Podaj nazwę szablonu.');return;}run(async()=>{
+  const payload={...draft,name:draft.name.trim()};
+  const row=await api.post(selected?`/templates/${selected.id}/versions`:'/templates',payload);
+  if(!alive.current)return;apply(row);notify({type:'success',message:selected?'Zapisano nową wersję.':'Szablon utworzony.'});await loadBase();
+ });}
+ function remove(){run(async()=>{if(!selected)return;if(!await confirm(`Usunąć szablon „${selected.name}” wraz z historią wersji?`))return;
+  await api.del(`/templates/${selected.id}`);if(!alive.current)return;reset();await loadBase();notify({type:'success',message:'Szablon usunięty.'});
+ });}
+ function loadVersion(id){choose(()=>{const v=selected?.versions?.find(v=>v.id===id);if(!v)return;setDraft(d=>({...d,subject:v.subject||'',body:v.body||'',is_html:!!v.is_html}));setVersionId(id);setSourceMode(false);setMode('edit');setPreview(null);});}
+ function insert(key,target){if(locked)return;setMode('edit');update(target,`${draft[target]}${draft[target]&&!/\s$/.test(draft[target])?' ':''}${token(key)}`);}
+ async function searchContacts(){
+  if(!search.trim())return;const seq=++searchSeq.current,value=search;setSearchState('loading');setSearchError(null);setMatches([]);
+  try{const rows=await api.get(`/leads?q=${encodeURIComponent(value.trim())}`);if(!alive.current||seq!==searchSeq.current||value!==currentSearch.current)return;setMatches(Array.isArray(rows)?rows.slice(0,25):[]);setSearchState('done');}
+  catch(e){if(alive.current&&seq===searchSeq.current){setSearchError(e.message||'Nie udało się wyszukać kontaktów.');setSearchState('error');}}
+ }
+ async function renderPreview(){
+  const seq=++previewSeq.current,key=previewKey;setPreviewBusy(true);setPreview(null);setPreviewError(null);
+  try{const row=await api.post('/templates/preview/render',{subject:draft.subject,body:draft.body,is_html:draft.is_html,lead_id:contact?.id??null});
+   if(alive.current&&seq===previewSeq.current&&key===currentPreviewKey.current)setPreview(row);
+  }catch(e){if(alive.current&&seq===previewSeq.current)setPreviewError(e.message||'Nie udało się wygenerować podglądu.');}
+  finally{if(alive.current&&seq===previewSeq.current)setPreviewBusy(false);}
+ }
+ async function sendTest(){
+  if(testLock.current||operation.current)return;
+  if(!testInbox||!/^\S+@\S+\.\S+$/.test(testTo.trim())){setTestError('Wybierz skrzynkę i podaj poprawny adres testowy.');return;}
+  testLock.current=true;setTestBusy(true);setTestError(null);const recipient=testTo.trim();
+  try{await api.post('/templates/actions/test-send',{inbox_id:Number(testInbox),to_email:recipient,subject:draft.subject,body:draft.body,is_html:draft.is_html,lead_id:contact?.id??null});if(alive.current)notify({type:'success',message:`Wiadomość testowa wysłana do ${recipient}.`});}
+  catch(e){if(alive.current)setTestError(e.message||'Wysyłka testowa nie powiodła się.');}finally{testLock.current=false;if(alive.current)setTestBusy(false);}
+ }
+ const editing=mode==='edit';
+ return <PageFrame className="sk-templates-page" title={editing?'Szablony wiadomości':'Podgląd i wysyłka testowa'} description={editing?'Twórz, wersjonuj i ponownie wykorzystuj wiadomości.':'Sprawdź zmienne na konkretnym kontakcie przed użyciem szablonu.'}
+  actions={<>{selected&&editing&&<><Button variant="outline" onClick={duplicate} disabled={locked}>Duplikuj</Button><Button variant="destructive" onClick={remove} disabled={locked}>Usuń</Button></>}{!editing&&<Button variant="outline" onClick={()=>setMode('edit')}>Wróć do edycji</Button>}<Button onClick={()=>choose(reset)} disabled={locked}>Nowy szablon</Button></>}>
+  <ErrorNotice error={baseError} onRetry={loadBase}/><ErrorNotice error={error}/>
+  <div className={`sk-template-layout sk-template-workspace ${editing?'is-editing':'is-previewing'}`}>
+   <Card hidden={!editing} className="sk-template-sidebar">
+    <header className="sk-template-panel-heading"><h2>Szablony</h2><p>Wiadomości wielokrotnego użytku.</p></header>
+    <input aria-label="Szukaj szablonów" placeholder="Szukaj szablonów…" value={query} onChange={e=>setQuery(e.target.value)}/>
+    <div className="sk-template-list" aria-label="Lista szablonów">
+     {baseLoading&&!templates.length?<StatePanel icon="refresh" title="Ładowanie szablonów"/>:baseError&&!templates.length?null:!templates.length?<p>Brak szablonów.</p>:!shown.length?<p>Brak pasujących szablonów.</p>:shown.map(t=><button key={t.id} type="button" disabled={locked} aria-pressed={selected?.id===t.id} onClick={()=>open(t.id)} className="sk-template-list-item"><strong>{t.name}</strong><small>wersja {t.latest_version?.version||1} · {t.latest_version?.is_html?'HTML':'tekst'}</small></button>)}
+    </div><p className="sk-template-list-count">{shown.length} z {templates.length} szablonów</p>
+   </Card>
+   <Card hidden={editing} className="sk-template-contact">
+    <header className="sk-template-panel-heading"><h2>Kontakt testowy</h2><p>Dane kontaktu użyte do renderowania zmiennych.</p></header>
+    <form className="sk-template-contact-search" onSubmit={e=>{e.preventDefault();searchContacts();}}><input aria-label="Szukaj kontaktu do podglądu" placeholder="E-mail lub nazwa…" value={search} onChange={e=>setSearch(e.target.value)} disabled={locked}/><Button type="submit" disabled={locked||searchState==='loading'||!search.trim()}>{searchState==='loading'?'Szukanie…':'Szukaj'}</Button></form>
+    <ErrorNotice error={searchError} onRetry={searchContacts}/>
+    {searchState==='done'&&!matches.length&&<p role="status">Nie znaleziono kontaktów.</p>}
+    <label>Kontakt do podglądu<select aria-label="Kontakt do podglądu" value={contact?.id||''} disabled={locked} onChange={e=>setContact([...matches,...(contact?[contact]:[])].find(c=>String(c.id)===e.target.value)||null)}><option value="">Bez kontaktu</option>{(contact&&!matches.some(c=>c.id===contact.id)?[contact,...matches]:matches).map(c=><option key={c.id} value={c.id}>{c.email}{c.name?` · ${c.name}`:''}</option>)}</select></label>
+    {contact?<dl className="sk-template-contact-details"><dt>Nazwa / imię</dt><dd>{contact.name||'Brak'}</dd><dt>E-mail</dt><dd>{contact.email}</dd>{Object.entries(contact.custom_data||{}).map(([key,value])=><div key={key}><dt>{fields.find(f=>f.key===key)?.label||key}</dt><dd>{valueText(value)}</dd></div>)}</dl>:<p>Bez kontaktu pola pozostaną widoczne jako zmienne.</p>}
+    <p className="sk-template-note">Podgląd nie zapisuje zmian w danych kontaktu.</p>
+   </Card>
+   <div className="sk-template-main">
+    <div className="sk-template-mode" role="group" aria-label="Widok szablonu">{[['edit','Edytor'],['preview','Podgląd'],['test','Wysyłka testowa']].map(([value,label])=><button type="button" key={value} aria-pressed={mode===value} onClick={()=>setMode(value)}>{label}</button>)}</div>
+    <Card hidden={!editing} className="sk-template-editor">
+     <header className="sk-template-panel-heading"><h2>{selected?'Edytuj szablon':'Nowy szablon'}</h2><p>Zmiany tworzą nową, niezmienną wersję.</p>{activeVersion&&<span className="sk-template-version">v{activeVersion.version}</span>}</header>
+     <fieldset disabled={locked||baseLoading||!!baseError}>
+      <label>Nazwa szablonu<input aria-label="Nazwa szablonu" maxLength={255} value={draft.name} onChange={e=>update('name',e.target.value)} placeholder="Nazwa widoczna tylko w Sekaro"/></label>
+      <label>Temat wiadomości<input aria-label="Temat wiadomości" maxLength={512} value={draft.subject} onChange={e=>update('subject',e.target.value)}/></label>
+      <div className="sk-template-format" role="group" aria-label="Format wiadomości"><span>Format:</span><button type="button" aria-pressed={!draft.is_html} onClick={()=>update('is_html',false)}>Czysty tekst</button><button type="button" aria-pressed={draft.is_html} onClick={()=>update('is_html',true)}>HTML</button>{draft.is_html&&<button type="button" onClick={()=>setSourceMode(v=>!v)}>{sourceMode?'Edytor wizualny':'Kod HTML'}</button>}</div>
+      <label htmlFor="template-body">Treść</label>
+      {!draft.is_html||sourceMode?<textarea id="template-body" aria-label="Treść wiadomości" rows={15} value={draft.body} onChange={e=>update('body',e.target.value)} placeholder={draft.is_html?'<p>Treść HTML</p>':'Napisz wiadomość…'}/>:editing&&<div className="template-quill"><ReactQuill theme="snow" value={draft.body} onChange={(value,delta,source)=>{if(source==='user')update('body',value);}} readOnly={locked||baseLoading||!!baseError}/></div>}
+     </fieldset>
+     <footer className="sk-template-editor-footer"><p role="status">{busy?'Przetwarzanie…':dirty?'Niezapisane zmiany':'Brak niezapisanych zmian'}</p><Button variant="outline" onClick={()=>setMode('preview')}>Podgląd wiadomości</Button><Button variant="default" onClick={save} disabled={locked||baseLoading||!!baseError||!dirty}>{selected?'Zapisz nową wersję':'Utwórz szablon'}</Button></footer>
+    </Card>
+    <Card hidden={editing} className="sk-template-preview">
+     <header className="sk-template-panel-heading"><h2>Podgląd wiadomości</h2><p>{draft.name||'Niezapisany szablon'}{activeVersion?` · wersja ${activeVersion.version}`:''}{dirty?' · zmiany robocze':''}</p></header>
+     <Button variant="outline" onClick={renderPreview} disabled={locked||previewBusy||baseLoading||!!baseError}>{previewBusy?'Generowanie…':'Generuj podgląd'}</Button>
+     <ErrorNotice error={previewError} onRetry={renderPreview}/>
+     {previewBusy?<StatePanel icon="refresh" title="Generowanie podglądu"/>:preview?<>
+      <p className={`sk-template-result ${preview.missing_variables?.length?'is-warning':'is-success'}`} role="status">{preview.missing_variables?.length?`Brak wartości: ${preview.missing_variables.map(token).join(', ')}`:'Wszystkie użyte zmienne mają wartości.'}</p>
+      <article className="sk-template-message"><header>{contact&&<p>Kontakt: {contact.name||contact.email} · {contact.email}</p>}<h3>Temat: {preview.subject||'(brak)'}</h3></header>{preview.is_html?<SafeEmail html={preview.body}/>:<pre>{preview.body}</pre>}</article>
+      <p>{preview.is_html?'HTML':'Czysty tekst'} · Treść podglądu nie jest wysyłana automatycznie.</p>
+     </>:<StatePanel icon="template" title="Podgląd nie został wygenerowany" description="Wybierz kontakt i kliknij „Generuj podgląd”."/>}
+    </Card>
+   </div>
+   <div className="sk-template-aside">
+    <Card hidden={!editing} className="sk-template-history"><header className="sk-template-panel-heading"><h2>Historia wersji</h2><p>Wybór wczytuje treść do edytora. Zapis tworzy nową wersję.</p></header>{selected?.versions?.length?<ol>{selected.versions.map(v=><li key={v.id}><button type="button" aria-pressed={versionId===v.id} onClick={()=>loadVersion(v.id)} disabled={locked}><span><strong>Wersja {v.version}</strong>{v.id===latestVersion(selected)?.id&&<small>Aktualna</small>}</span><time dateTime={v.created_at}>{dateTime(v.created_at)}</time></button></li>)}</ol>:<p>Zapisane wersje szablonu pojawią się tutaj.</p>}{selected&&<p className="sk-template-note">Wcześniejsze wersje pozostają bez zmian po zapisaniu nowej.</p>}</Card>
+    <Card className="sk-template-variables"><header className="sk-template-panel-heading"><h2>Zmienne</h2><p>{editing?'Wstaw pole kontaktu do tematu lub treści.':'Wartości użyte w ostatnim podglądzie.'}</p></header>{editing?<div className="sk-template-variable-list">{fields.map(f=><div key={f.key}><strong>{f.label||f.key}</strong><code>{token(f.key)}</code><div><button type="button" disabled={locked} onClick={()=>insert(f.key,'subject')} aria-label={`${f.label||f.key} — do tematu`}>do tematu</button><button type="button" disabled={locked} onClick={()=>insert(f.key,'body')} aria-label={`${f.label||f.key} — do treści`}>do treści</button></div></div>)}</div>:preview?<dl className="sk-template-values">{preview.variables?.length?preview.variables.map(key=><div key={key}><dt><code>{token(key)}</code></dt><dd>{valueText(preview.context?.[key])}</dd></div>):<p>Szablon nie zawiera zmiennych.</p>}</dl>:<p>Wygeneruj podgląd, aby sprawdzić podstawione wartości.</p>}</Card>
+    <Card hidden={editing} className="sk-template-test"><header className="sk-template-panel-heading"><h2>Wyślij test</h2><p>Wysyłka przez wybraną skrzynkę SMTP.</p></header><ErrorNotice error={testError}/><form onSubmit={e=>{e.preventDefault();sendTest();}}><fieldset disabled={locked||baseLoading||!!baseError}><label>Skrzynka<select aria-label="Skrzynka do wysyłki testowej" value={testInbox} onChange={e=>setTestInbox(e.target.value)} required><option value="">Wybierz skrzynkę SMTP</option>{smtpInboxes.map(i=><option key={i.id} value={i.id} disabled={i.paused}>{i.email}{i.paused?' · wstrzymana':''}</option>)}</select></label><label>Adres testowy<input type="email" aria-label="Adres odbiorcy testowego" required value={testTo} onChange={e=>setTestTo(e.target.value)}/></label><Button type="submit" variant="default" disabled={!smtpInboxes.some(i=>!i.paused)}>{testBusy?'Wysyłanie…':'Wyślij test'}</Button></fieldset></form>{!smtpInboxes.some(i=>!i.paused)&&<p>Brak aktywnej skrzynki SMTP.</p>}<p className="sk-template-note">Kontakt do podstawienia danych: {contact?.email||'nie wybrano'}. Wiadomość trafi wyłącznie na adres testowy.</p></Card>
+    <Card hidden={!editing} className="sk-template-fields"><h2>Własne pola kontaktów</h2><p>Pola z Kontaktów są dostępne jako zmienne szablonu.</p><Link to="/leads?fields=1" className="sk-btn sk-full-width">Zarządzaj polami</Link></Card>
+   </div>
+  </div>
+ </PageFrame>;
 }
