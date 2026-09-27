@@ -22,3 +22,6 @@
 @media(min-width:1600px){.sk-sequence-workspace{grid-template-columns:minmax(0,1.35fr) minmax(440px,1fr)}}
 @media(max-width:1100px){.sk-sequence-workspace{grid-template-columns:1fr}.sk-sequence-timeline-steps{max-height:460px;overflow-y:auto}}
 @media(max-width:600px){.sk-sequence-workspace{gap:14px}.sk-sequence-timeline-heading{padding:16px;flex-wrap:wrap}.sk-sequence-timeline-steps{padding:16px 10px}.sk-sequence-workspace .sk-sequence-step-choice{padding:12px}.sk-sequence-editor>div>div:first-child,.sk-sequence-editor form{padding:16px!important}}
+
+.sk-sequence-variants-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+.sk-sequence-variants-heading>div{flex:1 1 230px;min-width:0}.sk-sequence-variants-heading>button{flex-shrink:0;white-space:nowrap}
