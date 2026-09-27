@@ -30,6 +30,7 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-shell select{padding-right:30px;color-scheme:inherit}
 .sk-shell input[type=checkbox],.sk-shell input[type=radio]{accent-color:var(--sk-primary);color:var(--sk-primary);width:15px;height:15px;border-color:var(--sk-line);border-radius:3px;background-color:var(--sk-surface);flex-shrink:0}
 .sk-shell input[type=checkbox]:checked{background-color:var(--sk-primary)}
+.sk-shell input[type=radio]{appearance:auto;border-radius:50%}
 .sk-shell :focus-visible{outline:2px solid var(--sk-accent)!important;outline-offset:3px}
 .sk-shell input:focus-visible,.sk-shell textarea:focus-visible{outline-offset:1px}
 .sk-shell svg{flex-shrink:0;vertical-align:middle}
