@@ -1,0 +1,24 @@
+.sk-sequence-workspace{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:20px;align-items:start;min-width:0}
+.sk-sequence-timeline,.sk-sequence-editor{min-width:0;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:12px;overflow:hidden;box-shadow:var(--sk-shadow)}
+.sk-sequence-timeline{display:flex;flex-direction:column}
+.sk-sequence-timeline-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:20px;border-bottom:1px solid var(--sk-line)}
+.sk-sequence-timeline-heading h3{font-size:17px;font-weight:650;color:var(--sk-text)}
+.sk-sequence-timeline-heading p{margin-top:6px;color:var(--sk-muted);font-size:12px}
+.sk-sequence-timeline-steps{padding:20px 16px}
+.sk-sequence-workspace .sk-sequence-step-choice{padding:15px;text-align:left;min-height:118px;white-space:normal}
+.sk-sequence-workspace .sk-sequence-step-choice>div:first-child{flex-wrap:wrap;gap:7px}
+.sk-sequence-workspace .sk-sequence-step-choice>div:first-child>span:first-child{white-space:normal;overflow:visible;text-overflow:clip;font-weight:650;line-height:1.5;overflow-wrap:anywhere}
+.sk-sequence-excerpt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:10px 0 8px!important;color:var(--sk-muted);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.sk-sequence-step-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;color:var(--sk-muted);font-size:11px}
+.sk-sequence-workspace .sk-sequence-step-edit{align-self:center;padding:8px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface);color:var(--sk-green-text)}
+.sk-sequence-editor{display:flex;flex-direction:column;min-height:520px}
+.sk-sequence-editor>div>div:first-child{flex-wrap:wrap;gap:14px}
+.sk-sequence-editor h3{overflow-wrap:anywhere;line-height:1.5}
+.sk-sequence-editor form{min-width:0}
+.sk-sequence-editor form>div:last-child{display:flex;flex-wrap:wrap;gap:10px;border-top:1px solid var(--sk-line);padding-top:18px}
+.sk-sequence-editor input,.sk-sequence-editor select,.sk-sequence-editor textarea{max-width:100%;min-width:0}
+.sk-sequence-editor .ql-toolbar{display:flex;flex-wrap:wrap;row-gap:8px}
+.sk-sequence-editor pre{overflow-wrap:anywhere}
+@media(min-width:1600px){.sk-sequence-workspace{grid-template-columns:minmax(0,1.35fr) minmax(440px,1fr)}}
+@media(max-width:1100px){.sk-sequence-workspace{grid-template-columns:1fr}.sk-sequence-timeline-steps{max-height:460px;overflow-y:auto}}
+@media(max-width:600px){.sk-sequence-workspace{gap:14px}.sk-sequence-timeline-heading{padding:16px;flex-wrap:wrap}.sk-sequence-timeline-steps{padding:16px 10px}.sk-sequence-workspace .sk-sequence-step-choice{padding:12px}.sk-sequence-editor>div>div:first-child,.sk-sequence-editor form{padding:16px!important}}

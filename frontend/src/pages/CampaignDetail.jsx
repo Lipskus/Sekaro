@@ -7,9 +7,11 @@ import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import Modal from '../redesign/Modal';
-import { Metric } from '../redesign/ui';
+import { Metric, Icon } from '../redesign/ui';
 import { recipientFilters, emptyRecipientFilters, filterRecipients, recipientsCsv } from '../redesign/campaignRecipients';
 import '../redesign/campaign-recipients.css';
+import '../redesign/campaign-sequence.css';
+import {sequenceDay, sequenceExcerpt} from '../redesign/sequencePresentation';
 import DatePicker from '../components/ui/DatePicker';
 import { useConfirm } from '../context/ConfirmContext';
 import { useAppMode } from '../context/AppModeContext';
@@ -2852,7 +2854,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
   );
 }
 
-function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
+export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   const notify      = useNotify();
   const confirm     = useConfirm();
   const loadingCtrl = useLoading();
@@ -2860,7 +2862,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
   const [form, setForm] = useState({ subject: '', body: '', wait_days_after_previous: 0, is_html: false, preview_text: '', sequence_type: 'standard', fallback_subject: '', fallback_body: '' });
   const [msg,  setMsg]  = useState(null);
   const [editing,         setEditing]         = useState(null);
-  const [originalEditing, setOriginalEditing] = useState(null);
+  const pendingPanelAction = useRef(null);
   const [editDirty,       setEditDirty]       = useState(false);
   const [customEmailTarget, setCustomEmailTarget] = useState(null); // { lead, sequence }
   const [showEditWarning, setShowEditWarning] = useState(false);
@@ -2893,27 +2895,37 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     [sequences],
   );
 
-  const openEdit = (seq) => {
+  const openEdit = (seq) => requestPanelChange(() => {
     const copy = { ...seq, is_html: seq.is_html ?? false, preview_text: seq.preview_text ?? '', sequence_type: seq.sequence_type ?? 'standard', fallback_subject: seq.fallback_subject ?? '', fallback_body: seq.fallback_body ?? '' };
     copy._previous_type = copy.sequence_type;
     setEditing(copy);
-    setOriginalEditing(copy);
+    setSelectedIdx(sequences.findIndex(s=>s.id===seq.id));
+    setShowVariantForm(false);
+    setEditingVariant(null);
     setEditDirty(false);
     setShowAddForm(false);
-  };
+  });
 
   const updateEditing = (patch) => {
     setEditing(ed => ({ ...ed, ...patch }));
     setEditDirty(true);
   };
 
-  const tryCloseEdit = () => {
-    if (editDirty) {
+  const requestPanelChange = action => {
+    if (editDirty || showVariantForm) {
+      pendingPanelAction.current = action;
       setShowEditWarning(true);
-    } else {
-      setEditing(null);
-    }
+    } else action();
   };
+  const selectStep = idx => requestPanelChange(() => {
+    setSelectedIdx(idx); setEditing(null); setEditDirty(false); setShowAddForm(false);
+    setShowVariantForm(false); setEditingVariant(null);
+  });
+  const addStep = () => requestPanelChange(() => {
+    setShowAddForm(true); setEditing(null); setEditDirty(false); setSelectedIdx(null);
+    setShowVariantForm(false); setEditingVariant(null);
+  });
+  const tryCloseEdit = () => requestPanelChange(() => {setEditing(null);setEditDirty(false);});
 
   const submit = async e => {
     e.preventDefault();
@@ -2950,6 +2962,9 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     try {
       await api.del(`/campaigns/${campaignId}/sequences/${seq.id}`);
       notify({ type: 'success', message: 'Krok sekwencji usunięty' });
+      if (editing?.id === seq.id) { setEditing(null); setEditDirty(false); }
+      setShowVariantForm(false);
+      setEditingVariant(null);
       if (selectedIdx >= sequences.length - 1) setSelectedIdx(Math.max(0, sequences.length - 2));
       refresh();
     } catch (e) {
@@ -3014,21 +3029,17 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
     }
   };
 
-  const getCumulativeDay = (idx) => {
-    let days = 0;
-    for (let i = 0; i <= idx; i++) days += sequences[i]?.wait_days_after_previous || 0;
-    return days;
-  };
+  const getCumulativeDay = idx => sequenceDay(sequences,idx);
 
   return (
-    <div className="flex gap-0 min-h-[520px] rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm">
+    <div className="sk-sequence-workspace">
       {/* ── Left: Step timeline ── */}
-      <div className="w-72 shrink-0 border-r border-gray-200 bg-gray-50 flex flex-col">
-        <div className="px-4 py-3 border-b border-gray-200">
-          <h3 className="text-sm font-semibold text-gray-700">Kroki sekwencji</h3>
-          <p className="text-xs text-gray-400 mt-0.5">{sequences.length} {sequences.length === 1 ? 'krok' : 'kroków'}</p>
-        </div>
-        <div className="flex-1 overflow-y-auto px-3 py-3">
+      <section className="sk-sequence-timeline" aria-label="Oś sekwencji">
+        <header className="sk-sequence-timeline-heading">
+          <div><h3>Sekwencja wiadomości</h3><p>{sequences.length} {sequences.length === 1 ? 'krok' : 'kroków'} · Ostatni krok: dzień {getCumulativeDay(sequences.length-1)}</p></div>
+          <Button size="sm" onClick={addStep}>Dodaj krok</Button>
+        </header>
+        <div className="sk-sequence-timeline-steps">
           {sequences.length === 0 && (
             <p className="text-xs text-gray-400 text-center py-4">Brak kroków. Dodaj pierwszy, aby rozpocząć.</p>
           )}
@@ -3047,7 +3058,9 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                     </div>
                     <button
                       type="button"
-                      onClick={() => { setSelectedIdx(idx); setEditing(null); setShowAddForm(false); }}
+                      onClick={() => selectStep(idx)}
+                      aria-label={`Pokaż krok ${idx+1}`}
+                      aria-current={isActive ? 'step' : undefined}
                       className={`sk-sequence-step-choice flex-1 min-w-0 text-left rounded-lg px-3 py-2.5 transition-all border cursor-pointer ${
                         isActive ? 'bg-teal-50 border-teal-300 shadow-sm' : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-50/30'
                       }`}
@@ -3062,8 +3075,10 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                         {s.is_html && <span className="text-[9px] bg-blue-100 text-blue-600 rounded px-1 py-0.5 font-medium shrink-0">HTML</span>}
                         {s.sequence_type === 'personalized' && <span className="text-[9px] bg-purple-100 text-purple-600 rounded px-1 py-0.5 font-medium shrink-0">Spersonalizowana</span>}
                       </div>
-                      <div className="text-[11px] text-gray-400 mt-0.5">Dzień {cumulDay}{idx === 0 ? ' (start)' : ''}</div>
+                      <p className="sk-sequence-excerpt">{sequenceExcerpt(s)}</p>
+                      <div className="sk-sequence-step-meta"><Icon name="mail" size={15}/><span>Dzień {cumulDay}{idx === 0 ? ' (start)' : ''}</span><span>{(s.variants||[]).length ? `${s.variants.length} wariantów A/B` : 'Treść domyślna'}</span></div>
                     </button>
+                    <button type="button" className="sk-sequence-step-edit" aria-label={`Edytuj krok ${idx+1}`} onClick={()=>openEdit(s)}><Icon name="edit" size={18}/></button>
                   </div>
                   {/* Connector between kroks — rendered as its own row so it never affects card width */}
                   {idx < sequences.length - 1 && (
@@ -3084,22 +3099,10 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
             })}
           </div>
         </div>
-        <div className="p-3 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={() => { setShowAddForm(true); setEditing(null); setSelectedIdx(null); }}
-            className={`w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border-2 border-dashed text-sm font-medium transition-colors ${
-              showAddForm ? 'border-teal-400 bg-teal-50 text-teal-700' : 'border-gray-300 text-gray-500 hover:border-teal-300 hover:text-teal-600 hover:bg-teal-50/30'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
-            Dodaj krok
-          </button>
-        </div>
-      </div>
+      </section>
 
       {/* ── Right: Editor / Detail Panel ── */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <section className="sk-sequence-editor" aria-label="Szczegóły i edycja kroku">
         {editing && (
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
@@ -3158,7 +3161,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
                   )}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Temat</label>
-                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
+                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label="Temat wiadomości" value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Treść wiadomości *</label>
@@ -3206,7 +3209,7 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Dni przerwy po poprzednim kroku</label>
-                <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={editing.wait_days_after_previous} onChange={e => updateEditing({ wait_days_after_previous: +e.target.value })} />
+                <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label="Dni przerwy po poprzednim kroku" value={editing.wait_days_after_previous} onChange={e => updateEditing({ wait_days_after_previous: +e.target.value })} />
               </div>
               <div className="flex gap-2 pt-2">
                 <Button size="sm" variant="default">Zapisz zmiany</Button>
@@ -3438,19 +3441,17 @@ function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
         {!editing && !showAddForm && !selectedSeq && (
           <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Wybierz krok albo dodaj nowy, aby rozpocząć.</div>
         )}
-      </div>
+      </section>
 
       {showEditWarning && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div className="sk-campaign-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto" >
-            <h3 className="font-semibold text-gray-800 mb-1">Odrzucić zmiany?</h3>
-            <p className="text-sm text-gray-500 mb-4">Masz niezapisane zmiany. Zamknięcie spowoduje ich utratę.</p>
-            <div className="flex gap-2 justify-end">
-              <Button size="sm" variant="outline" onClick={() => setShowEditWarning(false)}>Kontynuuj edycję</Button>
-              <Button size="sm" variant="destructive" onClick={() => { setShowEditWarning(false); setEditing(null); setEditDirty(false); }}>Odrzuć</Button>
-            </div>
-          </div>
-        </div>
+        <Modal title="Odrzucić zmiany?" small onClose={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}} footer={<>
+          <Button size="sm" variant="outline" onClick={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}}>Kontynuuj edycję</Button>
+          <Button size="sm" variant="destructive" onClick={()=>{
+            const action=pendingPanelAction.current; pendingPanelAction.current=null;
+            setShowEditWarning(false);setEditDirty(false);setShowVariantForm(false);setEditingVariant(null);
+            action?.();
+          }}>Odrzuć</Button>
+        </>}><p>Masz niezapisane zmiany. Przejście do innego kroku lub zamknięcie edytora spowoduje ich utratę.</p></Modal>
       )}
 
       {previewSeq && (
