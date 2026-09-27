@@ -10,6 +10,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse, Response
 
 BANNER = '''<style id="sekaro-demo-style">
+:root{--sk-banner-height:30px}
 body{padding-top:30px!important}.sk-topbar,.sk-sidebar{top:30px!important}
 #sekaro-demo-banner{position:fixed;inset:0 0 auto;z-index:99999;height:30px;display:flex;align-items:center;justify-content:center;background:#684b00;color:#fff;font:600 12px system-ui;text-align:center;padding:0 8px}
 </style><aside id="sekaro-demo-banner" role="status">DEMO · fikcyjne dane · wysyłka i synchronizacja zablokowane</aside>'''

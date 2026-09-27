@@ -203,8 +203,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
           <span className={`text-gray-400 transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
           <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Weryfikacja e-mail</h3>
           {enabled
-            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Enabled</span>
-            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Disabled</span>
+            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączone</span>
+            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Wyłączone</span>
           }
         </div>
         <label className="flex items-center gap-1.5 cursor-pointer shrink-0 ml-4" onClick={e => e.stopPropagation()}>
@@ -233,7 +233,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
             }}
           />
           <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-            Enable
+            Włącz
           </span>
         </label>
       </div>
@@ -510,7 +510,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
               )}
               <div className="flex items-center gap-3 flex-wrap">
                 <Button size="sm" onClick={save} disabled={saving}>
-                  {saving ? 'Saving…' : 'Save'}
+                  {saving ? 'Zapisywanie…' : 'Zapisz'}
                 </Button>
                 {provider !== 'custom' && (
                   <Button
@@ -522,11 +522,11 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                     onClick={testApiKey}
                     disabled={testing}
                   >
-                    {testing ? 'Testing…' : (connectionTested && !credsChanged) ? '✓ Connection Tested' : 'Test Connection'}
+                    {testing ? 'Testowanie…' : (connectionTested && !credsChanged) ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
                   </Button>
                 )}
                 {(!connectionTested || credsChanged) && (
-                  <span className="text-xs text-amber-600">Test connection before enabling</span>
+                  <span className="text-xs text-amber-600">Przetestuj połączenie przed włączeniem</span>
                 )}
               </div>
             </div>
@@ -537,8 +537,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                 : 'bg-red-50 text-red-700 border border-red-200'}`}
               >
                 {testResult.ok
-                  ? <>Connection successful — status: <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
-                  : <>Test failed: {testResult.error}</>
+                  ? <>Połączenie działa — status: <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
+                  : <>Test nie powiódł się: {testResult.error}</>
                 }
               </div>
             )}

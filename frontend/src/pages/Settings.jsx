@@ -1379,7 +1379,7 @@ export default function Settings() {
                       }}
                     />
                     <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-                      Enable
+                      Włącz
                     </span>
                   </label>
                 </div>
