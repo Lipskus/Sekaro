@@ -9,10 +9,11 @@ vi.mock('../context/AppModeContext',()=>({useAppMode:()=>({mode:'production',isP
 vi.mock('../context/ConfirmContext',()=>({useConfirm:()=>vi.fn()}));
 vi.mock('../context/NotificationContext',()=>({useNotify:()=>vi.fn()}));
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca',provider:'smtp',max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
+const archive={mode:'keep',days:30,imap_configured:true,count:0,bytes:0,messages:[]};
 const smtp={smtp_host:'smtp.example.test',smtp_port:587,smtp_username:'sender',has_smtp_password:true,imap_host:'imap.example.test',imap_port:993};
 async function mount(){render(<MemoryRouter><Inboxes/></MemoryRouter>);fireEvent.click(await screen.findByRole('button',{name:'sender@example.test Nadawca'}));fireEvent.click(screen.getByRole('button',{name:'Edytuj',exact:true}));}
 async function connection(){fireEvent.click(screen.getByRole('button',{name:'SMTP / IMAP',exact:true}));return await screen.findByRole('textbox',{name:'Host SMTP',exact:true});}
-beforeEach(()=>{vi.clearAllMocks();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({json:async()=>({})}));api.get.mockImplementation(p=>Promise.resolve(p==='/inboxes'?[inbox]:smtp));api.put.mockResolvedValue(smtp);});
+beforeEach(()=>{vi.clearAllMocks();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({json:async()=>({})}));api.get.mockImplementation(p=>Promise.resolve(p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.put.mockResolvedValue(smtp);});
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 it('preserves SMTP drafts across sections and cancellation, and saves only once',async()=>{
  await mount();const host=await connection();fireEvent.change(host,{target:{value:'new.example.test'}});
@@ -23,7 +24,7 @@ it('preserves SMTP drafts across sections and cancellation, and saves only once'
  fireEvent.click(screen.getByRole('button',{name:'Anuluj edycję'}));expect(screen.queryByRole('dialog')).toBeNull();expect(screen.queryByText('Edytuj skrzynkę')).toBeNull();
 });
 it('never presents blank credentials as successfully loaded after a failed read',async()=>{
- let fail=true;api.get.mockImplementation(p=>p==='/inboxes'?Promise.resolve([inbox]):fail?Promise.reject(Error('offline')):Promise.resolve(smtp));
+ let fail=true;api.get.mockImplementation(p=>p==='/inboxes'?Promise.resolve([inbox]):p.includes('/archive')?Promise.resolve(archive):fail?Promise.reject(Error('offline')):Promise.resolve(smtp));
  await mount();fireEvent.click(screen.getByRole('button',{name:'SMTP / IMAP',exact:true}));await screen.findByRole('alert');expect(screen.queryByRole('textbox',{name:'Host SMTP',exact:true})).toBeNull();
  fail=false;fireEvent.click(screen.getByRole('button',{name:'Spróbuj ponownie'}));expect((await screen.findByRole('textbox',{name:'Host SMTP',exact:true})).value).toBe('smtp.example.test');expect(api.patch).not.toHaveBeenCalled();
 });

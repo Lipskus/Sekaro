@@ -117,7 +117,7 @@ class _FakeIMAP:
             uid = int(args[0])
             for candidate_uid, raw in self._messages:
                 if candidate_uid == uid:
-                    return "OK", [(f'{uid} (RFC822 {{{len(raw)}}})'.encode(), raw)]
+                    return "OK", [(f'{uid} (RFC822.SIZE {len(raw)} BODY[] {{{len(raw)}}})'.encode(), raw)]
             return "NO", []
         raise AssertionError(f"unexpected IMAP command: {command}")
 

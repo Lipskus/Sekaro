@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Modal from '../redesign/Modal';
+import MailboxArchive from '../redesign/MailboxArchive';
 import '../redesign/mailbox-editor.css';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
@@ -535,6 +536,8 @@ export default function Inboxes() {
   const [editingSmtp, setEditingSmtp] = useState(null);
   const [editSection, setEditSection] = useState('identity');
   const [smtpDirty, setSmtpDirty] = useState(false);
+  const [archiveDirty, setArchiveDirty] = useState(false);
+  const [archiveRevision, setArchiveRevision] = useState(0);
   const [smtpLoadError, setSmtpLoadError] = useState(null);
   const [editBusy, setEditBusy] = useState(false);
   const editBusyRef = useRef(false);
@@ -762,7 +765,7 @@ export default function Inboxes() {
     setEditMsg(null);
     setEditingSmtp(null);
     setSmtpTestMsg(null);
-    setSmtpDirty(false); setEditSection('identity');
+    setArchiveDirty(false); setSmtpDirty(false); setEditSection('identity');
     loadEditingSmtp(inbox);
     editOriginalDomain.current = inbox.tracking_domain || '';
     setEditDomainVerified(false);
@@ -775,7 +778,7 @@ export default function Inboxes() {
     );
   };
   const closeEdit = () => {
-    ++smtpLoadGeneration.current; setSmtpDirty(false); setSmtpLoadError(null);
+    ++smtpLoadGeneration.current; setArchiveDirty(false); setSmtpDirty(false); setSmtpLoadError(null);
     setEditing(null);
     setEditDirty(false);
     setEditingSmtp(null);
@@ -783,7 +786,7 @@ export default function Inboxes() {
   };
   const tryCloseEdit = () => {
     if (editBusyRef.current) return;
-    if (editDirty || smtpDirty) {
+    if (editDirty || smtpDirty || archiveDirty) {
       setEditWarningCloseSidebar(false);
       setShowEditWarning(true);
     } else {
@@ -792,7 +795,7 @@ export default function Inboxes() {
   };
   const tryCloseSidebar = () => {
     if (editBusyRef.current) return;
-    if (editing && (editDirty || smtpDirty)) {
+    if (editing && (editDirty || smtpDirty || archiveDirty)) {
       setEditWarningCloseSidebar(true);
       setShowEditWarning(true);
     } else {
@@ -825,6 +828,7 @@ export default function Inboxes() {
 
   const doSave = async () => {
     if (!editing || editBusyRef.current) return;
+    if (archiveDirty) { setEditSection('archive'); return; }
     if (smtpDirty) { setEditSection('connection'); setEditMsg({type:'error',text:'Najpierw zapisz zmiany połączenia SMTP / IMAP.'}); return; }
     const newDomain = editTrackingMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
     const domainChanged = newDomain !== editOriginalDomain.current;
@@ -862,6 +866,7 @@ export default function Inboxes() {
 
   const saveEditingSmtp = async () => {
     if (!editing || !editingSmtp || editBusyRef.current) return;
+    if (archiveDirty) { setEditSection('archive'); return; }
     editBusyRef.current = true; setEditBusy(true);
     setSmtpTestMsg(null);
     try {
@@ -874,7 +879,7 @@ export default function Inboxes() {
         ...payload, smtp_port: +payload.smtp_port, imap_port: +payload.imap_port,
       });
       setEditingSmtp((prev) => ({ ...prev, smtp_password: '', imap_password: '', _meta: saved }));
-      setSmtpDirty(false);
+      setSmtpDirty(false); setArchiveRevision(n=>n+1);
       setSmtpTestMsg({ type: 'success', text: 'Ustawienia SMTP / IMAP zapisane' });
       // SMTP credentials are saved independently of the outer inbox form —
       // don't mark the edit as dirty, or closing the modal would trigger a
@@ -995,7 +1000,7 @@ export default function Inboxes() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [showEditWarning, showAdd, editing, editDirty, smtpDirty]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showEditWarning, showAdd, editing, editDirty, smtpDirty, archiveDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteInbox = async (id, email) => {
     const ok = await confirm(`Usuń skrzynkę "${email}"?`);
@@ -1178,7 +1183,7 @@ export default function Inboxes() {
                     </button>
                   </div>
 
-                  <nav className="sk-mailbox-edit-nav" aria-label="Sekcje edycji skrzynki">{[['identity','Nadawca'],['connection','SMTP / IMAP'],['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie']].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{label}</button>)}</nav>
+                  <nav className="sk-mailbox-edit-nav" aria-label="Sekcje edycji skrzynki">{[['identity','Nadawca'],['connection','SMTP / IMAP'],['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie'],...(editing.provider==='smtp'?[['archive','Przechowywanie']]:[])].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{label}</button>)}</nav>
                   {/* Edit form */}
                   <div className="px-5 py-4 overflow-y-auto flex-1 min-w-0">
                     {editMsg && <div role={editMsg.type === 'error' ? 'alert' : 'status'} className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{editMsg.text}</div>}
@@ -1279,7 +1284,7 @@ export default function Inboxes() {
                                 </p>
                               )}
                               <div className="flex gap-2">
-                                <Button type="button" size="sm" variant="outline" onClick={saveEditingSmtp} disabled={editBusy || !smtpDirty}>Zapisz SMTP / IMAP</Button>
+                                <Button type="button" size="sm" variant="outline" onClick={saveEditingSmtp} disabled={editBusy || archiveDirty || !smtpDirty}>Zapisz SMTP / IMAP</Button>
                                 <Button type="button" size="sm" variant="outline" onClick={testEditingSmtp} disabled={editBusy || smtpDirty}>{smtpTesting ? 'Testowanie…' : 'Testuj połączenie'}</Button>
                               </div>
                             </>
@@ -1406,9 +1411,12 @@ export default function Inboxes() {
                       </div>
                     </section>
                     </fieldset>
+                    <section hidden={editSection!=='archive'} className="sk-mailbox-edit-section" aria-label="Archiwum poczty">
+                      {editing.provider==='smtp'&&<MailboxArchive key={editing.id} inboxId={editing.id} disabled={editBusy||smtpDirty} revision={archiveRevision} onDirtyChange={setArchiveDirty} onBusyChange={busy=>{editBusyRef.current=busy;setEditBusy(busy);}}/>}
+                    </section>
                       <div className="sk-mailbox-edit-actions">
-                        <p role="status">{editBusy ? 'Trwa przetwarzanie…' : smtpDirty ? 'Niezapisane zmiany SMTP / IMAP' : editDirty ? 'Niezapisane ustawienia skrzynki' : 'Brak niezapisanych zmian'}</p>
-                        <Button type="submit" size="sm" variant="default" disabled={editBusy || smtpDirty || !editDirty}>Zapisz ustawienia</Button>
+                        <p role="status">{editBusy ? 'Trwa przetwarzanie…' : archiveDirty ? 'Niezapisane zasady przechowywania' : smtpDirty ? 'Niezapisane zmiany SMTP / IMAP' : editDirty ? 'Niezapisane ustawienia skrzynki' : 'Brak niezapisanych zmian'}</p>
+                        <Button type="submit" size="sm" variant="default" disabled={editBusy || smtpDirty || archiveDirty || !editDirty}>Zapisz ustawienia</Button>
                         <Button type="button" size="sm" variant="outline" disabled={editBusy} onClick={tryCloseEdit}>Anuluj</Button>
                       </div>
                     </form>

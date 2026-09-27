@@ -1527,7 +1527,7 @@ def _fetch_smtp_new_messages(
     client = _imap_connect(account, timeout=30)
     try:
         typ, data = client.status("INBOX", "(UIDVALIDITY UIDNEXT)")
-        current_validity: int | None = uidvalidity
+        current_validity: int | None = None
         try:
             status_raw = (data[0] or b"").decode("utf-8", errors="ignore") if data else ""
             import re as _re
@@ -1537,54 +1537,41 @@ def _fetch_smtp_new_messages(
                 current_validity = int(m.group(1))
         except Exception:
             pass
+        if typ != "OK" or not current_validity:
+            raise ValueError("IMAP did not return UIDVALIDITY")
         if current_validity != uidvalidity:
             # Mailbox was recreated (or first sync) — fetch from scratch.
             last_uid = 0
 
         typ, uid_data = client.uid("search", None, f"UID {int(last_uid) + 1}:*")
         if typ != "OK":
-            return current_validity, []
+            raise ValueError("IMAP UID search failed")
         uid_bytes = uid_data[0] if uid_data else b""
         uids = [int(u) for u in uid_bytes.split() if u.isdigit()]
-        # Only process genuinely-new UIDs (RFC 3501 `last+1:*` can re-return
-        # the highest existing message).
-        #
-        # First sync intentionally mirrors only the newest messages so a
-        # long-lived mailbox becomes useful immediately. During normal
-        # operation we process the oldest outstanding UIDs first; advancing
-        # the checkpoint past an unprocessed UID would otherwise lose it.
-        initial_sync = int(last_uid) <= 0
-        uids = sorted(u for u in uids if u > int(last_uid))
-        cap = max(1, cap)
-        if len(uids) > cap:
-            deferred = len(uids) - cap
-            if initial_sync:
-                log.info(
-                    "SMTP initial sync: %d messages exceed cap %d — importing newest %d",
-                    len(uids), cap, cap,
-                )
-                uids = uids[-cap:]
-            else:
-                log.warning(
-                    "SMTP sync backlog: %d messages exceed cap %d — processing oldest %d; "
-                    "%d remain for the next sync",
-                    len(uids), cap, cap, deferred,
-                )
-                uids = uids[:cap]
+        # Backfill all INBOX mail oldest-first; never checkpoint past unfetched UIDs.
+        uids = sorted(u for u in uids if u > int(last_uid))[:max(1, cap)]
 
         out: list[tuple[int, bytes]] = []
         for uid in uids:
             try:
-                typ, fetched = client.uid("fetch", str(uid), "(RFC822)")
-            except Exception:
-                log.warning("SMTP sync: fetch failed for UID %s", uid)
-                continue
+                typ, fetched = client.uid("fetch", str(uid), "(RFC822.SIZE BODY.PEEK[])")
+            except Exception as exc:
+                raise ValueError("IMAP message fetch failed") from exc
             if typ != "OK" or not fetched:
-                continue
-            for part in fetched:
-                if isinstance(part, tuple) and len(part) == 2 and isinstance(part[1], (bytes, bytearray)):
-                    out.append((uid, bytes(part[1])))
-                    break
+                raise ValueError("IMAP message fetch failed")
+            # Servers may return RFC822.SIZE after the literal, regardless of request order.
+            metadata = b" ".join(part[0] if isinstance(part, tuple) else part
+                                  for part in fetched if isinstance(part, (bytes, tuple)))
+            payloads = [part[1] for part in fetched if isinstance(part, tuple)
+                        and len(part) == 2 and isinstance(part[1], (bytes, bytearray))]
+            import re
+            size = re.search(rb"RFC822.SIZE\s+(\d+)", metadata)
+            if len(payloads) != 1 or not size or int(size[1]) != len(payloads[0]):
+                raise ValueError("IMAP returned an incomplete message")
+            out.append((uid, bytes(payloads[0])))
+            # Bound each batch on small installations; a single larger message is allowed.
+            if sum(len(raw) for _, raw in out) >= 25 * 1024 * 1024:
+                break
         return current_validity, out
     finally:
         try:
@@ -1848,10 +1835,11 @@ async def _sync_inbox_smtp(db: AsyncSession, inbox, reason: str = "") -> set[tup
     """Poll an SMTP inbox's IMAP INBOX for new messages (reply + bounce detection)."""
     from app.smtp_utils import normalise_message_id as _norm_mid
     from app.smtp_utils import parse_imap_message as _parse_imap
+    from app.mail_archive import archive_message
 
     touched: set[tuple[int, str]] = set()
 
-    acct_res = await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox.id))
+    acct_res = await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox.id).with_for_update())
     acct = acct_res.scalar_one_or_none()
     if acct is None:
         return touched
@@ -1867,9 +1855,10 @@ async def _sync_inbox_smtp(db: AsyncSession, inbox, reason: str = "") -> set[tup
 
     try:
         new_validity, fetched = await asyncio.to_thread(
-            _fetch_smtp_new_messages, acct, state.uidvalidity, state.last_uid or 0
+            _fetch_smtp_new_messages, acct, state.uidvalidity, state.archive_last_uid or 0
         )
     except Exception as exc:
+        state.last_error = "Nie udało się zsynchronizować INBOX. Sprawdź połączenie SMTP / IMAP."
         log.warning("SMTP IMAP sync failed for inbox_id=%s: %s", inbox.id, exc)
         try:
             await maybe_fire_email_event(
@@ -1884,23 +1873,30 @@ async def _sync_inbox_smtp(db: AsyncSession, inbox, reason: str = "") -> set[tup
     if new_validity != state.uidvalidity:
         state.uidvalidity = new_validity
         state.last_uid = 0
+        state.archive_last_uid = 0
         await db.flush()
 
+    state.last_error = ""
+    if not new_validity:
+        state.last_error = "Serwer nie zwrócił UIDVALIDITY; archiwizacja wstrzymana."
+        await db.flush()
+        return touched
     if not fetched:
         state.last_sync_at = time_provider.utcnow()
         await db.flush()
         return touched
 
     own_addr = (inbox.email or "").lower()
-    max_uid = state.last_uid or 0
+    max_uid = state.archive_last_uid or 0
     for uid, raw in fetched:
-        max_uid = max(max_uid, uid)
         try:
             parsed = _parse_imap(raw)
         except Exception:
-            log.warning("SMTP sync: failed to parse UID %s for inbox_id=%s", uid, inbox.id)
-            continue
-        # Skip our own sent copies to avoid self-reply loops.
+            state.last_error = f"Nie udało się odczytać wiadomości UID {uid}; ponowienie przy następnej synchronizacji."
+            break
+        await archive_message(db, acct, new_validity, uid, raw, parsed)
+        max_uid = max(max_uid, uid)
+        # Archive own copies as well, but avoid self-reply loops.
         if (parsed.get("from") or "").lower() == own_addr:
             continue
         message_pk = f"{new_validity}:{uid}" if new_validity else f"uid:{uid}"
@@ -1954,7 +1950,8 @@ async def _sync_inbox_smtp(db: AsyncSession, inbox, reason: str = "") -> set[tup
         if _touched:
             touched.add(_touched)
 
-    state.last_uid = max_uid
+    state.last_uid = max(state.last_uid or 0, max_uid)
+    state.archive_last_uid = max_uid
     state.last_sync_at = time_provider.utcnow()
     await db.flush()
     log.info("SMTP IMAP sync inbox_id=%s fetched=%s touched=%s", inbox.id, len(fetched), len(touched))
@@ -3212,6 +3209,9 @@ async def sync_single_inbox(inbox_id: int, reason: str = "scheduled") -> bool:
             else:
                 touched, hydrate_thread_ids = await _sync_inbox(db, inbox, reason)
             await db.commit()
+            if inbox.provider == "smtp":
+                from app.mail_archive import process_retention
+                await process_retention(inbox_id)
     except Exception:
         log.exception("Failed unibox sync for inbox_id=%s reason=%s", inbox_id, reason)
         return False
@@ -3266,6 +3266,9 @@ async def backfill_single_inbox(
             else:
                 touched, _meta = await _backfill_older_window(db, inbox, window_days=window_days)
             await db.commit()
+            if inbox.provider == "smtp":
+                from app.mail_archive import process_retention
+                await process_retention(inbox_id)
     except Exception:
         log.exception("Failed unibox backfill for inbox_id=%s reason=%s", inbox_id, reason)
         return False

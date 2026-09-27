@@ -81,6 +81,11 @@ async def _run_migrations(conn) -> None:
         return
 
     pg_alters = [
+        "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_mode VARCHAR(16) NOT NULL DEFAULT 'keep'",
+        "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_days INTEGER NOT NULL DEFAULT 30",
+        "ALTER TABLE smtp_sync_state ADD COLUMN IF NOT EXISTS archive_last_uid INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE smtp_sync_state ADD COLUMN IF NOT EXISTS last_error TEXT NOT NULL DEFAULT ''",
+
         # 2026-03-24: ramp-up starting number (default 1 preserves old behaviour)
         "ALTER TABLE inbox ADD COLUMN IF NOT EXISTS ramp_up_start INTEGER NOT NULL DEFAULT 1",
         # 2026-09-22 Sekaro 0.2: optional Reply-To address and SMTP-first defaults.
