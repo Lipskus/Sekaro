@@ -1,0 +1,7 @@
+.sk-mailbox-edit-nav{display:flex;flex-wrap:wrap;gap:6px;padding:14px 20px;border-bottom:1px solid var(--sk-line)}
+.sk-mailbox-edit-nav button{padding:7px 9px;border:1px solid var(--sk-line);border-radius:7px;font-size:12px;color:var(--sk-muted);background:var(--sk-surface)}
+.sk-mailbox-edit-nav button[aria-pressed=true]{color:var(--sk-green-text);background:var(--sk-green-soft);border-color:var(--sk-accent)}
+.sk-mailbox-edit-form fieldset{min-width:0;border:0;padding:0;margin:0}.sk-mailbox-edit-section{display:grid;gap:18px;min-width:0}.sk-mailbox-edit-section[hidden]{display:none!important}.sk-mailbox-edit-section>p{font-size:12px;line-height:1.6}
+.sk-mailbox-edit-actions{display:flex;flex-wrap:wrap;gap:10px;padding-top:16px;margin-top:20px;border-top:1px solid var(--sk-line)}.sk-mailbox-edit-actions>p{flex-basis:100%;font-size:12px;color:var(--sk-muted)}
+.sk-mailbox-edit-section input[type=checkbox],.sk-mailbox-edit-section input[type=radio]{width:15px;height:15px;flex-shrink:0}
+.sk-mailbox-edit-section .flex{flex-wrap:wrap}.sk-mailbox-edit-section label{line-height:1.5}.sk-mailbox-edit-section [role=alert]{overflow-wrap:anywhere}
