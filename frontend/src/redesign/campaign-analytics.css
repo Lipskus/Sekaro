@@ -1,0 +1,18 @@
+.sk-campaign-analytics{display:grid;gap:16px;min-width:0;color:var(--sk-text)}
+.sk-ca-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}.sk-ca-toolbar h2{font-size:20px;font-weight:650}
+.sk-ca-toolbar p,.sk-ca-panel>p{color:var(--sk-muted);font-size:12px;line-height:1.6;margin:6px 0 12px}
+.sk-ca-presets{display:flex;flex-wrap:wrap;gap:8px}
+.sk-campaign-analytics .sk-ca-presets button{padding:8px 12px;border:1px solid var(--sk-line);border-radius:8px;background:var(--sk-surface);color:var(--sk-muted);font-size:12px;white-space:normal}
+.sk-campaign-analytics .sk-ca-presets button[aria-pressed=true]{background:var(--sk-green-soft);border-color:var(--sk-accent);color:var(--sk-green-text)}
+.sk-ca-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.sk-ca-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+.sk-ca-panel{min-width:0;padding:16px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:12px}.sk-ca-panel h3{font-size:16px;font-weight:650;color:var(--sk-text)}
+.sk-ca-chart{height:230px;min-width:0;background:var(--sk-surface-alt);border:1px solid var(--sk-line);border-radius:10px;padding:8px}
+.sk-ca-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.sk-campaign-analytics .sk-ca-legend button{display:flex;align-items:center;gap:6px;padding:5px;font-size:11px;background:transparent;color:var(--sk-muted);border:1px solid transparent;border-radius:5px;white-space:normal;text-align:left}
+.sk-campaign-analytics .sk-ca-legend button[aria-pressed=true]{border-color:var(--sk-line);color:var(--sk-text)}.sk-ca-legend i{width:9px;height:9px;flex-shrink:0;border-radius:2px}
+.sk-ca-summary>div{display:flex;justify-content:space-between;gap:16px;padding:13px 0;border-top:1px solid var(--sk-line);font-size:13px}.sk-ca-summary dd{font-weight:700}.sk-ca-panel .sk-ca-explanation{margin-top:14px;font-size:11px}
+.sk-ca-table-scroll{overflow:auto;max-height:320px;border:1px solid var(--sk-line);border-radius:9px}.sk-campaign-analytics .sk-ca-table-scroll table{width:100%;border-collapse:collapse;font-size:12px}
+.sk-campaign-analytics .sk-ca-table-scroll th,.sk-campaign-analytics .sk-ca-table-scroll td{padding:11px 10px;border-bottom:1px solid var(--sk-line);text-align:right;white-space:nowrap}.sk-campaign-analytics .sk-ca-table-scroll th:first-child{text-align:left}
+.sk-ca-table-scroll thead{background:var(--sk-surface-alt);color:var(--sk-muted);position:sticky;top:0}.sk-ca-table-scroll tbody th{font-weight:500}.sk-ca-table-scroll th span{display:block;min-width:140px;max-width:220px;white-space:normal;overflow-wrap:anywhere}.sk-ca-table-scroll small{display:block;margin-top:5px;color:var(--sk-muted);white-space:normal}
+.sk-ca-empty{padding:20px;color:var(--sk-muted);background:var(--sk-surface-alt);border-radius:10px;font-size:13px;line-height:1.7}.sk-ca-dates{display:flex;gap:16px;flex-wrap:wrap}.sk-ca-dates label{display:grid;gap:6px;color:var(--sk-muted);font-size:12px}.sk-ca-dates input{min-width:0}.sk-ca-details{overflow:hidden}.sk-ca-details table{min-width:680px}
+@media(max-width:1100px){.sk-ca-grid{grid-template-columns:1fr}.sk-ca-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.sk-ca-panel{padding:12px}.sk-ca-metrics{gap:8px}.sk-ca-metrics .sk-metric{padding:12px}.sk-ca-metrics .sk-metric-icon{display:none}.sk-ca-metrics .sk-metric-value{font-size:24px}.sk-ca-chart{height:220px}}

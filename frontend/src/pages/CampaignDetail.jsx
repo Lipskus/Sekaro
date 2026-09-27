@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from 'react';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
 import { api, apiCache } from '../api';
@@ -7,10 +7,12 @@ import { Button } from '../components/ui/Button';
 import { FileUploadArea } from '../components/ui/FileUploadArea';
 import { Card } from '../components/ui/Card';
 import Modal from '../redesign/Modal';
-import { Metric, Icon } from '../redesign/ui';
+import { Metric, Icon, ErrorNotice } from '../redesign/ui';
 import { recipientFilters, emptyRecipientFilters, filterRecipients, recipientsCsv } from '../redesign/campaignRecipients';
 import '../redesign/campaign-recipients.css';
 import '../redesign/campaign-sequence.css';
+import '../redesign/campaign-analytics.css';
+import { analyticsRangeError, campaignDailyRows, analyticsCsv } from '../redesign/campaignAnalytics';
 import {sequenceDay, sequenceExcerpt} from '../redesign/sequencePresentation';
 import DatePicker from '../components/ui/DatePicker';
 import { useConfirm } from '../context/ConfirmContext';
@@ -30,7 +32,6 @@ import {
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
   CartesianGrid,
 } from 'recharts';
 
@@ -1138,7 +1139,7 @@ const SERIES_LIST = [
   { key: 'uniqueClicks', name: 'Unikalne kliknięcia', stroke: 'rgba(236,72,153,0.8)',  fill: 'rgba(236,72,153,0.15)' },
 ];
 
-function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences = [], onRefresh }) {
+export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = [], onRefresh }) {
   const notify = useNotify();
   const today = new Date();
   const localIso = (dt) => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
@@ -1165,295 +1166,127 @@ function CampaignAnalyticsTab({ campaignId, campaign, sentData = [], sequences =
   const defaultRange = presets.find(p => p.label === 'Ostatnie 7 dni') || presets[0];
   const [startDate, setStartDate] = useState(defaultRange.start);
   const [endDate,   setEndDate]   = useState(defaultRange.end);
-  const [analyticsData, setAnalyticsData] = useState([]);
-  const [hide, setHide] = useState({
-    sent: false, totalOpens: false, uniqueOpens: false,
-    totalReplies: false, totalClicks: false, uniqueClicks: false,
-  });
-  const initializedRef = useRef(false);
-  const [zoomRange, setZoomRange] = useState({ start: 0, end: 0 });
-  const activeChartIdxRef = useRef(null);
-  const chartContainerRef = useRef(null);
-
-  // Sub-tabs state
+  const [daily, setDaily] = useState({ rows: [], loading: true, error: null });
+  const [steps, setSteps] = useState({ rows: [], loading: true, error: null });
+  const [dailyRetry, setDailyRetry] = useState(0);
+  const [stepRetry, setStepRetry] = useState(0);
+  const [hide, setHide] = useState({ totalOpens: true, uniqueOpens: true, totalClicks: true, uniqueClicks: true });
   const [analyticsSub, setAnalyticsSub] = useState('steps');
-  const [stepStats, setStepStats] = useState([]);
-  const [stepStatsLoading, setStepStatsLoading] = useState(false);
   const [sentFilter, setSentFilter] = useState('all');
+  const [variantBusy, setVariantBusy] = useState(false);
+  const variantBusyRef = useRef(false);
+  const rangeError = analyticsRangeError(startDate, endDate);
 
-  const loadStepStats = useCallback(async () => {
-    setStepStatsLoading(true);
-    try {
-      const data = await api.get(`/campaigns/${campaignId}/analytics/steps`);
-      setStepStats(data);
-    } catch (e) {
-      console.error('Nie udało się wczytać analityki kroków', e);
-    } finally {
-      setStepStatsLoading(false);
-    }
-  }, [campaignId]);
-
-  useEffect(() => { loadStepStats(); }, [loadStepStats]);
-
-  // Re-fetch aggregated daily analytics whenever the date range changes
   useEffect(() => {
-    if (!startDate || !endDate) return;
+    let current = true;
+    setDaily({ rows: [], loading: !rangeError, error: rangeError });
+    if (rangeError) return;
     api.get(`/analytics/daily?start_date=${startDate}&end_date=${endDate}&campaign_id=${campaignId}`)
-      .then(data => setAnalyticsData(data))
-      .catch(() => setAnalyticsData([]));
-  }, [startDate, endDate, campaignId]);
+      .then(rows => { if (current) setDaily({ rows, loading: false, error: null }); })
+      .catch(() => { if (current) setDaily({ rows: [], loading: false, error: 'Nie udało się pobrać wyników dziennych.' }); });
+    return () => { current = false; };
+  }, [campaignId, startDate, endDate, dailyRetry, rangeError]);
 
+  useEffect(() => {
+    let current = true;
+    setSteps({ rows: [], loading: true, error: null });
+    api.get(`/campaigns/${campaignId}/analytics/steps`)
+      .then(rows => { if (current) setSteps({ rows, loading: false, error: null }); })
+      .catch(() => { if (current) setSteps({ rows: [], loading: false, error: 'Nie udało się pobrać analityki kroków.' }); });
+    return () => { current = false; };
+  }, [campaignId, stepRetry]);
+
+  const chartData = useMemo(() => daily.loading || daily.error || rangeError ? [] : campaignDailyRows(daily.rows, startDate, endDate), [daily, startDate, endDate, rangeError]);
+  const totals = Object.fromEntries(SERIES_LIST.map(s => [s.key, chartData.reduce((sum, row) => sum + row[s.key], 0)]));
+  const ready = !daily.loading && !daily.error && !rangeError;
+  const hasEvents = chartData.some(row => SERIES_LIST.some(s => row[s.key] > 0));
+  const number = value => value.toLocaleString('pl-PL');
+  const metrics = [
+    { key: 'sent', title: 'Wysłane', icon: 'send', tone: 'blue' },
+    { key: 'totalReplies', title: 'Odpowiedzi', icon: 'reply', tone: 'green' },
+    { key: 'totalOpens', title: 'Otwarcia', icon: 'eye', tone: 'purple' },
+    { key: 'totalClicks', title: 'Kliknięcia', icon: 'link', tone: 'amber' },
+  ];
+  const ranked = steps.rows.flatMap(step => (step.variants || []).map(variant => ({ ...variant, sequenceId: step.sequence_id, subject: step.subject, rate: variant.sent > 0 ? variant.replies / variant.sent : 0 })))
+    .filter(variant => variant.sent > 0).sort((a,b) => b.rate - a.rate || b.sent - a.sent).slice(0,5);
   const toggleVariant = async (seqId, variantId, enabled) => {
+    if (variantBusyRef.current) return;
+    variantBusyRef.current = true; setVariantBusy(true);
     try {
       await api.patch(`/campaigns/${campaignId}/sequences/${seqId}/variants/${variantId}`, { enabled });
-      await loadStepStats();
-      onRefresh?.();
+      setStepRetry(n => n + 1); onRefresh?.();
       notify({ type: 'success', message: enabled ? 'Wariant włączony' : 'Wariant wyłączony' });
-    } catch (e) {
-      notify({ type: 'error', message: e.message });
-    }
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+    finally { variantBusyRef.current = false; setVariantBusy(false); }
   };
-
-  const applyPreset = (preset) => {
-    setActivePreset(preset.label);
-    setStartDate(preset.start);
-    setEndDate(preset.end);
+  const exportDaily = () => {
+    const url = URL.createObjectURL(new Blob([analyticsCsv(chartData)], {type:'text/csv;charset=utf-8'}));
+    const link = document.createElement('a'); link.href = url; link.download = `kampania-${campaignId}-${startDate}-${endDate}.csv`; link.click(); URL.revokeObjectURL(url);
   };
-
-  const chartData = useMemo(() => {
-    const map = {};
-    analyticsData.forEach(row => {
-      const d = row.date;
-      if (!map[d]) {
-        map[d] = { date: d, sent: 0, totalOpens: 0, uniqueOpens: 0, totalReplies: 0, totalClicks: 0, uniqueClicks: 0 };
-      }
-      map[d].sent         += row.sent;
-      map[d].totalOpens   += row.total_opens;
-      map[d].uniqueOpens  += row.unique_opens;
-      map[d].totalReplies += row.total_replies;
-      map[d].totalClicks  += row.total_clicks;
-      map[d].uniqueClicks += row.unique_clicks;
-    });
-    const result = [];
-    if (startDate && endDate) {
-      const cur = new Date(startDate + 'T00:00:00');
-      const end = new Date(endDate + 'T00:00:00');
-      while (cur <= end) {
-        const iso = `${cur.getFullYear()}-${String(cur.getMonth()+1).padStart(2,'0')}-${String(cur.getDate()).padStart(2,'0')}`;
-        result.push(map[iso] || { date: iso, sent: 0, totalOpens: 0, uniqueOpens: 0, totalReplies: 0, totalClicks: 0, uniqueClicks: 0 });
-        cur.setDate(cur.getDate() + 1);
-      }
-    }
-    return result;
-  }, [analyticsData, startDate, endDate]);
-
-  useEffect(() => {
-    if (!initializedRef.current && chartData.length > 0 && chartData.some(d => SERIES_LIST.some(s => d[s.key] > 0))) {
-      const nh = {};
-      SERIES_LIST.forEach(s => { nh[s.key] = chartData.every(d => d[s.key] === 0); });
-      setHide(p => ({ ...p, ...nh }));
-      initializedRef.current = true;
-    }
-  }, [chartData]);
-
-  useEffect(() => {
-    setZoomRange({ start: 0, end: Math.max(0, chartData.length - 1) });
-  }, [chartData]);
-
-  useEffect(() => {
-    const el = chartContainerRef.current;
-    if (!el) return;
-    const onWheel = (e) => {
-      e.preventDefault();
-      setZoomRange(prev => {
-        const len = chartData.length;
-        if (len <= 2) return prev;
-        const windowSize = prev.end - prev.start + 1;
-        const pivot = activeChartIdxRef.current ?? Math.floor((prev.start + prev.end) / 2);
-        const factor = e.deltaY < 0 ? 0.75 : 1.35;
-        const newSize = Math.max(3, Math.min(len, Math.round(windowSize * factor)));
-        const pivotRatio = windowSize > 1 ? (pivot - prev.start) / (windowSize - 1) : 0.5;
-        let newStart = Math.round(pivot - pivotRatio * (newSize - 1));
-        let newEnd = newStart + newSize - 1;
-        if (newStart < 0) { newStart = 0; newEnd = newSize - 1; }
-        if (newEnd >= len) { newEnd = len - 1; newStart = Math.max(0, len - newSize); }
-        return { start: newStart, end: newEnd };
-      });
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, [chartData]);
-
-  const displayData = chartData.slice(zoomRange.start, zoomRange.end + 1);
-  const handleChartMouseMove = (state) => {
-    if (state?.activeTooltipIndex != null)
-      activeChartIdxRef.current = zoomRange.start + state.activeTooltipIndex;
-  };
-
-  const rangeLeads   = useMemo(() => {
-    const seen = new Set();
-    sentData.forEach(e => {
-      const d = e.sent_date || (e.sent_at ? e.sent_at.slice(0,10) : '');
-      if (startDate && d < startDate) return;
-      if (endDate   && d > endDate)   return;
-      if (e.lead_id) seen.add(String(e.lead_id));
-    });
-    return seen.size;
-  }, [sentData, startDate, endDate]);
-  const rangeSent    = chartData.reduce((a,d)=>a+d.sent, 0);
-  const rangeOpens   = chartData.reduce((a,d)=>a+d.totalOpens, 0);
-  const rangeReplies = chartData.reduce((a,d)=>a+d.totalReplies, 0);
-  const rangeClicks  = chartData.reduce((a,d)=>a+d.totalClicks, 0);
-  const openRate     = rangeSent > 0 ? Math.round(rangeOpens   / rangeSent * 100) : 0;
-  const replyRate    = rangeSent > 0 ? Math.round(rangeReplies / rangeSent * 100) : 0;
-  const clickRate    = rangeSent > 0 ? Math.round(rangeClicks  / rangeSent * 100) : 0;
-
-  const formatXDate = (d) => {
-    if (!d) return '';
-    const parts = d.split('-');
-    return `${parseInt(parts[1])}/${parseInt(parts[2])}`;
-  };
-
   return (
-    <div className="space-y-6">
-      {/* Range KPIs */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-        {[
-          { label: 'Kontakty',   value: rangeLeads },
-          { label: 'Wysłane',    value: rangeSent },
-          { label: 'Odpowiedzi', value: rangeReplies },
-          { label: 'Otwarcia',   value: `${openRate}%` },
-          { label: 'Odpowiedzi', value: `${replyRate}%` },
-          { label: 'Kliknięcia', value: `${clickRate}%` },
-        ].map(({ label, value }) => (
-          <Card key={label} className="p-4">
-            <div className="text-xs text-gray-500 mb-1">{label}</div>
-            <div className="text-2xl font-bold text-gray-800">{value}</div>
-          </Card>
-        ))}
+    <div className="sk-campaign-analytics">
+      <div className="sk-ca-toolbar">
+        <div><h2>Analityka kampanii</h2><p>{startDate} — {endDate} · zdarzenia według daty wystąpienia</p></div>
+        <Button variant="outline" onClick={exportDaily} disabled={!ready || !hasEvents}>Eksport CSV</Button>
       </div>
-
-      {/* Date range presets */}
-      <div className="flex flex-wrap items-center gap-2">
-        {presets.map(p => (
-          <button
-            key={p.label}
-            onClick={() => applyPreset(p)}
-            className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-              activePreset === p.label
-                ? 'bg-teal-500 text-white border-teal-500'
-                : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
-        <button
-          onClick={() => setActivePreset('custom')}
-          className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-            activePreset === 'custom'
-              ? 'bg-teal-500 text-white border-teal-500'
-              : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
-          }`}
-        >
-          Własny zakres
-        </button>
+      <div className="sk-ca-presets" aria-label="Zakres analityki">
+        {presets.map(p => <button key={p.label} aria-pressed={activePreset === p.label} onClick={() => { setActivePreset(p.label); setStartDate(p.start); setEndDate(p.end); }}>{p.label}</button>)}
+        <button aria-pressed={activePreset === 'custom'} onClick={() => setActivePreset('custom')}>Własny zakres</button>
       </div>
-
-      {activePreset === 'custom' && (
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            Od
-            <DatePicker value={startDate} onChange={v => { setStartDate(v); setActivePreset('custom'); }} />
-          </label>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
-            Do
-            <DatePicker value={endDate} onChange={v => { setEndDate(v); setActivePreset('custom'); }} />
-          </label>
-        </div>
-      )}
-
-      {/* Chart */}
-      <Card className="p-4">
-        <div ref={chartContainerRef} style={{ width: '100%', height: 290 }}>
-          <ResponsiveContainer>
-            <ReAreaChart data={displayData} onMouseMove={handleChartMouseMove} margin={{ top: 10, right: 20, left: 0, bottom: 30 }}>
-              <XAxis dataKey="date" tick={{ fontSize: 11 }} tickFormatter={formatXDate} />
-              <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-              <Tooltip wrapperStyle={{ zIndex: 1000 }} />
-              <CartesianGrid strokeDasharray="3 3" />
-              {SERIES_LIST.map(s => (
-                <Area key={s.key} name={s.name} type="monotone" dataKey={s.key}
-                  stroke={s.stroke} fill={s.fill} hide={hide[s.key]} />
-              ))}
-              <Legend
-                verticalAlign="bottom"
-                content={() => (
-                  <div className="flex flex-wrap justify-center gap-3 mt-2">
-                    {SERIES_LIST.map(s => (
-                      <span
-                        key={s.key}
-                        onClick={() => setHide(p => ({ ...p, [s.key]: !p[s.key] }))}
-                        className={`flex items-center gap-1 cursor-pointer select-none text-xs transition-opacity ${hide[s.key]?'opacity-40':''}`}
-                      >
-                        <span className="inline-block w-2.5 h-2.5 rounded-sm" style={{ background: s.stroke }} />
-                        {s.name}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              />
-            </ReAreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
-
-      {/* Bottom sub-tabs */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="flex border-b border-gray-200">
-          {[
-            { key: 'steps', label: 'Analityka kroków' },
-            { key: 'sent',  label: 'Wysłane wiadomości' },
-          ].map(sub => (
-            <button
-              key={sub.key}
-              onClick={() => setAnalyticsSub(sub.key)}
-              className={`px-5 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                analyticsSub === sub.key
-                  ? 'border-teal-500 text-teal-600 bg-teal-50/40'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              {sub.label}
-            </button>
-          ))}
-        </div>
-
-        <div className="p-4">
-          {analyticsSub === 'steps' && (
-            <StepAnalyticsPanel
-              stepStats={stepStats}
-              loading={stepStatsLoading}
-              campaignId={campaignId}
-              sequences={sequences}
-              onToggleVariant={toggleVariant}
-            />
-          )}
-          {analyticsSub === 'sent' && (
-            <SentEmailsPanel
-              sentData={sentData}
-              filter={sentFilter}
-              onFilterChange={setSentFilter}
-            />
-          )}
-        </div>
+      {activePreset === 'custom' && <div className="sk-ca-dates">
+        <label>Od<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></label>
+        <label>Do<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></label>
+      </div>}
+      <ErrorNotice error={rangeError || daily.error} onRetry={rangeError ? undefined : () => setDailyRetry(n => n + 1)} />
+      {daily.loading && <p role="status">Wczytywanie wyników dziennych…</p>}
+      <div className="sk-ca-metrics">
+        {metrics.map(m => <Metric key={m.key} icon={m.icon} title={m.title} value={ready ? number(totals[m.key]) : '—'} tone={m.tone} detail="w wybranym zakresie" />)}
       </div>
+      {ready && !hasEvents && <p className="sk-ca-empty">Brak zdarzeń w wybranym zakresie. Wybierz inny okres, aby sprawdzić wcześniejsze wyniki.</p>}
+      {ready && hasEvents && <div className="sk-ca-grid">
+        <section className="sk-ca-panel">
+          <h3>Aktywność wysyłki</h3><p>Liczba zdarzeń w kolejnych dniach.</p>
+          <div className="sk-ca-chart">
+            <ResponsiveContainer width="100%" height="100%">
+              <ReAreaChart data={chartData} margin={{top:12,right:12,left:-20,bottom:0}}>
+                <XAxis dataKey="date" tick={{fontSize:11,fill:'var(--sk-muted)'}} tickFormatter={d => `${d.slice(8)}.${d.slice(5,7)}`} minTickGap={25}/>
+                <YAxis allowDecimals={false} tick={{fontSize:11,fill:'var(--sk-muted)'}}/>
+                <CartesianGrid stroke="var(--sk-line)" strokeDasharray="3 3"/>
+                <Tooltip contentStyle={{background:'var(--sk-surface)',border:'1px solid var(--sk-line)',borderRadius:8,color:'var(--sk-text)'}}/>
+                {SERIES_LIST.map(s => <Area key={s.key} name={s.name} dataKey={s.key} type="linear" stroke={s.stroke} fill={s.fill} hide={!!hide[s.key]}/>) }
+              </ReAreaChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="sk-ca-legend">{SERIES_LIST.map(s => <button key={s.key} aria-pressed={!hide[s.key]} onClick={() => setHide(p => ({...p,[s.key]:!p[s.key]}))}><i style={{background:s.stroke}}/>{s.name}</button>)}</div>
+        </section>
+        <section className="sk-ca-panel">
+          <h3>Podsumowanie aktywności</h3><p>Zdarzenia z wybranego okresu.</p>
+          <dl className="sk-ca-summary">{metrics.map(m => <div key={m.key}><dt>{m.title}</dt><dd>{number(totals[m.key])}</dd></div>)}</dl>
+          <p className="sk-ca-explanation">Otwarcia i kliknięcia obejmują powtórzenia. Odpowiedzi mogą dotyczyć wiadomości wysłanych wcześniej. Te liczby nie są lejkiem konwersji.</p>
+          <p className="sk-ca-explanation">Unikalne otwarcia i kliknięcia na wykresie oznaczają unikalne adresy IP w danym dniu, nie liczbę odbiorców.</p>
+        </section>
+        <section className="sk-ca-panel">
+          <h3>Wyniki według dnia</h3><p>Wybrany zakres · od najnowszych.</p>
+          <div className="sk-ca-table-scroll"><table><thead><tr><th>Dzień</th><th>Wysłane</th><th>Odpowiedzi</th><th>Otwarcia</th><th>Kliknięcia</th></tr></thead><tbody>
+            {[...chartData].reverse().map(row => <tr key={row.date}><th scope="row">{row.date}</th>{['sent','totalReplies','totalOpens','totalClicks'].map(k => <td key={k}>{number(row[k])}</td>)}</tr>)}
+          </tbody></table></div>
+        </section>
+        <section className="sk-ca-panel">
+          <h3>Najlepsze warianty</h3><p>Cały okres kampanii · według wskaźnika odpowiedzi.</p>
+          {steps.loading ? <p role="status">Wczytywanie wariantów…</p> : steps.error ? <p>Ranking niedostępny. Ponów pobranie analityki kroków poniżej.</p> : ranked.length === 0 ? <p className="sk-ca-empty">Brak wysłanych wariantów.</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>Temat / wariant</th><th>Wysłane</th><th>Odpowiedzi</th><th>Wskaźnik</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || 'Bez tematu'}</span><small>{v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString('pl-PL',{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
+        </section>
+      </div>}
+      <section className="sk-ca-panel sk-ca-details">
+        <div className="sk-ca-presets" aria-label="Szczegółowa analityka">{[{key:'steps',label:'Analityka kroków'},{key:'sent',label:'Wysłane wiadomości'}].map(sub => <button key={sub.key} aria-pressed={analyticsSub===sub.key} onClick={() => setAnalyticsSub(sub.key)}>{sub.label}</button>)}</div>
+        <p>Cały okres kampanii — filtr dat powyżej dotyczy wyników dziennych.</p>
+        {analyticsSub === 'steps' ? <><ErrorNotice error={steps.error} onRetry={() => setStepRetry(n => n + 1)}/>{!steps.error && <StepAnalyticsPanel stepStats={steps.rows} loading={steps.loading} campaignId={campaignId} sequences={sequences} onToggleVariant={toggleVariant} variantBusy={variantBusy}/>}</> : <SentEmailsPanel sentData={sentData} filter={sentFilter} onFilterChange={setSentFilter}/>}
+      </section>
     </div>
   );
 }
 
 // ─── Step Analytics Panel ─────────────────────────────────────────────────────
-function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggleVariant }) {
+function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggleVariant, variantBusy }) {
   const [expandedSteps, setExpandedSteps] = useState({});
 
   const toggleStep = (idx) => setExpandedSteps(p => ({ ...p, [idx]: !p[idx] }));
@@ -1483,7 +1316,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
             const hasVariants = step.variants && step.variants.length > 1; // >1 means default + at least one named
             const expanded = expandedSteps[step.sequence_index];
             return (
-              <>
+              <Fragment key={step.sequence_id ?? step.sequence_index}>
                 <tr
                   key={step.sequence_index}
                   className={`border-b border-gray-100 ${hasVariants ? 'cursor-pointer hover:bg-gray-50' : ''}`}
@@ -1491,7 +1324,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                 >
                   <td className="px-3 py-2.5 text-gray-400 text-center">
                     {hasVariants && (
-                      <span className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
+                      <button aria-label={`Warianty kroku ${step.sequence_index + 1}`} aria-expanded={!!expanded} onClick={e => { e.stopPropagation(); toggleStep(step.sequence_index); }} className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</button>
                     )}
                   </td>
                   <td className="px-3 py-2.5">
@@ -1531,6 +1364,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                         </span>
                         {variant.variant_id != null && (
                           <button
+                            disabled={variantBusy}
                             onClick={(e) => {
                               e.stopPropagation();
                               onToggleVariant(step.sequence_id, variant.variant_id, !variant.enabled);
@@ -1561,7 +1395,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                     </td>
                   </tr>
                 ))}
-              </>
+              </Fragment>
             );
           })}
         </tbody>
