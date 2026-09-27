@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Modal from '../redesign/Modal';
+import '../redesign/mailbox-editor.css';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -532,6 +533,12 @@ export default function Inboxes() {
   const [smtpForm, setSmtpForm] = useState(initialSmtpForm);
   // SMTP credentials for the Edit panel (loaded on demand per inbox)
   const [editingSmtp, setEditingSmtp] = useState(null);
+  const [editSection, setEditSection] = useState('identity');
+  const [smtpDirty, setSmtpDirty] = useState(false);
+  const [smtpLoadError, setSmtpLoadError] = useState(null);
+  const [editBusy, setEditBusy] = useState(false);
+  const editBusyRef = useRef(false);
+  const smtpLoadGeneration = useRef(0);
   const [smtpTesting, setSmtpTesting] = useState(false);
   const [smtpTestMsg, setSmtpTestMsg] = useState(null);
   const [editing, setEditing] = useState(null); // inbox being edited
@@ -726,15 +733,12 @@ export default function Inboxes() {
     }
   };
 
-  const openEdit = (inbox) => {
-    setEditing({ ...inbox });
-    setEditDirty(false);
-    setEditMsg(null);
-    setEditingSmtp(null);
-    setSmtpTestMsg(null);
+  const loadEditingSmtp = (inbox) => {
+    const generation = ++smtpLoadGeneration.current;
+    setEditingSmtp(null); setSmtpLoadError(null);
     if (inbox.provider === 'smtp') {
       api.get(`/smtp/inboxes/${inbox.id}`)
-        .then((d) => setEditingSmtp({
+        .then((d) => { if (generation !== smtpLoadGeneration.current) return; setEditingSmtp({
           smtp_host: d.smtp_host || '',
           smtp_port: d.smtp_port || 587,
           smtp_username: d.smtp_username || '',
@@ -747,14 +751,19 @@ export default function Inboxes() {
           imap_password: '',
           imap_use_ssl: d.imap_use_ssl !== false,
           _meta: d,
-        }))
-        .catch(() => setEditingSmtp({
-          smtp_host: '', smtp_port: 587, smtp_username: '', smtp_password: '',
-          smtp_use_tls: true, smtp_use_ssl: false,
-          imap_host: '', imap_port: 993, imap_username: '', imap_password: '',
-          imap_use_ssl: true, _meta: null,
-        }));
+        }); })
+        .catch(() => { if (generation === smtpLoadGeneration.current) setSmtpLoadError('Nie udało się pobrać ustawień połączenia.'); });
     }
+  };
+
+  const openEdit = (inbox) => {
+    setEditing({ ...inbox });
+    setEditDirty(false);
+    setEditMsg(null);
+    setEditingSmtp(null);
+    setSmtpTestMsg(null);
+    setSmtpDirty(false); setEditSection('identity');
+    loadEditingSmtp(inbox);
     editOriginalDomain.current = inbox.tracking_domain || '';
     setEditDomainVerified(false);
     setBeaconSetupUrl('');
@@ -766,13 +775,15 @@ export default function Inboxes() {
     );
   };
   const closeEdit = () => {
+    ++smtpLoadGeneration.current; setSmtpDirty(false); setSmtpLoadError(null);
     setEditing(null);
     setEditDirty(false);
     setEditingSmtp(null);
     setSmtpTestMsg(null);
   };
   const tryCloseEdit = () => {
-    if (editDirty) {
+    if (editBusyRef.current) return;
+    if (editDirty || smtpDirty) {
       setEditWarningCloseSidebar(false);
       setShowEditWarning(true);
     } else {
@@ -780,7 +791,8 @@ export default function Inboxes() {
     }
   };
   const tryCloseSidebar = () => {
-    if (editing && editDirty) {
+    if (editBusyRef.current) return;
+    if (editing && (editDirty || smtpDirty)) {
       setEditWarningCloseSidebar(true);
       setShowEditWarning(true);
     } else {
@@ -812,14 +824,15 @@ export default function Inboxes() {
   };
 
   const doSave = async () => {
-    if (!editing) return;
+    if (!editing || editBusyRef.current) return;
+    if (smtpDirty) { setEditSection('connection'); setEditMsg({type:'error',text:'Najpierw zapisz zmiany połączenia SMTP / IMAP.'}); return; }
     const newDomain = editTrackingMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
     const domainChanged = newDomain !== editOriginalDomain.current;
     if (editTrackingMode === 'dns' && newDomain && domainChanged && !editDomainVerified) {
       setEditMsg({ type: 'error', text: 'Przed zapisaniem sprawdź domenę śledzącą DNS.' });
       return;
     }
-    setEditDirty(false); // save in progress — don't treat as unsaved
+    editBusyRef.current = true; setEditBusy(true);
     try {
       const body = {
         display_name: editing.display_name,
@@ -837,10 +850,10 @@ export default function Inboxes() {
       };
       await api.patch(`/inboxes/${editing.id}`, body);
       setEditMsg({ type: 'success', text: 'Skrzynka zaktualizowana' });
-      setTimeout(() => { closeEdit(); load(); }, 1000);
+      closeEdit(); load();
     } catch (err) {
       setEditMsg({ type: 'error', text: err.message });
-    }
+    } finally { editBusyRef.current = false; setEditBusy(false); }
   };
   const saveEdit = async (e) => {
     e.preventDefault();
@@ -848,7 +861,8 @@ export default function Inboxes() {
   };
 
   const saveEditingSmtp = async () => {
-    if (!editing || !editingSmtp) return;
+    if (!editing || !editingSmtp || editBusyRef.current) return;
+    editBusyRef.current = true; setEditBusy(true);
     setSmtpTestMsg(null);
     try {
       const { _meta, ...payload } = editingSmtp;
@@ -860,17 +874,19 @@ export default function Inboxes() {
         ...payload, smtp_port: +payload.smtp_port, imap_port: +payload.imap_port,
       });
       setEditingSmtp((prev) => ({ ...prev, smtp_password: '', imap_password: '', _meta: saved }));
-      setSmtpTestMsg({ type: 'success', text: 'Ustawienia SMTP zapisane' });
+      setSmtpDirty(false);
+      setSmtpTestMsg({ type: 'success', text: 'Ustawienia SMTP / IMAP zapisane' });
       // SMTP credentials are saved independently of the outer inbox form —
       // don't mark the edit as dirty, or closing the modal would trigger a
       // false "unsaved changes" prompt.
     } catch (err) {
       setSmtpTestMsg({ type: 'error', text: err.message });
-    }
+    } finally { editBusyRef.current = false; setEditBusy(false); }
   };
 
   const testEditingSmtp = async () => {
-    if (!editing) return;
+    if (!editing || !editingSmtp || smtpDirty || editBusyRef.current) return;
+    editBusyRef.current = true; setEditBusy(true);
     setSmtpTesting(true);
     setSmtpTestMsg(null);
     try {
@@ -881,11 +897,11 @@ export default function Inboxes() {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
         setSmtpTestMsg({ type: 'error', text: `Test połączenia nie powiódł się: ${details || 'nieznany błąd'}` });
       }
-      await refreshEditingInbox(editing.id);
+      setEditingSmtp(prev => ({...prev,_meta:{...prev._meta,last_test_ok:res.ok,last_tested_at:new Date().toISOString(),last_test_error:[res.smtp?.error,res.imap?.error].filter(Boolean).join(' ')}}));
     } catch (err) {
       setSmtpTestMsg({ type: 'error', text: err.message });
     } finally {
-      setSmtpTesting(false);
+      setSmtpTesting(false); editBusyRef.current = false; setEditBusy(false);
     }
   };
 
@@ -979,7 +995,7 @@ export default function Inboxes() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [showEditWarning, showAdd, editing]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showEditWarning, showAdd, editing, editDirty, smtpDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteInbox = async (id, email) => {
     const ok = await confirm(`Usuń skrzynkę "${email}"?`);
@@ -1154,7 +1170,7 @@ export default function Inboxes() {
                     <button
                       onClick={tryCloseEdit}
                       className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-                      aria-label="Anuluj edycję"
+                      aria-label="Anuluj edycję" disabled={editBusy}
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1162,21 +1178,24 @@ export default function Inboxes() {
                     </button>
                   </div>
 
+                  <nav className="sk-mailbox-edit-nav" aria-label="Sekcje edycji skrzynki">{[['identity','Nadawca'],['connection','SMTP / IMAP'],['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie']].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{label}</button>)}</nav>
                   {/* Edit form */}
                   <div className="px-5 py-4 overflow-y-auto flex-1 min-w-0">
-                    {editMsg && <div className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{editMsg.text}</div>}
-                    <form onSubmit={saveEdit} className="space-y-4 min-w-0 max-w-full">
+                    {editMsg && <div role={editMsg.type === 'error' ? 'alert' : 'status'} className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{editMsg.text}</div>}
+                    <form onSubmit={saveEdit} onInvalidCapture={e => { const section=e.target.closest('[data-edit-section]'); if(section) setEditSection(section.dataset.editSection); }} className="sk-mailbox-edit-form">
+                    <fieldset disabled={editBusy}>
+                    <section data-edit-section="identity" hidden={editSection!=='identity'} className="sk-mailbox-edit-section" aria-label="Dane nadawcy">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Email (read-only)</label>
-                        <input type="email" value={editing.email} disabled className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" />
+                        <label htmlFor="mailbox-edit-1" className="block text-xs font-medium text-gray-700">Adres e-mail (tylko do odczytu)</label>
+                        <input id="mailbox-edit-1" type="email" value={editing.email} disabled className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Nazwa nadawcy</label>
-                        <input type="text" name="display_name" value={editing.display_name || ''} onChange={e => { setEditing(prev => ({ ...prev, display_name: e.target.value })); setEditDirty(true); }} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                        <label htmlFor="mailbox-edit-2" className="block text-xs font-medium text-gray-700">Nazwa nadawcy</label>
+                        <input id="mailbox-edit-2" type="text" name="display_name" value={editing.display_name || ''} onChange={e => { setEditing(prev => ({ ...prev, display_name: e.target.value })); setEditDirty(true); }} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Reply-To</label>
-                        <input
+                        <label htmlFor="mailbox-edit-3" className="block text-xs font-medium text-gray-700">Reply-To</label>
+                        <input id="mailbox-edit-3"
                           type="email"
                           value={editing.reply_to || ''}
                           onChange={e => { setEditing(prev => ({ ...prev, reply_to: e.target.value })); setEditDirty(true); }}
@@ -1186,36 +1205,39 @@ export default function Inboxes() {
                         <p className="mt-1 text-[11px] text-gray-400">Opcjonalny adres, na który mają trafiać odpowiedzi. Pozostaw puste, aby użyć adresu skrzynki.</p>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Typ skrzynki</label>
-                        <select name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
+                        <label htmlFor="mailbox-edit-4" className="block text-xs font-medium text-gray-700">Typ skrzynki</label>
+                        <select id="mailbox-edit-4" name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
                           <option value="smtp">SMTP / IMAP</option>
                         </select>
                       </div>
+                    </section>
+                    <section data-edit-section="connection" hidden={editSection!=='connection'} className="sk-mailbox-edit-section" aria-label="Połączenie i diagnostyka" onChange={() => setSmtpDirty(true)}>
+                      <p className="sk-muted">Konfiguracja połączenia ma osobny przycisk zapisu. Test sprawdza zapisane ustawienia.</p>
                       {editing.provider === 'smtp' && (
                         <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP / IMAP</p>
-                          {smtpTestMsg && <div className={`text-sm ${smtpTestMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{smtpTestMsg.text}</div>}
-                          {!editingSmtp ? (
+                          {smtpTestMsg && <div role={smtpTestMsg.type === 'error' ? 'alert' : 'status'} className={`text-sm ${smtpTestMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{smtpTestMsg.text}</div>}
+                          {smtpLoadError ? <ErrorNotice error={smtpLoadError} onRetry={() => loadEditingSmtp(editing)}/> : !editingSmtp ? (
                             <p className="text-xs text-gray-400">Wczytywanie ustawień SMTP…</p>
                           ) : (
                             <>
                               <div className="grid grid-cols-3 gap-2">
                                 <div className="col-span-2">
-                                  <label className="block text-xs font-medium text-gray-700">Host SMTP</label>
-                                  <input type="text" value={editingSmtp.smtp_host} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_host: e.target.value }))} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                  <label htmlFor="mailbox-edit-5" className="block text-xs font-medium text-gray-700">Host SMTP</label>
+                                  <input id="mailbox-edit-5" type="text" value={editingSmtp.smtp_host} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_host: e.target.value }))} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                 </div>
                                 <div>
-                                  <label className="block text-xs font-medium text-gray-700">Port</label>
-                                  <input type="number" value={editingSmtp.smtp_port} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                  <label htmlFor="mailbox-edit-6" className="block text-xs font-medium text-gray-700">Port</label>
+                                  <input id="mailbox-edit-6" type="number" value={editingSmtp.smtp_port} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                 </div>
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">SMTP username</label>
-                                <input type="text" value={editingSmtp.smtp_username} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                <label htmlFor="mailbox-edit-7" className="block text-xs font-medium text-gray-700">Login SMTP</label>
+                                <input id="mailbox-edit-7" type="text" value={editingSmtp.smtp_username} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">Hasło SMTP {editingSmtp._meta?.has_smtp_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
-                                <input type="password" value={editingSmtp.smtp_password} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_smtp_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                <label htmlFor="mailbox-edit-8" className="block text-xs font-medium text-gray-700">Hasło SMTP {editingSmtp._meta?.has_smtp_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
+                                <input id="mailbox-edit-8" type="password" value={editingSmtp.smtp_password} onChange={e => setEditingSmtp(prev => ({ ...prev, smtp_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_smtp_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               <div className="flex gap-4 text-sm text-gray-700">
                                 <label className="flex items-center gap-1.5 cursor-pointer text-xs">
@@ -1228,47 +1250,51 @@ export default function Inboxes() {
                                 </label>
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">Host IMAP (opcjonalny — synchronizacja odpowiedzi)</label>
-                                <input type="text" value={editingSmtp.imap_host} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_host: e.target.value }))} placeholder="Pozostaw puste tylko dla skrzynki wysyłkowej" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                <label htmlFor="mailbox-edit-9" className="block text-xs font-medium text-gray-700">Host IMAP (opcjonalny — synchronizacja odpowiedzi)</label>
+                                <input id="mailbox-edit-9" type="text" value={editingSmtp.imap_host} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_host: e.target.value }))} placeholder="Pozostaw puste tylko dla skrzynki wysyłkowej" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                               </div>
                               {editingSmtp.imap_host.trim() !== '' && (
                                 <>
                                   <div className="grid grid-cols-3 gap-2">
                                     <div>
-                                      <label className="block text-xs font-medium text-gray-700">Port</label>
-                                      <input type="number" value={editingSmtp.imap_port} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                      <label htmlFor="mailbox-edit-10" className="block text-xs font-medium text-gray-700">Port</label>
+                                      <input id="mailbox-edit-10" type="number" value={editingSmtp.imap_port} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                     </div>
                                     <div className="col-span-2">
-                                      <label className="block text-xs font-medium text-gray-700">Login</label>
-                                      <input type="text" value={editingSmtp.imap_username} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                      <label htmlFor="mailbox-edit-11" className="block text-xs font-medium text-gray-700">Login</label>
+                                      <input id="mailbox-edit-11" type="text" value={editingSmtp.imap_username} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                     </div>
                                   </div>
                                   <div>
-                                    <label className="block text-xs font-medium text-gray-700">Hasło IMAP {editingSmtp._meta?.has_imap_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
-                                    <input type="password" value={editingSmtp.imap_password} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_imap_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                                    <label htmlFor="mailbox-edit-12" className="block text-xs font-medium text-gray-700">Hasło IMAP {editingSmtp._meta?.has_imap_password && <span className="text-gray-400 font-normal">(zapisane — wpisz ponownie, aby zmienić)</span>}</label>
+                                    <input id="mailbox-edit-12" type="password" value={editingSmtp.imap_password} onChange={e => setEditingSmtp(prev => ({ ...prev, imap_password: e.target.value }))} autoComplete="new-password" placeholder={editingSmtp._meta?.has_imap_password ? '••••••••' : ''} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                                   </div>
                                 </>
                               )}
+                              {editingSmtp.imap_host.trim() !== '' && <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={!!editingSmtp.imap_use_ssl} onChange={e => setEditingSmtp(prev => ({...prev,imap_use_ssl:e.target.checked}))}/>SSL dla IMAP</label>}
+                              {!editingSmtp._meta?.last_tested_at && <p className="text-xs text-gray-500">Brak zapisanego wyniku testu połączenia.</p>}
                               {editingSmtp._meta?.last_tested_at && (
                                 <p className={`text-xs ${editingSmtp._meta.last_test_ok ? 'text-green-600' : 'text-red-600'}`}>
-                                  Ostatni test: {editingSmtp._meta.last_test_ok ? 'poprawny' : `nieudany — ${editingSmtp._meta.last_test_error || 'nieznany błąd'}`}
+                                  {new Date(editingSmtp._meta.last_tested_at).toLocaleString('pl-PL')} · Ostatni test: {editingSmtp._meta.last_test_ok ? 'poprawny' : `nieudany — ${editingSmtp._meta.last_test_error || 'nieznany błąd'}`}
                                 </p>
                               )}
                               <div className="flex gap-2">
-                                <Button type="button" size="sm" variant="outline" onClick={saveEditingSmtp}>Zapisz SMTP</Button>
-                                <Button type="button" size="sm" variant="outline" onClick={testEditingSmtp} disabled={smtpTesting}>{smtpTesting ? 'Testowanie…' : 'Testuj połączenie'}</Button>
+                                <Button type="button" size="sm" variant="outline" onClick={saveEditingSmtp} disabled={editBusy || !smtpDirty}>Zapisz SMTP / IMAP</Button>
+                                <Button type="button" size="sm" variant="outline" onClick={testEditingSmtp} disabled={editBusy || smtpDirty}>{smtpTesting ? 'Testowanie…' : 'Testuj połączenie'}</Button>
                               </div>
                             </>
                           )}
                         </div>
                       )}
+                    </section>
+                    <section data-edit-section="limits" hidden={editSection!=='limits'} className="sk-mailbox-edit-section" aria-label="Limity wysyłki">
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Maks. wiadomości dziennie</label>
-                        <input type="number" name="max_emails_per_day" value={editing.max_emails_per_day} onChange={e => { setEditing(prev => ({ ...prev, max_emails_per_day: +e.target.value })); setEditDirty(true); }} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                        <label htmlFor="mailbox-edit-13" className="block text-xs font-medium text-gray-700">Maks. wiadomości dziennie</label>
+                        <input id="mailbox-edit-13" type="number" name="max_emails_per_day" value={editing.max_emails_per_day} onChange={e => { setEditing(prev => ({ ...prev, max_emails_per_day: +e.target.value })); setEditDirty(true); }} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Maks. wiadomości na godzinę</label>
-                        <input
+                        <label htmlFor="mailbox-edit-14" className="block text-xs font-medium text-gray-700">Maks. wiadomości na godzinę</label>
+                        <input id="mailbox-edit-14"
                           type="number"
                           value={editing.max_emails_per_hour ?? 0}
                           onChange={e => { setEditing(prev => ({ ...prev, max_emails_per_hour: Math.max(0, +e.target.value) })); setEditDirty(true); }}
@@ -1279,12 +1305,12 @@ export default function Inboxes() {
                         <p className="mt-1 text-xs text-gray-400">0 = brak osobnego limitu godzinowego.</p>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
-                        <input type="number" name="wait_minutes_between" value={editing.wait_minutes_between || 5} onChange={e => { setEditing(prev => ({ ...prev, wait_minutes_between: +e.target.value })); setEditDirty(true); }} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
+                        <label htmlFor="mailbox-edit-15" className="block text-xs font-medium text-gray-700">Odstęp między wiadomościami (minuty)</label>
+                        <input id="mailbox-edit-15" type="number" name="wait_minutes_between" value={editing.wait_minutes_between || 5} onChange={e => { setEditing(prev => ({ ...prev, wait_minutes_between: +e.target.value })); setEditDirty(true); }} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-gray-700">Losowy odstęp wysyłki (minuty)</label>
-                        <input
+                        <label htmlFor="mailbox-edit-16" className="block text-xs font-medium text-gray-700">Losowy odstęp wysyłki (minuty)</label>
+                        <input id="mailbox-edit-16"
                           type="number"
                           value={jitterInputMinutesFromSeconds(editing.max_jitter_seconds)}
                           onChange={e => { setEditing(prev => ({ ...prev, max_jitter_seconds: jitterSecondsFromInputMinutes(e.target.value) })); setEditDirty(true); }}
@@ -1295,6 +1321,8 @@ export default function Inboxes() {
                         />
                         <p className="mt-1 text-xs text-gray-400">Losowe opóźnienie 0–N minut dla każdej wysyłki (na serwerze zapisywane w sekundach). Ustaw 0, aby wyłączyć.</p>
                       </div>
+                    </section>
+                    <section data-edit-section="tracking" hidden={editSection!=='tracking'} className="sk-mailbox-edit-section" aria-label="Śledzenie wiadomości">
                       <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                           Śledzenie
@@ -1331,6 +1359,8 @@ export default function Inboxes() {
                           dnsAutoVerifyTrigger={dnsAutoVerifyTrigger}
                         />
                       </div>
+                    </section>
+                    <section data-edit-section="warmup" hidden={editSection!=='warmup'} className="sk-mailbox-edit-section" aria-label="Rozgrzewanie skrzynki">
                       <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Rozgrzewanie</p>
                         <div className="space-y-2">
@@ -1345,8 +1375,8 @@ export default function Inboxes() {
                           {editing.ramp_up_enabled && (
                             <div className="space-y-2">
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">Początkowa liczba wiadomości dziennie</label>
-                                <input
+                                <label htmlFor="mailbox-edit-17" className="block text-xs font-medium text-gray-700">Początkowa liczba wiadomości dziennie</label>
+                                <input id="mailbox-edit-17"
                                   type="number"
                                   value={editing.ramp_up_start ?? 1}
                                   onChange={e => { setEditing(prev => ({ ...prev, ramp_up_start: Math.max(1, +e.target.value) })); setEditDirty(true); }}
@@ -1356,8 +1386,8 @@ export default function Inboxes() {
                                 />
                               </div>
                               <div>
-                                <label className="block text-xs font-medium text-gray-700">Przyrost dzienny</label>
-                                <input
+                                <label htmlFor="mailbox-edit-18" className="block text-xs font-medium text-gray-700">Przyrost dzienny</label>
+                                <input id="mailbox-edit-18"
                                   type="number"
                                   value={editing.ramp_up_step_size ?? 1}
                                   onChange={e => { setEditing(prev => ({ ...prev, ramp_up_step_size: Math.max(1, +e.target.value) })); setEditDirty(true); }}
@@ -1374,9 +1404,12 @@ export default function Inboxes() {
                           )}
                         </div>
                       </div>
-                      <div className="flex gap-2 pt-1">
-                        <Button type="submit" size="sm" variant="default">Zapisz</Button>
-                        <Button type="button" size="sm" variant="outline" onClick={tryCloseEdit}>Anuluj</Button>
+                    </section>
+                    </fieldset>
+                      <div className="sk-mailbox-edit-actions">
+                        <p role="status">{editBusy ? 'Trwa przetwarzanie…' : smtpDirty ? 'Niezapisane zmiany SMTP / IMAP' : editDirty ? 'Niezapisane ustawienia skrzynki' : 'Brak niezapisanych zmian'}</p>
+                        <Button type="submit" size="sm" variant="default" disabled={editBusy || smtpDirty || !editDirty}>Zapisz ustawienia</Button>
+                        <Button type="button" size="sm" variant="outline" disabled={editBusy} onClick={tryCloseEdit}>Anuluj</Button>
                       </div>
                     </form>
                   </div>
@@ -1740,19 +1773,13 @@ export default function Inboxes() {
 
 
       {/* Unsaved changes warning for inbox edit */}
-      {showEditWarning && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[60] p-4">
-          <div className="sk-inbox-modal-surface rounded-xl shadow-lg p-6 w-full max-w-sm mx-auto">
-            <h3 className="font-semibold text-gray-800 mb-1">Zapisać zmiany?</h3>
-            <p className="text-sm text-gray-500 mb-4">Masz niezapisane zmiany w tej skrzynce.</p>
-            <div className="flex gap-2 justify-end">
-              <Button size="sm" variant="outline" onClick={() => { setShowEditWarning(false); setEditWarningCloseSidebar(false); }}>Kontynuuj edycję</Button>
-              <Button size="sm" variant="destructive" onClick={() => { setShowEditWarning(false); closeEdit(); if (editWarningCloseSidebar) { setSelectedInbox(null); setEditWarningCloseSidebar(false); } }}>Odrzuć</Button>
-              <Button size="sm" variant="default" onClick={async () => { setShowEditWarning(false); setEditWarningCloseSidebar(false); await doSave(); }}>Zapisz</Button>
-            </div>
-          </div>
+      {showEditWarning && <Modal title="Odrzucić zmiany skrzynki?" onClose={() => setShowEditWarning(false)}>
+        <p>Masz niezapisane zmiany. Wybierz „Kontynuuj edycję”, aby je zapisać.</p>
+        <div className="sk-mailbox-edit-actions">
+          <Button variant="outline" onClick={() => setShowEditWarning(false)}>Kontynuuj edycję</Button>
+          <Button variant="destructive" onClick={() => { setShowEditWarning(false); closeEdit(); if(editWarningCloseSidebar) setSelectedInbox(null); setEditWarningCloseSidebar(false); }}>Odrzuć</Button>
         </div>
-      )}
+      </Modal>}
 
       {/* Wstrzymaj inbox modal */}
       {showPauseModal && pausingInbox && (
