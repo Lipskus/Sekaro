@@ -14,5 +14,11 @@
 .sk-campaign-analytics .sk-ca-table-scroll th,.sk-campaign-analytics .sk-ca-table-scroll td{padding:11px 10px;border-bottom:1px solid var(--sk-line);text-align:right;white-space:nowrap}.sk-campaign-analytics .sk-ca-table-scroll th:first-child{text-align:left}
 .sk-ca-table-scroll thead{background:var(--sk-surface-alt);color:var(--sk-muted);position:sticky;top:0}.sk-ca-table-scroll tbody th{font-weight:500}.sk-ca-table-scroll th span{display:block;min-width:140px;max-width:220px;white-space:normal;overflow-wrap:anywhere}.sk-ca-table-scroll small{display:block;margin-top:5px;color:var(--sk-muted);white-space:normal}
 .sk-ca-empty{padding:20px;color:var(--sk-muted);background:var(--sk-surface-alt);border-radius:10px;font-size:13px;line-height:1.7}.sk-ca-dates{display:flex;gap:16px;flex-wrap:wrap}.sk-ca-dates label{display:grid;gap:6px;color:var(--sk-muted);font-size:12px}.sk-ca-dates input{min-width:0}.sk-ca-details{overflow:hidden}.sk-ca-details table{min-width:680px}
+/* Match the compact metric cards from the campaign reference boards. */
+.sk-ca-metrics .sk-metric{min-height:108px;padding:16px;display:grid;grid-template-columns:36px minmax(0,1fr);grid-template-rows:auto auto auto;column-gap:12px;align-content:start}
+.sk-ca-metrics .sk-metric-icon{width:36px;height:36px;grid-row:1/4;margin:0}.sk-ca-metrics .sk-metric-icon svg{width:22px;height:22px}
+.sk-ca-metrics .sk-metric-title{font-size:12px;margin:0}.sk-ca-metrics .sk-metric-value{font-size:25px;margin:6px 0 3px}.sk-ca-metrics .sk-metric-detail{font-size:11px;overflow-wrap:anywhere}
 @media(max-width:1100px){.sk-ca-grid{grid-template-columns:1fr}.sk-ca-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.sk-ca-panel{padding:12px}.sk-ca-metrics{gap:8px}.sk-ca-metrics .sk-metric{padding:12px}.sk-ca-metrics .sk-metric-icon{display:none}.sk-ca-metrics .sk-metric-value{font-size:24px}.sk-ca-chart{height:220px}}
+
+@media(max-width:600px){.sk-ca-metrics .sk-metric{grid-template-columns:minmax(0,1fr);min-height:98px}}

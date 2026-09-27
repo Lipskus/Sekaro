@@ -1131,10 +1131,10 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
 // ─── Analytics Tab ────────────────────────────────────────────────────────────
 const SERIES_LIST = [
-  { key: 'sent',         name: 'Wysłane',          stroke: 'rgba(59,130,246,0.8)',  fill: 'rgba(59,130,246,0.15)' },
+  { key: 'sent',         name: 'Wysłane',          stroke: 'var(--sk-accent)', fill: 'color-mix(in srgb, var(--sk-accent) 12%, transparent)' },
   { key: 'totalOpens',   name: 'Wszystkie otwarcia',   stroke: 'rgba(234,179,8,0.8)',   fill: 'rgba(234,179,8,0.15)' },
   { key: 'uniqueOpens',  name: 'Unikalne otwarcia',  stroke: 'rgba(16,185,129,0.8)',  fill: 'rgba(16,185,129,0.15)' },
-  { key: 'totalReplies', name: 'Odpowiedzi',        stroke: 'rgba(45,212,191,0.8)',  fill: 'rgba(45,212,191,0.15)' },
+  { key: 'totalReplies', name: 'Odpowiedzi',        stroke: 'var(--sk-blue)', fill: 'color-mix(in srgb, var(--sk-blue) 10%, transparent)' },
   { key: 'totalClicks',  name: 'Wszystkie kliknięcia',  stroke: 'rgba(234,88,12,0.8)',   fill: 'rgba(234,88,12,0.15)' },
   { key: 'uniqueClicks', name: 'Unikalne kliknięcia', stroke: 'rgba(236,72,153,0.8)',  fill: 'rgba(236,72,153,0.15)' },
 ];
@@ -1253,7 +1253,7 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
                 <YAxis allowDecimals={false} tick={{fontSize:11,fill:'var(--sk-muted)'}}/>
                 <CartesianGrid stroke="var(--sk-line)" strokeDasharray="3 3"/>
                 <Tooltip contentStyle={{background:'var(--sk-surface)',border:'1px solid var(--sk-line)',borderRadius:8,color:'var(--sk-text)'}}/>
-                {SERIES_LIST.map(s => <Area key={s.key} name={s.name} dataKey={s.key} type="linear" stroke={s.stroke} fill={s.fill} hide={!!hide[s.key]}/>) }
+                {SERIES_LIST.map(s => <Area key={s.key} name={s.name} dataKey={s.key} type="linear" stroke={s.stroke} strokeWidth={2.5} fill={s.fill} hide={!!hide[s.key]}/>) }
               </ReAreaChart>
             </ResponsiveContainer>
           </div>
@@ -1273,7 +1273,7 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
         </section>
         <section className="sk-ca-panel">
           <h3>Najlepsze warianty</h3><p>Cały okres kampanii · według wskaźnika odpowiedzi.</p>
-          {steps.loading ? <p role="status">Wczytywanie wariantów…</p> : steps.error ? <p>Ranking niedostępny. Ponów pobranie analityki kroków poniżej.</p> : ranked.length === 0 ? <p className="sk-ca-empty">Brak wysłanych wariantów.</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>Temat / wariant</th><th>Wysłane</th><th>Odpowiedzi</th><th>Wskaźnik</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || 'Bez tematu'}</span><small>{v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString('pl-PL',{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
+          {steps.loading ? <p role="status">Wczytywanie wariantów…</p> : steps.error ? <p>Ranking niedostępny. Ponów pobranie analityki kroków poniżej.</p> : ranked.length === 0 ? <p className="sk-ca-empty">Brak wysłanych wariantów.</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>Temat / wariant</th><th>Wysłane</th><th>Odpowiedzi</th><th>Wskaźnik</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || 'Bez tematu'}</span><small>{v.variant_id == null ? 'Domyślny' : v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString('pl-PL',{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
         </section>
       </div>}
       <section className="sk-ca-panel sk-ca-details">
@@ -1360,7 +1360,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                     <td className="px-3 py-2 pl-8">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-purple-700">
-                          {variant.variant_label}
+                          {variant.variant_id == null ? 'Domyślny' : variant.variant_label}
                         </span>
                         {variant.variant_id != null && (
                           <button
@@ -3106,7 +3106,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
               {/* ── A/B Variants ── */}
               {(selectedSeq.sequence_type || 'standard') !== 'personalized' && (
               <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center justify-between mb-3">
+                <div className="sk-sequence-variants-heading">
                   <div>
                     <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Warianty A/B</span>
                     <p className="text-xs text-gray-400 mt-0.5">Dodaj alternatywną treść — podczas wysyłki jeden wariant zostanie wybrany losowo</p>
