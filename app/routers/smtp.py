@@ -4,14 +4,17 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Literal
+
+from fastapi import APIRouter, Depends, HTTPException, Response, Query
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models import Inbox, SmtpAccount
+from app.models import Inbox, SmtpAccount, SmtpArchive, SmtpSyncState
+from app.mail_archive import source_key
 from app.smtp_utils import (
     sanitize_connection_error,
     test_account_connections,
@@ -144,7 +147,7 @@ async def upsert_smtp_account(
     await _get_smtp_inbox(db, inbox_id)
     payload = data.model_dump()
 
-    result = await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox_id))
+    result = await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox_id).with_for_update())
     acct = result.scalar_one_or_none()
     is_create = acct is None
     # For validation on update, fall back to stored secrets when the caller
@@ -163,6 +166,7 @@ async def upsert_smtp_account(
             raise HTTPException(400, "smtp_password is required")
         acct = SmtpAccount(inbox_id=inbox_id)
         db.add(acct)
+    previous_source = source_key(acct) if not is_create else None
     acct.smtp_host = payload["smtp_host"].strip()
     acct.smtp_port = int(payload["smtp_port"])
     acct.smtp_username = payload["smtp_username"].strip()
@@ -183,6 +187,13 @@ async def upsert_smtp_account(
     elif not acct.imap_host:
         acct.imap_password = ""
     acct.imap_use_ssl = bool(payload.get("imap_use_ssl", True))
+    if previous_source is not None and previous_source != source_key(acct):
+        state = (await db.execute(select(SmtpSyncState).where(SmtpSyncState.inbox_id == inbox_id))).scalar_one_or_none()
+        if state:
+            state.uidvalidity = None
+            state.archive_last_uid = 0
+            state.last_uid = 0
+        acct.retention_mode = "keep"  # A different mailbox requires a fresh explicit choice.
     acct.updated_at = utcnow()
     await db.flush()
     log.info("SMTP account saved: inbox_id=%s host=%s", inbox_id, acct.smtp_host)
@@ -249,3 +260,54 @@ async def disconnect_smtp(
     await db.flush()
     log.info("SMTP disconnected: inbox_id=%s", inbox_id)
     return {"ok": True, "inbox_id": inbox_id, "email": email}
+
+
+
+class RetentionSettings(BaseModel):
+    mode: Literal["keep", "immediate", "days"] = "keep"
+    days: int = Field(default=30, ge=1, le=3650)
+    confirm_delete: bool = False
+
+
+@router.put("/inboxes/{inbox_id}/retention")
+async def update_retention(inbox_id: int, data: RetentionSettings, db: AsyncSession = Depends(get_db), _user=Depends(get_current_user)):
+    await _get_smtp_inbox(db, inbox_id)
+    acct = (await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox_id).with_for_update())).scalar_one_or_none()
+    if not acct:
+        raise HTTPException(404, "Brak konfiguracji SMTP / IMAP.")
+    if data.mode != "keep" and not data.confirm_delete:
+        raise HTTPException(400, "Potwierdź usuwanie oryginałów z serwera pocztowego.")
+    if data.mode != "keep" and not acct.imap_host:
+        raise HTTPException(400, "Usuwanie wymaga skonfigurowanego IMAP.")
+    acct.retention_mode, acct.retention_days = data.mode, data.days
+    await db.flush()
+    return {"mode": acct.retention_mode, "days": acct.retention_days}
+
+
+@router.get("/inboxes/{inbox_id}/archive")
+async def archive_status(inbox_id: int, before: int | None = Query(None, ge=1), db: AsyncSession = Depends(get_db), _user=Depends(get_current_user)):
+    await _get_smtp_inbox(db, inbox_id)
+    acct = (await db.execute(select(SmtpAccount).where(SmtpAccount.inbox_id == inbox_id))).scalar_one_or_none()
+    state = (await db.execute(select(SmtpSyncState).where(SmtpSyncState.inbox_id == inbox_id))).scalar_one_or_none()
+    summary = (await db.execute(select(func.count(SmtpArchive.id), func.coalesce(func.sum(SmtpArchive.size_bytes), 0)).where(SmtpArchive.inbox_id == inbox_id))).one()
+    fields = [SmtpArchive.id, SmtpArchive.subject, SmtpArchive.from_address, SmtpArchive.size_bytes, SmtpArchive.archived_at, SmtpArchive.server_removed_at, SmtpArchive.removal_status, SmtpArchive.last_error]
+    query = select(*fields).where(SmtpArchive.inbox_id == inbox_id)
+    if before:
+        query = query.where(SmtpArchive.id < before)
+    rows = (await db.execute(query.order_by(SmtpArchive.id.desc()).limit(51))).mappings().all()
+    return {"mode": acct.retention_mode if acct else "keep", "days": acct.retention_days if acct else 30,
+            "imap_configured": bool(acct and acct.imap_host), "count": summary[0], "bytes": summary[1],
+            "last_sync_at": state.last_sync_at if state else None, "sync_error": state.last_error if state else "",
+            "messages": [dict(row) for row in rows[:50]], "next_before": rows[49]["id"] if len(rows)>50 else None}
+
+
+@router.get("/inboxes/{inbox_id}/archive/{archive_id}/eml")
+async def download_archive(inbox_id: int, archive_id: int, db: AsyncSession = Depends(get_db), _user=Depends(get_current_user)):
+    import hashlib
+    await _get_smtp_inbox(db, inbox_id)
+    row = (await db.execute(select(SmtpArchive).where(SmtpArchive.inbox_id == inbox_id, SmtpArchive.id == archive_id))).scalar_one_or_none()
+    if not row:
+        raise HTTPException(404, "Nie znaleziono archiwum.")
+    if len(row.raw_message) != row.size_bytes or hashlib.sha256(row.raw_message).hexdigest() != row.sha256:
+        raise HTTPException(409, "Archiwum nie przeszło kontroli integralności.")
+    return Response(row.raw_message, media_type="message/rfc822", headers={"Content-Disposition": f'attachment; filename="sekaro-{inbox_id}-{archive_id}.eml"', "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff"})

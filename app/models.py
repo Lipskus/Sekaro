@@ -823,6 +823,8 @@ class SmtpAccount(Base):
     imap_username = Column(String(255), nullable=False, default="")
     imap_password = Column(EncryptedText, nullable=False, default="")
     imap_use_ssl = Column(Boolean, default=True, nullable=False)
+    retention_mode = Column(String(16), nullable=False, default="keep", server_default="keep")
+    retention_days = Column(Integer, nullable=False, default=30, server_default="30")
     # Last connection-test result (surfaced in system health + inbox UI)
     last_tested_at = Column(DateTime, nullable=True)
     last_test_ok = Column(Boolean, default=False, nullable=False)
@@ -838,6 +840,8 @@ class SmtpSyncState(Base):
     id = Column(Integer, primary_key=True, index=True)
     inbox_id = Column(Integer, ForeignKey("inbox.id"), nullable=False, unique=True)
     uidvalidity = Column(BigInteger, nullable=True)
+    archive_last_uid = Column(Integer, nullable=False, default=0, server_default="0")
+    last_error = Column(Text, nullable=False, default="", server_default="")
     last_uid = Column(Integer, nullable=False, default=0)
     last_sync_at = Column(DateTime, nullable=True)
     created_at = Column(DateTime, default=_utcnow)
@@ -1068,3 +1072,24 @@ WEBHOOK_EVENT_TYPES = [
     "rate_limit",          # A rate limit violation was detected
     "token_expired",       # A Gmail OAuth token could not be refreshed
 ]
+
+
+class SmtpArchive(Base):
+    """Exact received MIME bytes, independent of the thread mirror and its deduplication."""
+    __tablename__ = "smtp_archive"
+    __table_args__ = (UniqueConstraint("inbox_id", "source_key", "uidvalidity", "uid", name="uq_smtp_archive_source_uid"),)
+    id = Column(Integer, primary_key=True)
+    inbox_id = Column(Integer, ForeignKey("inbox.id", ondelete="CASCADE"), nullable=False, index=True)
+    source_key = Column(String(64), nullable=False)
+    uidvalidity = Column(BigInteger, nullable=False)
+    uid = Column(BigInteger, nullable=False)
+    raw_message = Column(LargeBinary, nullable=False)
+    sha256 = Column(String(64), nullable=False)
+    size_bytes = Column(Integer, nullable=False)
+    subject = Column(Text, nullable=False, default="")
+    from_address = Column(Text, nullable=False, default="")
+    archived_at = Column(DateTime, nullable=False, default=_utcnow, index=True)
+    server_removed_at = Column(DateTime, nullable=True)
+    last_attempt_at = Column(DateTime, nullable=True)
+    removal_status = Column(String(20), nullable=False, default="retained")
+    last_error = Column(Text, nullable=False, default="")
