@@ -1559,17 +1559,16 @@ def _fetch_smtp_new_messages(
                 raise ValueError("IMAP message fetch failed") from exc
             if typ != "OK" or not fetched:
                 raise ValueError("IMAP message fetch failed")
-            complete = False
-            for part in fetched:
-                if isinstance(part, tuple) and len(part) == 2 and isinstance(part[1], (bytes, bytearray)):
-                    import re
-                    size = re.search(rb"RFC822.SIZE\s+(\d+)", part[0])
-                    if size and int(size[1]) == len(part[1]):
-                        out.append((uid, bytes(part[1])))
-                        complete = True
-                    break
-            if not complete:
+            # Servers may return RFC822.SIZE after the literal, regardless of request order.
+            metadata = b" ".join(part[0] if isinstance(part, tuple) else part
+                                  for part in fetched if isinstance(part, (bytes, tuple)))
+            payloads = [part[1] for part in fetched if isinstance(part, tuple)
+                        and len(part) == 2 and isinstance(part[1], (bytes, bytearray))]
+            import re
+            size = re.search(rb"RFC822.SIZE\s+(\d+)", metadata)
+            if len(payloads) != 1 or not size or int(size[1]) != len(payloads[0]):
                 raise ValueError("IMAP returned an incomplete message")
+            out.append((uid, bytes(payloads[0])))
             # Bound each batch on small installations; a single larger message is allowed.
             if sum(len(raw) for _, raw in out) >= 25 * 1024 * 1024:
                 break

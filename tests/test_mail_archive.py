@@ -243,3 +243,18 @@ async def test_download_is_bound_to_inbox_and_send_only_cannot_delete(session):
     with pytest.raises(HTTPException) as exc:
         await smtp.update_retention(boxes[0].id, smtp.RetentionSettings(mode='immediate', confirm_delete=True), db=session, _user=object())
     assert exc.value.status_code == 400
+
+
+def test_fetch_accepts_size_after_mime_literal(monkeypatch):
+    from app.unibox import _fetch_smtp_new_messages
+    client = FakeIMAP()
+    original = client.uid
+    raw = raw_mail()
+    def reordered(cmd, *args):
+        if cmd == 'fetch':
+            return 'OK', [(b'1 (BODY[] {100}', raw), f' RFC822.SIZE {len(raw)})'.encode()]
+        return original(cmd, *args)
+    client.uid = reordered
+    monkeypatch.setattr('app.smtp_utils._imap_connect', lambda *a, **kw: client)
+    _, fetched = _fetch_smtp_new_messages(account(), 77, 40, cap=1)
+    assert fetched == [(41, raw)]

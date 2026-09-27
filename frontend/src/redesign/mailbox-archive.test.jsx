@@ -32,3 +32,9 @@ it('downloads the full message through the authenticated API',async()=>{
 it('disables deleting for a send-only mailbox and does not overwrite drafts by refresh',async()=>{
  api.get.mockResolvedValue({...data,imap_configured:false});render(<MailboxArchive inboxId={1}/>);await screen.findByRole('combobox');expect(screen.getByRole('option',{name:'Usuń po zarchiwizowaniu'}).disabled).toBe(true);
 });
+
+it('blocks policy editing while a refresh can replace the displayed settings',async()=>{
+ let resolve;api.get.mockResolvedValueOnce(data).mockImplementation(()=>new Promise(r=>resolve=r));render(<MailboxArchive inboxId={1}/>);
+ fireEvent.click(await screen.findByRole('button',{name:'Odśwież status'}));expect(screen.getByRole('combobox').disabled).toBe(true);
+ resolve({...data,mode:'days',days:14});await waitFor(()=>expect(screen.getByRole('combobox').disabled).toBe(false));expect(screen.getByRole('spinbutton').value).toBe('14');
+});

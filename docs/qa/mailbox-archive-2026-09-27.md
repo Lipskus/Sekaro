@@ -14,7 +14,7 @@ This release combines full IMAP archival, retention settings, authenticated EML 
 
 ## Verification
 
-Local frontend suite: 79 tests and production build pass. Backend coverage includes archive byte integrity, MIME attachment preservation, conservative deletion, malformed responses, UID namespace changes, rollback, age boundary, protected download, and source-change policy reset. Existing SMTP E2E tests use a local SMTP relay and fake IMAP peer. CI installs their dependency explicitly so they are no longer silently skipped.
+Local frontend suite: 80 tests and production build pass. Backend coverage includes archive byte integrity, MIME attachment preservation, conservative deletion, malformed responses, UID namespace changes, rollback, age boundary, protected download, and source-change policy reset. Existing SMTP E2E tests use a local SMTP relay and fake IMAP peer. CI installs their dependency explicitly so they are no longer silently skipped.
 
 A dedicated CI check uses an isolated schema in the CI PostgreSQL service to simulate the preceding schema, run migrations twice, verify safe defaults and retained checkpoints, then perform a pg_dump/pg_restore roundtrip of the raw archive bytes.
 
