@@ -1,274 +1,92 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { api } from '../api';
-import { Button } from '../components/ui/Button';
-import { Card } from '../components/ui/Card';
-import { PageFrame, Metric, Badge, ErrorNotice, StatePanel, SectionTabs, statusLabels, dateTime } from '../redesign/ui';
-import { useNotify } from '../context/NotificationContext';
-import { useLoading } from '../context/LoadingContext';
+import {useEffect, useState, useCallback, useRef, useMemo} from 'react';
+import {Link, useParams, useNavigate} from 'react-router-dom';
+import {api} from '../api';
+import {Button, Panel, Avatar, ContactStatus, PageFrame, Badge, ErrorNotice, StatePanel, SectionTabs, statusLabels, dateTime} from '../redesign/ui';
+import {FieldInput} from '../redesign/FieldManager';
+import {useNotify} from '../context/NotificationContext';
+import {useConfirm} from '../context/ConfirmContext';
+import {parseApiDate} from '../utils/datetime';
 
-const formatDt = iso => dateTime(iso);
-
+const displayValue = value => value == null || value === '' ? '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+const eventTitle = row => row.kind === 'enrolled' ? 'Dodano do kampanii' : row.kind === 'reply_marker' ? 'Potwierdzona odpowiedź' : row.direction === 'outbound' ? 'Wysłano wiadomość' : 'Odebrano wiadomość';
+const timestamp = value => value ? +parseApiDate(value) || 0 : 0;
+export function contactEvents(lead) {
+  return [...(lead.interactions || []), ...(lead.campaigns || []).map(c => ({kind:'enrolled', at:c.enrolled_at, campaign_id:c.campaign_id, campaign_name:c.campaign_name}))]
+    .sort((a,b) => timestamp(b.at) - timestamp(a.at));
+}
+function Timeline({events, compact=false}) {
+  return events.length ? <ol className={`sk-contact-timeline ${compact?'is-compact':''}`}>{events.map((row,i) => <li key={`${row.at}-${row.kind}-${row.campaign_id}-${i}`}>
+    <div className="sk-contact-event-heading"><strong>{eventTitle(row)}</strong><time>{dateTime(row.at,{year:'numeric'})}</time></div>
+    {!compact && <>{row.campaign_name && <Link to={`/campaigns/${row.campaign_id}`}>{row.campaign_name}</Link>}{row.subject && <p>{row.subject}</p>}{row.snippet && <p className="sk-contact-event-snippet">{row.snippet}</p>}</>}
+  </li>)}</ol> : <StatePanel title="Brak aktywności" description="Powiązane wiadomości i przypisania do kampanii pojawią się tutaj." icon="history"/>;
+}
+function Campaigns({items}) {
+  return items.length ? <ul className="sk-contact-campaign-list">{items.map(c => <li key={c.campaign_id}>
+    <Link to={`/campaigns/${c.campaign_id}#leads`}>{c.campaign_name}</Link>
+    <div className="sk-contact-badges"><Badge tone={c.status==='unsubscribed'||c.status==='bounced'?'red':c.replied?'blue':'neutral'}>{statusLabels[c.status||'active']||c.status}</Badge>{c.sending_paused&&<Badge tone="amber">Wysyłka wstrzymana</Badge>}{c.interest&&<Badge tone="blue">{statusLabels[c.interest]||c.interest}</Badge>}</div>
+    <p>Otwarcie: {c.opened?'tak':'nie'} · Kliknięcie: {c.clicked?'tak':'nie'} · Odpowiedź: {c.replied?'tak':'nie'}</p>
+    <small>Dodano {dateTime(c.enrolled_at,{year:'numeric'})}</small>
+  </li>)}</ul> : <StatePanel title="Brak kampanii" description="Kontakt nie jest przypisany do żadnej kampanii." icon="campaign"/>;
+}
 export default function LeadDetail() {
-  const { id } = useParams();
-  const notify = useNotify();
-  const loading = useLoading();
-  const [detailTab, setDetailTab] = useState('summary');
-  const [lead, setLead] = useState(null);
-  const [fields, setFields] = useState([]);
-  const [editName, setEditName] = useState('');
-  const [editCustom, setEditCustom] = useState({});
-  const [savingFields, setSavingFields] = useState(false);
-  const [error, setError] = useState(null);
-
-  const load = useCallback(async () => {
-    loading.start();
-    setError(null);
-    try {
-      const [l, fieldRows] = await Promise.all([
-        api.get(`/leads/${id}`),
-        api.get('/contact-fields'),
-      ]);
-      setLead(l);
-      setFields(Array.isArray(fieldRows) ? fieldRows : []);
-      setEditName(l.name || '');
-      setEditCustom({ ...(l.custom_data || {}) });
-    } catch (e) {
-      setError(e.message || 'Nie udało się wczytać kontaktu.');
-      notify({ type: 'error', message: 'Nie udało się wczytać kontaktu.' });
-    } finally {
-      loading.stop();
-    }
-  }, [id, loading, notify]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const saveContactFields = async () => {
-    if (!lead) return;
-    setSavingFields(true);
-    try {
-      const cleaned = {};
-      Object.entries(editCustom || {}).forEach(([key, value]) => {
-        const text = value == null ? '' : String(value);
-        if (text !== '') cleaned[key] = text;
-      });
-      const updated = await api.patch(`/leads/${lead.id}`, {
-        name: editName,
-        custom_data: cleaned,
-      });
-      setLead(updated);
-      setEditName(updated.name || '');
-      setEditCustom({ ...(updated.custom_data || {}) });
-      notify({ type: 'success', message: 'Dane kontaktu zapisane.' });
-    } catch (e) {
-      notify({ type: 'error', message: e.message || 'Nie udało się zapisać danych kontaktu.' });
-    } finally {
-      setSavingFields(false);
-    }
+  const {id}=useParams(), notify=useNotify(), confirm=useConfirm(), navigate=useNavigate();
+  const [tab,setTab]=useState('summary'),[lead,setLead]=useState(null),[fields,setFields]=useState([]);
+  const [editName,setEditName]=useState(''),[editCustom,setEditCustom]=useState({});
+  const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(null),[saveError,setSaveError]=useState(null);
+  const [kind,setKind]=useState(''),[campaign,setCampaign]=useState('');
+  const seq=useRef(0),saveLock=useRef(false),leaveLock=useRef(false);
+  const dirty=!!lead&&(editName!==(lead.name||'')||JSON.stringify(editCustom)!==JSON.stringify(lead.custom_data||{}));
+  const load=useCallback(async()=>{
+    const request=++seq.current;setLoading(true);setError(null);setLead(null);setSaveError(null);setTab('summary');setKind('');setCampaign('');
+    try{const [l,f]=await Promise.all([api.get(`/leads/${id}`),api.get('/contact-fields')]);if(request!==seq.current)return;setLead(l);setFields(Array.isArray(f)?f:[]);setEditName(l.name||'');setEditCustom({...l.custom_data});}
+    catch(e){if(request===seq.current)setError(e);}
+    finally{if(request===seq.current)setLoading(false);}
+  },[id]);
+  useEffect(()=>{load();return()=>{++seq.current;};},[load]);
+  useEffect(()=>{const unload=e=>{if(dirty||saving){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',unload);return()=>window.removeEventListener('beforeunload',unload);},[dirty,saving]);
+  useEffect(()=>{const leave=async e=>{
+    const a=e.target.closest?.('a[href]');if(!a||e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||a.target==='_blank')return;
+    const url=new URL(a.href,window.location.href);if(url.origin!==window.location.origin||url.pathname===window.location.pathname||(!dirty&&!saving))return;
+    e.preventDefault();e.stopPropagation();if(saveLock.current||leaveLock.current)return;leaveLock.current=true;
+    try{if(await confirm('Masz niezapisane zmiany kontaktu. Odrzucić je i kontynuować?'))navigate(url.pathname+url.search+url.hash);}finally{leaveLock.current=false;}
+  };document.addEventListener('click',leave,true);return()=>document.removeEventListener('click',leave,true);},[dirty,saving,confirm,navigate]);
+  const save=async e=>{
+    e.preventDefault();if(!lead||!dirty||saveLock.current)return;saveLock.current=true;setSaving(true);setSaveError(null);const request=seq.current;
+    try{const updated=await api.patch(`/leads/${lead.id}`,{name:editName,custom_data:editCustom});if(request!==seq.current)return;setLead(updated);setEditName(updated.name||'');setEditCustom({...updated.custom_data});notify({type:'success',message:'Dane kontaktu zapisane.'});}
+    catch(e){if(request===seq.current)setSaveError(e);}
+    finally{saveLock.current=false;setSaving(false);}
   };
-
-  if (error && !lead) {
-    return (
-      <PageFrame title="Kontakt" description="Nie udało się wczytać danych kontaktu.">
-        <ErrorNotice error={error} onRetry={load} />
-        <Button as={Link} to="/leads" variant="outline">Wróć do kontaktów</Button>
-      </PageFrame>
-    );
-  }
-
-  if (!lead) {
-    return (
-      <PageFrame title="Kontakt" description="Wczytywanie danych kontaktu…">
-        <StatePanel tone="info" icon="refresh" title="Wczytywanie" description="Pobieramy profil, kampanie i historię kontaktu." />
-      </PageFrame>
-    );
-  }
-
-  const interactions = lead.interactions || [];
-  const outboundCount = interactions.filter(row => row.direction === 'outbound').length;
-  const inboundCount = interactions.filter(row => row.direction === 'inbound').length;
-  const campaignsCount = lead.campaigns?.length || 0;
-
-  return (
-    <PageFrame
-      className="sk-contact-detail-page"
-      title={lead.name || lead.email}
-      description={lead.email}
-      actions={
-        <>
-          <Button as={Link} to="/leads" variant="outline" size="sm">Wróć do kontaktów</Button>
-          <Button as={Link} to="/unibox" variant="outline" size="sm">Otwórz Wątki</Button>
-        </>
-      }
-    >
-      <div className="sk-contact-detail-meta">
-        <span className="sk-contact-detail-id">Kontakt #{lead.id}</span>
-        {lead.email_verification_status && (
-          <Badge dot tone={lead.email_verification_status === 'invalid' ? 'red' : lead.email_verification_status === 'valid' ? 'green' : 'neutral'}>
-            {statusLabels[lead.email_verification_status] || lead.email_verification_status}
-          </Badge>
-        )}
-        {lead.provider && <Badge tone="blue">{lead.provider}</Badge>}
-      </div>
-
-      <div className="sk-contact-detail-metrics">
-        <Metric icon="campaign" title="Kampanie" value={campaignsCount} detail="powiązane kampanie" tone="green" />
-        <Metric icon="send" title="Wysłane" value={outboundCount} detail="wysłane wiadomości" tone="blue" />
-        <Metric icon="reply" title="Odebrane" value={inboundCount} detail="odpowiedzi i wiadomości" tone="purple" />
-        <Metric icon="history" title="Historia" value={interactions.length} detail="zarejestrowane zdarzenia" tone="green" />
-      </div>
-
-      <SectionTabs ariaLabel="Widok kontaktu" items={[{ id: 'summary', label: 'Podsumowanie', icon: 'contacts' }, { id: 'activity', label: 'Aktywność', icon: 'history' }]} value={detailTab} onChange={setDetailTab} />
-      <div className={`sk-contact-detail-layout sk-contact-tab-${detailTab}`}>
-
-
-      <Card hidden={detailTab !== 'summary'} className="sk-contact-detail-campaigns p-4">
-        <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-          Kampanie
-        </h2>
-        {lead.campaigns?.length ? (
-          <ul className="space-y-3">
-            {lead.campaigns.map((c) => (
-              <li
-                key={c.campaign_id}
-                className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline sm:justify-between gap-2 border-b border-gray-100 dark:border-gray-700 pb-2 last:border-0"
-              >
-                <div>
-                  <Link
-                    to={`/campaigns/${c.campaign_id}#leads`}
-                    className="text-teal-600 hover:underline font-medium"
-                  >
-                    {c.campaign_name}
-                  </Link>
-                  <span className="text-xs text-gray-400 font-mono ml-2">{c.campaign_public_id}</span>
-                </div>
-                <div className="text-xs text-gray-600 flex flex-wrap gap-2">
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5">{statusLabels[c.status || 'active'] || c.status}</span>
-                  {c.interest && (
-                    <span className="rounded-full bg-violet-50 text-violet-800 px-2 py-0.5">
-                      {statusLabels[c.interest] || c.interest}
-                    </span>
-                  )}
-                  <span className="rounded-full bg-gray-50 px-2 py-0.5">
-                    otwarto {c.opened ? 'tak' : 'nie'} · kliknięto {c.clicked ? 'tak' : 'nie'} · odpowiedź{' '}
-                    {c.replied ? 'tak' : 'nie'}
-                  </span>
-                  {c.sending_paused && (
-                    <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5">wstrzymane</span>
-                  )}
-                </div>
-                <span className="text-sm text-gray-500">dodano {formatDt(c.enrolled_at)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-sm">Kontakt nie jest przypisany do żadnej kampanii.</p>
-        )}
-      </Card>
-
-      <Card hidden={detailTab !== 'summary'} className="sk-contact-detail-fields p-4">
-        <div className="mb-4 flex flex-wrap items-start justify-between gap-3 border-b border-gray-200 pb-3 dark:border-gray-700">
-          <div>
-            <h2 className="text-lg font-semibold">Dane kontaktu i zmienne</h2>
-            <p className="mt-1 text-xs text-gray-500">
-              Wartości poniżej są używane przez szablony. Pola tworzysz samodzielnie w sekcji Kontakty.
-            </p>
-          </div>
-          <Button type="button" size="sm" variant="default" onClick={saveContactFields} disabled={savingFields}>
-            {savingFields ? 'Zapisywanie…' : 'Zapisz dane'}
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">E-mail</label>
-            <input
-              aria-label="E-mail"
-              value={lead.email || ''}
-              readOnly
-              className="w-full rounded-md border-gray-300 bg-gray-100 font-mono text-sm text-gray-600"
-            />
-            <code className="mt-1 block text-[11px] text-teal-700">{'{{email}}'}</code>
-          </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Nazwa / imię</label>
-            <input
-              aria-label="Nazwa / imię"
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-              className="w-full rounded-md border-gray-300 text-sm"
-            />
-            <code className="mt-1 block text-[11px] text-teal-700">{'{{name}}'}</code>
-          </div>
-
-          {fields.filter((field) => !field.system).map((field) => (
-            <div key={field.key}>
-              <label className="mb-1 block text-sm font-medium text-gray-700">
-                {field.label || field.key}
-              </label>
-              <input
-                aria-label={field.label || field.key}
-                value={editCustom[field.key] ?? ''}
-                onChange={(e) =>
-                  setEditCustom((prev) => ({ ...prev, [field.key]: e.target.value }))
-                }
-                className="w-full rounded-md border-gray-300 text-sm"
-              />
-              <div className="mt-1 flex items-center gap-2">
-                <code className="text-[11px] text-teal-700">{`{{${field.key}}}`}</code>
-                {!field.defined && (
-                  <span className="text-[10px] text-gray-400">wykryte w danych</span>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {fields.filter((field) => !field.system).length === 0 && (
-          <p className="mt-3 text-sm text-gray-500">
-            Nie masz jeszcze własnych pól. Utwórz je w <Link to="/leads?fields=1" className="text-teal-600 hover:underline">Kontaktach</Link>.
-          </p>
-        )}
-      </Card>
-
-      <Card hidden={detailTab !== 'activity'} className="sk-contact-detail-history p-4 overflow-auto">
-        <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">
-          Historia
-        </h2>
-        <p className="text-xs text-gray-500 mb-3">
-          Wysłane i odebrane wiadomości, które Sekaro może powiązać z kontaktem. Pełne wątki znajdziesz w sekcji Wątki.
-        </p>
-        {lead.interactions?.length ? (
-          <ul className="space-y-3 text-sm">
-            {lead.interactions.map((row, i) => (
-              <li
-                key={`${row.at}-${row.kind}-${i}`}
-                className={`border-l-2 pl-3 ${
-                  row.direction === 'outbound' ? 'border-teal-400' : 'border-violet-400'
-                }`}
-              >
-                <div className="font-medium">
-                  {row.direction === 'outbound' ? 'Wysłano' : 'Odebrano'}{' '}
-                  {row.kind === 'reply_marker' ? '· Potwierdzona odpowiedź' : ''}
-                </div>
-                <div className="text-gray-500 text-xs mt-0.5">
-                  {row.campaign_name && <span>{row.campaign_name} · </span>}
-                  {row.subject && <span className="font-medium text-gray-600">{row.subject} · </span>}
-                  {formatDt(row.at)}
-                </div>
-                {row.snippet && (
-                  <p className="text-xs text-gray-600 mt-1 line-clamp-3">{row.snippet}</p>
-                )}
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 text-sm">Brak historii kontaktu.</p>
-        )}
-      </Card>
-      </div>
-    </PageFrame>
-  );
+  const events=useMemo(()=>lead?contactEvents(lead):[],[lead]);
+  const filtered=events.filter(e=>(!kind||(kind==='messages'?e.kind!=='enrolled':e.kind===kind))&&(!campaign||String(e.campaign_id)===campaign));
+  if(error)return <PageFrame title="Kontakt"><ErrorNotice error={error} onRetry={load}/><Button to="/leads">Wróć do kontaktów</Button></PageFrame>;
+  if(loading||!lead)return <PageFrame title="Kontakt"><StatePanel title="Wczytywanie" description="Pobieramy profil, kampanie i historię kontaktu." icon="refresh"/></PageFrame>;
+  const campaigns=lead.campaigns||[],interactions=lead.interactions||[];
+  const outbound=interactions.filter(e=>e.direction==='outbound').length;
+  const received=interactions.filter(e=>e.direction==='inbound'&&e.kind!=='reply_marker').length;
+  const replies=interactions.filter(e=>e.kind==='reply_marker').length;
+  const customFields=fields.filter(f=>!f.system);
+  return <PageFrame className="sk-contact-workspace" title={lead.name||lead.email} description={lead.email} actions={<Button to="/leads" icon="back">Wróć do kontaktów</Button>}>
+    <SectionTabs ariaLabel="Widok kontaktu" items={[{id:'summary',label:'Podsumowanie'},{id:'activity',label:'Aktywność'},{id:'campaigns',label:'Kampanie'},{id:'messages',label:'Wiadomości'}]} value={tab} onChange={setTab}/>
+    <div className="sk-contact-workspace-grid"><div className="sk-contact-workspace-main">
+      {tab==='summary'&&<form onSubmit={save}>
+        <Panel className="sk-contact-profile"><div className="sk-contact-identity"><Avatar name={lead.name||lead.email}/><div><h2>{lead.name||lead.email}</h2><p>{lead.email}</p><small>Kontakt #{lead.id} · Dodano {dateTime(lead.created_at,{year:'numeric'})}</small></div><ContactStatus lead={lead}/></div>
+          <fieldset disabled={saving} className="sk-contact-field-grid"><label>E-mail<input aria-label="E-mail" value={lead.email} readOnly/><code>{'{{email}}'}</code></label><label>Nazwa / imię<input aria-label="Nazwa / imię" maxLength={255} value={editName} onChange={e=>setEditName(e.target.value)}/><code>{'{{name}}'}</code></label></fieldset>
+        </Panel>
+        <Panel title="Pola własne" action={<Button to="/leads?fields=1" icon="settings">Zarządzaj polami</Button>}>
+          <p className="sk-muted sk-small">Dane używane przez szablony i filtrowanie kontaktów.</p>
+          <fieldset disabled={saving} className="sk-contact-field-grid">{customFields.map(f=><label key={f.key}>{f.label||f.key}<FieldInput field={f} aria-label={f.label||f.key} value={editCustom[f.key]} onChange={v=>setEditCustom(p=>({...p,[f.key]:f.field_type==='number'&&v!==''?Number(v):v}))}/><code>{`{{${f.key}}}`}</code>{!f.defined&&<small className="sk-muted">Wykryte w danych</small>}</label>)}</fieldset>
+          {!customFields.length&&<p className="sk-muted">Brak własnych pól. Dodaj je w zarządzaniu polami.</p>}
+          <ErrorNotice error={saveError}/><div className="sk-contact-savebar"><span role="status">{saving?'Zapisywanie…':dirty?'Niezapisane zmiany':'Brak niezapisanych zmian'}</span><Button disabled={saving||!dirty} onClick={async()=>{if(await confirm('Odrzucić niezapisane zmiany kontaktu?')){setEditName(lead.name||'');setEditCustom({...lead.custom_data});setSaveError(null);}}}>Odrzuć zmiany</Button><Button type="submit" variant="primary" disabled={saving||!dirty}>Zapisz dane</Button></div>
+        </Panel>
+        <Panel title="Status kontaktu"><dl className="sk-contact-status-grid"><div><dt>Weryfikacja adresu</dt><dd>{statusLabels[lead.email_verification_status]||lead.email_verification_status||'Brak wyniku'}</dd></div><div><dt>Wypisanie w kampaniach</dt><dd>{campaigns.some(c=>c.status==='unsubscribed')?'Tak':'Nie'}</dd></div><div><dt>Odbicie w kampaniach</dt><dd>{campaigns.some(c=>c.status==='bounced')?'Tak':'Nie'}</dd></div></dl></Panel>
+      </form>}
+      {tab==='activity'&&<Panel title="Oś czasu"><p className="sk-muted sk-small">Wiadomości, potwierdzone odpowiedzi i przypisania do kampanii, od najnowszych.</p><div className="sk-contact-activity-filters"><label>Rodzaj aktywności<select value={kind} onChange={e=>setKind(e.target.value)}><option value="">Wszystkie zdarzenia</option><option value="messages">Wiadomości i odpowiedzi</option><option value="enrolled">Przypisania do kampanii</option><option value="reply_marker">Potwierdzone odpowiedzi</option></select></label><label>Kampania<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="">Wszystkie kampanie</option>{campaigns.map(c=><option key={c.campaign_id} value={c.campaign_id}>{c.campaign_name}</option>)}</select></label></div><Timeline events={filtered}/></Panel>}
+      {tab==='campaigns'&&<Panel title="Kampanie kontaktu"><Campaigns items={campaigns}/></Panel>}
+      {tab==='messages'&&<Panel title="Wiadomości"><p className="sk-muted sk-small">Zarejestrowane wiadomości. Potwierdzenie odpowiedzi nie jest dodatkową wiadomością.</p><Timeline events={events.filter(e=>e.kind!=='enrolled'&&e.kind!=='reply_marker')}/><Button to="/unibox" icon="mail">Otwórz Wątki</Button></Panel>}
+    </div><aside className="sk-contact-workspace-aside">
+      <Panel title="Podsumowanie"><dl className="sk-contact-summary">{[['Kampanie',campaigns.length],['Wysłane',outbound],['Odebrane',received],['Potwierdzenia odpowiedzi',replies]].map(([label,value])=><div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl></Panel>
+      {tab==='summary'?<Panel title="Ostatnia aktywność"><Timeline events={events.slice(0,4)} compact/><Button className="sk-full-width" onClick={()=>setTab('activity')}>Zobacz pełną historię</Button></Panel>:<Panel title="Powiązane kampanie"><Campaigns items={campaigns}/></Panel>}
+      <Panel title="Zmienne kontaktu"><dl className="sk-contact-values">{[{key:'email',label:'E-mail'},{key:'name',label:'Nazwa / imię'},...customFields].map(f=><div key={f.key}><dt>{f.label||f.key}</dt><dd>{displayValue(f.key==='email'?lead.email:f.key==='name'?lead.name:lead.custom_data?.[f.key])}</dd></div>)}</dl><p className="sk-muted sk-small">Zapisane wartości dostępne w szablonach.</p></Panel>
+    </aside></div>
+  </PageFrame>;
 }

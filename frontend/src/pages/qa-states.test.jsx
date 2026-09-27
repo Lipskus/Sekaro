@@ -331,7 +331,7 @@ describe('calendar, bulk actions and mailbox form regressions', () => {
     fireEvent.change(await screen.findByRole('textbox', { name: 'Nazwa / imię' }), { target: { value: 'Niezapisana nazwa' } });
     fireEvent.click(screen.getByRole('tab', { name: 'Aktywność' }));
     expect(screen.queryByRole('textbox', { name: 'Nazwa / imię' })).toBeNull();
-    expect(screen.getByText('Odpowiedź QA ·')).toBeTruthy();
+    expect(screen.getByText('Odpowiedź QA')).toBeTruthy();
     fireEvent.click(screen.getByRole('tab', { name: 'Podsumowanie' }));
     expect(screen.getByRole('textbox', { name: 'Nazwa / imię' }).value).toBe('Niezapisana nazwa');
     expect(api.patch).not.toHaveBeenCalled();

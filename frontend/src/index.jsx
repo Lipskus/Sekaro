@@ -6,6 +6,7 @@ import './index.css';
 import './redesign/design.css';
 import './redesign/tokens.css';
 import './redesign/templates.css';
+import './redesign/contacts.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
