@@ -34,7 +34,7 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-shell input:focus-visible,.sk-shell textarea:focus-visible{outline-offset:1px}
 .sk-shell svg{flex-shrink:0;vertical-align:middle}
 .sk-shell code{font-size:12px;color:var(--sk-green-text);overflow-wrap:anywhere}
-.sk-shell{min-height:100dvh}
+.sk-shell{min-height:calc(100dvh - var(--sk-banner-height,0px))}
 .sk-sidebar{width:var(--sk-sidebar);position:fixed;inset:0 auto 0 0;background:var(--sk-chrome);border-right:1px solid var(--sk-line);display:flex;flex-direction:column;z-index:45}
 .sk-brand{display:flex;align-items:center;gap:9px;min-height:64px;flex-shrink:0;padding:10px 20px;color:var(--sk-primary)!important}
 .sk-brand strong{display:block;font-size:26px;line-height:1.15;letter-spacing:-1px;font-weight:760;color:var(--sk-text)}
@@ -91,7 +91,7 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-search-results strong,.sk-search-results small{display:block;overflow-wrap:anywhere}
 .sk-search-results small{color:var(--sk-muted);font-size:11px}
 .sk-search-results p{padding:12px;font-size:13px}
-.sk-main{min-height:calc(100dvh - var(--sk-header));min-width:0;outline:none}
+.sk-main{min-height:calc(100dvh - var(--sk-header) - var(--sk-banner-height,0px));min-width:0;outline:none}
 .sk-page{padding:24px;min-width:0}
 .sk-page-heading{display:flex;justify-content:space-between;align-items:center;gap:20px;margin:5px 0 22px;min-height:62px}
 .sk-page-heading h1{font-size:30px;font-weight:730;letter-spacing:-.65px;line-height:1.25}
@@ -441,7 +441,7 @@ html[data-theme=dark] .sk-btn-primary{background:var(--sk-accent);border-color:v
 @media(prefers-reduced-motion:reduce){.sk-shell *,.sk-login-page *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 /* Avoid body-as-scroll-container clipping (inherited from legacy overflow-x:hidden). */
 html.sekaro-ui{height:auto;min-height:100%;overflow-x:clip;overflow-y:auto}
-html.sekaro-ui body,html.sekaro-ui #root{height:auto;min-height:100dvh;overflow:visible}
+html.sekaro-ui body,html.sekaro-ui #root{height:auto;min-height:calc(100dvh - var(--sk-banner-height,0px));overflow:visible}
 .sk-shell a.sk-btn-primary{color:var(--sk-button-text)}
 .sk-shell a.sk-btn-primary svg{color:inherit}
 .sk-dashboard .sk-metric-detail{font-size:12px;white-space:normal;overflow-wrap:anywhere}
@@ -1115,7 +1115,7 @@ html[data-theme=dark] .sk-login-submit{
 .sk-settings-card-body{padding:20px;display:flex;flex-direction:column;gap:16px;min-width:0}
 .sk-settings-card-body p{margin:0}.sk-settings-card-body .sk-field{margin:0}
 .sk-settings-card-grid .sk-panel-heading{flex-wrap:wrap}
-.sk-settings-card-body input:not([type=checkbox]),.sk-settings-card-body select{width:100%;min-width:0}
+.sk-settings-card-body input:not([type=checkbox]):not([type=radio]),.sk-settings-card-body select{width:100%;min-width:0}
 .sk-settings-mailbox{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid var(--sk-line);border-radius:8px;flex-wrap:wrap}
 .sk-settings-mailbox>span{flex:1;min-width:0}.sk-settings-mailbox strong,.sk-settings-mailbox small,.sk-sender-identity>*{display:block;overflow-wrap:anywhere}
 .sk-settings-mailbox small,.sk-sender-identity small{color:var(--sk-muted);margin-top:4px}
