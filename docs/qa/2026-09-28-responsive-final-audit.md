@@ -42,3 +42,13 @@ The final deterministic series (063–096) remains the canonical shared shell: 2
 
 Desktop Dark/Light route coverage and source-level responsive corrections are complete for this batch. The available live browser viewport did not provide tablet/mobile or exact 1600×900 / 1672×941 captures, so responsive visual acceptance and per-board pixel parity are still open. The package must not be described as full 1:1 compliance.
 
+## Post-deployment regression follow-up
+
+After merge commit `87c205b` was deployed, all 17 route families were measured again at 1353 px in both Dark and Light. Document and body widths matched the viewport on every route, with no page-wide horizontal overflow. The language was restored to Polish and the theme to `System` after testing.
+
+Two user-reported language regressions were reproduced and corrected in the final follow-up branch:
+
+- the redesigned shell no longer ignores the saved language; navigation, search, system status, profile actions and the appearance settings react immediately for Polish, English, German and Russian;
+- the login language/theme controls explicitly use the dark native color scheme and dark option surfaces, preventing the transient light selection surface on a dark login screen.
+
+The login form's primary labels and state copy now use the same translation source, the document `lang` attribute follows the selected language, and a regression test verifies immediate shell translation plus local persistence. This follow-up still does not convert every feature workspace body to full multilingual content; unsupported or untranslated feature copy must not be presented as complete application-wide localization.

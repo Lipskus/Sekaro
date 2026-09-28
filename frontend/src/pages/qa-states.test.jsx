@@ -33,7 +33,13 @@ vi.mock('../context/NotificationsContext', () => ({ useNotifications: () => ({ r
 vi.mock('../context/SystemHealthContext', () => ({ useSystemHealth: () => mocks.health }));
 vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }) }));
 vi.mock('../context/DarkModeContext', () => ({ useDarkMode: () => ({ themePreference: 'light', setThemePreference: vi.fn() }) }));
-vi.mock('../context/LanguageContext', () => ({ useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [] }) }));
+vi.mock('../context/LanguageContext', () => ({ useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
+  'appearance.title':'Wygląd i język','appearance.description':'Dostosuj wygląd interfejsu do swoich preferencji.',
+  'appearance.language':'Język interfejsu','appearance.savedLocally':'Zmiana języka jest zapisywana lokalnie dla tej przeglądarki.',
+  'appearance.light':'Jasny','appearance.dark':'Ciemny','appearance.system':'System','appearance.systemFollows':'Motyw systemowy automatycznie podąża za ustawieniem systemu operacyjnego lub przeglądarki.',
+  'appearance.saving':'Zapisywanie…','appearance.unsaved':'Masz niezapisane ustawienia ogólne.','appearance.saved':'Ustawienia zapisane.',
+  'appearance.unchanged':'Brak niezapisanych zmian.','appearance.cancel':'Anuluj','appearance.save':'Zapisz zmiany'
+}[key] || key) }) }));
 vi.mock('react-quill', () => ({ default: () => <textarea aria-label="Edytor HTML" /> }));
 vi.mock('./CampaignDetail', () => ({ default: () => <div>Edytor kampanii</div> }));
 vi.mock('recharts', () => ({

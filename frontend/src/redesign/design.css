@@ -582,6 +582,8 @@ html[data-theme=dark] .sk-login-control{
   background:#0d181d;
   border-color:#283840;
 }
+html[data-theme=dark] .sk-login-control select{color-scheme:dark}
+html[data-theme=dark] .sk-login-control option{background:#111d23;color:#e9f0f2}
 .sk-login-brand-panel{
   min-height:100dvh;
   padding:108px 7vw 58px 7vw;

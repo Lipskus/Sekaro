@@ -23,7 +23,7 @@ export default function Settings() {
   const confirm = useConfirm();
   const { isProduction } = useAppMode();
   const { user, logout } = useAuth();
-  const { language, setLanguage, languages } = useLanguage();
+  const { language, setLanguage, languages, t } = useLanguage();
 
   /* ── state ── */
   const [strategy, setStrategy] = useState('priority');
@@ -342,7 +342,7 @@ export default function Settings() {
       setThemePreference(draftTheme);
       setLanguage(draftLanguage);
       setGeneralSaved(true);
-      notify({ type: 'success', message: 'Ustawienia zapisane.' });
+      notify({ type: 'success', message: t('appearance.saved') });
     } catch (error) { setGeneralError(error); }
     finally { generalSaveLock.current = false; setGeneralSaving(false); }
   };
@@ -704,12 +704,12 @@ export default function Settings() {
               id="settings-appearance" hidden={activeTab !== 'general' && activeTab !== 'appearance'}
               span={6}
               icon="system"
-              title="Wygląd i język"
-              description="Dostosuj wygląd interfejsu do swoich preferencji."
+              title={t('appearance.title')}
+              description={t('appearance.description')}
             >
               <Field
-                label="Język interfejsu"
-                help="Zmiana języka jest zapisywana lokalnie dla tej przeglądarki."
+                label={t('appearance.language')}
+                help={t('appearance.savedLocally')}
               >
                 <select value={draftLanguage} disabled={generalSaving} onChange={e => { setDraftLanguage(e.target.value); setGeneralSaved(false); }}>
                   {(languages.length ? languages : [{code: language, label: language === 'pl' ? 'Polski' : language}]).map(item => (
@@ -719,9 +719,9 @@ export default function Settings() {
               </Field>
               <div className="sk-theme-options" role="radiogroup" aria-label="Motyw aplikacji">
                 {[
-                  ['light', 'Jasny', 'sun'],
-                  ['dark', 'Ciemny', 'moon'],
-                  ['system', 'System', 'system'],
+                  ['light', t('appearance.light'), 'sun'],
+                  ['dark', t('appearance.dark'), 'moon'],
+                  ['system', t('appearance.system'), 'system'],
                 ].map(([value, label]) => (
                   <label
                     key={value}
@@ -740,7 +740,7 @@ export default function Settings() {
                 ))}
               </div>
               <div className="sk-settings-note">
-                Motyw systemowy automatycznie podąża za ustawieniem systemu operacyjnego lub przeglądarki.
+                {t('appearance.systemFollows')}
               </div>
             </SettingsCard>
 
@@ -1888,8 +1888,8 @@ export default function Settings() {
         )}
         </div>
         {(["general","appearance"].includes(activeTab) || generalDirty) && <footer className="sk-system-savebar">
-          <span role="status"><Icon name={generalDirty ? 'clock' : 'check'} size={17}/>{generalSaving ? 'Zapisywanie…' : generalDirty ? 'Masz niezapisane ustawienia ogólne.' : generalSaved ? 'Ustawienia zapisane.' : 'Brak niezapisanych zmian.'}</span>
-          <div><Button variant="outline" onClick={cancelGeneral} disabled={!generalDirty || generalSaving}>Anuluj</Button><Button onClick={saveGeneral} disabled={!generalDirty || generalSaving}>{generalSaving ? 'Zapisywanie…' : 'Zapisz zmiany'}</Button></div>
+          <span role="status"><Icon name={generalDirty ? 'clock' : 'check'} size={17}/>{generalSaving ? t('appearance.saving') : generalDirty ? t('appearance.unsaved') : generalSaved ? t('appearance.saved') : t('appearance.unchanged')}</span>
+          <div><Button variant="outline" onClick={cancelGeneral} disabled={!generalDirty || generalSaving}>{t('appearance.cancel')}</Button><Button onClick={saveGeneral} disabled={!generalDirty || generalSaving}>{generalSaving ? t('appearance.saving') : t('appearance.save')}</Button></div>
         </footer>}
         </div>
       </div>
