@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Card } from '../components/ui/Card';
+import { useId, useState } from 'react';
 import { PageFrame, SectionTabs, Metric } from '../redesign/ui';
 import {
   RiShieldCheckLine,
@@ -153,31 +152,31 @@ function Tag({ label }) {
 
 function Rule({ rule, index }) {
   const [open, setOpen] = useState(false);
+  const contentId = useId();
   return (
     <div
-      onClick={() => setOpen(v => !v)}
-      className={`rounded-lg border shadow-sm cursor-pointer transition-colors duration-150 ${
+      className={`rounded-lg border shadow-sm transition-colors duration-150 ${
         open
           ? 'bg-gray-50 border-gray-300'
           : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
       }`}
     >
       {/* Header row — never compresses */}
-      <div className="flex items-center gap-3 px-5 py-4">
+      <button type="button" aria-expanded={open} aria-controls={contentId} onClick={() => setOpen(v => !v)} className="sk-deliverability-toggle flex items-center gap-3 px-5 py-4">
         <span className="text-xs font-semibold text-gray-300 w-6 flex-shrink-0 text-right tabular-nums">
           {String(index + 1).padStart(2, '0')}
         </span>
-        <div className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1">
           <span className="text-sm font-medium text-gray-800 leading-snug">{rule.title}</span>
           {rule.tag && <Tag label={rule.tag} />}
-        </div>
+        </span>
         <span className={`text-gray-400 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : 'rotate-0'}`}>
           <RiArrowDownSLine size={18} />
         </span>
-      </div>
+      </button>
 
-      {/* Animated body — grid trick for smooth height transition */}
-      <div className={`grid transition-all duration-300 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+      {/* Hidden content is excluded from keyboard and accessibility navigation. */}
+      <div id={contentId} hidden={!open}>
         <div className="overflow-hidden">
           <p className="px-5 py-4 pl-14 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
             {rule.body}
