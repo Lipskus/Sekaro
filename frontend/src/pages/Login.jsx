@@ -147,13 +147,13 @@ export default function Login() {
 
   return (
     <div className="sk-login-page" aria-busy={authBusy||restoreMetaBusy||restorePreviewBusy||restoreExecuteBusy}>
-      <div className="sk-login-controls" aria-label="Ustawienia logowania">
+      <div className="sk-login-controls" aria-label={t('appearance.loginSettings')}>
         <label className="sk-login-control sk-login-control-language">
           <RiGlobalLine aria-hidden="true" />
           <select
             value={language}
             onChange={event => setLanguage(event.target.value)}
-            aria-label="Język"
+            aria-label={t('appearance.language')}
           >
             {languages.map(item => (
               <option key={item.code} value={item.code}>{item.label}</option>
@@ -165,11 +165,11 @@ export default function Login() {
           <select
             value={themePreference}
             onChange={event => setThemePreference(event.target.value)}
-            aria-label="Motyw"
+            aria-label={t('appearance.theme')}
           >
-            <option value="light">Jasny motyw</option>
-            <option value="dark">Ciemny motyw</option>
-            <option value="system">Motyw systemowy</option>
+            <option value="light">{t('appearance.light')}</option>
+            <option value="dark">{t('appearance.dark')}</option>
+            <option value="system">{t('appearance.system')}</option>
           </select>
           <i className="sk-login-control-dot" aria-hidden="true" />
         </label>
@@ -214,12 +214,12 @@ export default function Login() {
       <section className="sk-login-auth-column">
         <div className="sk-login-card">
           <div className="sk-login-card-heading">
-            <h2>{isFirstUser ? 'Utwórz konto administratora' : 'Zaloguj się'}</h2>
-            <p>{isFirstUser ? 'Pierwsze konto uzyska uprawnienia administratora.' : 'Dostęp do prywatnego panelu'}</p>
+            <h2>{isFirstUser ? t('auth.createAdminTitle') : t('auth.signInTitle')}</h2>
+            <p>{isFirstUser ? t('auth.firstAccountAdmin') : t('auth.accessPrivatePanel')}</p>
           </div>
 
           <form className="sk-login-form" onSubmit={handleAuthSubmit}>
-            <label htmlFor="email">{isFirstUser ? 'E-mail administratora' : 'E-mail lub login'}</label>
+            <label htmlFor="email">{isFirstUser ? t('auth.adminEmail') : t('auth.emailOrLogin')}</label>
             <div className="sk-login-input">
               <RiMailLine />
               <input
@@ -234,7 +234,7 @@ export default function Login() {
               />
             </div>
 
-            <label htmlFor="password">Hasło</label>
+            <label htmlFor="password">{t('common.password')}</label>
             <div className="sk-login-input">
               <RiLock2Line />
               <input
@@ -245,10 +245,10 @@ export default function Login() {
                 minLength={8}
                 value={password}
                 onChange={event => setPassword(event.target.value)}
-                placeholder={isFirstUser ? 'Utwórz bezpieczne hasło' : 'Wpisz swoje hasło'}
+                placeholder={isFirstUser ? t('auth.createPassword') : t('auth.enterPassword')}
                 disabled={authBusy}
               />
-              <button type="button" className="sk-login-eye" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? 'Ukryj hasło' : 'Pokaż hasło'}>
+              <button type="button" className="sk-login-eye" onClick={() => setShowPassword(v => !v)} aria-label={showPassword ? t('auth.hidePassword') : t('auth.showPassword')}>
                 {showPassword ? <RiEyeOffLine /> : <RiEyeLine />}
               </button>
             </div>
@@ -278,9 +278,9 @@ export default function Login() {
               <div className="sk-login-options">
                 <label className="sk-login-remember">
                   <input type="checkbox" checked={rememberLogin} onChange={e => setRememberLogin(e.target.checked)} />
-                  <span>Zapamiętaj mnie</span>
+                  <span>{t('auth.rememberMe')}</span>
                 </label>
-                <span className="sk-login-forgot" aria-disabled="true" title="Odzyskiwanie hasła nie jest skonfigurowane">Nie pamiętasz hasła?</span>
+                <span className="sk-login-forgot" aria-disabled="true">{t('auth.forgotPassword')}</span>
               </div>
             )}
 
@@ -292,8 +292,8 @@ export default function Login() {
             </button>
           </form>
 
-          <div className="sk-login-divider"><span>lub</span></div>
-          <p className="sk-login-private-note"><RiShieldCheckLine /> Panel prywatny • Brak logowania przez Google i Microsoft</p>
+          <div className="sk-login-divider"><span>{t('auth.or')}</span></div>
+          <p className="sk-login-private-note"><RiShieldCheckLine /> {t('auth.privateLogin')}</p>
 
           {isFirstUser && (
             <>
