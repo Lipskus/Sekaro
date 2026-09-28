@@ -234,9 +234,12 @@ CRM is a strategic extension of Sekaro's outreach workflow, not a separate produ
 - [ ] Add funnel, conversion, activity and revenue reports connected to outreach source, campaign, mailbox and custom fields.
 - [ ] Add dashboards for overdue work, inactive opportunities and contacts requiring follow-up.
 
-### Phase 4 — collaboration and integrations
+### Phase 4 — users, permissions, collaboration and integrations
+- [ ] Add an administrator-facing user-management screen for creating/inviting users, editing profiles, activating/deactivating accounts and safely resetting access.
 - [ ] Add optional multi-user ownership, teams, role-based permissions and per-record activity attribution.
-- [ ] Define access boundaries for contacts, companies, opportunities, mailboxes, campaigns and reports.
+- [ ] Provide built-in roles as a safe baseline and configurable permissions for viewing, creating, editing, exporting, sending and deleting.
+- [ ] Define access boundaries for contacts, companies, opportunities, tasks, mailboxes, campaigns, templates, settings, integrations and reports.
+- [ ] Record security-relevant user and permission changes in an audit log; deactivation must preserve historical attribution.
 - [ ] Add opt-in calendar, webhook and API integrations after the stable internal CRM workflow is complete.
 - [ ] Keep single-user/self-hosted deployments simple: collaboration features must not add mandatory services or weaken the minimal deployment model.
 
