@@ -17,7 +17,7 @@
 .sk-analytics-series{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .sk-analytics-series button{font-size:11px;color:var(--sk-muted);background:transparent;border:1px solid var(--sk-line);border-radius:7px;padding:6px 8px;gap:6px;min-height:32px;white-space:normal;text-align:left;justify-content:flex-start}
 .sk-analytics-series button[aria-pressed=true]{color:var(--sk-text);background:var(--sk-surface-alt);border-color:var(--sk-muted)}
-.sk-analytics-series button[aria-pressed=false]{opacity:.65}
+.sk-analytics-series button[aria-pressed=false]{opacity:1}
 .sk-analytics-series i{display:block;width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .sk-analytics-plot{height:250px;min-width:0;background:var(--sk-surface-alt);border:1px solid var(--sk-line);border-radius:9px;padding:8px 0}
 .sk-analytics-event{margin:0 0 20px}

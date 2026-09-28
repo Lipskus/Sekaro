@@ -6,7 +6,7 @@ import {analyticsRangeError,campaignDailyRows,analyticsCsv} from '../redesign/ca
 import {ResponsiveContainer,AreaChart,Area,XAxis,YAxis,Tooltip,CartesianGrid} from 'recharts';
 
 const series=[
- {key:'sent',name:'Wysłane',color:'var(--sk-primary)'},
+ {key:'sent',name:'Wysłane',color:'var(--sk-accent)'},
  {key:'totalReplies',name:'Odpowiedzi',color:'#398bea'},
  {key:'totalOpens',name:'Otwarcia',color:'#d79a21'},
  {key:'totalClicks',name:'Kliknięcia',color:'#b079de'},
