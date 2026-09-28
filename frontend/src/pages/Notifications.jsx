@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import { useConfirm } from '../context/ConfirmContext';
 import { useNavigate } from 'react-router-dom';
 import { parseApiDate } from '../utils/datetime';
 import { api } from '../api';
@@ -75,7 +76,9 @@ const EVENT_CATEGORIES = {
 };
 
 function timeAgo(iso) {
-  const diff = Date.now() - parseApiDate(iso).getTime();
+  const date = iso && parseApiDate(iso);
+  if (!date || !Number.isFinite(+date)) return 'Brak daty';
+  const diff = Math.max(0, Date.now() - date.getTime());
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'przed chwilą';
   if (mins < 60) return `${mins} min temu`;
@@ -85,64 +88,25 @@ function timeAgo(iso) {
   return `${days} d temu`;
 }
 
-function NotificationItem({ n, onRead, onDelete, onSelect, selected }) {
-  const handleClick = () => {
-    if (!n.read_at) onRead(n.id);
-    onSelect(n.id);
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick();
-        }
-      }}
-      role="button"
-      aria-pressed={selected}
-      tabIndex={0}
-      className={`group flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-        n.read_at
-          ? 'bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800'
-          : 'bg-teal-50 dark:bg-teal-900/20 hover:bg-teal-100 dark:hover:bg-teal-900/30'
-      }`}
-    >
-      <div className={`sk-notification-event-icon tone-${eventTone(n.event_type)}`}>
-        {EVENT_ICONS[n.event_type] || <RiMailOpenLine size={20} />}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm ${n.read_at ? 'text-gray-700 dark:text-gray-300' : 'text-gray-900 dark:text-gray-100 font-semibold'}`}>
-          {n.title}
-        </p>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate">{n.message}</p>
-        <div className="flex items-center gap-2 mt-1">
-          <p className="text-[10px] text-gray-400">{timeAgo(n.created_at)}</p>
-          {!n.read_at && (
-            <span className="rounded-full bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 text-[10px] font-semibold px-1.5 py-0.5 leading-none">
-              Nowe
-            </span>
-          )}
-        </div>
-      </div>
-      <button
-        onClick={(e) => { e.stopPropagation(); onDelete(n.id); }}
-        onKeyDown={e => e.stopPropagation()}
-        className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-opacity"
-        title="Usuń"
-        aria-label="Usuń powiadomienie"
-      >
-        <RiDeleteBinLine size={16} />
-      </button>
-    </div>
-  );
+function NotificationItem({ n, onDelete, onSelect, selected, busy }) {
+  return <div className={`sk-notification-row ${selected ? 'is-selected' : ''} ${!n.read_at ? 'is-unread' : ''}`}>
+    <button type="button" className="sk-notification-select" onClick={() => onSelect(n)} aria-pressed={selected}>
+      <span className={`sk-notification-event-icon tone-${eventTone(n.event_type)}`}>{EVENT_ICONS[n.event_type] || <RiMailOpenLine size={20} />}</span>
+      <span className="sk-notification-copy"><strong>{n.title}</strong><span>{n.message}</span><small>{timeAgo(n.created_at)}{!n.read_at && <b>Nowe</b>}</small></span>
+    </button>
+    <button type="button" className="sk-notification-delete" onClick={() => onDelete(n.id)} disabled={busy} aria-label="Usuń powiadomienie" title="Usuń powiadomienie"><RiDeleteBinLine size={16} /></button>
+  </div>;
 }
 
 export default function Notifications() {
   const navigate = useNavigate();
   const { refresh: refreshBadge } = useNotifications();
   const notify = useNotify();
+  const confirm = useConfirm();
+  const mutationLock = useRef(false), savingLock = useRef(false), leaveLock = useRef(false), configGen = useRef(0);
+  const [mutating, setMutating] = useState(false);
+  const [savedConfig, setSavedConfig] = useState(null);
+  const [saveError, setSaveError] = useState(null);
   const offsetRef = useRef(0);
   const fetchGenRef = useRef(0);
 
@@ -157,10 +121,12 @@ export default function Notifications() {
   const [configSaving, setConfigSaving] = useState(false);
   const [configLoading, setConfigLoading] = useState(true);
   const [configError, setConfigError] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState(null);
   const limit = 50;
+  const dirty = savedConfig !== null && JSON.stringify(savedConfig) !== JSON.stringify(notifConfig);
+  const matchingTotal = activeTab === 'unread' ? unread : total;
 
   const fetchNotifications = useCallback(async (reset = false) => {
     const gen = ++fetchGenRef.current;
@@ -183,7 +149,7 @@ export default function Notifications() {
       setTotal(data.total);
       setUnread(data.unread);
       if (data.items.length > 0) {
-        offsetRef.current += limit;
+        offsetRef.current += data.items.length;
       }
     } catch (e) {
       if (gen === fetchGenRef.current) setFetchError(e);
@@ -195,60 +161,63 @@ export default function Notifications() {
   useEffect(() => {
     setSearchQuery('');
     setFilterCategory(null);
-    setSelectedId(null);
-    if (activeTab === 'preferences') return;
-    fetchNotifications(true);
-  }, [activeTab]);
+    setSelected(null);
+    if (activeTab !== 'preferences') fetchNotifications(true);
+    return () => { ++fetchGenRef.current; };
+  }, [activeTab, fetchNotifications]);
 
   const loadConfig = useCallback(async () => {
+    const gen = ++configGen.current;
     setConfigLoading(true);
     setConfigError(null);
     try {
       const [events, config] = await Promise.all([api.get('/settings/webhooks/events'), api.get('/notifications/config')]);
+      if (gen !== configGen.current) return;
+      setSavedConfig(config);
       setEventTypes(events.events || []);
       setNotifConfig(config);
     } catch (e) {
-      setConfigError(e);
+      if (gen === configGen.current) setConfigError(e);
     } finally {
-      setConfigLoading(false);
+      if (gen === configGen.current) setConfigLoading(false);
     }
   }, []);
-  useEffect(() => { loadConfig(); }, [loadConfig]);
+  useEffect(() => { loadConfig(); return () => { ++configGen.current; }; }, [loadConfig]);
+  useEffect(() => {
+    const unload = e => { if (dirty || configSaving) { e.preventDefault(); e.returnValue = ''; } };
+    const leave = async e => {
+      const link = e.target.closest?.('a[href]');
+      if (!link || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || link.target === '_blank' || (!dirty && !configSaving)) return;
+      const url = new URL(link.href, window.location.href);
+      if (url.origin !== window.location.origin || url.pathname === window.location.pathname) return;
+      e.preventDefault(); e.stopPropagation();
+      if (savingLock.current || leaveLock.current) return;
+      leaveLock.current = true;
+      try { if (await confirm('Odrzucić niezapisane preferencje powiadomień?')) navigate(url.pathname + url.search + url.hash); }
+      finally { leaveLock.current = false; }
+    };
+    window.addEventListener('beforeunload', unload); document.addEventListener('click', leave, true);
+    return () => { window.removeEventListener('beforeunload', unload); document.removeEventListener('click', leave, true); };
+  }, [dirty, configSaving, confirm, navigate]);
 
-  const markRead = async (id) => {
+  // Mutations refetch from offset zero: deleting/reading changes unread pagination.
+  const mutate = async (operation, message, updateSelection) => {
+    if (mutationLock.current || loading) return;
+    mutationLock.current = true; setMutating(true);
+    const gen = ++fetchGenRef.current;
     try {
-      await api.patch(`/notifications/${id}/read`);
-      setItems(prev => prev.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n));
-      setUnread(prev => Math.max(0, prev - 1));
+      await operation();
+      if (gen !== fetchGenRef.current) return;
+      updateSelection?.();
       refreshBadge();
+      await fetchNotifications(true);
     } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się oznaczyć powiadomienia jako przeczytane.' });
-    }
+      if (gen === fetchGenRef.current) notify({ type: 'error', message });
+    } finally { mutationLock.current = false; setMutating(false); }
   };
-
-  const markAllRead = async () => {
-    try {
-      await api.post('/notifications/read-all');
-      setItems(prev => prev.map(n => ({ ...n, read_at: n.read_at || new Date().toISOString() })));
-      setUnread(0);
-      refreshBadge();
-    } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się oznaczyć powiadomień jako przeczytane.' });
-    }
-  };
-
-  const dismiss = async (id) => {
-    try {
-      await api.del(`/notifications/${id}`);
-      const removed = items.find(n => n.id === id);
-      setItems(prev => prev.filter(n => n.id !== id));
-      setTotal(prev => prev - 1);
-      if (removed && !removed.read_at) setUnread(prev => Math.max(0, prev - 1));
-      refreshBadge();
-    } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się usunąć powiadomienia.' });
-    }
-  };
+  const markRead = id => mutate(() => api.patch(`/notifications/${id}/read`), 'Nie udało się oznaczyć powiadomienia jako przeczytane.', () => setSelected(n => n?.id === id ? {...n, read_at: new Date().toISOString()} : n));
+  const markAllRead = () => mutate(() => api.post('/notifications/read-all'), 'Nie udało się oznaczyć powiadomień jako przeczytane.', () => setSelected(n => n ? {...n, read_at: new Date().toISOString()} : n));
+  const dismiss = id => mutate(() => api.del(`/notifications/${id}`), 'Nie udało się usunąć powiadomienia.', () => setSelected(n => n?.id === id ? null : n));
 
   const toggleEvent = (evt) => {
     setNotifConfig(prev => ({
@@ -257,22 +226,27 @@ export default function Notifications() {
     }));
   };
 
-  const saveConfig = async () => {
+  const saveConfig = async e => {
+    e.preventDefault();
+    if (savingLock.current || !dirty) return;
+    savingLock.current = true; setSaveError(null);
     setConfigSaving(true);
     try {
       const res = await api.put('/notifications/config', notifConfig);
       setNotifConfig(res);
+      setSavedConfig(res);
       notify({ message: 'Preferencje powiadomień zapisane.', type: 'success' });
     } catch (e) {
-      console.error(e);
+      setSaveError(e);
       notify({ message: 'Nie udało się zapisać preferencji.', type: 'error' });
     } finally {
+      savingLock.current = false;
       setConfigSaving(false);
     }
   };
 
   const loadMore = () => {
-    if (items.length < total) {
+    if (!loading && !mutationLock.current && items.length < matchingTotal) {
       fetchNotifications(false);
     }
   };
@@ -280,7 +254,7 @@ export default function Notifications() {
   const filteredItems = useMemo(() => {
     let result = items;
     if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+      const q = searchQuery.trim().toLowerCase();
       result = result.filter(n =>
         (n.title && n.title.toLowerCase().includes(q)) ||
         (n.message && n.message.toLowerCase().includes(q))
@@ -301,8 +275,13 @@ export default function Notifications() {
   ];
 
   const isFiltered = searchQuery.trim() || filterCategory;
-  const selected = filteredItems.find(n => n.id === selectedId);
-  const openRelated = n => {
+  const openRelated = async n => {
+    if (savingLock.current || leaveLock.current) return;
+    if (dirty) {
+      leaveLock.current = true;
+      try { if (!await confirm('Odrzucić niezapisane preferencje powiadomień?')) return; }
+      finally { leaveLock.current = false; }
+    }
     if (n.lead_id) navigate(`/leads/${n.lead_id}`);
     else if (n.campaign_id) navigate(`/campaigns/${n.campaign_id}`);
     else if (n.inbox_id) navigate(`/inboxes?inbox=${n.inbox_id}`);
@@ -313,10 +292,10 @@ export default function Notifications() {
   return (
     <PageFrame
       className="sk-notifications-page"
-      title="Powiadomienia"
+      title={activeTab === 'preferences' ? 'Preferencje powiadomień' : 'Powiadomienia'}
       description="Śledź odpowiedzi, zdarzenia kampanii i alerty systemowe."
-      actions={unread > 0 ? (
-        <Button size="sm" variant="outline" onClick={markAllRead}>
+      actions={activeTab !== 'preferences' && unread > 0 ? (
+        <Button size="sm" variant="outline" onClick={markAllRead} disabled={mutating || loading}>
           <RiCheckDoubleLine className="mr-1" size={16} />
           Oznacz wszystkie jako przeczytane
         </Button>
@@ -324,7 +303,7 @@ export default function Notifications() {
     >
       <SectionTabs
         value={activeTab}
-        onChange={id => { setSearchQuery(''); setFilterCategory(null); setActiveTab(id); }}
+        onChange={id => { if (mutationLock.current) return; setSearchQuery(''); setFilterCategory(null); setActiveTab(id); }}
         ariaLabel="Sekcje powiadomień"
         items={[
           { id: 'all', label: `Wszystkie (${total})`, icon: 'bell' },
@@ -341,10 +320,11 @@ export default function Notifications() {
               <div className="sk-notification-search">
                 <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <input
-                  type="text"
+                  type="search"
+                  aria-label="Szukaj we wczytanych powiadomieniach"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Szukaj w powiadomieniach…"
+                  placeholder="Szukaj we wczytanych powiadomieniach…"
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
               </div>
@@ -354,6 +334,7 @@ export default function Notifications() {
                     key={cat.key ?? 'all'}
                     type="button"
                     onClick={() => setFilterCategory(cat.key)}
+                    aria-pressed={filterCategory === cat.key}
                     className={filterCategory === cat.key ? 'is-active' : ''}
                   >
                     {cat.label}
@@ -362,6 +343,7 @@ export default function Notifications() {
               </div>
             </div>
 
+            {items.length < matchingTotal && <p className="sk-muted sk-small">Wyszukiwanie i kategorie obejmują wczytane powiadomienia. Wczytaj więcej, aby rozszerzyć wyniki.</p>}
             <ErrorNotice error={fetchError} onRetry={() => fetchNotifications(true)} />
 
             {/* Loading state — first load */}
@@ -375,7 +357,7 @@ export default function Notifications() {
             )}
 
             {/* Empty state */}
-            {!loading && !fetchError && filteredItems.length === 0 && (
+            {!loading && !fetchError && filteredItems.length === 0 && !selected && (
               <StatePanel
                 tone="success"
                 icon="mail"
@@ -385,12 +367,12 @@ export default function Notifications() {
             )}
 
             {/* Notification list */}
-            {filteredItems.length > 0 && (
+            {(filteredItems.length > 0 || selected) && (
               <>
                 <p className="sk-notification-count">
                   {isFiltered
                     ? `Wyświetlono ${filteredItems.length} z ${items.length} wczytanych`
-                    : `Wyświetlono ${items.length} z ${total} powiadomień`}
+                    : `Wyświetlono ${items.length} z ${matchingTotal} powiadomień`}
                 </p>
                 <div className="sk-notification-workspace">
                 <div className="sk-notification-list">
@@ -398,20 +380,20 @@ export default function Notifications() {
                     <NotificationItem
                       key={n.id}
                       n={n}
-                      onRead={markRead}
                       onDelete={dismiss}
-                      onSelect={setSelectedId}
-                      selected={selectedId === n.id}
+                      onSelect={setSelected}
+                      selected={selected?.id === n.id}
+                      busy={mutating || loading}
                     />
                   ))}
                 </div>
                 <aside className="sk-notification-detail" aria-label="Szczegóły powiadomienia">
                   {selected ? <>
-                    <span className={`sk-badge tone-${eventTone(selected.event_type)}`}>{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
+                    <button type="button" className="sk-notification-detail-close" aria-label="Zamknij szczegóły powiadomienia" onClick={() => setSelected(null)}>×</button><span className={`sk-badge tone-${eventTone(selected.event_type)}`}>{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
                     <h2>{selected.title}</h2>
                     <time dateTime={selected.created_at}>{dateTime(selected.created_at)}</time>
                     <p>{selected.message}</p>
-                    <Button onClick={() => openRelated(selected)}>Otwórz powiązany widok</Button>
+                    <div className="sk-notification-detail-actions">{!selected.read_at && <Button disabled={mutating || loading} onClick={() => markRead(selected.id)}>Oznacz jako przeczytane</Button>}<Button onClick={() => openRelated(selected)}>Otwórz powiązany widok</Button></div>
                   </> : <StatePanel icon="bell" title="Wybierz powiadomienie" description="Pełna treść i powiązane działania pojawią się tutaj." />}
                 </aside>
                 </div>
@@ -419,9 +401,9 @@ export default function Notifications() {
             )}
 
             {/* Wczytaj więcej — only on All tab */}
-            {items.length < total && !loading && !fetchError && (
+            {items.length < matchingTotal && !loading && !fetchError && (
               <div className="sk-notification-load-more">
-                <Button size="sm" variant="outline" onClick={loadMore}>
+                <Button size="sm" variant="outline" onClick={loadMore} disabled={mutating}>
                   Wczytaj więcej
                 </Button>
               </div>
@@ -440,9 +422,9 @@ export default function Notifications() {
         {activeTab === 'preferences' && <ErrorNotice error={configError} onRetry={loadConfig} />}
         {activeTab === 'preferences' && configLoading && <StatePanel icon="refresh" title="Ładowanie preferencji" />}
         {activeTab === 'preferences' && !configLoading && !configError && (
-          <div className="sk-notification-preferences">
+          <form onSubmit={saveConfig}><fieldset disabled={configSaving} className="sk-notification-preferences">
             <section className="sk-notification-pref-card">
-              <h2>Powiadomienia e-mail</h2>
+              <h2>Kanały powiadomień</h2><p className="sk-muted sk-small">W aplikacji powiadomienia są zawsze aktywne. E-mail to dodatkowy kanał dostarczania.</p>
               <div className="space-y-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -457,6 +439,7 @@ export default function Notifications() {
                   <>
                     <Input
                       label="Adres powiadomień (opcjonalny)"
+                      aria-label="Adres powiadomień (opcjonalny)"
                       type="email"
                       value={notifConfig.notification_email}
                       onChange={e => setNotifConfig(prev => ({ ...prev, notification_email: e.target.value }))}
@@ -466,11 +449,14 @@ export default function Notifications() {
                     />
                     <Input
                       label="Limit powiadomień na godzinę"
+                      aria-label="Limit powiadomień na godzinę"
                       type="number"
                       min={1}
                       max={100}
+                      required
+                      step={1}
                       value={notifConfig.rate_limit_per_hour}
-                      onChange={e => setNotifConfig(prev => ({ ...prev, rate_limit_per_hour: parseInt(e.target.value) || 10 }))}
+                      onChange={e => setNotifConfig(prev => ({ ...prev, rate_limit_per_hour: e.target.value === '' ? '' : Number(e.target.value) }))}
                       size="sm"
                       className="w-24 dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
                     />
@@ -484,7 +470,7 @@ export default function Notifications() {
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                 Wybierz zdarzenia generujące powiadomienia. Powiadomienia w aplikacji są zawsze tworzone; e-mail jest wysyłany tylko po włączeniu kanału powyżej.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="sk-notification-event-options">
                 {eventTypes.map(evt => (
                   <label key={evt} className="flex items-center gap-2 cursor-pointer py-1">
                     <input
@@ -497,7 +483,7 @@ export default function Notifications() {
                   </label>
                 ))}
                 {eventTypes.length === 0 && (
-                  <p className="text-sm text-gray-400">Ładowanie typów zdarzeń…</p>
+                  <p className="text-sm text-gray-400">Brak dostępnych typów zdarzeń.</p>
                 )}
               </div>
               {notifConfig.events.length === 0 && (
@@ -505,12 +491,15 @@ export default function Notifications() {
               )}
             </section>
 
-            <div className="pt-2">
-              <Button onClick={saveConfig} disabled={configSaving}>
+            <div className="sk-notification-savebar">
+              <ErrorNotice error={saveError} />
+              <span role="status">{configSaving ? 'Zapisywanie…' : dirty ? 'Niezapisane zmiany' : 'Brak niezapisanych zmian'}</span>
+              <Button type="button" variant="outline" disabled={configSaving || !dirty} onClick={async () => { if (await confirm('Odrzucić niezapisane preferencje powiadomień?')) { setNotifConfig(savedConfig); setSaveError(null); } }}>Odrzuć zmiany</Button>
+              <Button type="submit" disabled={configSaving || !dirty}>
                 {configSaving ? 'Zapisywanie…' : 'Zapisz preferencje'}
               </Button>
             </div>
-          </div>
+          </fieldset></form>
         )}
       </div>
     </PageFrame>

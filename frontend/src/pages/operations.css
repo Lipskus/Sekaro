@@ -1,0 +1,48 @@
+/* Operational workspaces share the same surface and status tokens in both themes. */
+.sk-notification-workspace{grid-template-columns:minmax(0,2.2fr) minmax(285px,1fr);align-items:stretch}
+.sk-notification-workspace .sk-notification-list>div.sk-notification-row{display:flex;align-items:center;padding:0;background:var(--sk-surface)!important}
+.sk-notification-workspace .sk-notification-list>.sk-notification-row.is-selected{background:var(--sk-surface-alt)!important;box-shadow:inset 3px 0 var(--sk-accent)}
+.sk-notification-select{display:flex;align-items:flex-start;gap:14px;flex:1;min-width:0;padding:18px 16px;text-align:left;background:transparent;border:0;color:var(--sk-text)}
+.sk-notification-copy{display:grid;gap:6px;min-width:0}
+.sk-notification-copy strong{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.is-unread .sk-notification-copy strong{font-weight:700}
+.sk-notification-copy>span{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--sk-muted)}
+.sk-notification-copy small{display:flex;align-items:center;gap:10px;color:var(--sk-muted);font-size:11px}
+.sk-notification-copy b{font-size:10px;color:var(--sk-green-text);background:var(--sk-green-soft);border-radius:8px;padding:2px 6px}
+.sk-notification-delete{flex-shrink:0;display:grid;place-items:center;width:36px;height:36px;margin-right:8px;color:var(--sk-muted);border:0;background:transparent;border-radius:6px}
+.sk-notification-delete:hover{background:var(--sk-red-soft);color:var(--sk-red-text)}
+.sk-notification-select:focus-visible,.sk-notification-delete:focus-visible{outline:2px solid var(--sk-accent);outline-offset:-3px}
+.sk-notification-detail{min-height:360px;align-self:start}
+.sk-notification-detail>p{padding:14px;border:1px solid var(--sk-line);border-radius:10px;background:var(--sk-surface-alt)}
+.sk-notification-detail-actions{display:flex;gap:8px;flex-wrap:wrap}
+.sk-notification-filterbar{display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+.sk-notification-search{flex:1;min-width:min(100%,280px)}
+.sk-notification-preferences{margin:0;border:0;padding:0;min-width:0;grid-template-columns:minmax(260px,1fr) minmax(0,1.6fr);align-items:start}
+.sk-notification-pref-card>p{line-height:1.6;margin-bottom:18px}
+.sk-notification-event-options{display:grid}
+.sk-notification-event-options>label{min-height:46px;padding:12px 4px;border-bottom:1px solid var(--sk-line)}
+.sk-notification-event-options>label:last-child{border-bottom:0}
+.sk-notification-savebar{grid-column:1/-1;display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap;padding:16px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:10px}
+.sk-notification-savebar>.sk-notice{flex-basis:100%}
+.sk-notification-savebar>span{margin-right:auto;font-size:12px;color:var(--sk-muted)}
+.sk-health-tools{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(240px,1fr);gap:16px;margin-bottom:20px}
+.sk-health-tools .sk-panel{min-width:0}
+.sk-health-action-list{display:flex;flex-wrap:wrap;gap:10px;padding:16px}
+.sk-health-status-legend{display:flex;flex-wrap:wrap;gap:14px;padding:16px;margin:0;font-size:12px;color:var(--sk-muted)}
+.sk-health-status-legend>div{display:grid;gap:5px;flex:1;min-width:130px}
+.sk-health-status-legend dd{margin:0;line-height:1.5}
+.sk-health-filter{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0;color:var(--sk-muted);font-size:12px}
+.sk-health-filter label{display:flex;align-items:center;gap:10px}
+.sk-health-filter select{min-width:180px}
+.sk-schedule-validation{padding:16px;margin-bottom:16px;border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:10px}
+.sk-schedule-validation li{padding:10px 0;border-bottom:1px solid var(--sk-line);overflow-wrap:anywhere;font-size:12px}
+.sk-schedule-validation li p{margin-top:5px;color:var(--sk-muted)}
+.sk-schedule-list button.section-hdr{width:100%;text-align:left}
+@media(max-width:900px){.sk-notification-workspace,.sk-notification-preferences,.sk-health-tools{grid-template-columns:1fr}.sk-notification-detail{min-height:0;position:static;grid-row:auto}}
+
+.sk-notification-detail-close{float:right;width:30px;height:30px;border:0;border-radius:5px;background:var(--sk-surface-alt);color:var(--sk-muted);font-size:20px}
+
+/* Override legacy table striping and borders, including the dark calendar. */
+.sk-calendar-grid tr,.sk-calendar-grid tr:nth-child(even){background:var(--sk-surface)}
+.sk-calendar-grid th,.sk-calendar-grid td{border-color:var(--sk-line)}
+.sk-calendar-event strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}

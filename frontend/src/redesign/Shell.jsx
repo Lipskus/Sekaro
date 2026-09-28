@@ -14,7 +14,7 @@ export default function Shell({children}){
  const [menu,setMenu]=useState(false),[profile,setProfile]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState([]),[searchBusy,setSearchBusy]=useState(false),[searchError,setSearchError]=useState(''),[showSearch,setShowSearch]=useState(false);
  const location=useLocation(),navigate=useNavigate(),searchRef=useRef(null),searchBoxRef=useRef(null),profileRef=useRef(null);
  const userName=user?.display_name||user?.name||user?.username||user?.email||'Administrator';
- const storage=rawData?.storage;
+ const storage=healthError?null:rawData?.storage;
  const diskUsed=storage?.available?Math.max(0,Math.min(100,Number(storage.used_percent)||0)):0;
  const diskTone=!storage?.available?'neutral':diskUsed>=95?'red':diskUsed>=85?'amber':'green';
  const diskFree=storage?.available

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import './calendar.css';
 import { Button, Badge, Icon, Panel, Switch, Empty } from './ui';
-import { addDaysToDateKey, formatDateKey, formatTimeKey } from '../utils/datetime';
+import { addDaysToDateKey, formatDateKey, formatTimeKey, parseApiDate } from '../utils/datetime';
 
+const itemTime = item => +parseApiDate(item.type === 'sent' ? item.sent_at : item.scheduled_at);
 const messageCount = count => `${count} ${count === 1 ? 'wiadomość' : 'wiadomości'}`;
 
 export function calendarDays(anchor, mode = 'week') {
@@ -26,7 +27,7 @@ export function groupCalendarItems(items, zone) {
     if (!groups.has(key)) groups.set(key, { key, day, hour: Math.floor(hour / 2) * 2, name: item.campaign_name, type: item.type, items: [] });
     groups.get(key).items.push(item);
   }
-  return [...groups.values()];
+  return [...groups.values()].map(group => ({...group, items: group.items.sort((a, b) => itemTime(a) - itemTime(b))}));
 }
 
 function dayLabel(day, options) {
@@ -46,11 +47,12 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
   const displayedGroups = groups.filter(g => visibleDays.includes(g.day));
   const hours = [...new Set([8, 10, 12, 14, 16, 18, ...displayedGroups.map(g => g.hour)])].sort((a, b) => a - b);
   const todayItems = items.filter(i => formatDateKey(i.sent_at || i.scheduled_at, zone) === today)
-    .sort((a, b) => (a.sent_at || a.scheduled_at).localeCompare(b.sent_at || b.scheduled_at));
+    .sort((a, b) => itemTime(a) - itemTime(b));
   const zones = [...new Set([zone, 'UTC', Intl.DateTimeFormat().resolvedOptions().timeZone, ...items.map(i => i.campaign_timezone)].filter(Boolean))];
-  const chosen = selectedGroup && groups.find(g => g.key === selectedGroup);
+  const chosen = selectedGroup && displayedGroups.find(g => g.key === selectedGroup);
 
   useEffect(() => { onRangeChange(days[0], days[days.length - 1]); }, [days, onRangeChange]);
+  useEffect(() => { setSelectedGroup(null); }, [anchor, mode, zone, hideWeekend]);
   const move = direction => {
     if (mode === 'week') setAnchor(addDaysToDateKey(anchor, direction * 7));
     else {
@@ -71,7 +73,7 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
       <div className="sk-calendar-controls">
         <div className="sk-calendar-navigation">
           <Button icon="prev" aria-label="Poprzedni okres" onClick={() => move(-1)} disabled={busy} />
-          <Button onClick={() => setAnchor(today)}>Dzisiaj</Button>
+          <Button onClick={() => { setAnchor(today); setSelectedGroup(null); }}>Dzisiaj</Button>
           <Button icon="next" aria-label="Następny okres" onClick={() => move(1)} disabled={busy} />
           <h2>{mode === 'month' ? dayLabel(anchor, { month: 'long', year: 'numeric' }) : `${dayLabel(days[0], { day: 'numeric', month: 'short' })} – ${dayLabel(days[6], { day: 'numeric', month: 'short', year: 'numeric' })}`}</h2>
         </div>
@@ -99,13 +101,13 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
         <Switch label="Ukryj weekend" checked={hideWeekend} onChange={setHideWeekend} />
       </div></Panel>
       <Panel title={chosen ? chosen.name : 'Dzisiaj'} icon={chosen ? 'mail' : 'calendar'} action={chosen && <Button icon="close" aria-label="Zamknij listę bloku" onClick={() => setSelectedGroup(null)} />}>
-        <div className="sk-calendar-agenda">
+        <div className="sk-calendar-agenda"><div className="sk-calendar-agenda-items">
           <p className="sk-muted">{chosen ? dayLabel(chosen.day, { day: 'numeric', month: 'long' }) : dayLabel(today, { day: 'numeric', month: 'long' })} · {messageCount((chosen?.items || todayItems).length)}</p>
-          {(chosen?.items || todayItems).length ? (chosen?.items || todayItems).map(item => <button type="button" key={`${item.type}-${item.slot_id ?? item.log_id}`} onClick={() => onPreview(item)}>
+          {(chosen?.items || todayItems).length ? (chosen?.items || todayItems).map(item => <button type="button" key={`${item.type}-${item.slot_id ?? item.log_id}`} onClick={() => onPreview(item)} disabled={busy}>
             <strong>{formatTimeKey(item.sent_at || item.scheduled_at, zone)} · {item.campaign_name}</strong>
             <span>{item.lead_email}</span><small>{item.subject || '(bez tematu)'}</small>
           </button>) : <Empty icon="calendar">Brak wiadomości.</Empty>}
-          <Button onClick={onOpenQueue}>Otwórz pełną kolejkę</Button>
+          </div><Button onClick={onOpenQueue}>Otwórz pełną kolejkę</Button>
         </div>
       </Panel>
       <p className="sk-calendar-hint"><Icon name="info" size={17} /> Kolejka respektuje limity i okna wysyłki każdej kampanii.</p>
