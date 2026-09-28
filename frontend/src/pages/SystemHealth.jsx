@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { parseApiDate } from '../utils/datetime';
+import { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useSystemHealth } from '../context/SystemHealthContext';
 import { useAppMode } from '../context/AppModeContext';
@@ -20,7 +21,7 @@ import {
   RiGlobalLine,
   RiHardDrive2Line,
 } from 'react-icons/ri';
-import { PageFrame, Metric, Button, ErrorNotice, StatePanel } from '../redesign/ui';
+import { PageFrame, Metric, Button, ErrorNotice, StatePanel, Panel, Badge } from '../redesign/ui';
 
 /* ─── helpers ───────────────────────────────────────────────────────────── */
 
@@ -290,7 +291,7 @@ function CheckMeta({ check }) {
             </div>
             {f.enabled && f.last_error && (
               <p className="text-xs text-red-400 truncate ml-1">
-                {f.last_error_at ? new Date(f.last_error_at).toLocaleString() + ': ' : ''}{f.last_error}
+                {f.last_error_at ? parseApiDate(f.last_error_at).toLocaleString() + ': ' : ''}{f.last_error}
               </p>
             )}
           </div>
@@ -321,7 +322,7 @@ function CheckMeta({ check }) {
         )}
         {ev.last_error && (
           <p className="text-xs text-red-400 truncate">
-            {ev.last_error_at ? new Date(ev.last_error_at).toLocaleString() + ': ' : ''}{ev.last_error}
+            {ev.last_error_at ? parseApiDate(ev.last_error_at).toLocaleString() + ': ' : ''}{ev.last_error}
           </p>
         )}
       </div>
@@ -371,13 +372,14 @@ function CheckMeta({ check }) {
 export default function SystemHealth() {
   const { checks, loading, lastChecked, fetchError, refresh, muted, toggleMute, overallStatus, rawData } = useSystemHealth();
 
-  const issueCount = checks.reduce((n, c) => n + c.issues.length, 0);
+  const [filter, setFilter] = useState('all');
+  const issueCount = checks.reduce((n, c) => n + c.issues.filter(issue => ['error', 'warning'].includes(issue.level)).length, 0);
   const errorChecks = checks.filter(check => check.status === 'error').length;
   const warningChecks = checks.filter(check => check.status === 'warning').length;
   const okChecks = checks.filter(check => check.status === 'ok').length;
   const diagnosticsAvailable = !!rawData && !fetchError;
   const mailboxCount = rawData?.inboxes?.length || rawData?.smtp?.accounts?.length || 0;
-  const storageUsed = rawData?.storage?.available
+  const storageUsed = diagnosticsAvailable && rawData?.storage?.available && rawData.storage.used_percent != null && Number.isFinite(Number(rawData.storage.used_percent))
     ? Math.max(0, Math.min(100, Number(rawData.storage.used_percent) || 0))
     : null;
 
@@ -390,6 +392,8 @@ export default function SystemHealth() {
     if (aIsMuted !== bIsMuted) return aIsMuted ? 1 : -1;
     return (STATUS_RANK[b.status] ?? 0) - (STATUS_RANK[a.status] ?? 0);
   });
+
+  const visibleChecks = sortedChecks.filter(check => filter === 'all' || (filter === 'attention' ? ['warning', 'error'].includes(check.status) : check.status === filter));
 
   const unmuteAll = useCallback(() => {
     checks.forEach(c => { if (muted.has(c.id)) toggleMute(c.id); });
@@ -409,12 +413,12 @@ export default function SystemHealth() {
           icon="shield"
           title="Status systemu"
           value={overallStatus === 'error' ? 'Błąd' : overallStatus === 'warning' ? 'Ostrzeżenie' : overallStatus === 'ok' ? 'Dostępny' : 'Nieznany'}
-          detail={!diagnosticsAvailable ? 'Oczekiwanie na dane diagnostyczne' : issueCount ? `${issueCount} problemów do sprawdzenia` : 'Brak aktywnych problemów'}
+          detail={!diagnosticsAvailable ? 'Oczekiwanie na dane diagnostyczne' : issueCount ? `${issueCount} ${issueCount === 1 ? 'problem' : 'problemów'} do sprawdzenia` : 'Brak aktywnych problemów'}
           tone={overallStatus === 'error' ? 'red' : overallStatus === 'warning' ? 'amber' : overallStatus === 'ok' ? 'green' : 'neutral'}
         />
         <Metric icon="mail" title="SMTP / IMAP" value={diagnosticsAvailable ? mailboxCount : '—'} detail={!diagnosticsAvailable ? 'brak danych o skrzynkach' : mailboxCount ? 'skonfigurowane skrzynki' : 'brak skrzynek — blokada'} tone={!diagnosticsAvailable ? 'neutral' : mailboxCount ? 'green' : 'red'} />
         <Metric icon="server" title="Kontrole" value={diagnosticsAvailable ? checks.length : '—'} detail={diagnosticsAvailable ? `${okChecks} OK · ${warningChecks} ostrzeżeń · ${errorChecks} błędów` : 'brak wyników kontroli'} tone={!diagnosticsAvailable ? 'neutral' : errorChecks ? 'red' : warningChecks ? 'amber' : 'green'} />
-        <Metric icon="chart" title="Dysk" value={storageUsed == null ? '—' : `${storageUsed.toFixed(0)}%`} detail={rawData?.storage?.available ? 'wykorzystanie magazynu danych' : 'brak danych o pojemności'} tone={storageUsed == null ? 'neutral' : storageUsed >= 95 ? 'red' : storageUsed >= 85 ? 'amber' : 'green'} />
+        <Metric icon="chart" title="Dysk" value={storageUsed == null ? '—' : `${storageUsed.toFixed(0)}%`} detail={storageUsed != null ? 'wykorzystanie magazynu danych' : 'brak danych o pojemności'} tone={storageUsed == null ? 'neutral' : storageUsed >= 95 ? 'red' : storageUsed >= 85 ? 'amber' : 'green'} />
       </div>
 
       <OverallHeader
@@ -425,9 +429,14 @@ export default function SystemHealth() {
         onRefresh={refresh}
       />
 
-      {checks.length > 0 ? (
+      <div className="sk-health-tools">
+        <Panel title="Szybkie działania" icon="settings"><div className="sk-health-action-list"><Button to="/inboxes" icon="mail">Testy SMTP / IMAP</Button><Button to="/settings#backup-restore" icon="history">Kopie zapasowe</Button><Button to="/domains" icon="globe">Sprawdź domeny</Button><Button to="/schedule" icon="calendar">Kolejka wysyłki</Button></div></Panel>
+        <Panel title="Legenda statusów" icon="info"><dl className="sk-health-status-legend"><div><dt><Badge tone="green">OK</Badge></dt><dd>Kontrola nie wykryła problemów.</dd></div><div><dt><Badge tone="amber">Ostrzeżenie</Badge></dt><dd>Konfiguracja wymaga sprawdzenia.</dd></div><div><dt><Badge tone="red">Błąd</Badge></dt><dd>Wymagana reakcja administratora.</dd></div></dl></Panel>
+      </div>
+      {diagnosticsAvailable && <div className="sk-health-filter"><label>Wyniki kontroli<select value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Wszystkie</option><option value="attention">Wymagające uwagi</option><option value="error">Błędy</option><option value="warning">Ostrzeżenia</option><option value="ok">OK</option></select></label><span>{visibleChecks.length} z {checks.length} kontroli</span></div>}
+      {diagnosticsAvailable && checks.length > 0 ? (
         <div className="sk-health-grid">
-          {sortedChecks.map(check => (
+          {visibleChecks.map(check => (
             <CheckCard
               key={check.id}
               check={check}
@@ -435,11 +444,12 @@ export default function SystemHealth() {
               onToggleMute={toggleMute}
             />
           ))}
+          {!visibleChecks.length && <StatePanel icon="shield" title="Brak wyników dla tego filtra" description="Wybierz inny status kontroli." />}
         </div>
       ) : loading ? (
         <StatePanel tone="info" icon="refresh" title="Wczytywanie diagnostyki" description="Sprawdzamy usługi, skrzynki i konfigurację Sekaro." />
       ) : (
-        <StatePanel tone="warning" icon="warning" title="Brak danych diagnostycznych" description="Uruchom ponownie diagnostykę systemu." actions={<Button onClick={refresh}>Sprawdź ponownie</Button>} />
+        <StatePanel tone="warning" icon="warning" title="Brak danych diagnostycznych" description={lastChecked ? `Ostatni udany pomiar: ${lastChecked.toLocaleString('pl-PL')}. Wyniki są nieaktualne — odśwież diagnostykę.` : 'Uruchom ponownie diagnostykę systemu.'} actions={<Button onClick={refresh}>Sprawdź ponownie</Button>} />
       )}
 
       <p className="sk-health-footer">

@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
 import { useNotify } from '../context/NotificationContext';
 import { useAppMode } from '../context/AppModeContext';
@@ -14,6 +15,7 @@ import {
   formatDateTimeKey,
   formatTimeKey,
   normalizeTimeZone,
+  parseApiDate,
 } from '../utils/datetime';
 
 const DAY_NAMES = ['Pn','Wt','Śr','Cz','Pt','So','Nd'];
@@ -34,7 +36,7 @@ export default function Schedule() {
   const [scheduled, setScheduled] = useState(() => apiCache.get('/schedule/scheduled') || []);
   const [stats, setStats] = useState(() => apiCache.get('/schedule/stats') || {});
   const [serverStatus, setServerStatus] = useState(() => apiCache.get('/status') || {});
-  const [strategy, setStrategy] = useState('priority');
+  const [strategy, setStrategy] = useState(null);
   const [timeToNext, setTimeToNext] = useState('');
 
   const [view, setView] = useState('calendar');
@@ -49,8 +51,16 @@ export default function Schedule() {
   const [scheduledExpanded, setScheduledExpanded] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
   const [previewItem, setPreviewItem] = useState(null);
+  const hasPreview = !!previewItem;
+  useEffect(() => { if (hasPreview) window.scrollTo({top: 0, behavior: 'instant'}); }, [hasPreview]);
   const [previewBusy, setPreviewBusy] = useState(false);
   const previewRequest = useRef(0);
+  const [previewError, setPreviewError] = useState(null);
+  const [previewTarget, setPreviewTarget] = useState(null);
+  const operationLock = useRef(false);
+  const [validation, setValidation] = useState(null);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; ++previewRequest.current; }; }, []);
 
   const [daysBack, setDaysBack] = useState(SCHEDULE_DAYS_BACK);
   const [daysAhead, setDaysAhead] = useState(SCHEDULE_DAYS_AHEAD);
@@ -73,7 +83,7 @@ export default function Schedule() {
         return merged;
       }
       if (item.type === 'sent') {
-        if (item.sequence_body || (item.opens && item.clicks)) return item;
+        if (Array.isArray(item.opens) && Array.isArray(item.clicks)) return item;
         const data = await api.get(`/schedule/sent/${item.log_id}`);
         const merged = { ...item, ...data };
         setSent(prev => prev.map(s => s.log_id === item.log_id ? merged : s));
@@ -88,11 +98,12 @@ export default function Schedule() {
 
   const openPreview = async item => {
     const request = ++previewRequest.current;
-    setPreviewBusy(true);
+    setPreviewBusy(true); setPreviewError(null); setPreviewTarget(item);
     const full = await ensureDetail(item);
     if (request !== previewRequest.current) return;
     setPreviewBusy(false);
     if (full) setPreviewItem(full);
+    else setPreviewError('Nie udało się wczytać wybranej wiadomości.');
   };
 
   const loadData = async (opts = {}) => {
@@ -125,16 +136,16 @@ export default function Schedule() {
       setScheduled(sch);
       setStats(st);
       setServerStatus(srv);
-      setStrategy(stratData.scheduling_strategy || 'priority');
+      setStrategy(stratData.scheduling_strategy || null);
       const camps = new Map();
       // reset countdown first so stale values disappear when schedule is empty
       setTimeToNext('');
       // compute delay until next scheduled email using server timestamp (if
       // available) otherwise fall back to local clock
       if (sch && sch.length) {
-        const now = srv.server_time ? new Date(srv.server_time) : new Date();
+        const now = srv.server_time ? parseApiDate(srv.server_time) : new Date();
         const future = sch
-          .map(i => new Date(i.scheduled_at))
+          .map(i => parseApiDate(i.scheduled_at))
           .filter(d => d > now)
           .sort((a,b) => a - b)[0];
         if (future) {
@@ -204,82 +215,42 @@ export default function Schedule() {
   };
   const renderLastRun = iso => {
     if (!iso) return '—';
-    const d = new Date(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
+    const d = parseApiDate(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
+    if (!Number.isFinite(diff)) return '—';
     return diff < 1 ? 'Przed chwilą' : `${diff} min temu`;
   };
   const recalculateAll = async () => {
-    setRecalcState({ busy: true, text: '⚡ Przeliczanie…' });
-    const baselineStats = await api.get('/schedule/stats').catch(() => ({}));
+    if (operationLock.current) return;
+    operationLock.current = true;
+    setRecalcState({ busy: true, text: 'Przeliczanie…' });
     try {
-      const res = await fetch('/api/schedule/recalculate-all',{method:'POST'});
-      if (res.ok) {
-        const data = await res.json();
-        const stratLabel = strategy==='priority'?'Priorytet':'Równomiernie';
-        if (data.accepted) {
-          setRecalcState({ busy: true, text: '⚡ Trwa przeliczanie…' });
-          // Server sets global_recalc_finished_at when the job completes; polling
-          // slot counts is unreliable (same total as before, or no visible "empty" window).
-          const baselineToken = baselineStats?.global_recalc_finished_at ?? null;
-          const deadline = Date.now() + 120000;
-          for (let i = 0; Date.now() < deadline; i++) {
-            const delay = i < 30 ? 350 : 1000;
-            await new Promise(r => setTimeout(r, delay));
-            await loadData();
-            const st = await api.get('/schedule/stats').catch(() => ({}));
-            const t = st.global_recalc_finished_at;
-            if (t != null && t !== baselineToken) break;
-          }
-          await loadData();
-          const finalStats = await api.get('/schedule/stats').catch(() => ({}));
-          const message = `✓ Gotowe [${stratLabel}] (${finalStats.total_campaigns ?? '—'} kampanii, ${finalStats.total_scheduled ?? '—'} zaplanowanych)`;
-          setRecalcState({ busy: true, text: message });
-        } else {
-          const message = `✓ Gotowe [${stratLabel}] (${data.campaigns_processed} kampanii, ${data.total_slots} pozycji)`;
-          setRecalcState({ busy: true, text: message });
-          setTimeout(loadData, 100);
+      const baseline = await api.get('/schedule/stats');
+      const data = await api.post('/schedule/recalculate-all');
+      if (data.accepted) {
+        const deadline = Date.now() + 120000;
+        let completed = false;
+        while (mounted.current && Date.now() < deadline) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          if (!mounted.current) return;
+          const result = await api.get('/schedule/stats');
+          if (result.global_recalc_finished_at && result.global_recalc_finished_at !== baseline.global_recalc_finished_at) { completed = true; break; }
         }
-      } else {
-        const t = await res.text();
-        notify({ type: 'error', message: 'Błąd podczas przeliczania: ' + t });
-        setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
+        if (!mounted.current) return;
+        if (!completed) throw new Error('Serwer przyjął zadanie, ale nie potwierdził zakończenia w ciągu 2 minut. Odśwież kolejkę, aby sprawdzić wynik.');
       }
-    } catch(err) {
-      notify({ type: 'error', message: 'Błąd: ' + err.message });
-      setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
-    } finally {
-      setTimeout(()=>{
-        setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' });
-      },2000);
-    }
+      if (mounted.current) { await loadData(); notify({ type: 'success', message: 'Przeliczanie kampanii zakończone.' }); }
+    } catch (e) { if (mounted.current) notify({ type: 'error', message: e.message }); }
+    finally { operationLock.current = false; if (mounted.current) setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' }); }
   };
   const validateQueue = async () => {
-    setValidateState({ busy: true, text: '🔍 Sprawdzanie…' });
+    if (operationLock.current) return;
+    operationLock.current = true;
+    setValidateState({ busy: true, text: 'Sprawdzanie…' });
     try {
-      const res = await fetch('/api/schedule/validate-queue',{method:'POST'});
-      if (res.ok) {
-        const data = await res.json();
-        const issues = data.issues||[];
-        const txt = `✓ Sprawdzono (${data.total_slots_checked} pozycji, problemy: ${issues.length})`;
-        setValidateState({ busy: true, text: txt });
-        if (issues.length) {
-          notify({ type: 'error', message: `Sprawdzanie zakończone — znaleziono ${issues.length} problemów. Szczegóły są w konsoli.` });
-          console.log('Wynik sprawdzania kolejki:', data);
-        }
-        loadData();
-      } else {
-        const t = await res.text();
-        notify({ type: 'error', message: 'Sprawdzanie kolejki nie powiodło się: ' + t });
-        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
-      }
-    } catch(err){
-      notify({ type: 'error', message: 'Błąd: ' + err.message });
-      setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
-    }
-    finally {
-      setTimeout(()=>{
-        setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' });
-      },2000);
-    }
+      const result = await api.post('/schedule/validate-queue');
+      if (mounted.current) { setValidation(result); await loadData(); }
+    } catch (e) { if (mounted.current) notify({ type: 'error', message: 'Sprawdzanie kolejki nie powiodło się: ' + e.message }); }
+    finally { operationLock.current = false; if (mounted.current) setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' }); }
   };
 
   const groupByDate = (items, reverse=false) => {
@@ -412,12 +383,12 @@ export default function Schedule() {
     const tomorrowByTz = new Map();
     const parts = [];
     if (filteredSent.length) {
-      const totalSent = stats.total_sent ?? filteredSent.length;
+      const totalSent = filteredSent.length;
       parts.push(
         <div key="past">
-          <div className="section-hdr" onClick={() => setPastExpanded(pe=>!pe)}>
-            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości)
-          </div>
+          <button type="button" className="section-hdr" aria-expanded={pastExpanded} onClick={() => setPastExpanded(pe=>!pe)}>
+            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości w widocznym zakresie)
+          </button>
           {pastExpanded && groupByDate(filteredSent,true).map(group => (
             <div key={`${group.tz}-${group.dateKey}`}>
               <div className="date-hdr">
@@ -431,12 +402,12 @@ export default function Schedule() {
       );
     }
     if (filteredScheduled.length) {
-      const totalScheduled = stats.total_scheduled ?? filteredScheduled.length;
+      const totalScheduled = filteredScheduled.length;
       parts.push(
         <div key="upcoming">
-          <div className="section-hdr" onClick={() => setScheduledExpanded(se => !se)}>
-            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości)
-          </div>
+          <button type="button" className="section-hdr" aria-expanded={scheduledExpanded} onClick={() => setScheduledExpanded(se => !se)}>
+            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości w widocznym zakresie)
+          </button>
           {scheduledExpanded && groupByDate(filteredScheduled,false).map(group => {
             if (!todayByTz.has(group.tz)) {
               const todayKey = formatDateKey(new Date(), group.tz);
@@ -475,19 +446,19 @@ export default function Schedule() {
   };
 
   const filters = (<div className="sk-schedule-toolbar">
-        <select aria-label="Kampania" value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
+        <label>Kampania<select aria-label="Kampania" value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
           <option value="">Wszystkie kampanie</option>
           {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
-        </select>
-        <select aria-label="Skrzynka" value={inboxFilter} onChange={e => setInboxFilter(e.target.value)}>
+        </select></label>
+        <label>Skrzynka<select aria-label="Skrzynka" value={inboxFilter} onChange={e => setInboxFilter(e.target.value)}>
           <option value="">Wszystkie skrzynki</option>
           {[...new Map([...sent, ...scheduled].filter(i => i.inbox_id).map(i => [i.inbox_id, i.inbox_email])).entries()].map(([id, email]) => <option key={id} value={id}>{email || `Skrzynka #${id}`}</option>)}
-        </select>
-        <select aria-label="Status wiadomości" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
+        </select></label>
+        <label>Status wiadomości<select aria-label="Status wiadomości" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
           <option value="">Wszystkie statusy</option>
           <option value="sent">Wysłane</option>
           <option value="scheduled">Zaplanowane</option>
-        </select>
+        </select></label>
         <input type="search" aria-label="Szukaj w kolejce" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
         <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
         {!isProduction && (
@@ -497,7 +468,7 @@ export default function Schedule() {
               size="sm"
               variant="outline"
               onClick={validateQueue}
-              disabled={validateState.busy}
+              disabled={validateState.busy || recalcState.busy}
             >
               {validateState.text}
             </Button>
@@ -506,7 +477,7 @@ export default function Schedule() {
               size="sm"
               variant="outline"
               onClick={recalculateAll}
-              disabled={recalcState.busy}
+              disabled={validateState.busy || recalcState.busy}
             >
               {recalcState.text}
             </Button>
@@ -519,7 +490,7 @@ export default function Schedule() {
       className="sk-schedule-page"
       title={previewItem ? "Podgląd wiadomości w kolejce" : "Harmonogram i kolejka"}
       description="Monitoruj zaplanowane i wysłane wiadomości w strefach czasowych kampanii."
-      actions={previewItem ? <Button variant="outline" onClick={() => { previewRequest.current += 1; setPreviewBusy(false); setPreviewItem(null); }}>Wróć do harmonogramu</Button> : <><Button size="sm" variant="outline" onClick={() => setView(v => v === 'calendar' ? 'queue' : 'calendar')}>{view === 'calendar' ? 'Lista wiadomości' : 'Kalendarz'}</Button><Button size="sm" variant="outline" disabled={refreshing} onClick={() => loadData()}>↻ Odśwież</Button></>}
+      actions={previewItem ? <Button variant="outline" onClick={() => { previewRequest.current += 1; setPreviewBusy(false); setPreviewItem(null); setPreviewError(null); setPreviewTarget(null); }}>Wróć do harmonogramu</Button> : <><Button size="sm" variant="outline" onClick={() => setView(v => v === 'calendar' ? 'queue' : 'calendar')}>{view === 'calendar' ? 'Lista wiadomości' : 'Kalendarz'}</Button><Button size="sm" variant="outline" disabled={refreshing} onClick={() => loadData()}>↻ Odśwież</Button></>}
     >
       <div hidden={!!previewItem}>
       {initialLoaded && !fetchError && <Card className="sk-schedule-statusbar flex flex-wrap justify-between items-center mb-4 p-2">
@@ -527,18 +498,18 @@ export default function Schedule() {
           {!isProduction && (
             <>
               <div>
-                <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={serverStatus.test_mode?'text-red-600':'text-green-600'}>{serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
+                <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={typeof serverStatus.test_mode !== 'boolean' ? 'sk-muted' : serverStatus.test_mode?'text-red-600':'text-green-600'}>{typeof serverStatus.test_mode !== 'boolean' ? 'Brak danych' : serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
               </div>
               <div title="Zegar serwera (UTC). Okna wysyłki kampanii są interpretowane w skonfigurowanej strefie czasowej, zapisywane jako UTC i wyświetlane tutaj w lokalnym czasie przeglądarki.">
                 <span className="text-sm text-gray-500">Serwer (UTC):</span>{' '}
                 <span className="font-mono text-xs">
                   {serverStatus.server_time
-                    ? new Date(serverStatus.server_time).toISOString().replace('T',' ').slice(0,19) + ' UTC'
+                    ? parseApiDate(serverStatus.server_time).toISOString().replace('T',' ').slice(0,19) + ' UTC'
                     : '—'}
                 </span>
                 {serverStatus.server_time && (
                   <span className="ml-1 text-xs text-gray-400">
-                    = {new Date(serverStatus.server_time).toLocaleTimeString()} lokalnie
+                    = {parseApiDate(serverStatus.server_time).toLocaleTimeString()} lokalnie
                   </span>
                 )}
               </div>
@@ -558,7 +529,7 @@ export default function Schedule() {
             <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count ?? '—'}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Strategia:</span> <span className={strategy==='round_robin'?'text-teal-500':'text-gray-900'} style={{cursor:'pointer',textDecoration:'underline dotted',textUnderlineOffset:'3px'}} title="Zmień w ustawieniach" onClick={() => { window.location = '/settings#general'; }}>{strategy==='priority'?'Priorytet':'Równomiernie'}</span>
+            <span className="text-sm text-gray-500">Strategia:</span> <Link to="/settings#general" title="Zmień w ustawieniach">{strategy==='priority'?'Priorytet':strategy==='round_robin'?'Równomiernie':'Brak danych'}</Link>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -568,9 +539,10 @@ export default function Schedule() {
       {view === 'queue' && initialLoaded && !fetchError && <div className="sk-schedule-metrics">
         <Metric icon="send" title="Wysłane" value={(stats.total_sent||0).toLocaleString('pl-PL')} detail="łącznie w historii wysyłki" tone="blue" />
         <Metric icon="calendar" title="Zaplanowane" value={(stats.total_scheduled||0).toLocaleString('pl-PL')} detail={timeToNext ? `następna za ${timeToNext}` : 'oczekujące w kolejce'} tone="green" />
-        <Metric icon="campaign" title="Kampanie" value={stats.total_campaigns||0} detail={strategy==='priority'?'strategia priorytetowa':'równomierny podział'} tone="purple" />
+        <Metric icon="campaign" title="Kampanie" value={stats.total_campaigns||0} detail={strategy==='priority'?'strategia priorytetowa':strategy==='round_robin'?'równomierny podział':'brak danych o strategii'} tone="purple" />
         <Metric icon="server" title="Scheduler" value={typeof serverStatus.schedule_running !== 'boolean' ? '—' : serverStatus.schedule_running ? 'Online' : 'Stop'} detail={`ostatni przebieg: ${renderLastRun(serverStatus.last_send_job_run)}`} tone={typeof serverStatus.schedule_running !== 'boolean' ? 'neutral' : serverStatus.schedule_running ? 'green' : 'red'} />
       </div>}
+      {validation && <section className="sk-schedule-validation" aria-label="Wynik sprawdzania kolejki"><h2>Sprawdzono {validation.total_slots_checked} pozycji · problemy: {validation.issues?.length || 0}</h2><ul>{(validation.issues || []).map((issue, index) => <li key={index}><strong>{issue.campaign_name || 'Kampania'} · {issue.lead_email || '—'}</strong><p>{issue.details}</p></li>)}</ul><Button variant="outline" onClick={() => setValidation(null)}>Zamknij wynik</Button></section>}
       {view === 'queue' && filters}
       <ErrorNotice error={fetchError} onRetry={() => loadData()} />
       {!initialLoaded ? <StatePanel icon="refresh" title="Ładowanie harmonogramu" description="Pobieramy kolejkę wysyłki." /> : !fetchError && view === 'calendar' && <ScheduleCalendar
@@ -585,6 +557,7 @@ export default function Schedule() {
       </Card>}
 
       </div>
+      <ErrorNotice error={previewError} onRetry={previewBusy ? undefined : () => openPreview(previewTarget)} />
       {previewBusy && !previewItem && <p role="status">Wczytywanie podglądu wiadomości…</p>}
       {previewItem && <ScheduleMessagePreview item={previewItem} items={[...filteredScheduled, ...filteredSent]} onSelect={openPreview} busy={previewBusy} />}
     </PageFrame>

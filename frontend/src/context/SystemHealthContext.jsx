@@ -408,45 +408,36 @@ export function SystemHealthProvider({ children }) {
   const { user } = useAuth();
   const refreshTimerRef = useRef(null);
 
-  const refresh = useCallback(async () => {
+  const generation = useRef(0), pending = useRef(null);
+  const refresh = useCallback(() => {
+    if (pending.current) return pending.current;
+    const request = ++generation.current;
     setLoading(true);
-    setFetchError(null);
-    try {
-      const data = await fetchAllHealthData();
-      setRawData(data);
-      setChecks(buildChecks(data));
-      setLastChecked(new Date());
-    } catch (e) {
-      setFetchError(e.message);
-    } finally {
-      setLoading(false);
-    }
+    // Preserve an existing error until a successful retry replaces it.
+    const promise = fetchAllHealthData().then(data => {
+      if (request !== generation.current) return;
+      setRawData(data); setChecks(buildChecks(data));
+      setLastChecked(new Date()); setFetchError(null);
+    }).catch(e => {
+      if (request === generation.current) setFetchError(e.message || 'Diagnostyka niedostępna');
+    }).finally(() => {
+      if (request === generation.current) { pending.current = null; setLoading(false); }
+    });
+    pending.current = promise;
+    return promise;
   }, []);
 
   useEffect(() => {
-    if (!user) return;
-    setLastChecked(null);
-  }, [refresh, user]);
-
-  useEffect(() => {
-    if (!user) {
-      if (refreshTimerRef.current) {
-        clearInterval(refreshTimerRef.current);
-        refreshTimerRef.current = null;
-      }
-      return;
+    setRawData(null); setChecks([]); setLastChecked(null); setFetchError(null); setLoading(false);
+    if (user) {
+      refresh();
+      refreshTimerRef.current = setInterval(refresh, AUTO_REFRESH_MS);
     }
-
-    refresh();
-    refreshTimerRef.current = setInterval(refresh, AUTO_REFRESH_MS);
-
     return () => {
-      if (refreshTimerRef.current) {
-        clearInterval(refreshTimerRef.current);
-        refreshTimerRef.current = null;
-      }
+      ++generation.current; pending.current = null;
+      clearInterval(refreshTimerRef.current); refreshTimerRef.current = null;
     };
-  }, [refresh, user]);
+  }, [refresh, user?.id]);
 
   const toggleMute = useCallback((checkId) => {
     setMutedState(prev => {
