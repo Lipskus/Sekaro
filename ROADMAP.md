@@ -207,6 +207,46 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 - Public installation guide
 - Stable API surface
 
+## 1.1+ — CRM expansion
+
+CRM is a strategic extension of Sekaro's outreach workflow, not a separate product. Campaigns acquire and qualify contacts; the CRM should preserve the full relationship from first outreach through reply, follow-up, meeting, opportunity and customer status. Implementation starts only after the current redesign QA and the 1.0 stability gate are complete.
+
+### Phase 1 — CRM core and central contact model
+- [ ] Make each person a central contact record independent of any individual list or campaign, while preserving list membership and campaign history.
+- [ ] Add first-class company records with multiple contacts, company-level custom fields, tags and ownership.
+- [ ] Provide manual create/edit/archive flows for contacts and companies alongside CSV/XLSX imports.
+- [ ] Build a complete contact/company detail view with notes, tags, status, custom fields and a unified activity timeline.
+- [ ] Link sent messages, replies, bounces, unsubscribes, campaigns and inbox threads to the same contact record.
+- [ ] Add safe duplicate detection and merge with an auditable preview; never merge or delete automatically.
+- [ ] Preserve suppression and unsubscribe enforcement independently of CRM status or pipeline stage.
+
+### Phase 2 — sales workflow
+- [ ] Add configurable lifecycle statuses and sales pipelines with Kanban and list views.
+- [ ] Add opportunities/deals linked to contacts and companies, including stage, value, probability, expected close date and outcome.
+- [ ] Add tasks, due dates, reminders, priorities and snooze.
+- [ ] Add meetings and follow-ups; begin with internal scheduling and introduce calendar integrations only as optional adapters.
+- [ ] Support filters, saved views and bulk actions without bypassing suppression or contact-safety rules.
+
+### Phase 3 — automation and reporting
+- [ ] Trigger reviewable automations from events such as reply received, campaign completed, status changed, task overdue or meeting scheduled.
+- [ ] Support actions such as creating a task, assigning an owner, changing a stage, adding a tag and scheduling a follow-up.
+- [ ] Prevent automation loops and duplicate actions with idempotency, audit logs, limits and pause controls.
+- [ ] Add funnel, conversion, activity and revenue reports connected to outreach source, campaign, mailbox and custom fields.
+- [ ] Add dashboards for overdue work, inactive opportunities and contacts requiring follow-up.
+
+### Phase 4 — collaboration and integrations
+- [ ] Add optional multi-user ownership, teams, role-based permissions and per-record activity attribution.
+- [ ] Define access boundaries for contacts, companies, opportunities, mailboxes, campaigns and reports.
+- [ ] Add opt-in calendar, webhook and API integrations after the stable internal CRM workflow is complete.
+- [ ] Keep single-user/self-hosted deployments simple: collaboration features must not add mandatory services or weaken the minimal deployment model.
+
+### CRM delivery gates
+- [ ] Define the domain model and migrations before UI implementation; existing contacts and campaign history must remain intact.
+- [ ] Produce approved Dark/Light references for the contact/company detail, pipeline, opportunity and task views.
+- [ ] Ship Phase 1 before pipeline automation so Sekaro has one reliable source of truth for contact history.
+- [ ] Validate upgrades, backups/restores, permissions, auditability and responsiveness at every phase.
+- [ ] Treat CRM work as multiple planned releases rather than one large rewrite; the outreach and sending engine must remain independently testable.
+
 ## Planned after redesign QA — configurable installer and optional antivirus
 
 Requested 2026-09-28. Planning only: no antivirus is installed or enabled by this entry, and no application rebuild is required for this documentation change.
