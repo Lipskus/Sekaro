@@ -1,11 +1,10 @@
 import { useId, useState } from 'react';
-import { PageFrame, SectionTabs, Metric } from '../redesign/ui';
+import { PageFrame, Panel, Button, Icon } from '../redesign/ui';
 import {
   RiShieldCheckLine,
   RiMailSendLine,
   RiFileTextLine,
   RiAlertLine,
-  RiCheckLine,
   RiArrowDownSLine,
 } from 'react-icons/ri';
 
@@ -125,66 +124,24 @@ const sections = [
   },
 ];
 
-const tagStyles = {
-  Wymagane:     'bg-red-100 text-red-700 border border-red-200',
-  Krytyczne:    'bg-red-100 text-red-700 border border-red-200',
-  Zalecane:     'bg-amber-100 text-amber-700 border border-amber-200',
-  Wskazówka:    'bg-teal-100 text-teal-700 border border-teal-200',
-};
-
 const metrics = [
-  { label: 'Wskaźnik odbić',          safe: 'Poniżej 2%',   danger: 'Powyżej 3%' },
-  { label: 'Skargi spam',              safe: 'Poniżej 0,1%', danger: 'Powyżej 0,3%' },
+  { label: 'Wskaźnik odbić', safe: 'Poniżej 2%', danger: 'Powyżej 3%' },
+  { label: 'Skargi spam', safe: 'Poniżej 0,1%', danger: 'Powyżej 0,3%' },
   { label: 'E-maile / skrzynkę / dzień', safe: 'Do 50', danger: 'Powyżej 50' },
   { label: 'Follow-upy w sekwencji', safe: '2–3 wiadomości', danger: '4+ wiadomości' },
   { label: 'Okres rozgrzewania', safe: '2–4 tygodnie', danger: 'Brak rozgrzewania' },
 ];
-
-function Tag({ label }) {
-  const cls = tagStyles[label];
-  if (!cls) return null;
-  return (
-    <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded whitespace-nowrap flex-shrink-0 ${cls}`}>
-      {label}
-    </span>
-  );
-}
-
-function Rule({ rule, index }) {
-  const [open, setOpen] = useState(false);
-  const contentId = useId();
-  return (
-    <div
-      className={`rounded-lg border shadow-sm transition-colors duration-150 ${
-        open
-          ? 'bg-gray-50 border-gray-300'
-          : 'bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-      }`}
-    >
-      {/* Header row — never compresses */}
-      <button type="button" aria-expanded={open} aria-controls={contentId} onClick={() => setOpen(v => !v)} className="sk-deliverability-toggle flex items-center gap-3 px-5 py-4">
-        <span className="text-xs font-semibold text-gray-300 w-6 flex-shrink-0 text-right tabular-nums">
-          {String(index + 1).padStart(2, '0')}
-        </span>
-        <span className="flex-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="text-sm font-medium text-gray-800 leading-snug">{rule.title}</span>
-          {rule.tag && <Tag label={rule.tag} />}
-        </span>
-        <span className={`text-gray-400 flex-shrink-0 transition-transform duration-300 ${open ? 'rotate-180' : 'rotate-0'}`}>
-          <RiArrowDownSLine size={18} />
-        </span>
-      </button>
-
-      {/* Hidden content is excluded from keyboard and accessibility navigation. */}
-      <div id={contentId} hidden={!open}>
-        <div className="overflow-hidden">
-          <p className="px-5 py-4 pl-14 text-sm text-gray-600 leading-relaxed border-t border-gray-100">
-            {rule.body}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
+const actionBySection={setup:['/domains','Domeny nadawcze'],writing:['/templates','Otwórz szablony'],sending:['/inboxes','Ustawienia skrzynek'],reputation:['/leads','Otwórz kontakty']};
+function Rule({rule,index}){
+ const [open,setOpen]=useState(false),contentId=useId();
+ return <article className="sk-deliverability-rule">
+  <h3><button type="button" className="sk-deliverability-toggle" aria-expanded={open} aria-controls={contentId} onClick={()=>setOpen(v=>!v)}>
+   <span className="sk-deliverability-number">{String(index+1).padStart(2,'0')}</span>
+   <span className="sk-deliverability-rule-copy"><span>{rule.title}</span>{rule.tag&&<span className={`sk-badge ${rule.tag==='Zalecane'?'tone-amber':'tone-red'}`}>{rule.tag}</span>}</span>
+   <RiArrowDownSLine size={20} className={open?'is-open':''}/>
+  </button></h3>
+  <div id={contentId} hidden={!open} className="sk-deliverability-body"><p>{rule.body}</p></div>
+ </article>;
 }
 
 export default function DeliverabilityTips() {
@@ -198,61 +155,27 @@ export default function DeliverabilityTips() {
     globalIndex += s.rules.length;
   });
 
-  return (
-    <PageFrame
-      className="sk-deliverability-page"
-      title="Dostarczalność"
-      description="Praktyczne wskazówki poprawiające dostarczalność, reputację domeny i bezpieczeństwo wysyłki."
-    >
-      <div className="sk-deliverability-metrics">
-        <Metric icon="shield" title="Wskaźnik odbić" value="< 2%" detail="zalecany poziom" tone="green" />
-        <Metric icon="send" title="Dzienny wolumen" value="≤ 50" detail="na jedną skrzynkę" tone="blue" />
-        <Metric icon="history" title="Rozgrzewanie" value="2–4 tyg." detail="dla nowych skrzynek" tone="amber" />
-        <Metric icon="mail" title="Follow-up" value="2–3" detail="wiadomości w sekwencji" tone="purple" />
+  const action=actionBySection[activeSection]||actionBySection.setup;
+  return <PageFrame className="sk-deliverability-page sk-deliverability-workspace" title="Dostarczalność" description="Przewodnik po konfiguracji domen, skrzynek i wiadomości." actions={<Button to="/system-health" icon="shield">Stan systemu</Button>}>
+    <section className="sk-deliverability-intro"><span className="sk-deliverability-intro-icon"><Icon name="shield" size={32}/></span><div><h2>Sprawdź przygotowanie do wysyłki</h2><p>Poniższe wskazówki są materiałem pomocniczym, a nie wynikiem pomiaru Twojej instalacji. Automatyczna analiza DNS, reputacji i dostarczalności nie jest jeszcze dostępna.</p></div></section>
+    <div className="sk-deliverability-layout">
+      <div className="sk-deliverability-main">
+        <Panel title="Lista kontrolna konfiguracji" icon="check" className="sk-deliverability-checklist">
+          <p className="sk-deliverability-description">Wybierz obszar i rozwiń wskazówkę, aby zobaczyć szczegóły.</p>
+          <nav className="sk-deliverability-categories" aria-label="Sekcje dostarczalności">{sections.map(item=><button key={item.id} aria-pressed={item.id===activeSection} onClick={()=>setActiveSection(item.id)}><item.icon size={19}/><span>{item.label}</span><small>{item.rules.length}</small></button>)}</nav>
+          <h3 className="sk-deliverability-section-title">{section.label}</h3>
+          <div className="sk-deliverability-rules">{section.rules.map((rule,i)=><Rule key={rule.title} rule={rule} index={sectionOffsets[activeSection]+i}/>)}</div>
+          <div className="sk-deliverability-footer"><span>{section.rules.length} wskazówki w tym obszarze</span><Button to={action[0]}>{action[1]}</Button></div>
+        </Panel>
+        <Panel title="Orientacyjne wartości z przewodnika" className="sk-deliverability-reference">
+          <p className="sk-deliverability-description">To nie są bieżące wyniki ani gwarancja dostarczenia. Limity zależą od dostawcy, historii skrzynki i odbiorców.</p>
+          <div className="sk-deliverability-table-scroll" tabIndex={0} role="region" aria-label="Orientacyjne wartości — tabela"><table className="sk-table"><thead><tr><th>Metryka</th><th>Poziom orientacyjny</th><th>Sygnał do sprawdzenia</th></tr></thead><tbody>{metrics.map(m=><tr key={m.label}><td>{m.label}</td><td>{m.safe}</td><td>{m.danger}</td></tr>)}</tbody></table></div>
+        </Panel>
       </div>
-
-      <SectionTabs
-        value={activeSection}
-        onChange={setActiveSection}
-        ariaLabel="Sekcje dostarczalności"
-        items={sections.map(item => ({ id: item.id, label: item.label }))}
-      />
-
-      {/* Rules list */}
-      <div className="sk-deliverability-rules">
-        {section.rules.map((rule, i) => (
-          <Rule key={rule.title} rule={rule} index={sectionOffsets[activeSection] + i} />
-        ))}
-      </div>
-
-      {/* Quick reference table */}
-      <div>
-        <h2 className="text-base font-semibold text-gray-700 mb-3">Szybka referencja</h2>
-        <div className="rounded-lg border border-gray-200 overflow-hidden">
-          <div className="grid grid-cols-3 bg-gray-50 px-4 py-2.5 border-b border-gray-200">
-            {['Metryka', 'Bezpiecznie', 'Ryzyko'].map(h => (
-              <span key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</span>
-            ))}
-          </div>
-          {metrics.map((m, i) => (
-            <div
-              key={m.label}
-              className={`grid grid-cols-3 px-4 py-3 text-sm ${
-                i < metrics.length - 1 ? 'border-b border-gray-100' : ''
-              } ${i % 2 === 1 ? 'bg-gray-50/50' : 'bg-white'}`}
-            >
-              <span className="text-gray-600 font-medium">{m.label}</span>
-              <span className="flex items-center gap-1 text-teal-600 font-medium">
-                <RiCheckLine size={14} className="flex-shrink-0" />{m.safe}
-              </span>
-              <span className="flex items-center gap-1 text-red-500 font-medium">
-                <RiAlertLine size={14} className="flex-shrink-0" />{m.danger}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-    </PageFrame>
-  );
+      <aside className="sk-deliverability-aside" aria-label="Narzędzia i informacje">
+        <Panel title="Narzędzia w Sekaro" icon="settings">{[['/domains','globe','Domeny','Domeny powiązane ze skrzynkami.'],['/inboxes','mail','Skrzynki i rozgrzewanie','Limity, tracking oraz połączenia SMTP/IMAP.'],['/system-health','shield','Diagnostyka systemu','Dostępne kontrole i wykryte problemy.'],['/notifications','bell','Powiadomienia','Zdarzenia i alerty aplikacji.']].map(([to,icon,title,description])=><Button to={to} key={to} className="sk-deliverability-tool" icon={icon}><strong>{title}</strong><small>{description}</small></Button>)}</Panel>
+        <Panel title="Jak czytać ten widok" icon="info"><p className="sk-deliverability-description">Oznaczenia „Wymagane” i „Zalecane” opisują wskazówki. Nie potwierdzają, że konfiguracja została sprawdzona lub wykonana.</p><p className="sk-deliverability-description">Brak alertu nie oznacza potwierdzonej dostarczalności. Obserwuj odpowiedzi i odbicia w kontekście własnej wysyłki.</p></Panel>
+      </aside>
+    </div>
+  </PageFrame>;
 }

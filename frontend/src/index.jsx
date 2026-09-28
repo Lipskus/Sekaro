@@ -8,6 +8,8 @@ import './redesign/tokens.css';
 import './redesign/templates.css';
 import './redesign/contacts.css';
 import './pages/operations.css';
+import './pages/analytics-workspace.css';
+import './pages/deliverability-workspace.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
