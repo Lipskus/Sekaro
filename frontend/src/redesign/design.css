@@ -1072,9 +1072,20 @@ html[data-theme=dark] .sk-login-submit{
 @media(max-width:760px){
  .sk-toasts{left:12px;right:12px;bottom:12px;max-width:none}
  .sk-toast{min-width:0}
+ .sk-page-heading>.sk-heading-actions{width:100%;min-width:0;flex-wrap:wrap}
+ .sk-page-heading>.sk-heading-actions>.sk-btn{max-width:100%}
+ .sk-filters>*{max-width:100%}
+ .sk-modal{max-height:calc(100dvh - 20px)}
+ .sk-modal-body{overscroll-behavior:contain}
+ .sk-modal-header h2{font-size:18px;overflow-wrap:anywhere}
  .sk-modal-footer,.sk-form-actions{flex-wrap:wrap}
  .sk-modal-footer>*{min-width:0}
  .sk-legacy-campaign{overflow-x:auto;overflow-y:visible}
+}
+@media(max-width:480px){
+ .sk-modal-backdrop{padding:8px}
+ .sk-modal-header,.sk-modal-body,.sk-modal-footer{padding-left:13px;padding-right:13px}
+ .sk-modal-footer>*,.sk-modal-body>.sk-form-actions>*{flex:1 1 100%}
 }
 
 
