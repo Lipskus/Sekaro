@@ -23,6 +23,8 @@ msal>=1.24
 # Keep the LLM adapter pair deterministic. PyPI may hide/yank transitive
 # openresponses releases from broad resolution while exact installs remain valid.
 openresponses-types==2.4.0
+otari==0.4.1
+PyYAML==6.0.3
 any-llm-sdk[all]==1.29.0  # unified LLM provider interface for AI classification
 # Authentication & security
 bcrypt>=4.0
