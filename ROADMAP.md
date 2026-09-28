@@ -270,19 +270,11 @@ Generic SMTP/IMAP remains the provider-agnostic default. Native adapters are opt
 - [ ] Separate mailbox authorization from Sekaro application login; connecting Google Workspace must not add Google sign-in as a required admin-login method.
 - [ ] Document restricted/sensitive OAuth scopes, verification requirements and least-privilege deployment options before public distribution.
 
-### Amazon SES
-- [ ] Add Amazon SES as an optional outbound transport through the AWS API; do not present SES as a complete inbox provider.
-- [ ] Support regions, verified identities/configuration sets and securely stored credentials with least-privilege IAM guidance.
-- [ ] Ingest SES delivery, bounce, complaint, rejection, delay, open and click events through a verified event endpoint, with idempotency and signature/source validation.
-- [ ] Map SES events into the existing delivery-attempt, suppression, analytics and System Health models.
-- [ ] Require a separate supported inbound/reply source when two-way correspondence is needed; SES outbound alone does not replace IMAP or a mailbox API.
-- [ ] Do not target Amazon WorkMail as a new native integration because AWS has announced end of support on 2027-03-31.
-
 ### Adapter framework and later providers
 - [ ] Define capabilities per adapter (send, receive, folders, threads, webhooks, delivery events and shared mailboxes) so unsupported functions are shown honestly.
 - [ ] Keep rate limits, retries, uncertain-delivery handling, audit logs and provider-specific diagnostics isolated behind the common contract.
 - [ ] Add provider connection tests, health status, reconnect/re-consent flows and migration back to generic SMTP/IMAP where technically possible.
-- [ ] Evaluate native Zoho Mail and standards-based JMAP/Fastmail adapters only after the Microsoft 365, Gmail and SES adapter contract is stable and real demand justifies maintenance.
+- [ ] Evaluate native Zoho Mail and standards-based JMAP/Fastmail adapters only after the Microsoft 365 and Gmail adapter contract is stable and real demand justifies maintenance.
 - [ ] Keep every native provider optional: the minimal self-hosted Sekaro deployment must continue to work with custom SMTP/IMAP only.
 
 Official planning references:
@@ -290,8 +282,6 @@ Official planning references:
 - [Microsoft Graph change notifications](https://learn.microsoft.com/en-us/graph/change-notifications-delivery-webhooks)
 - [Gmail API overview](https://developers.google.com/workspace/gmail/api/guides)
 - [Gmail push notifications](https://developers.google.com/workspace/gmail/api/guides/push)
-- [Amazon SES event publishing](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html)
-- [Amazon WorkMail end of support](https://docs.aws.amazon.com/workmail/latest/adminguide/workmail-end-of-support.html)
 
 ## Planned after redesign QA — configurable installer and optional antivirus
 
