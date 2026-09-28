@@ -46,3 +46,9 @@
 .sk-calendar-grid tr,.sk-calendar-grid tr:nth-child(even){background:var(--sk-surface)}
 .sk-calendar-grid th,.sk-calendar-grid td{border-color:var(--sk-line)}
 .sk-calendar-event strong{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+
+.sk-notification-select{justify-content:flex-start}
+.sk-notification-copy{flex:1;text-align:left}
+
+.sk-deliverability-toggle{width:100%;text-align:left;justify-content:flex-start;background:transparent;color:var(--sk-text);border:0}
+.sk-deliverability-toggle .flex-1{text-align:left}
