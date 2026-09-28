@@ -12,6 +12,7 @@ vi.mock('./NotificationsContext',()=>({useNotifications:()=>({count:0})}));
 vi.mock('./AppModeContext',()=>({useAppMode:()=>({isProduction:true})}));
 vi.mock('./LanguageContext',()=>({useLanguage:()=>{const labels={
  'shell.closeMenu':'Zamknij menu','shell.openMenu':'Otwórz menu','shell.mainNavigation':'Nawigacja główna','shell.search':'Szukaj w Sekaro',
+ 'shell.skipToContent':'Przejdź do treści',
  'shell.searchPlaceholder':'Szukaj','shell.notifications':'Powiadomienia','shell.administrator':'Administrator','shell.user':'Użytkownik','shell.system':'System',
  'shell.version':'Wersja','shell.environment':'Środowisko','shell.production':'Produkcja','shell.test':'Testowe','shell.disk':'Dysk','shell.noData':'Brak danych',
  'shell.free':'wolne','shell.diskUsage':'Wykorzystanie dysku','shell.selfHostedMotto':'Twoje dane. Twoje zasady.','shell.allGood':'Wszystko działa',
