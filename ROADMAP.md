@@ -250,6 +250,39 @@ CRM is a strategic extension of Sekaro's outreach workflow, not a separate produ
 - [ ] Validate upgrades, backups/restores, permissions, auditability and responsiveness at every phase.
 - [ ] Treat CRM work as multiple planned releases rather than one large rewrite; the outreach and sending engine must remain independently testable.
 
+## 1.2+ — Native email-provider adapters
+
+Generic SMTP/IMAP remains the provider-agnostic default. Native adapters are optional enhancements for providers whose APIs offer safer authentication, richer mailbox synchronization or reliable delivery events. They must use one internal mailbox/transport contract so campaigns, threading, suppression and analytics behave consistently regardless of provider.
+
+### Microsoft 365 / Exchange Online
+- [ ] Add a clean Microsoft Graph mailbox adapter rather than reviving dormant legacy provider code.
+- [ ] Support OAuth-based connection, token refresh, explicit consent scopes and secure encrypted token storage.
+- [ ] Support sending, reading primary and shared mailboxes, reply synchronization, folders and conversation/thread identifiers where Graph exposes them.
+- [ ] Use Graph change notifications/webhooks with renewal, reconciliation polling, deduplication and recovery after missed or expired subscriptions.
+- [ ] Separate mailbox authorization from Sekaro application login; connecting Microsoft 365 must not add Microsoft sign-in as a required admin-login method.
+- [ ] Document delegated versus application permissions and require the least privilege appropriate to the selected deployment mode.
+
+### Amazon SES
+- [ ] Add Amazon SES as an optional outbound transport through the AWS API; do not present SES as a complete inbox provider.
+- [ ] Support regions, verified identities/configuration sets and securely stored credentials with least-privilege IAM guidance.
+- [ ] Ingest SES delivery, bounce, complaint, rejection, delay, open and click events through a verified event endpoint, with idempotency and signature/source validation.
+- [ ] Map SES events into the existing delivery-attempt, suppression, analytics and System Health models.
+- [ ] Require a separate supported inbound/reply source when two-way correspondence is needed; SES outbound alone does not replace IMAP or a mailbox API.
+- [ ] Do not target Amazon WorkMail as a new native integration because AWS has announced end of support on 2027-03-31.
+
+### Adapter framework and later providers
+- [ ] Define capabilities per adapter (send, receive, folders, threads, webhooks, delivery events and shared mailboxes) so unsupported functions are shown honestly.
+- [ ] Keep rate limits, retries, uncertain-delivery handling, audit logs and provider-specific diagnostics isolated behind the common contract.
+- [ ] Add provider connection tests, health status, reconnect/re-consent flows and migration back to generic SMTP/IMAP where technically possible.
+- [ ] Evaluate Gmail API and additional transactional providers only after the Microsoft 365 and SES adapter contract is stable.
+- [ ] Keep every native provider optional: the minimal self-hosted Sekaro deployment must continue to work with custom SMTP/IMAP only.
+
+Official planning references:
+- [Microsoft Graph mail API overview](https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview)
+- [Microsoft Graph change notifications](https://learn.microsoft.com/en-us/graph/change-notifications-delivery-webhooks)
+- [Amazon SES event publishing](https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html)
+- [Amazon WorkMail end of support](https://docs.aws.amazon.com/workmail/latest/adminguide/workmail-end-of-support.html)
+
 ## Planned after redesign QA — configurable installer and optional antivirus
 
 Requested 2026-09-28. Planning only: no antivirus is installed or enabled by this entry, and no application rebuild is required for this documentation change.
