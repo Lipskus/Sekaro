@@ -207,6 +207,82 @@ Each screen is designed in dark mode first as the reference, then mirrored 1:1 i
 - Public installation guide
 - Stable API surface
 
+## 1.1+ — CRM expansion
+
+CRM is a strategic extension of Sekaro's outreach workflow, not a separate product. Campaigns acquire and qualify contacts; the CRM should preserve the full relationship from first outreach through reply, follow-up, meeting, opportunity and customer status. Implementation starts only after the current redesign QA and the 1.0 stability gate are complete.
+
+### Phase 1 — CRM core and central contact model
+- [ ] Make each person a central contact record independent of any individual list or campaign, while preserving list membership and campaign history.
+- [ ] Add first-class company records with multiple contacts, company-level custom fields, tags and ownership.
+- [ ] Provide manual create/edit/archive flows for contacts and companies alongside CSV/XLSX imports.
+- [ ] Build a complete contact/company detail view with notes, tags, status, custom fields and a unified activity timeline.
+- [ ] Link sent messages, replies, bounces, unsubscribes, campaigns and inbox threads to the same contact record.
+- [ ] Add safe duplicate detection and merge with an auditable preview; never merge or delete automatically.
+- [ ] Preserve suppression and unsubscribe enforcement independently of CRM status or pipeline stage.
+
+### Phase 2 — sales workflow
+- [ ] Add configurable lifecycle statuses and sales pipelines with Kanban and list views.
+- [ ] Add opportunities/deals linked to contacts and companies, including stage, value, probability, expected close date and outcome.
+- [ ] Add tasks, due dates, reminders, priorities and snooze.
+- [ ] Add meetings and follow-ups; begin with internal scheduling and introduce calendar integrations only as optional adapters.
+- [ ] Support filters, saved views and bulk actions without bypassing suppression or contact-safety rules.
+
+### Phase 3 — automation and reporting
+- [ ] Trigger reviewable automations from events such as reply received, campaign completed, status changed, task overdue or meeting scheduled.
+- [ ] Support actions such as creating a task, assigning an owner, changing a stage, adding a tag and scheduling a follow-up.
+- [ ] Prevent automation loops and duplicate actions with idempotency, audit logs, limits and pause controls.
+- [ ] Add funnel, conversion, activity and revenue reports connected to outreach source, campaign, mailbox and custom fields.
+- [ ] Add dashboards for overdue work, inactive opportunities and contacts requiring follow-up.
+
+### Phase 4 — users, permissions, collaboration and integrations
+- [ ] Add an administrator-facing user-management screen for creating/inviting users, editing profiles, activating/deactivating accounts and safely resetting access.
+- [ ] Add optional multi-user ownership, teams, role-based permissions and per-record activity attribution.
+- [ ] Provide built-in roles as a safe baseline and configurable permissions for viewing, creating, editing, exporting, sending and deleting.
+- [ ] Define access boundaries for contacts, companies, opportunities, tasks, mailboxes, campaigns, templates, settings, integrations and reports.
+- [ ] Record security-relevant user and permission changes in an audit log; deactivation must preserve historical attribution.
+- [ ] Add opt-in calendar, webhook and API integrations after the stable internal CRM workflow is complete.
+- [ ] Keep single-user/self-hosted deployments simple: collaboration features must not add mandatory services or weaken the minimal deployment model.
+
+### CRM delivery gates
+- [ ] Define the domain model and migrations before UI implementation; existing contacts and campaign history must remain intact.
+- [ ] Produce approved Dark/Light references for the contact/company detail, pipeline, opportunity and task views.
+- [ ] Ship Phase 1 before pipeline automation so Sekaro has one reliable source of truth for contact history.
+- [ ] Validate upgrades, backups/restores, permissions, auditability and responsiveness at every phase.
+- [ ] Treat CRM work as multiple planned releases rather than one large rewrite; the outreach and sending engine must remain independently testable.
+
+## 1.2+ — Native email-provider adapters
+
+Generic SMTP/IMAP remains the provider-agnostic default. Native adapters are optional enhancements for providers whose APIs offer safer authentication, richer mailbox synchronization or reliable delivery events. They must use one internal mailbox/transport contract so campaigns, threading, suppression and analytics behave consistently regardless of provider.
+
+### Microsoft 365 / Exchange Online
+- [ ] Add a clean Microsoft Graph mailbox adapter rather than reviving dormant legacy provider code.
+- [ ] Support OAuth-based connection, token refresh, explicit consent scopes and secure encrypted token storage.
+- [ ] Support sending, reading primary and shared mailboxes, reply synchronization, folders and conversation/thread identifiers where Graph exposes them.
+- [ ] Use Graph change notifications/webhooks with renewal, reconciliation polling, deduplication and recovery after missed or expired subscriptions.
+- [ ] Separate mailbox authorization from Sekaro application login; connecting Microsoft 365 must not add Microsoft sign-in as a required admin-login method.
+- [ ] Document delegated versus application permissions and require the least privilege appropriate to the selected deployment mode.
+
+### Google Workspace / Gmail
+- [ ] Add a native Gmail API adapter for authorized mailbox access, sending, labels and threads.
+- [ ] Support OAuth-based connection, token refresh, explicit consent scopes and secure encrypted token storage.
+- [ ] Use Gmail push notifications with watch renewal, history reconciliation, deduplication and recovery after missed notifications.
+- [ ] Preserve Gmail thread/message identifiers while mapping them into Sekaro's common conversation and contact timeline.
+- [ ] Separate mailbox authorization from Sekaro application login; connecting Google Workspace must not add Google sign-in as a required admin-login method.
+- [ ] Document restricted/sensitive OAuth scopes, verification requirements and least-privilege deployment options before public distribution.
+
+### Adapter framework and later providers
+- [ ] Define capabilities per adapter (send, receive, folders, threads, webhooks, delivery events and shared mailboxes) so unsupported functions are shown honestly.
+- [ ] Keep rate limits, retries, uncertain-delivery handling, audit logs and provider-specific diagnostics isolated behind the common contract.
+- [ ] Add provider connection tests, health status, reconnect/re-consent flows and migration back to generic SMTP/IMAP where technically possible.
+- [ ] Evaluate native Zoho Mail and standards-based JMAP/Fastmail adapters only after the Microsoft 365 and Gmail adapter contract is stable and real demand justifies maintenance.
+- [ ] Keep every native provider optional: the minimal self-hosted Sekaro deployment must continue to work with custom SMTP/IMAP only.
+
+Official planning references:
+- [Microsoft Graph mail API overview](https://learn.microsoft.com/en-us/graph/api/resources/mail-api-overview)
+- [Microsoft Graph change notifications](https://learn.microsoft.com/en-us/graph/change-notifications-delivery-webhooks)
+- [Gmail API overview](https://developers.google.com/workspace/gmail/api/guides)
+- [Gmail push notifications](https://developers.google.com/workspace/gmail/api/guides/push)
+
 ## Planned after redesign QA — configurable installer and optional antivirus
 
 Requested 2026-09-28. Planning only: no antivirus is installed or enabled by this entry, and no application rebuild is required for this documentation change.
