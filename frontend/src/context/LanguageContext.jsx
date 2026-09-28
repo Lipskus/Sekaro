@@ -43,6 +43,7 @@ const translations = {
       privateLogin: 'Panel prywatny • Brak logowania przez Google i Microsoft',
     },
     nav: {
+      dashboard: 'Dashboard',
       analytics: 'Analityka',
       campaigns: 'Kampanie',
       leads: 'Kontakty',
@@ -61,6 +62,7 @@ const translations = {
       domains: 'Domeny',
     },
     shell: {
+      skipToContent: 'Przejdź do treści',
       mainNavigation: 'Nawigacja główna', search: 'Szukaj w Sekaro', searchPlaceholder: 'Szukaj kontaktów, kampanii, wiadomości…',
       notifications: 'Powiadomienia', openMenu: 'Otwórz menu', closeMenu: 'Zamknij menu', settings: 'Ustawienia', queue: 'Kolejka wysyłki',
       language: 'Język', logout: 'Wyloguj się', administrator: 'Administrator', user: 'Użytkownik', system: 'System', version: 'Wersja',
@@ -104,6 +106,7 @@ const translations = {
       privateLogin: 'Private dashboard • No Google or Microsoft sign-in',
     },
     nav: {
+      dashboard: 'Dashboard',
       analytics: 'Analytics',
       campaigns: 'Campaigns',
       leads: 'Leads',
@@ -122,6 +125,7 @@ const translations = {
       domains: 'Domains',
     },
     shell: {
+      skipToContent: 'Skip to content',
       mainNavigation: 'Main navigation', search: 'Search Sekaro', searchPlaceholder: 'Search contacts, campaigns, messages…',
       notifications: 'Notifications', openMenu: 'Open menu', closeMenu: 'Close menu', settings: 'Settings', queue: 'Sending queue',
       language: 'Language', logout: 'Sign out', administrator: 'Administrator', user: 'User', system: 'System', version: 'Version',
@@ -165,6 +169,7 @@ const translations = {
       privateLogin: 'Privater Bereich • Keine Anmeldung über Google oder Microsoft',
     },
     nav: {
+      dashboard: 'Übersicht',
       analytics: 'Analysen',
       campaigns: 'Kampagnen',
       leads: 'Kontakte',
@@ -183,6 +188,7 @@ const translations = {
       domains: 'Domains',
     },
     shell: {
+      skipToContent: 'Zum Inhalt springen',
       mainNavigation: 'Hauptnavigation', search: 'Sekaro durchsuchen', searchPlaceholder: 'Kontakte, Kampagnen und Nachrichten suchen…',
       notifications: 'Benachrichtigungen', openMenu: 'Menü öffnen', closeMenu: 'Menü schließen', settings: 'Einstellungen', queue: 'Sende-Warteschlange',
       language: 'Sprache', logout: 'Abmelden', administrator: 'Administrator', user: 'Benutzer', system: 'System', version: 'Version',
@@ -226,6 +232,7 @@ const translations = {
       privateLogin: 'Приватная панель • Без входа через Google и Microsoft',
     },
     nav: {
+      dashboard: 'Панель',
       analytics: 'Аналитика',
       campaigns: 'Кампании',
       leads: 'Контакты',
@@ -244,6 +251,7 @@ const translations = {
       domains: 'Домены',
     },
     shell: {
+      skipToContent: 'Перейти к содержимому',
       mainNavigation: 'Основная навигация', search: 'Поиск в Sekaro', searchPlaceholder: 'Поиск контактов, кампаний и сообщений…',
       notifications: 'Уведомления', openMenu: 'Открыть меню', closeMenu: 'Закрыть меню', settings: 'Настройки', queue: 'Очередь отправки',
       language: 'Язык', logout: 'Выйти', administrator: 'Администратор', user: 'Пользователь', system: 'Система', version: 'Версия',

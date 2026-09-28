@@ -20,7 +20,12 @@ psycopg2-binary>=2.9  # sync PostgreSQL driver required by APScheduler SQLAlchem
 aiosqlite>=0.19  # required for test fallback to SQLite
 # Microsoft Office 365 / Outlook OAuth2 via MSAL
 msal>=1.24
-any-llm-sdk[all]>=1.9  # unified LLM provider interface for AI classification
+# Keep the LLM adapter pair deterministic. PyPI may hide/yank transitive
+# openresponses releases from broad resolution while exact installs remain valid.
+openresponses-types==2.4.0
+otari==0.4.1
+PyYAML==6.0.3
+any-llm-sdk[all]==1.29.0  # unified LLM provider interface for AI classification
 # Authentication & security
 bcrypt>=4.0
 python-jose[cryptography]>=3.3
