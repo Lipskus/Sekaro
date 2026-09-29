@@ -1950,6 +1950,9 @@ async def send_test_email(
 
     from app.sender import send_email
 
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, data.to_email, inbox.id)
+
     result = await asyncio.get_event_loop().run_in_executor(
         None,
         lambda: send_email(

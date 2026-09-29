@@ -321,6 +321,12 @@ html[data-theme=dark] .sk-btn-primary{background:var(--sk-accent);border-color:v
 /* Inbox: thread list, conversation, context. */
 .sk-inbox-page{display:flex;flex-direction:column;height:calc(100dvh - var(--sk-header));padding-bottom:18px}
 .sk-inbox-page .sk-page-heading{margin:0 0 18px;flex-shrink:0}
+@media(max-width:1150px){
+ .sk-inbox-page .sk-page-heading{flex-wrap:wrap;gap:14px}
+ .sk-inbox-page .sk-page-heading>div:first-child{width:100%;min-width:0}
+ .sk-inbox-page .sk-heading-actions{width:100%;flex-wrap:wrap}
+ .sk-inbox-page .sk-mailbox-select{flex:1;min-width:min(275px,100%)}
+}
 .sk-mailbox-select{display:flex;align-items:center;gap:15px;border:1px solid var(--sk-line);border-radius:9px;background:var(--sk-surface);padding:8px 14px;min-width:275px}
 .sk-inbox-health{min-width:176px;min-height:54px;display:flex;align-items:center;gap:12px;padding:8px 14px;border:1px solid var(--sk-line);border-radius:9px;background:var(--sk-surface)}
 .sk-inbox-health>.sk-dot{width:9px;height:9px}

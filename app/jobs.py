@@ -813,6 +813,11 @@ async def run_send_job():
                 # Unsubscribe header
                 list_unsub_url = unsub_url if getattr(campaign, 'add_unsubscribe_header', True) else None
 
+                from app.outbound_safety import outbound_block_reason
+                if await outbound_block_reason(session, lead.email, inbox.id):
+                    await session.delete(email_log_entry)
+                    continue
+
                 # ── phase 3: send ────────────────────────────────────────────
                 if simulate_send:
                     fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
@@ -1601,6 +1606,12 @@ async def send_slot_job(slot_id: int) -> None:
                     send_body = send_body + build_quote_plain(_prev_plain, _from_name, _from_email, prev_sent_at)
 
         list_unsub_url = unsub_url if getattr(campaign, "add_unsubscribe_header", True) else None
+
+        from app.outbound_safety import outbound_block_reason
+        if await outbound_block_reason(session, lead.email, inbox.id):
+            await session.delete(email_log_entry)
+            await session.commit()
+            return
 
         # ── Durable send claim ───────────────────────────────────────────
         attempt_token = await _claim_send_attempt(slot_id)

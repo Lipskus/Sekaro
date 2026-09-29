@@ -1,0 +1,758 @@
+[
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 760,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-dark-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 568,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-dark-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 740,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-dark-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 602,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-dark-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 728,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-dark-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 546,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-dark-loading.png"
+  },
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 760,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-light-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 568,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-light-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 740,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-light-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 602,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-light-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 728,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-light-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 546,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-light-loading.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 720,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-dark-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 527,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-dark-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 700,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-dark-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 561,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-dark-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 688,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-dark-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 505,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-dark-loading.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 720,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-light-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 527,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-light-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 700,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-light-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 561,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-light-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 688,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-light-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 505,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-light-loading.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 713,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-dark-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 495,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-dark-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 693,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-dark-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 529,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-dark-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 681,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-dark-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 473,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-dark-loading.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 713,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-light-fixture.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 495,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-light-fixture.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 693,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-light-error.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 529,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-light-error.png"
+  },
+  {
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 681,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-light-loading.png"
+  },
+  {
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 473,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-light-loading.png"
+  }
+]

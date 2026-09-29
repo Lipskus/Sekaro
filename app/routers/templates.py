@@ -225,6 +225,8 @@ async def test_send_template(
     if account is None:
         raise HTTPException(400, "SMTP account is not configured")
 
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, str(data.to_email), inbox.id)
     result = send_email(
         to_email=str(data.to_email),
         subject=rendered["subject"],

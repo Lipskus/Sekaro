@@ -201,6 +201,8 @@ async def get_unibox_thread(
 
 @router.post("/send")
 async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(get_db)):
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, data.to_email, data.inbox_id)
     inbox_row = await db.execute(select(Inbox).where(Inbox.id == data.inbox_id))
     inbox = inbox_row.scalar_one_or_none()
     if not inbox:
@@ -299,6 +301,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
                 if reply_to and not references:
                     references = reply_to
 
+    await require_outbound_allowed(db, data.to_email, data.inbox_id)
     send_result = send_email(
         to_email=data.to_email,
         subject=data.subject,
