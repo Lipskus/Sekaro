@@ -1,0 +1,1898 @@
+[
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 617,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 740,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 602,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 938,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 411,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 671,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-1600-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 610,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 728,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 546,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 924,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 429,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 628,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-1600-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 617,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 740,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 602,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 938,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 411,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "error",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 671,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-1600-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 610,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 728,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 546,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 924,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 429,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 628,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-1600-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 600,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 700,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 561,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 921,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 394,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 654,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-768-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 593,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 688,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 505,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 907,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 412,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 611,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-768-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 600,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 700,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 561,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 921,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 394,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "error",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 654,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-768-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 593,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 688,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 505,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 907,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 412,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 611,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-768-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 593,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 693,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 914,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 387,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 647,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-390-dark-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 586,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 681,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 473,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 900,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 405,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 604,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-390-dark-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 593,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 693,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 914,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 387,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "error",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 647,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-390-light-error.png"
+  },
+  {
+    "flow": "page",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampanie"
+    ],
+    "bodyLength": 586,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaigns-390-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty"
+    ],
+    "bodyLength": 681,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "leads-390-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Wątki (Inbox)"
+    ],
+    "bodyLength": 473,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "unibox-390-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/templates",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Szablony wiadomości",
+      "Szablony",
+      "Kontakt testowy",
+      "Nowy szablon",
+      "Podgląd wiadomości",
+      "Historia wersji",
+      "Zmienne",
+      "Wyślij test",
+      "Własne pola kontaktów"
+    ],
+    "bodyLength": 900,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "templates-390-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki"
+    ],
+    "bodyLength": 405,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "inboxes-390-light-loading.png"
+  },
+  {
+    "flow": "page",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "loading",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analityka"
+    ],
+    "bodyLength": 604,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "analytics-390-light-loading.png"
+  }
+]
