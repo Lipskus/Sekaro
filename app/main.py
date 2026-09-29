@@ -263,6 +263,7 @@ async def api_status(request: Request, user=Depends(_auth_dep)):
         "server_time": time_provider.now().isoformat() + "Z",
         "test_mode": settings.test_mode,
         "app_mode": os.environ.get("QUICKLY_MODE", "development").lower(),
+        "demo": getattr(request.app.state, "is_demo", False) is True,
     }
 
 

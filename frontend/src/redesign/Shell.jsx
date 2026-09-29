@@ -10,7 +10,7 @@ import {Icon,Avatar,Badge} from './ui';
 import Logo from './Logo';
 const nav=[['/','home','dashboard'],['/campaigns','campaign','campaigns'],['/inboxes','mail','inboxes'],['/leads','contacts','leads'],['/templates','template','templates'],['/unibox','chat','unibox'],['/analytics','chart','analytics'],['/schedule','calendar','schedule'],['/domains','globe','domains'],['/settings','settings','settings']];
 export default function Shell({children}){
- const {user,logout}=useAuth();const {overallStatus,rawData,loading:healthLoading,fetchError:healthError}=useSystemHealth();const {count}=useNotifications();const {isProduction}=useAppMode();const {language,setLanguage,languages,t}=useLanguage();
+ const {user,logout}=useAuth();const {overallStatus,rawData,loading:healthLoading,fetchError:healthError}=useSystemHealth();const {count}=useNotifications();const {isProduction,isDemo}=useAppMode();const {language,setLanguage,languages,t}=useLanguage();
  const [menu,setMenu]=useState(false),[profile,setProfile]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState([]),[searchBusy,setSearchBusy]=useState(false),[searchError,setSearchError]=useState(''),[showSearch,setShowSearch]=useState(false);
  const location=useLocation(),navigate=useNavigate(),searchRef=useRef(null),searchBoxRef=useRef(null),profileRef=useRef(null);
  const userName=user?.display_name||user?.name||user?.username||user?.email||'Administrator';
@@ -31,7 +31,7 @@ export default function Shell({children}){
   <aside className={`sk-sidebar ${menu?'is-open':''}`}>
    <Link to="/" className="sk-brand"><Logo/><div><strong>Sekaro</strong><small>Self-hosted outreach</small></div></Link>
    <nav aria-label={t('shell.mainNavigation')}>{nav.map(([to,icon,key])=><NavLink key={to} to={to} end={to==='/'} className={({isActive})=>`sk-nav-item ${isActive?'active':''}`}><Icon name={icon}/><span>{t(`nav.${key}`)}</span></NavLink>)}</nav>
-   <div className="sk-sidebar-bottom"><Link to="/system-health" className="sk-system-card"><div><strong>{t('shell.system')}</strong><Badge tone={state[1]} dot>{state[0]}</Badge></div><dl><dt>{t('shell.version')}</dt><dd>0.5.6</dd><dt>{t('shell.environment')}</dt><dd>{isProduction?t('shell.production'):t('shell.test')}</dd><dt>{t('shell.disk')}</dt><dd>{diskFree}</dd></dl><progress className="sk-storage-progress" data-tone={diskTone} max="100" value={diskUsed} aria-label={t('shell.diskUsage')} title={storage?.available?`${t('shell.diskUsage')}: ${diskUsed}%`:t('shell.noData')}/></Link><Link to="/settings" className="sk-selfhost"><Icon name="server" size={31}/><div><strong>Self-hosted</strong><small>{t('shell.selfHostedMotto')}</small></div></Link></div>
+   <div className="sk-sidebar-bottom"><Link to="/system-health" className="sk-system-card"><div><strong>{t('shell.system')}</strong><Badge tone={state[1]} dot>{state[0]}</Badge></div><dl><dt>{t('shell.version')}</dt><dd>0.5.6</dd><dt>{t('shell.environment')}</dt><dd>{isDemo?t('shell.demo'):isProduction?t('shell.production'):t('shell.test')}</dd><dt>{t('shell.disk')}</dt><dd>{diskFree}</dd></dl><progress className="sk-storage-progress" data-tone={diskTone} max="100" value={diskUsed} aria-label={t('shell.diskUsage')} title={storage?.available?`${t('shell.diskUsage')}: ${diskUsed}%`:t('shell.noData')}/></Link><Link to="/settings" className="sk-selfhost"><Icon name="server" size={31}/><div><strong>Self-hosted</strong><small>{t('shell.selfHostedMotto')}</small></div></Link></div>
   </aside>
   <div className="sk-workspace">
    <header className="sk-topbar">

@@ -2109,13 +2109,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   const [err,       setErr]       = useState(null);
   const [testEmail, setTestEmail] = useState('');
   const [testState, setTestState] = useState(null); // null | 'sending' | 'success' | {error}
-  const backdropDown = useRef(false);
-
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const {isDemo} = useAppMode();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -2142,7 +2136,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   useEffect(() => { load(); }, [load]);
 
   const sendTest = async () => {
-    if (!testEmail.trim()) return;
+    if (isDemo || testState === 'sending' || !testEmail.trim()) return;
     setTestState('sending');
     try {
       await api.post(`/campaigns/${campaignId}/send-test`, {
@@ -2159,29 +2153,14 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onMouseDown={e => { backdropDown.current = e.target === e.currentTarget; }}
-      onClick={() => { if (backdropDown.current) onClose(); }}
-    >
-      <div
-        className="sk-campaign-modal-surface rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
-                onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="font-semibold text-gray-800">
-            Podgląd — krok #{(sequence.position ?? 0) + 1}
-            {variant && <span className="ml-2 text-xs font-normal text-purple-600 bg-purple-50 border border-purple-200 rounded px-2 py-0.5">{variant.label || 'Wariant'}</span>}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
-        </div>
-
+    <Modal title={<>Podgląd — krok #{(sequence.position ?? 0) + 1}{variant && <span> · {variant.label || 'Wariant'}</span>}</>}
+      onClose={onClose} busy={testState === 'sending'}>
         {/* Lead picker */}
         <div className="px-6 py-3 border-b bg-gray-50 flex flex-wrap items-center gap-3">
           <label className="text-sm font-medium text-gray-600">Podgląd dla:</label>
           <select
             className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+            aria-label="Podgląd dla kontaktu"
             value={leadId}
             onChange={e => setLeadId(e.target.value)}
           >
@@ -2238,6 +2217,8 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
             <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Wyślij test do:</span>
             <input
               type="email"
+              aria-label="Adres odbiorcy testu"
+              disabled={isDemo || testState === 'sending'}
               value={testEmail}
               onChange={e => setTestEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && sendTest()}
@@ -2248,7 +2229,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
               size="sm"
               variant="default"
               onClick={sendTest}
-              disabled={testState === 'sending' || !testEmail.trim()}
+              disabled={isDemo || testState === 'sending' || !testEmail.trim()}
             >
               {testState === 'sending' ? 'Wysyłanie…' : 'Wyślij test'}
             </Button>
@@ -2260,11 +2241,11 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
             )}
           </div>
           <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={onClose}>Zamknij</Button>
+            {isDemo && <p role="status">Wysyłka testowa jest wyłączona w DEMO.</p>}
+            <Button variant="outline" size="sm" disabled={testState === 'sending'} onClick={onClose}>Zamknij</Button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 

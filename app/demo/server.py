@@ -87,6 +87,7 @@ def create_app():
     validate_demo_target(os.environ.get("DATABASE_URL", ""))
     block_mail_transports()
     from app.main import app
+    app.state.is_demo = True
     app.router.lifespan_context = demo_lifespan
     app.add_middleware(DemoMiddleware)
 
