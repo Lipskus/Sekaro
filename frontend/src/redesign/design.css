@@ -1156,3 +1156,11 @@ html[data-theme=dark] .sk-login-submit{
 @media(max-width:1350px){.sk-campaign-settings-layout{grid-template-columns:minmax(0,1fr)}.sk-settings-readiness{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;align-items:start}.sk-settings-readiness>.sk-panel{margin:0}}
 @media(max-width:1000px){.sk-activity-grid{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:700px){.sk-settings-card-grid,.sk-settings-readiness{grid-template-columns:minmax(0,1fr)}.sk-settings-card-body{padding:16px}.sk-activity-filters>*{width:100%}.sk-uncertain-row{flex-wrap:wrap}}
+
+/* Long plain-text tokens must remain readable in sequence previews. */
+.sk-preview-message{min-width:0;overflow-wrap:anywhere}
+.sk-preview-message img{max-width:100%;height:auto}
+
+/* Keep mapping choices readable; contain the wide table inside the dialog. */
+.sk-import-mapping select,.sk-import-mapping input{min-width:150px}
+.sk-import-mapping:focus-visible{outline:2px solid var(--sk-accent);outline-offset:2px}

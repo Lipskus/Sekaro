@@ -1,0 +1,1172 @@
+[
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 970,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1511,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1141,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-1600-dark-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5129,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-dark-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1687,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-dark-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1329,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 970,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1511,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1141,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-1600-light-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5129,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-light-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1687,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-light-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1329,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 930,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1471,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1101,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-768-dark-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5088,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-dark-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1670,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-dark-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1261,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 930,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1471,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1101,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-768-light-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5088,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-light-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1670,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-light-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1261,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 923,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1464,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1094,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-390-dark-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5081,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-dark-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1663,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-dark-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1254,
+    "dialogs": [],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Dodaj kontakt"
+    ],
+    "bodyLength": 923,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1464,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-fields",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Własne pola"
+    ],
+    "bodyLength": 1094,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-fields-leads-390-light-fixture.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Podgląd — krok #1"
+    ],
+    "bodyLength": 5081,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-light-fixture.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Skrzynki",
+      "Lista skrzynek"
+    ],
+    "bodyLength": 1663,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-light-fixture.png"
+  },
+  {
+    "flow": "mobile-menu",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Witaj, qa! 👋",
+      "Aktywność wysyłki",
+      "Status domen i dostarczalność",
+      "Ostatnia aktywność kampanii",
+      "Najnowsze rozmowy"
+    ],
+    "bodyLength": 1254,
+    "dialogs": [],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mobile-menu-dashboard-390-light-fixture.png"
+  }
+]

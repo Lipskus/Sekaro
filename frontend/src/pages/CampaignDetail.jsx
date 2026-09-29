@@ -2189,7 +2189,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
               {/* Temat */}
               <div className="bg-gray-50 rounded-lg px-4 py-3">
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Temat</span>
-                <p className="font-medium text-gray-800">
+                <p className="sk-preview-message font-medium text-gray-800">
                   {preview.subject || <em className="text-gray-400 font-normal">Odpowiedź w wątku</em>}
                 </p>
               </div>
@@ -2198,11 +2198,11 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
                 <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Treść</span>
                 {preview.is_html ? (
                   <div
-                    className="border rounded-lg p-5 bg-white prose prose-sm max-w-none"
+                    className="sk-preview-message border rounded-lg p-5 bg-white prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: preview.body }}
                   />
                 ) : (
-                  <pre className="border rounded-lg p-5 bg-gray-50 text-sm whitespace-pre-wrap font-sans text-gray-800">
+                  <pre className="sk-preview-message border rounded-lg p-5 bg-gray-50 text-sm whitespace-pre-wrap font-sans text-gray-800">
                     {preview.body}
                   </pre>
                 )}
