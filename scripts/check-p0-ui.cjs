@@ -13,8 +13,9 @@ const routes=process.env.P0_UI_ROUTES?.split(',') || ['/','/campaigns','/campaig
 const languages=(process.env.P0_UI_LANGUAGES || 'pl').split(',');
 const copy=require('../frontend/src/i18n/workspace.json');
 const contactCopy=require('../frontend/src/i18n/contacts.json');
+const outreachCopy=require('../frontend/src/i18n/outreach.json');
 const workflowMode=process.env.P0_UI_WORKFLOWS==='1';
-const workflowCases=[['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
+const workflowCases=[['inbox-thread','/unibox'],['inbox-confirm','/unibox'],['campaign-list','/campaigns'],['campaign-delete','/campaigns'],['campaign-draft','/campaigns/add'],['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider:'smtp',paused:false,max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
@@ -23,6 +24,8 @@ function fixture(p){
  if(p==='/api/auth/refresh')return {access_token:'isolated-qa-fixture'};
  if(p==='/api/auth/me')return {id:1,username:'qa',email:'qa@example.com',role:'admin',is_active:true};
  if(workflowMode){
+  if(p==='/api/ui/unibox')return {items:[{inbox_id:1,thread_id:'qa-thread',lead_id:1,lead_email:lead.email,lead_name:lead.name,subject:'Temat wiadomości klienta',needs_reply:true}],total:1,counts:{all:1,unread:1,needs_reply:1}};
+  if(p==='/api/unibox/threads/qa-thread')return {subject:'Temat wiadomości klienta',inbox_account:inbox.email,messages:[{message_id:'qa-message',direction:'received',from:lead.email,to:inbox.email,timestamp:'2026-09-30T08:00:00Z',body_plain:'Treść klienta pozostaje w oryginalnym języku.'}]};
   if(p==='/api/leads/1')return {...lead,email_verification_status:'unknown',campaigns:[{campaign_id:1,campaign_name:campaign.name,status:'unsubscribed',sending_paused:true,enrolled_at:'2026-09-01T10:00:00Z'}],interactions:[{kind:'sent',direction:'outbound',at:'2026-09-02T10:00:00Z',subject:'Przykładowy temat klienta',campaign_id:1},{kind:'reply_marker',direction:'inbound',at:'2026-09-03T10:00:00Z',campaign_id:1}]};
   if(p==='/api/leads/suppression')return [{id:1,email:'blocked@example.test',reason:'unsubscribe',created_at:'2026-09-01T10:00:00Z'}];
   if(p==='/api/inboxes')return [inbox];
@@ -93,6 +96,14 @@ function fixture(p){
   if(routePath!=='/login')await page.locator('.sk-sidebar').waitFor({state:'attached'});
   await page.waitForTimeout(state==='loading'?250:400);
   if(workflowMode){
+   if(flow.startsWith('inbox-')){
+    await page.getByRole('button',{name:/QA — Aleksandra/}).click();
+    await page.getByRole('button',{name:outreachCopy[language].addSuppression,exact:true,includeHidden:true}).waitFor({state:'attached'});
+    await page.getByRole('textbox',{name:outreachCopy[language].replyBody}).fill('Niezapisana odpowiedź QA — zachowanie szkicu.');
+    if(flow==='inbox-confirm'){await page.getByRole('button',{name:outreachCopy[language].send,exact:true}).click();await page.getByRole('dialog').waitFor();}
+   }
+   if(flow==='campaign-delete'){await page.getByRole('checkbox',{name:outreachCopy[language].selectVisible,exact:true}).check();await page.getByRole('button',{name:outreachCopy[language].deleteSelected,exact:true}).click();await page.getByRole('dialog').waitFor();}
+   if(flow==='campaign-draft')await page.getByRole('textbox',{name:outreachCopy[language].nameRequired}).fill('Kampania QA — zachowanie nazwy');
    if(flow==='contact-suppression'){await page.getByRole('button',{name:contactCopy[language].suppression,exact:true}).click();await page.getByRole('dialog',{name:contactCopy[language].suppressionTitle}).waitFor();}
    if(['contact-activity','contact-campaigns','contact-messages'].includes(flow)){await page.getByRole('tab',{name:contactCopy[language][flow.slice(8)],exact:true}).click();}
    if(flow==='contact-create')await page.getByRole('button',{name:contactCopy[language].add,exact:true}).click();

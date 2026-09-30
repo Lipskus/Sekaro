@@ -2233,6 +2233,7 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-setup-steps [aria-current=step]{border-color:var(--sk-accent);background:var(--sk-green-soft);color:var(--sk-green-text)}
 .sk-setup-number{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--sk-surface-alt);border:1px solid var(--sk-line);font-weight:650}
 .sk-setup-steps [aria-current=step]>.sk-setup-number{background:var(--sk-accent);color:var(--sk-accent-contrast,#06251d);border-color:transparent}
+.sk-setup-steps li>a>span:last-child,.sk-setup-steps li>span>span:last-child{min-width:0;overflow-wrap:anywhere}
 .sk-setup-steps strong,.sk-setup-checklist strong{display:block;font-size:12px}
 .sk-setup-steps small,.sk-setup-checklist small{display:block;font-size:10px;color:var(--sk-muted);margin-top:4px}
 .sk-setup-checklist{list-style:none;margin:0;padding:16px;display:grid;gap:16px}

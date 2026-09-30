@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 import workspace from '../i18n/workspace.json';
 import contacts from '../i18n/contacts.json';
+import outreach from '../i18n/outreach.json';
 
 const LanguageContext = createContext(null);
 
@@ -270,7 +271,7 @@ const translations = {
 // Values are interpolated as plain React text, never as HTML or template code.
 export function translate(language, key, params = {}) {
   const namespace = key.split('.')[0];
-  const modules = {workspace, contacts};
+  const modules = {workspace, contacts, outreach};
   const dictionaries = modules[namespace] ?? translations;
   const lookup = modules[namespace] ? key.slice(namespace.length + 1) : key;
   const message = getNested(dictionaries[language], lookup) ?? getNested(dictionaries.en, lookup) ?? key;

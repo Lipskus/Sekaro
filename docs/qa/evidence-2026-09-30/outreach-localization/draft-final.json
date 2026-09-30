@@ -1,0 +1,722 @@
+[
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1235,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1152,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1287,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1326,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1235,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1152,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1287,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1326,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1218,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1135,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1270,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1309,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1218,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1135,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1270,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1309,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1211,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1128,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1263,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1302,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Nowa kampania",
+      "Podstawowe informacje",
+      "Podsumowanie kampanii",
+      "Lista kontrolna"
+    ],
+    "bodyLength": 1211,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "New campaign",
+      "Basic information",
+      "Campaign summary",
+      "Checklist"
+    ],
+    "bodyLength": 1128,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture-en.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1263,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1302,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture-ru.png"
+  }
+]

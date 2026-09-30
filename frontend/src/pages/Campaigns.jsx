@@ -1,3 +1,4 @@
+import {useUiLanguage} from '../context/LanguageContext';
 import { campaignView } from '../redesign/campaignView';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,6 +10,7 @@ import { useNotify } from '../context/NotificationContext';
 
 
 export default function Campaigns() {
+ const {t:tr,language}=useUiLanguage();
   const [campaigns, setCampaigns] = useState(() => apiCache.get('/campaigns') || []);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ export default function Campaigns() {
       setStrategy(strat.scheduling_strategy || 'priority');
       setOrderChanged(false);
     } catch (e) {
-      setError('Nie udało się wczytać kampanii.');
+      setError({uiKey:'loadError'});
     } finally {
       setLoading(false);
     }
@@ -83,9 +85,9 @@ export default function Campaigns() {
     try {
       await api.post('/campaigns/reorder', { campaign_ids: campaigns.map(c => c.id) });
       setOrderChanged(false);
-      notify({ type: 'success', message: 'Kolejność zapisana.' });
+      notify({ type: 'success', message: tr('outreach.orderSaved') });
     } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się zapisać kolejności.' });
+      notify({ type: 'error', message: tr('outreach.orderError') });
     }
   };
 
@@ -98,24 +100,24 @@ export default function Campaigns() {
       if (successMessage) notify({ type: 'success', message: successMessage });
       await load();
     } catch {
-      setActionError('Nie udało się wykonać operacji. Sprawdź stan kampanii i spróbuj ponownie.');
+      setActionError({uiKey:'actionError'});
     } finally { setActionBusy(false); }
   };
   const togglePause = (id, paused, name) => runAction(
-    `${paused ? 'Wznowić' : 'Wstrzymać'} kampanię "${name}"?`,
+    tr(paused?'outreach.resumeWarning':'outreach.pauseWarning',{name}),
     () => api.patch(`/campaigns/${id}`, { paused: !paused }),
   );
   const deleteCampaign = (id, name) => runAction(
-    `Usunąć kampanię "${name}"? Tej operacji nie można cofnąć.`,
+    {message:tr('outreach.deleteWarning',{name}),danger:true},
     async () => { await api.del(`/campaigns/${id}`); setSelected(ids => ids.filter(value => value !== id)); },
   );
   const duplicateCampaign = (id, name) => runAction(
-    `Zduplikować kampanię "${name}"?`, () => api.post(`/campaigns/${id}/duplicate`), 'Kampania zduplikowana.',
+    tr('outreach.duplicateWarning',{name}), () => api.post(`/campaigns/${id}/duplicate`), tr('outreach.duplicated'),
   );
   const bulkAction = async (kind) => {
     const ids = [...selected];
-    const label = { pause: 'Wstrzymać', resume: 'Wznowić', delete: 'Usunąć' }[kind];
-    if (!ids.length || actionBusy || !(await confirm(`${label} zaznaczone kampanie (${ids.length})?${kind === 'delete' ? ' Tej operacji nie można cofnąć.' : ''}`))) return;
+    const question = tr('outreach.'+{pause:'bulkPause',resume:'bulkResume',delete:'bulkDelete'}[kind],{count:ids.length});
+    if (!ids.length || actionBusy || !(await confirm({message:question,danger:kind==='delete'}))) return;
     setActionBusy(true);
     setActionError(null);
     const failed = [];
@@ -128,8 +130,8 @@ export default function Campaigns() {
     }
     await load();
     setSelected(failed);
-    if (failed.length) setActionError(`Wykonano ${ids.length - failed.length} z ${ids.length} operacji. Nieudane kampanie pozostają zaznaczone — możesz ponowić operację.`);
-    else notify({ type: 'success', message: `Zaktualizowano ${ids.length} kampanii.` });
+    if (failed.length) setActionError({uiKey:'partialFailure',params:{done:ids.length-failed.length,total:ids.length}});
+    else notify({ type: 'success', message: tr('outreach.updatedCampaigns',{count:ids.length}) });
     setActionBusy(false);
   };
 
@@ -138,7 +140,7 @@ export default function Campaigns() {
     const matchesQuery = !query.trim() || row.campaign.name.toLowerCase().includes(query.trim().toLowerCase());
     const matchesStatus = statusFilter === 'all' || row.statusKey === statusFilter;
     return matchesQuery && matchesStatus && (!createdAfter || (row.campaign.created_at || '').slice(0, 10) >= createdAfter);
-  }).sort((a, b) => sortOrder === 'name' ? a.campaign.name.localeCompare(b.campaign.name, 'pl') : sortOrder === 'newest' ? (b.campaign.created_at || '').localeCompare(a.campaign.created_at || '') : 0);
+  }).sort((a, b) => sortOrder === 'name' ? a.campaign.name.localeCompare(b.campaign.name, language) : sortOrder === 'newest' ? (b.campaign.created_at || '').localeCompare(a.campaign.created_at || '') : 0);
   const visibleIds = filteredRows.map(row => row.campaign.id);
   const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => selected.includes(id));
   const toggleVisible = () => setSelected(ids => allVisibleSelected ? ids.filter(id => !visibleIds.includes(id)) : [...new Set([...ids, ...visibleIds])]);
@@ -160,23 +162,23 @@ export default function Campaigns() {
   return (
     <PageFrame
       className="sk-campaigns-page"
-      title="Kampanie"
-      description="Twórz, zarządzaj i monitoruj kampanie outreach."
+      title={tr('outreach.campaigns')}
+      description={tr('outreach.campaignDescription')}
       actions={
         <>
-          <Button variant="outline" to="/analytics" icon="chart">Analityka</Button>
-          <Button variant="primary" to="/campaigns/add" icon="plus">Nowa kampania</Button>
+          <Button variant="outline" to="/analytics" icon="chart">{tr('outreach.analytics')}</Button>
+          <Button variant="primary" to="/campaigns/add" icon="plus">{tr('outreach.newCampaign')}</Button>
         </>
       }
     >
-      <ErrorNotice error={error} onRetry={load} />
-      <ErrorNotice error={actionError} />
+      <ErrorNotice error={error?.uiKey?tr('outreach.'+error.uiKey):error} onRetry={load} />
+      <ErrorNotice error={actionError?.uiKey?tr('outreach.'+actionError.uiKey,actionError.params):actionError} />
 
       {!loading && !error && <div className="sk-campaign-summary">
-        <Metric icon="campaign" title="Aktywne kampanie" value={totals.active} detail={`z ${campaigns.length} wszystkich`} tone="green" />
-        <Metric icon="calendar" title="Zaplanowane wysyłki" value={totals.scheduled.toLocaleString('pl-PL')} detail="oczekujące w kolejce" tone="blue" />
-        <Metric icon="reply" title="Odpowiedzi" value={`${replyRateTotal}%`} detail={`${totals.replies.toLocaleString('pl-PL')} odpowiedzi`} tone="green" />
-        <Metric icon="shield" title="Dostarczalność" value={deliverability == null ? '—' : `${deliverability}%`} detail={totals.sent ? `${totals.sent.toLocaleString('pl-PL')} wysłanych` : 'brak wysłanych wiadomości'} tone={deliverability == null ? 'neutral' : 'green'} />
+        <Metric icon="campaign" title={tr('outreach.activeCampaigns')} value={totals.active} detail={tr('outreach.ofTotal',{count:campaigns.length})} tone="green" />
+        <Metric icon="calendar" title={tr('outreach.scheduled')} value={totals.scheduled.toLocaleString(language)} detail={tr('outreach.queued')} tone="blue" />
+        <Metric icon="reply" title={tr('outreach.replies')} value={`${replyRateTotal}%`} detail={tr('outreach.replyCount',{count:totals.replies.toLocaleString(language)})} tone="green" />
+        <Metric icon="shield" title={tr('outreach.deliverability')} value={deliverability == null ? '—' : `${deliverability}%`} detail={totals.sent ? tr('outreach.sentCount',{count:totals.sent.toLocaleString(language)}) : tr('outreach.noSent')} tone={deliverability == null ? 'neutral' : 'green'} />
       </div>}
 
       <div className="sk-campaign-filterbar">
@@ -184,19 +186,19 @@ export default function Campaigns() {
           <Icon name="search" />
           <input
             type="search"
-            placeholder="Szukaj kampanii…"
-            aria-label="Szukaj kampanii"
+            placeholder={tr('outreach.searchCampaignsPlaceholder')}
+            aria-label={tr('outreach.searchCampaigns')}
             value={query}
             onChange={e => { setQuery(e.target.value); setSelected([]); }}
           />
         </div>
-        <div className="sk-campaign-filter-tabs" role="group" aria-label="Status kampanii">
+        <div className="sk-campaign-filter-tabs" role="group" aria-label={tr('outreach.campaignStatus')}>
           {[
-            ['all','Wszystkie'],
-            ['active','Aktywne'],
-            ['paused','Wstrzymane'],
-            ['issues','Wymaga poprawek'],
-            ['completed','Zakończone'],
+            ['all',tr('outreach.all')],
+            ['active',tr('outreach.activePlural')],
+            ['paused',tr('outreach.pausedPlural')],
+            ['issues',tr('outreach.issues')],
+            ['completed',tr('outreach.completedPlural')],
           ].map(([key,label]) => (
             <button
               type="button"
@@ -212,43 +214,41 @@ export default function Campaigns() {
       </div>
 
       <div className="sk-campaign-secondary-filters">
-        <label>Utworzone od<input type="date" value={createdAfter} onChange={e => { setCreatedAfter(e.target.value); setSelected([]); }} /></label>
-        <label>Sortowanie<select value={sortOrder} onChange={e => setSortOrder(e.target.value)}><option value="priority">Priorytet</option><option value="newest">Najnowsze</option><option value="name">Nazwa A–Z</option></select></label>
-        {filtersActive && <Button onClick={() => { setQuery(''); setStatusFilter('all'); setCreatedAfter(''); setSortOrder('priority'); setSelected([]); }}>Wyczyść filtry</Button>}
+        <label>{tr('outreach.createdFrom')}<input type="date" value={createdAfter} onChange={e => { setCreatedAfter(e.target.value); setSelected([]); }} /></label>
+        <label>{tr('outreach.sort')}<select value={sortOrder} onChange={e => setSortOrder(e.target.value)}><option value="priority">{tr('outreach.priority')}</option><option value="newest">{tr('outreach.newest')}</option><option value="name">{tr('outreach.nameSort')}</option></select></label>
+        {filtersActive && <Button onClick={() => { setQuery(''); setStatusFilter('all'); setCreatedAfter(''); setSortOrder('priority'); setSelected([]); }}>{tr('outreach.clearFilters')}</Button>}
       </div>
       {selected.length > 0 && <div className="sk-campaign-bulkbar" aria-busy={actionBusy}>
-        <strong>Zaznaczono: {selected.length}</strong>
-        <Button icon="pause" disabled={actionBusy} onClick={() => bulkAction('pause')}>Wstrzymaj zaznaczone</Button>
-        <Button icon="play" disabled={actionBusy} onClick={() => bulkAction('resume')}>Wznów zaznaczone</Button>
-        <Button variant="danger" icon="delete" disabled={actionBusy} onClick={() => bulkAction('delete')}>Usuń zaznaczone</Button>
-        <Button variant="ghost" disabled={actionBusy} onClick={() => setSelected([])}>Odznacz</Button>
+        <strong>{tr('outreach.selected')} {selected.length}</strong>
+        <Button icon="pause" disabled={actionBusy} onClick={() => bulkAction('pause')}>{tr('outreach.pauseSelected')}</Button>
+        <Button icon="play" disabled={actionBusy} onClick={() => bulkAction('resume')}>{tr('outreach.resumeSelected')}</Button>
+        <Button variant="danger" icon="delete" disabled={actionBusy} onClick={() => bulkAction('delete')}>{tr('outreach.deleteSelected')}</Button>
+        <Button variant="ghost" disabled={actionBusy} onClick={() => setSelected([])}>{tr('outreach.deselect')}</Button>
       </div>}
 
       {isPriority && (
         <div className="sk-campaign-priority-note">
           <Icon name="drag" size={17} />
           <span>
-            Strategia priorytetowa jest aktywna.
-            {canReorder ? ' Przeciągnij wiersze, aby zmienić kolejność.' : ' Wyczyść filtry, aby zmieniać kolejność.'}
+            {tr('outreach.priorityHint')}
+            {canReorder ? tr('outreach.dragHint') : tr('outreach.clearForOrder')}
           </span>
-          <Link to="/settings#general">Zmień strategię</Link>
+          <Link to="/settings#general">{tr('outreach.changeStrategy')}</Link>
         </div>
       )}
 
       {loading && campaigns.length === 0 ? (
-        <StatePanel icon="refresh" title="Ładowanie kampanii" description="Pobieramy listę kampanii." />
+        <StatePanel icon="refresh" title={tr('outreach.loadingCampaigns')} description={tr('outreach.loadingList')} />
       ) : error && campaigns.length === 0 ? null : campaigns.length === 0 ? (
         <Panel>
-          <Empty icon="campaign">
-            Brak kampanii. Utwórz pierwszą kampanię, aby rozpocząć outreach.
-          </Empty>
+          <Empty icon="campaign">{tr('outreach.emptyCampaigns')}</Empty>
           <div className="sk-actions-end sk-campaign-empty-actions">
-            <Button variant="primary" to="/campaigns/add" icon="plus">Utwórz kampanię</Button>
+            <Button variant="primary" to="/campaigns/add" icon="plus">{tr('outreach.createCampaign')}</Button>
           </div>
         </Panel>
       ) : filteredRows.length === 0 ? (
         <Panel>
-          <Empty icon="filter">Brak kampanii pasujących do wybranych filtrów.</Empty>
+          <Empty icon="filter">{tr('outreach.noMatches')}</Empty>
         </Panel>
       ) : (
         <Panel className="sk-campaign-table-panel">
@@ -256,16 +256,16 @@ export default function Campaigns() {
             <table className="sk-table sk-campaign-table">
               <thead>
                 <tr>
-                  <th><input type="checkbox" aria-label="Zaznacz widoczne kampanie" checked={allVisibleSelected} disabled={actionBusy || loading} onChange={toggleVisible} /></th>
-                  {isPriority && <><th aria-label="Przeciągnij"/><th>#</th></>}
-                  <th>Nazwa kampanii</th>
-                  <th>Status</th>
-                  <th>Kontakty</th>
-                  <th>Skrzynki</th>
-                  <th>Utworzono</th>
-                  <th>Postęp</th>
-                  <th>Odpowiedzi</th>
-                  <th aria-label="Akcje"/>
+                  <th><input type="checkbox" aria-label={tr('outreach.selectVisible')} checked={allVisibleSelected} disabled={actionBusy || loading} onChange={toggleVisible} /></th>
+                  {isPriority && <><th aria-label={tr('outreach.drag')}/><th>#</th></>}
+                  <th>{tr('outreach.campaignName')}</th>
+                  <th>{tr('outreach.status')}</th>
+                  <th>{tr('outreach.contacts')}</th>
+                  <th>{tr('outreach.inboxes')}</th>
+                  <th>{tr('outreach.created')}</th>
+                  <th>{tr('outreach.progress')}</th>
+                  <th>{tr('outreach.replies')}</th>
+                  <th aria-label={tr('outreach.actions')}/>
                 </tr>
               </thead>
               <tbody>
@@ -274,9 +274,9 @@ export default function Campaigns() {
                   const idx = campaigns.findIndex(item => item.id === c.id);
                   const progress = row.percent;
                   const reasonParts = [];
-                  if (row.bounced > 0) reasonParts.push(`${row.bounced} odbitych`);
-                  if (row.unsubscribed > 0) reasonParts.push(`${row.unsubscribed} wypisanych`);
-                  if (row.needsCustom > 0) reasonParts.push(`${row.needsCustom} wymaga treści`);
+                  if (row.bounced > 0) reasonParts.push(tr('outreach.bouncedCount',{count:row.bounced}));
+                  if (row.unsubscribed > 0) reasonParts.push(tr('outreach.unsubscribedCount',{count:row.unsubscribed}));
+                  if (row.needsCustom > 0) reasonParts.push(tr('outreach.needsCustomCount',{count:row.needsCustom}));
 
                   return (
                     <tr
@@ -288,7 +288,7 @@ export default function Campaigns() {
                       onDrop={e => canReorder && onDrop(e, idx)}
                       onDragEnd={e => canReorder && onDragEnd(e)}
                     >
-                      <td><input type="checkbox" aria-label={`Zaznacz kampanię ${c.name}`} checked={selected.includes(c.id)} disabled={actionBusy || loading} onChange={() => setSelected(ids => ids.includes(c.id) ? ids.filter(id => id !== c.id) : [...ids, c.id])} /></td>
+                      <td><input type="checkbox" aria-label={tr('outreach.selectCampaign',{name:c.name})} checked={selected.includes(c.id)} disabled={actionBusy || loading} onChange={() => setSelected(ids => ids.includes(c.id) ? ids.filter(id => id !== c.id) : [...ids, c.id])} /></td>
                       {isPriority && (
                         <>
                           <td className="sk-campaign-drag">
@@ -301,29 +301,29 @@ export default function Campaigns() {
                         <Link className="sk-campaign-name" to={`/campaigns/${c.id}`}>{c.name}</Link>
                         {reasonParts.length > 0 && <small className="sk-campaign-reasons">{reasonParts.join(' · ')}</small>}
                       </td>
-                      <td><Badge dot tone={row.tone}>{row.statusLabel}</Badge></td>
+                      <td><Badge dot tone={row.tone}>{tr('outreach.'+row.statusKey)}</Badge></td>
                       <td>
-                        <strong>{row.totalLeads.toLocaleString('pl-PL')}</strong>
-                        <small className="sk-campaign-cell-detail">{row.scheduled.toLocaleString('pl-PL')} w kolejce</small>
+                        <strong>{row.totalLeads.toLocaleString(language)}</strong>
+                        <small className="sk-campaign-cell-detail">{tr('outreach.queueCount',{count:row.scheduled.toLocaleString(language)})}</small>
                       </td>
                       <td>{c.inbox_ids?.length ?? '—'}</td>
-                      <td className="sk-campaign-created">{c.created_at ? new Date(c.created_at).toLocaleDateString('pl-PL') : '—'}</td>
+                      <td className="sk-campaign-created">{c.created_at ? new Date(c.created_at).toLocaleDateString(language) : '—'}</td>
                       <td className="sk-campaign-progress-cell">
                         <div className="sk-campaign-progress">
                           <span style={{width:`${Math.min(100,progress)}%`}} data-tone={row.tone}/>
                         </div>
-                        <small>{row.emailsSent.toLocaleString('pl-PL')} wysłano · {progress}%</small>
+                        <small>{tr('outreach.sentProgress',{count:row.emailsSent.toLocaleString(language),progress})}</small>
                       </td>
                       <td>
-                        <strong>{row.replies.toLocaleString('pl-PL')}</strong>
+                        <strong>{row.replies.toLocaleString(language)}</strong>
                         <small className="sk-campaign-cell-detail">{row.replyRate}%</small>
                       </td>
                       <td>
                         <div className="sk-campaign-row-actions">
-                          <Button variant="outline" icon="eye" aria-label="Otwórz" title="Otwórz kampanię" to={`/campaigns/${c.id}`} />
-                          <Button variant="outline" icon={c.paused ? "play" : "pause"} aria-label={c.paused ? "Wznów" : "Wstrzymaj"} title={c.paused ? "Wznów" : "Wstrzymaj"} disabled={actionBusy || loading} onClick={() => togglePause(c.id, c.paused, c.name)} />
-                          <Button variant="ghost" icon="stack" aria-label="Duplikuj" title="Duplikuj" disabled={actionBusy || loading} onClick={() => duplicateCampaign(c.id, c.name)} />
-                          <Button variant="danger" icon="delete" aria-label="Usuń" title="Usuń" disabled={actionBusy || loading} onClick={() => deleteCampaign(c.id, c.name)} />
+                          <Button variant="outline" icon="eye" aria-label={tr('outreach.open')} title={tr('outreach.openCampaign')} to={`/campaigns/${c.id}`} />
+                          <Button variant="outline" icon={c.paused ? "play" : "pause"} aria-label={c.paused ? tr('outreach.resume') : tr('outreach.pause')} title={c.paused ? tr('outreach.resume') : tr('outreach.pause')} disabled={actionBusy || loading} onClick={() => togglePause(c.id, c.paused, c.name)} />
+                          <Button variant="ghost" icon="stack" aria-label={tr('outreach.duplicate')} title={tr('outreach.duplicate')} disabled={actionBusy || loading} onClick={() => duplicateCampaign(c.id, c.name)} />
+                          <Button variant="danger" icon="delete" aria-label={tr('outreach.delete')} title={tr('outreach.delete')} disabled={actionBusy || loading} onClick={() => deleteCampaign(c.id, c.name)} />
                         </div>
                       </td>
                     </tr>
@@ -338,10 +338,10 @@ export default function Campaigns() {
       {isPriority && orderChanged && (
         <div className="sk-campaign-savebar" role="status">
           <div>
-            <strong>Niezapisana kolejność kampanii</strong>
-            <small>Zapisz, aby scheduler używał nowego priorytetu.</small>
+            <strong>{tr('outreach.unsavedOrder')}</strong>
+            <small>{tr('outreach.saveOrderHint')}</small>
           </div>
-          <Button variant="primary" disabled={actionBusy || loading} onClick={saveOrder} icon="check">Zapisz kolejność</Button>
+          <Button variant="primary" disabled={actionBusy || loading} onClick={saveOrder} icon="check">{tr('outreach.saveOrder')}</Button>
         </div>
       )}
     </PageFrame>

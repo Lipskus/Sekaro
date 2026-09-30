@@ -1,0 +1,1994 @@
+[
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 1277,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 1385,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 357.34375,
+        "bottom": 542.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 912,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1125,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 347.203125,
+        "bottom": 552.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1287,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 1258,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 1361,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 357.34375,
+        "bottom": 542.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 935,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1126,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 347.203125,
+        "bottom": 552.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1326,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 1277,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 1385,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 357.34375,
+        "bottom": 542.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 912,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1125,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 347.203125,
+        "bottom": 552.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1287,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 1258,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 1361,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 357.34375,
+        "bottom": 542.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 935,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1126,
+    "dialogs": [
+      {
+        "left": 540,
+        "right": 1060,
+        "top": 347.203125,
+        "bottom": 552.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1326,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 811,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 919,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 419.34375,
+        "bottom": 604.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 895,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 409.203125,
+        "bottom": 614.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1270,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 803,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 906,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 419.34375,
+        "bottom": 604.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 918,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1109,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 409.203125,
+        "bottom": 614.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 779,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 779,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1309,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 811,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-768-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 919,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 419.34375,
+        "bottom": 604.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 895,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 409.203125,
+        "bottom": 614.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1270,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 803,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 906,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 419.34375,
+        "bottom": 604.640625,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 918,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1109,
+    "dialogs": [
+      {
+        "left": 124,
+        "right": 644,
+        "top": 409.203125,
+        "bottom": 614.796875,
+        "width": 520,
+        "scrollWidth": 518,
+        "clientWidth": 518,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 779,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 779,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1309,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 702,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 810,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 888,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1101,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1263,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 694,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 797,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 911,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1102,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1302,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 702,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-390-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Unterhaltungen (Posteingang)",
+      "Temat wiadomości klienta",
+      "Aktion bestätigen"
+    ],
+    "bodyLength": 810,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen"
+    ],
+    "bodyLength": 888,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kampagnen",
+      "Löschen bestätigen"
+    ],
+    "bodyLength": 1101,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Neue Kampagne",
+      "Grundinformationen",
+      "Kampagnenübersicht",
+      "Checkliste"
+    ],
+    "bodyLength": 1263,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture-de.png"
+  },
+  {
+    "flow": "inbox-thread",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta"
+    ],
+    "bodyLength": 694,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-thread-unibox-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "inbox-confirm",
+    "route": "/unibox",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Переписка (Входящие)",
+      "Temat wiadomości klienta",
+      "Подтвердите действие"
+    ],
+    "bodyLength": 797,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/unibox/threads/qa-thread/mark-read"
+    ],
+    "screenshot": "inbox-confirm-unibox-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-list",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании"
+    ],
+    "bodyLength": 911,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-list-campaigns-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-delete",
+    "route": "/campaigns",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Кампании",
+      "Подтвердите удаление"
+    ],
+    "bodyLength": 1102,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 303.203125,
+        "bottom": 540.796875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-delete-campaigns-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-draft",
+    "route": "/campaigns/add",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Новая кампания",
+      "Основная информация",
+      "Сводка кампании",
+      "Контрольный список"
+    ],
+    "bodyLength": 1302,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-draft-campaigns-add-390-light-fixture-ru.png"
+  }
+]
