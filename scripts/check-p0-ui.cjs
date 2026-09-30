@@ -10,6 +10,8 @@ const out=process.env.P0_UI_OUTPUT || 'docs/qa/evidence-2026-09-29';
 const base='http://127.0.0.1:4173';
 const http=require('http');
 const routes=process.env.P0_UI_ROUTES?.split(',') || ['/','/campaigns','/campaigns/add','/campaigns/1','/leads','/leads/1','/contacts-tools','/templates','/inboxes','/unibox','/domains','/schedule','/analytics','/settings','/deliverability-tips','/system-health','/notifications','/login'];
+const languages=(process.env.P0_UI_LANGUAGES || 'pl').split(',');
+const copy=require('../frontend/src/i18n/workspace.json');
 const workflowMode=process.env.P0_UI_WORKFLOWS==='1';
 const workflowCases=[['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider:'smtp',paused:false,max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
@@ -67,9 +69,9 @@ function fixture(p){
  const results=[];
  const states=(process.env.P0_UI_STATES || 'fixture').split(',');
  const cases=workflowMode?workflowCases.filter(([flow])=>!process.env.P0_UI_FLOWS||process.env.P0_UI_FLOWS.split(',').includes(flow)):routes.map(route=>['page',route]);
- for(const [width,height] of [[1600,900],[768,1024],[390,844]])for(const theme of ['dark','light'])for(const state of states)for(const [flow,routePath] of cases){
+ for(const [width,height] of [[1600,900],[768,1024],[390,844]])for(const theme of ['dark','light'])for(const language of languages)for(const state of states)for(const [flow,routePath] of cases){
   const context=await browser.newContext({viewport:{width,height},colorScheme:theme,reducedMotion:'reduce'});
-  await context.addInitScript(({theme})=>{localStorage.setItem('sekaro.theme',theme);localStorage.setItem('sekaro.language','pl');localStorage.setItem('onboardingCompleted','true')},{theme});
+  await context.addInitScript(({theme,language})=>{localStorage.setItem('sekaro.theme',theme);localStorage.setItem('sekaro.language',language);localStorage.setItem('onboardingCompleted','true')},{theme,language});
   const page=await context.newPage(), errors=[], mutations=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.route('**/*',async route=>{
@@ -91,8 +93,8 @@ function fixture(p){
    if(flow==='contact-create')await page.getByRole('button',{name:'Dodaj kontakt',exact:true}).click();
    if(flow==='contact-import'){
     await page.locator('input[type=file]').setInputFiles({name:'qa.csv',mimeType:'text/csv',buffer:Buffer.from('email,name,company\nqa@example.com,Aleksandra,Przykładowa firma\n')});
-    await page.getByRole('button',{name:'Wczytaj i sprawdź plik',exact:true}).click();
-    await page.getByRole('combobox',{name:'Mapowanie email'}).waitFor();
+    await page.getByRole('button',{name:copy[language].readFile,exact:true}).click();
+    await page.getByRole('combobox',{name:copy[language].mapping.replace('{column}','email')}).waitFor();
    }
    if(flow==='contact-fields')await page.getByRole('button',{name:'Zarządzaj polami',exact:true}).click();
    if(flow==='sequence-preview'){
@@ -118,9 +120,9 @@ function fixture(p){
    backgroundLocked:document.body.style.overflow==='hidden',
    previewOverflow:[...document.querySelectorAll('.sk-preview-message')].some(el=>el.scrollWidth>el.clientWidth+1),
   }));
-  const name=`${workflowMode?flow+'-':''}${routePath.replace(/\//g,'-').replace(/^-+/,'').replace(/[^a-zA-Z0-9-]/g,'-')||'dashboard'}-${width}-${theme}-${state}.png`;
+  const name=`${workflowMode?flow+'-':''}${routePath.replace(/\//g,'-').replace(/^-+/,'').replace(/[^a-zA-Z0-9-]/g,'-')||'dashboard'}-${width}-${theme}-${state}${language==='pl'?'':'-'+language}.png`;
   await page.screenshot({path:path.join(out,name),fullPage:false});
-  results.push({flow,route:routePath,width,height,theme,state,...measurements,errors,mutations,screenshot:name});
+  results.push({flow,route:routePath,width,height,theme,language,state,...measurements,errors,mutations,screenshot:name});
   await context.close();
  }
  await browser.close();

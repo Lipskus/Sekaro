@@ -10,7 +10,7 @@ vi.mock('./AuthContext',()=>({useAuth:()=>({user:{username:'qa',role:'admin'},lo
 vi.mock('./SystemHealthContext',()=>({useSystemHealth:()=>({overallStatus:'ok',rawData:null,loading:false,fetchError:null})}));
 vi.mock('./NotificationsContext',()=>({useNotifications:()=>({count:0})}));
 vi.mock('./AppModeContext',()=>({useAppMode:()=>({isProduction:true})}));
-vi.mock('./LanguageContext',()=>({useLanguage:()=>{const labels={
+vi.mock('./LanguageContext',async importOriginal=>({...await importOriginal(),useLanguage:()=>{const labels={
  'shell.closeMenu':'Zamknij menu','shell.openMenu':'Otwórz menu','shell.mainNavigation':'Nawigacja główna','shell.search':'Szukaj w Sekaro',
  'shell.skipToContent':'Przejdź do treści',
  'shell.searchPlaceholder':'Szukaj','shell.notifications':'Powiadomienia','shell.administrator':'Administrator','shell.user':'Użytkownik','shell.system':'System',

@@ -33,7 +33,7 @@ vi.mock('../context/NotificationsContext', () => ({ useNotifications: () => ({ r
 vi.mock('../context/SystemHealthContext', () => ({ useSystemHealth: () => mocks.health }));
 vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }) }));
 vi.mock('../context/DarkModeContext', () => ({ useDarkMode: () => ({ themePreference: 'light', setThemePreference: vi.fn() }) }));
-vi.mock('../context/LanguageContext', () => ({ useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
+vi.mock('../context/LanguageContext', async importOriginal => ({ ...await importOriginal(), useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
   'appearance.title':'Wygląd i język','appearance.description':'Dostosuj wygląd interfejsu do swoich preferencji.',
   'appearance.language':'Język interfejsu','appearance.savedLocally':'Zmiana języka jest zapisywana lokalnie dla tej przeglądarki.',
   'appearance.light':'Jasny','appearance.dark':'Ciemny','appearance.system':'System','appearance.systemFollows':'Motyw systemowy automatycznie podąża za ustawieniem systemu operacyjnego lub przeglądarki.',

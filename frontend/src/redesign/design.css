@@ -1162,5 +1162,6 @@ html[data-theme=dark] .sk-login-submit{
 .sk-preview-message img{max-width:100%;height:auto}
 
 /* Keep mapping choices readable; contain the wide table inside the dialog. */
-.sk-import-mapping select,.sk-import-mapping input{min-width:150px}
+.sk-import-mapping input{min-width:150px}
+.sk-import-mapping select{min-width:260px}
 .sk-import-mapping:focus-visible{outline:2px solid var(--sk-accent);outline-offset:2px}

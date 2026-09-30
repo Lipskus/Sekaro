@@ -46,3 +46,7 @@ Kolejność faz CRM z PR37 pozostaje zachowana. Nie zatwierdzono generowania dod
 ## Stan rozpoczęcia wykonania
 
 Etap 1 trwa. Branch: `fix/p0-safety-sekaro-identity-2026-09-29`. Ochrona wysyłki, poprawka tabletowego nagłówka Inbox, oznaczenie środowiska demo oraz wspólny podgląd sekwencji są opublikowane. Odbiór całego P0 pozostaje otwarty; szczegóły w raportach `docs/qa/`.
+
+### Postęp 30.09.2026
+
+Kontynuacja etapu 1 zgodnie z zatwierdzoną kolejnością. Propozycja warunkowego odbioru z `2026-09-29-p0-acceptance-proposal.md` nie została potraktowana jako zgoda na przesunięcie pozostałych prac. Dodano lokalizację wspólnych kontrolek, potwierdzeń, importu i własnych pól kontaktu w PL/EN/DE/RU. Treści pozostałych modułów i pełny odbiór referencyjny nadal pozostają otwarte w P0. Etap 2 nie jest rozpoczęty. Szczegóły: `docs/qa/2026-09-30-p0-shared-localization.md`.

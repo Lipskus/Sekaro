@@ -1,3 +1,4 @@
+import {useUiLanguage} from '../context/LanguageContext';
 import {useEffect,useRef,useId} from 'react';
 import {Icon} from './ui';
 
@@ -17,6 +18,7 @@ function focusableElements(box){
 }
 
 export default function Modal({title,children,footer,onClose,small=false,size,busy=false,drawer=false}){
+ const {t}=useUiLanguage();
  const ref=useRef(null),id=useId(),closeRef=useRef(onClose),busyRef=useRef(busy);
  closeRef.current=onClose;busyRef.current=busy;
  useEffect(()=>{
@@ -55,5 +57,5 @@ export default function Modal({title,children,footer,onClose,small=false,size,bu
    (focusableElements(box)[0]||box).focus();
   }
  },[busy]);
- return <div className={`sk-modal-backdrop ${drawer?'sk-modal-backdrop-drawer':''}`} onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)onClose();}}><section ref={ref} tabIndex={-1} className={`sk-modal ${small||size==='small'?'small':''} ${drawer?'sk-modal-drawer':''}`} role="dialog" aria-modal="true" aria-labelledby={id}><header className="sk-modal-header"><h2 id={id}>{title}</h2><button type="button" className="sk-icon-button" aria-label="Zamknij okno" onClick={onClose} disabled={busy}><Icon name="close"/></button></header><div className="sk-modal-body">{children}</div>{footer&&<footer className="sk-modal-footer">{footer}</footer>}</section></div>;
+ return <div className={`sk-modal-backdrop ${drawer?'sk-modal-backdrop-drawer':''}`} onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)onClose();}}><section ref={ref} tabIndex={-1} className={`sk-modal ${small||size==='small'?'small':''} ${drawer?'sk-modal-drawer':''}`} role="dialog" aria-modal="true" aria-labelledby={id}><header className="sk-modal-header"><h2 id={id}>{title}</h2><button type="button" className="sk-icon-button" aria-label={t('workspace.closeDialog')} onClick={onClose} disabled={busy}><Icon name="close"/></button></header><div className="sk-modal-body">{children}</div>{footer&&<footer className="sk-modal-footer">{footer}</footer>}</section></div>;
 }

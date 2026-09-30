@@ -1,5 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
+import workspace from '../i18n/workspace.json';
+
 const LanguageContext = createContext(null);
 
 export const SUPPORTED_LANGUAGES = [
@@ -264,6 +266,22 @@ const translations = {
   },
 };
 
+// Values are interpolated as plain React text, never as HTML or template code.
+export function translate(language, key, params = {}) {
+  const dictionaries = key.startsWith('workspace.') ? workspace : translations;
+  const lookup = key.startsWith('workspace.') ? key.slice(10) : key;
+  const message = getNested(dictionaries[language], lookup) ?? getNested(dictionaries.en, lookup) ?? key;
+  return typeof message === 'string' ? message.replace(/\{(\w+)\}/g, (token, name) =>
+    Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : token) : message;
+}
+
+// Shared UI primitives can also render standalone (e.g. component previews).
+// In the application they always consume the existing LanguageProvider.
+const defaultUiLanguage = {language: 'pl', t: (key, params) => translate('pl', key, params)};
+export function useUiLanguage() {
+  return useContext(LanguageContext) ?? defaultUiLanguage;
+}
+
 function getNested(obj, path) {
   return path.split('.').reduce((acc, key) => acc?.[key], obj);
 }
@@ -299,7 +317,7 @@ export function LanguageProvider({ children }) {
     language,
     setLanguage,
     languages: SUPPORTED_LANGUAGES,
-    t: (key) => getNested(translations[language], key) ?? getNested(translations.en, key) ?? key,
+    t: (key, params) => translate(language, key, params),
   }), [language]);
 
   return (
