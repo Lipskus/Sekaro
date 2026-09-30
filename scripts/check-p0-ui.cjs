@@ -14,12 +14,15 @@ const languages=(process.env.P0_UI_LANGUAGES || 'pl').split(',');
 const copy=require('../frontend/src/i18n/workspace.json');
 const contactCopy=require('../frontend/src/i18n/contacts.json');
 const outreachCopy=require('../frontend/src/i18n/outreach.json');
+const campaignCopy=require('../frontend/src/i18n/campaign.json');
 const workflowMode=process.env.P0_UI_WORKFLOWS==='1';
-const workflowCases=[['inbox-thread','/unibox'],['inbox-confirm','/unibox'],['campaign-list','/campaigns'],['campaign-delete','/campaigns'],['campaign-draft','/campaigns/add'],['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
+const workflowCases=[['campaign-overview','/campaigns/1'],['campaign-schedule','/campaigns/1?setup=1#schedule'],['campaign-inboxes','/campaigns/1?setup=1#inboxes'],['campaign-settings','/campaigns/1#settings'],['campaign-preflight','/campaigns/1?setup=1#overview'],['campaign-activity','/campaigns/1#queue'],['sequence-edit','/campaigns/1#sequences'],['sequence-variant','/campaigns/1#sequences'],['sequence-personalized','/campaigns/1#sequences'],['inbox-thread','/unibox'],['inbox-confirm','/unibox'],['campaign-list','/campaigns'],['campaign-delete','/campaigns'],['campaign-draft','/campaigns/add'],['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider:'smtp',paused:false,max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
-function fixture(p){
+function fixture(p,flow){
+ if(flow==='sequence-personalized'&&p==='/api/campaigns/1/sequences')return [{id:1,position:0,sequence_type:'personalized',fallback_subject:'Temat indywidualny QA',fallback_body:'Treść zastępcza QA',wait_days_after_previous:0,is_html:false}];
+ if(flow==='sequence-personalized'&&p==='/api/campaigns/1/leads')return [{...lead,lead_id:1,status:'active',personalized:[{sequence_id:1,written:false,already_sent:false}]}];
  if(p==='/api/auth/setup-status')return {setup_complete:true};
  if(p==='/api/auth/refresh')return {access_token:'isolated-qa-fixture'};
  if(p==='/api/auth/me')return {id:1,username:'qa',email:'qa@example.com',role:'admin',is_active:true};
@@ -40,7 +43,8 @@ function fixture(p){
  if(p==='/api/campaigns')return [campaign];
  if(p==='/api/campaigns/1')return campaign;
  if(p==='/api/campaigns/has-leads')return {has_leads:true};
- if(p==='/api/campaigns/1/preflight')return {ready:false,checks:[],errors:['QA: brak skrzynki']};
+ if(p==='/api/campaigns/1/preflight')return {ready:false,summary:{sendable_contacts:1},issues:[{code:'uncertain_send_attempts',severity:'error',message:'QA: wynik wysyłki wymaga sprawdzenia u dostawcy.',details:{count:1,slot_ids:[9]}}]};
+ if(p==='/api/campaigns/1/queue')return [{slot_id:9,lead_email:lead.email,lead_name:lead.name,inbox_id:1,inbox_email:inbox.email,sequence_index:0,scheduled_date:'2026-09-30T10:00:00Z'}];
  if(p==='/api/leads')return [lead];
  if(p==='/api/leads/1')return lead;
  if(p==='/api/ui/unibox')return {items:[],total:0,page:1,page_size:50,counts:{all:0,unread:0,needs_reply:0,bounced:0}};
@@ -89,7 +93,7 @@ function fixture(p){
    const dataRequest=!u.pathname.startsWith('/api/auth/') && !['/api/status','/api/system-health'].includes(u.pathname);
    if(state==='error' && dataRequest)return route.fulfill({status:503,json:{detail:'Izolowany błąd QA'}});
    if(state==='loading' && dataRequest)await new Promise(r=>setTimeout(r,3000));
-   return route.fulfill({json:fixture(u.pathname)}).catch(()=>{});
+   return route.fulfill({json:fixture(u.pathname,flow)}).catch(()=>{});
   });
   await page.goto(base+routePath);
   // Wait for authentication/bootstrap before measuring the requested page state.
@@ -113,8 +117,10 @@ function fixture(p){
     await page.getByRole('combobox',{name:copy[language].mapping.replace('{column}','email')}).waitFor();
    }
    if(flow==='contact-fields')await page.getByRole('button',{name:contactCopy[language].manageFields,exact:true}).click();
+   if(flow==='sequence-edit'){await page.getByRole('button',{name:campaignCopy[language]['Edytuj krok {step}'].replace('{step}','1'),exact:true}).click();await page.getByRole('textbox',{name:campaignCopy[language]['Temat wiadomości'],exact:true}).fill('Niezapisany temat QA');}
+   if(flow==='sequence-variant')await page.getByRole('button',{name:campaignCopy[language]['Dodaj wariant'],exact:true}).click();
    if(flow==='sequence-preview'){
-    await page.getByRole('button',{name:'Podgląd',exact:true}).click();
+    await page.getByRole('button',{name:campaignCopy[language]['Podgląd'],exact:true}).click();
     await page.getByText('Temat podglądu QA',{exact:true}).waitFor();
    }
    if(flow==='mailbox-retention'){
@@ -136,6 +142,7 @@ function fixture(p){
    dialogs:[...document.querySelectorAll('[role=dialog]')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,focusInside:el.contains(document.activeElement)};}),
    backgroundLocked:document.body.style.overflow==='hidden',
    previewOverflow:[...document.querySelectorAll('.sk-preview-message')].some(el=>el.scrollWidth>el.clientWidth+1),
+   personalizedButtonOverflow:[...document.querySelectorAll('.sk-personalized-heading button')].some(el=>el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1),
   }));
   const name=`${workflowMode?flow+'-':''}${routePath.replace(/\//g,'-').replace(/^-+/,'').replace(/[^a-zA-Z0-9-]/g,'-')||'dashboard'}-${width}-${theme}-${state}${language==='pl'?'':'-'+language}.png`;
   await page.screenshot({path:path.join(out,name),fullPage:false});
@@ -145,7 +152,7 @@ function fixture(p){
  await browser.close();
  await new Promise(r=>server.close(r));
  fs.writeFileSync(path.join(out,'ui-matrix.json'),JSON.stringify(results,null,2)+'\n');
- const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
+ const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
  console.log(JSON.stringify({captures:results.length,failures},null,2));
  process.exitCode=failures.length?1:0;
 })().catch(e=>{console.error(e);process.exit(1)});

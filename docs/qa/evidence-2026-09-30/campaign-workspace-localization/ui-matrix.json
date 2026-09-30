@@ -1,0 +1,3830 @@
+[
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8711,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7667,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 983,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8807,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1427,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1577,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1207,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1156,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5210,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8727,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7653,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 944,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8826,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1427,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1568,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1184,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1161,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5197,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8711,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7667,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 983,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8807,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1427,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1577,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1207,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1156,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5210,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8727,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7653,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 944,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8826,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1427,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1568,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1108,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1184,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1161,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5197,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8668,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7624,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 940,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8764,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1384,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1534,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1065,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1164,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1113,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5167,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8686,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7612,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 903,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8785,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1386,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1067,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1143,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1120,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5156,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8668,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7624,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 940,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8764,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1384,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1534,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-768-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1065,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-768-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1164,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-768-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1113,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-768-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5167,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8686,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7612,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 903,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8785,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1386,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1067,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1143,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1120,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5156,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8661,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7617,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 933,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8757,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1377,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1058,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1157,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1106,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5160,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8679,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7605,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 896,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8778,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1379,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1520,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1060,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1136,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1113,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5149,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan",
+      "Nachrichtensequenz",
+      "Pre-flight — vor dem Start prüfen",
+      "Prognose und Statistiken"
+    ],
+    "bodyLength": 8661,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandzeitplan"
+    ],
+    "bodyLength": 7617,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Der Kampagne zugewiesene Postfächer"
+    ],
+    "bodyLength": 933,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Grundinformationen",
+      "Absenderpostfächer",
+      "Versandzeitplan",
+      "Absenderidentität",
+      "Limits und Abstände",
+      "Stoppregeln",
+      "Tracking und Daten",
+      "Nachrichtenformat",
+      "Kampagnenbereitschaft"
+    ],
+    "bodyLength": 8757,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Kampagnen-Pre-flight",
+      "Kampagnenübersicht",
+      "Kampagne benötigt Korrekturen"
+    ],
+    "bodyLength": 1377,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Versandwarteschlange",
+      "Versandverlauf",
+      "Warteschlange steuern",
+      "Unklare Sendeversuche"
+    ],
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-390-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1058,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-390-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1157,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-390-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1106,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-390-light-fixture-de.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Vorschau — Schritt #1"
+    ],
+    "bodyLength": 5160,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-overview",
+    "route": "/campaigns/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки",
+      "Последовательность сообщений",
+      "Проверка перед запуском",
+      "Прогноз и статистика"
+    ],
+    "bodyLength": 8679,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-overview-campaigns-1-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-schedule",
+    "route": "/campaigns/1?setup=1#schedule",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Расписание отправки"
+    ],
+    "bodyLength": 7605,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-schedule-campaigns-1-setup-1-schedule-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-inboxes",
+    "route": "/campaigns/1?setup=1#inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Ящики, назначенные кампании"
+    ],
+    "bodyLength": 896,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-inboxes-campaigns-1-setup-1-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-settings",
+    "route": "/campaigns/1#settings",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Основная информация",
+      "Ящики отправителей",
+      "Расписание отправки",
+      "Данные отправителя",
+      "Лимиты и интервалы",
+      "Правила остановки",
+      "Отслеживание и данные",
+      "Формат сообщения",
+      "Готовность кампании"
+    ],
+    "bodyLength": 8778,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-settings-campaigns-1-settings-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-preflight",
+    "route": "/campaigns/1?setup=1#overview",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Проверка кампании перед запуском",
+      "Сводка кампании",
+      "Кампания требует исправлений"
+    ],
+    "bodyLength": 1379,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-preflight-campaigns-1-setup-1-overview-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-activity",
+    "route": "/campaigns/1#queue",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "Очередь отправки",
+      "История отправки",
+      "Управление очередью",
+      "Отправки с неизвестным результатом"
+    ],
+    "bodyLength": 1520,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-activity-campaigns-1-queue-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-edit",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1060,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-edit-campaigns-1-sequences-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-variant",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1136,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-variant-campaigns-1-sequences-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-personalized",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1113,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "sequence-personalized-campaigns-1-sequences-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "sequence-preview",
+    "route": "/campaigns/1#sequences",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Предпросмотр — шаг №1"
+    ],
+    "bodyLength": 5149,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/campaigns/1/preview"
+    ],
+    "screenshot": "sequence-preview-campaigns-1-sequences-390-light-fixture-ru.png"
+  }
+]
