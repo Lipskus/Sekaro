@@ -1,3 +1,5 @@
+import {useOperationsLanguage} from '../context/operationsLanguage';
+import {campaignWeekdays} from '../context/campaignLanguage';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { api, apiCache } from '../api';
@@ -29,6 +31,7 @@ function buildQuery(path, params) {
 }
 
 export default function Schedule() {
+  const {ct,language}=useOperationsLanguage();
   const notify = useNotify();
   const { isProduction } = useAppMode();
 
@@ -90,7 +93,7 @@ export default function Schedule() {
         return merged;
       }
     } catch (e) {
-      notify({ type: 'error', message: 'Nie udało się wczytać szczegółów wiadomości.' });
+      notify({ type: 'error', message: ct("Nie udało się wczytać szczegółów wiadomości.") });
       return null;
     }
     return item;
@@ -217,7 +220,7 @@ export default function Schedule() {
     if (!iso) return '—';
     const d = parseApiDate(iso); const now = new Date(); const diff = Math.floor((now-d)/60000);
     if (!Number.isFinite(diff)) return '—';
-    return diff < 1 ? 'Przed chwilą' : `${diff} min temu`;
+    return diff < 1 ? ct('Przed chwilą') : new Intl.RelativeTimeFormat(language,{numeric:'always'}).format(-diff,'minute');
   };
   const recalculateAll = async () => {
     if (operationLock.current) return;
@@ -238,8 +241,8 @@ export default function Schedule() {
         if (!mounted.current) return;
         if (!completed) throw new Error('Serwer przyjął zadanie, ale nie potwierdził zakończenia w ciągu 2 minut. Odśwież kolejkę, aby sprawdzić wynik.');
       }
-      if (mounted.current) { await loadData(); notify({ type: 'success', message: 'Przeliczanie kampanii zakończone.' }); }
-    } catch (e) { if (mounted.current) notify({ type: 'error', message: e.message }); }
+      if (mounted.current) { await loadData(); notify({ type: 'success', message: ct("Przeliczanie kampanii zakończone.") }); }
+    } catch (e) { if (mounted.current) notify({ type: 'error', message: ct(e.message) }); }
     finally { operationLock.current = false; if (mounted.current) setRecalcState({ busy: false, text: '⚡ Przelicz kampanie' }); }
   };
   const validateQueue = async () => {
@@ -249,7 +252,7 @@ export default function Schedule() {
     try {
       const result = await api.post('/schedule/validate-queue');
       if (mounted.current) { setValidation(result); await loadData(); }
-    } catch (e) { if (mounted.current) notify({ type: 'error', message: 'Sprawdzanie kolejki nie powiodło się: ' + e.message }); }
+    } catch (e) { if (mounted.current) notify({ type: 'error', message:ct('Sprawdzanie kolejki nie powiodło się: {error}',{error:e.message}) }); }
     finally { operationLock.current = false; if (mounted.current) setValidateState({ busy: false, text: '🔍 Sprawdź kolejkę' }); }
   };
 
@@ -276,8 +279,8 @@ export default function Schedule() {
     const tz = normalizeTimeZone(item.campaign_timezone);
     const time = isSent ? fmtTime(item.sent_at, tz) : fmtTime(item.scheduled_at, tz);
     const statusCls = isSent ? 'sent' : 'scheduled';
-    const statusLabel = isSent ? 'Wysłano' : 'Zaplanowano';
-    const subject = item.subject || '(bez tematu)';
+    const statusLabel = isSent ? ct("Wysłano") : ct("Zaplanowano");
+    const subject = item.subject || ct("(bez tematu)");
     const inboxLabel = item.inbox_email || '—';
     const isExpanded = expandedId === uid;
     const toggleExpanded = async () => {
@@ -315,36 +318,36 @@ export default function Schedule() {
         {isExpanded && (
           <div className="detail-panel open">
             <div className="dp-grid">
-              <div><span className="dp-label">Status</span><br/><span className={`badge-status ${statusCls}`} style={{fontSize:'0.8rem'}}>{statusLabel}</span></div>
+              <div><span className="dp-label">{ct("Status")}</span><br/><span className={`badge-status ${statusCls}`} style={{fontSize:'0.8rem'}}>{statusLabel}</span></div>
               {isSent ? (
-                <div><span className="dp-label">Wysłano</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
+                <div><span className="dp-label">{ct("Wysłano")}</span><br/><span className="dp-val">{fmtDateTime(item.sent_at, tz)}</span></div>
               ) : (
-                <div><span className="dp-label">Zaplanowano na</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
+                <div><span className="dp-label">{ct("Zaplanowano na")}</span><br/><span className="dp-val">{fmtDateTime(item.scheduled_at, tz)}</span></div>
               )}
-              <div><span className="dp-label">Kontakt</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
-              <div><span className="dp-label">Kampania</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
-              <div><span className="dp-label">Krok sekwencji</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
-              <div><span className="dp-label">Przerwa po poprzedniej</span><br/><span className="dp-val">{item.sequence_wait_days??0} dni</span></div>
-              <div className="dp-full"><span className="dp-label">Temat</span><br/><span className="dp-val">{subject}</span></div>
+              <div><span className="dp-label">{ct("Kontakt")}</span><br/><span className="dp-val mono">{item.lead_email}</span>{item.lead_name ? ` (${item.lead_name})` : ''}<br/><span className={`badge ${item.lead_status}`}>{item.lead_status}</span></div>
+              <div><span className="dp-label">{ct("Kampania")}</span><br/><span className="dp-val"><a href={`/campaigns/${item.campaign_id}`}>{item.campaign_name}</a></span></div>
+              <div><span className="dp-label">{ct("Krok sekwencji")}</span><br/><span className="dp-val">{item.sequence_index+1}</span></div>
+              <div><span className="dp-label">{ct("Przerwa po poprzedniej")}</span><br/><span className="dp-val">{ct('{count} dni',{count:item.sequence_wait_days??0})}</span></div>
+              <div className="dp-full"><span className="dp-label">{ct("Temat")}</span><br/><span className="dp-val">{subject}</span></div>
               {!isSent && (
                 <>
-                  <div><span className="dp-label">Skrzynka</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
-                  <div><span className="dp-label">Metoda wysyłki</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
-                  <div><span className="dp-label">Limit skrzynki/dzień</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
-                  <div><span className="dp-label">Pozycja w dniu</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
+                  <div><span className="dp-label">{ct("Skrzynka")}</span><br/><span className="dp-val mono">{inboxLabel}</span>{item.inbox_display_name ? ` (${item.inbox_display_name})` : ''}</div>
+                  <div><span className="dp-label">{ct("Metoda wysyłki")}</span><br/><span className="dp-val">{(item.inbox_provider||'').toUpperCase()}</span></div>
+                  <div><span className="dp-label">{ct("Limit skrzynki/dzień")}</span><br/><span className="dp-val">{item.inbox_max_per_day??'—'}</span></div>
+                  <div><span className="dp-label">{ct("Pozycja w dniu")}</span><br/><span className="dp-val">#{item.position_in_day??'—'}</span></div>
                 </>
               )}
               {item.has_variants && (
-                <div><span className="dp-label">Wariant A/B</span><br/><span className="dp-val">{item.variant_id ? `Wariant #${item.variant_id}` : 'Domyślny'}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>A/B aktywne</span> : ''}</span></div>
+                <div><span className="dp-label">{ct("Wariant A/B")}</span><br/><span className="dp-val">{item.variant_id ? ct('Wariant #{id}',{id:item.variant_id}) : ct("Domyślny")}{item.has_variants ? <span className="badge-status" style={{marginLeft:'0.3rem',fontSize:'0.7rem',padding:'0.1rem 0.4rem',background:'#e0f2fe',color:'#0369a1'}}>{ct("A/B aktywne")}</span> : ''}</span></div>
               )}
               {isSent && item.message_id && (
-                <div className="dp-full"><span className="dp-label">ID wiadomości</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
+                <div className="dp-full"><span className="dp-label">{ct("ID wiadomości")}</span><br/><span className="dp-val mono" style={{fontSize:'0.78rem'}}>{item.message_id}</span></div>
               )}
-              <div><span className="dp-label">Okno wysyłki</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
-              <div><span className="dp-label">Dni wysyłki</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>DAY_NAMES[d]).join(', ')}</span></div>
-              <div><span className="dp-label">Zatrzymaj po odpowiedzi</span><br/><span className="dp-val">{item.campaign_stop_on_reply?'Tak':'Nie'}</span></div>
+              <div><span className="dp-label">{ct("Okno wysyłki")}</span><br/><span className="dp-val">{item.campaign_hours_start} – {item.campaign_hours_end}</span></div>
+              <div><span className="dp-label">{ct("Dni wysyłki")}</span><br/><span className="dp-val">{(item.campaign_sending_days||[]).map(d=>campaignWeekdays(language,DAY_NAMES)[d]).join(', ')}</span></div>
+              <div><span className="dp-label">{ct("Zatrzymaj po odpowiedzi")}</span><br/><span className="dp-val">{item.campaign_stop_on_reply?ct("Tak"):ct("Nie")}</span></div>
               {item.sequence_body && (
-                <div className="dp-full"><span className="dp-label">Treść wiadomości</span>
+                <div className="dp-full"><span className="dp-label">{ct("Treść wiadomości")}</span>
                   <div className="flex items-center gap-2 mt-1 mb-1">
                     <Button
                       size="sm"
@@ -353,9 +356,7 @@ export default function Schedule() {
                         e.stopPropagation();
                         await openPreview(item);
                       }}
-                    >
-                      Pełny podgląd
-                    </Button>
+                    > {ct("Pełny podgląd")} </Button>
                   </div>
                   <div className="body-preview">{item.sequence_is_html || item.sequence_body.trim().startsWith('<') ? <SafeEmail html={item.sequence_body} /> : <pre>{item.sequence_body}</pre>}</div>
                 </div>
@@ -371,12 +372,12 @@ export default function Schedule() {
     // add header row before items
     const header = (
       <div className="email-row header" key="header">
-        <div className="time-col">Czas</div>
-        <div className="status-col">Status</div>
-        <div className="lead-col">Kontakt</div>
-        <div className="subj-col">Temat</div>
-        <div className="camp-col">Kampania</div>
-        <div className="inbox-col">Skrzynka</div>
+        <div className="time-col">{ct("Czas")}</div>
+        <div className="status-col">{ct("Status")}</div>
+        <div className="lead-col">{ct("Kontakt")}</div>
+        <div className="subj-col">{ct("Temat")}</div>
+        <div className="camp-col">{ct("Kampania")}</div>
+        <div className="inbox-col">{ct("Skrzynka")}</div>
       </div>
     );
     const todayByTz = new Map();
@@ -387,7 +388,7 @@ export default function Schedule() {
       parts.push(
         <div key="past">
           <button type="button" className="section-hdr" aria-expanded={pastExpanded} onClick={() => setPastExpanded(pe=>!pe)}>
-            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> Wysłane ({totalSent} wiadomości w widocznym zakresie)
+            <span className={`arrow ${pastExpanded?'open':''}`}>&#9654;</span> {ct('Wysłane ({count} wiadomości w widocznym zakresie)',{count:totalSent})}
           </button>
           {pastExpanded && groupByDate(filteredSent,true).map(group => (
             <div key={`${group.tz}-${group.dateKey}`}>
@@ -406,7 +407,7 @@ export default function Schedule() {
       parts.push(
         <div key="upcoming">
           <button type="button" className="section-hdr" aria-expanded={scheduledExpanded} onClick={() => setScheduledExpanded(se => !se)}>
-            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> Zaplanowane ({totalScheduled} wiadomości w widocznym zakresie)
+            <span className={`arrow ${scheduledExpanded ? 'open' : ''}`}>&#9654;</span> {ct('Zaplanowane ({count} wiadomości w widocznym zakresie)',{count:totalScheduled})}
           </button>
           {scheduledExpanded && groupByDate(filteredScheduled,false).map(group => {
             if (!todayByTz.has(group.tz)) {
@@ -422,10 +423,10 @@ export default function Schedule() {
                   {group.dateKey}
                   <span className="ml-2 text-xs text-gray-400">{group.tz}</span>
                   {group.dateKey === todayKey && (
-                    <span style={{color:'var(--sk-success)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>dzisiaj</span>
+                    <span style={{color:'var(--sk-success)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>{ct("dzisiaj")}</span>
                   )}
                   {group.dateKey === tomorrowKey && (
-                    <span style={{color:'var(--sk-info)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>jutro</span>
+                    <span style={{color:'var(--sk-info)',fontWeight:500,fontSize:'0.8rem',marginLeft:'0.5rem'}}>{ct("jutro")}</span>
                   )}
                 </div>
                 {group.items
@@ -441,26 +442,26 @@ export default function Schedule() {
       // add header bar at top of list
       parts.unshift(header);
     }
-    if (!parts.length) return <StatePanel icon="calendar" title="Brak wiadomości" description="Żadne wiadomości nie pasują do bieżących filtrów." />;
+    if (!parts.length) return <StatePanel icon="calendar" title={ct("Brak wiadomości")} description={ct("Żadne wiadomości nie pasują do bieżących filtrów.")} />;
     return parts;
   };
 
   const filters = (<div className="sk-schedule-toolbar">
-        <label>Kampania<select aria-label="Kampania" value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">Wszystkie kampanie</option>
+        <label>{ct("Kampania")}<select aria-label={ct("Kampania")} value={campaignFilter} onChange={e=>setCampaignFilter(e.target.value)} className="border rounded p-1 text-sm">
+          <option value="">{ct("Wszystkie kampanie")}</option>
           {filterCampaignOptions.current.map(([id,name])=> <option key={id} value={id}>{name}</option>)}
         </select></label>
-        <label>Skrzynka<select aria-label="Skrzynka" value={inboxFilter} onChange={e => setInboxFilter(e.target.value)}>
-          <option value="">Wszystkie skrzynki</option>
-          {[...new Map([...sent, ...scheduled].filter(i => i.inbox_id).map(i => [i.inbox_id, i.inbox_email])).entries()].map(([id, email]) => <option key={id} value={id}>{email || `Skrzynka #${id}`}</option>)}
+        <label>{ct("Skrzynka")}<select aria-label={ct("Skrzynka")} value={inboxFilter} onChange={e => setInboxFilter(e.target.value)}>
+          <option value="">{ct("Wszystkie skrzynki")}</option>
+          {[...new Map([...sent, ...scheduled].filter(i => i.inbox_id).map(i => [i.inbox_id, i.inbox_email])).entries()].map(([id, email]) => <option key={id} value={id}>{email || ct('Skrzynka #{id}',{id})}</option>)}
         </select></label>
-        <label>Status wiadomości<select aria-label="Status wiadomości" value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
-          <option value="">Wszystkie statusy</option>
-          <option value="sent">Wysłane</option>
-          <option value="scheduled">Zaplanowane</option>
+        <label>{ct("Status wiadomości")}<select aria-label={ct("Status wiadomości")} value={statusFilter} onChange={e=>setStatusFilter(e.target.value)} className="border rounded p-1 text-sm">
+          <option value="">{ct("Wszystkie statusy")}</option>
+          <option value="sent">{ct("Wysłane")}</option>
+          <option value="scheduled">{ct("Zaplanowane")}</option>
         </select></label>
-        <input type="search" aria-label="Szukaj w kolejce" value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder="Szukaj kontaktu lub tematu…" className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
-        <Button size="sm" variant="outline" onClick={clearFilters}>Wyczyść</Button>
+        <input type="search" aria-label={ct("Szukaj w kolejce")} value={searchFilter} onChange={e=>setSearchFilter(e.target.value)} placeholder={ct("Szukaj kontaktu lub tematu…")} className="border rounded p-1 text-sm" style={{maxWidth:'240px'}} />
+        <Button size="sm" variant="outline" onClick={clearFilters}>{ct("Wyczyść")}</Button>
         {!isProduction && (
           <>
             <Button
@@ -470,7 +471,7 @@ export default function Schedule() {
               onClick={validateQueue}
               disabled={validateState.busy || recalcState.busy}
             >
-              {validateState.text}
+              {ct(validateState.text)}
             </Button>
             <Button
               id="recalc-all-btn"
@@ -479,7 +480,7 @@ export default function Schedule() {
               onClick={recalculateAll}
               disabled={validateState.busy || recalcState.busy}
             >
-              {recalcState.text}
+              {ct(recalcState.text)}
             </Button>
           </>
         )}
@@ -488,9 +489,9 @@ export default function Schedule() {
   return (
     <PageFrame
       className="sk-schedule-page"
-      title={previewItem ? "Podgląd wiadomości w kolejce" : "Harmonogram i kolejka"}
-      description="Monitoruj zaplanowane i wysłane wiadomości w strefach czasowych kampanii."
-      actions={previewItem ? <Button variant="outline" onClick={() => { previewRequest.current += 1; setPreviewBusy(false); setPreviewItem(null); setPreviewError(null); setPreviewTarget(null); }}>Wróć do harmonogramu</Button> : <><Button size="sm" variant="outline" onClick={() => setView(v => v === 'calendar' ? 'queue' : 'calendar')}>{view === 'calendar' ? 'Lista wiadomości' : 'Kalendarz'}</Button><Button size="sm" variant="outline" disabled={refreshing} onClick={() => loadData()}>↻ Odśwież</Button></>}
+      title={previewItem ? ct("Podgląd wiadomości w kolejce") : ct("Harmonogram i kolejka")}
+      description={ct("Monitoruj zaplanowane i wysłane wiadomości w strefach czasowych kampanii.")}
+      actions={previewItem ? <Button variant="outline" onClick={() => { previewRequest.current += 1; setPreviewBusy(false); setPreviewItem(null); setPreviewError(null); setPreviewTarget(null); }}>{ct("Wróć do harmonogramu")}</Button> : <><Button size="sm" variant="outline" onClick={() => setView(v => v === 'calendar' ? 'queue' : 'calendar')}>{view === 'calendar' ? ct("Lista wiadomości") : ct("Kalendarz")}</Button><Button size="sm" variant="outline" disabled={refreshing} onClick={() => loadData()}>{ct("↻ Odśwież")}</Button></>}
     >
       <div hidden={!!previewItem}>
       {initialLoaded && !fetchError && <Card className="sk-schedule-statusbar flex flex-wrap justify-between items-center mb-4 p-2">
@@ -498,10 +499,10 @@ export default function Schedule() {
           {!isProduction && (
             <>
               <div>
-                <span className="text-sm text-gray-500">Tryb testowy:</span> <span className={typeof serverStatus.test_mode !== 'boolean' ? 'sk-muted' : serverStatus.test_mode?'text-red-600':'text-green-600'}>{typeof serverStatus.test_mode !== 'boolean' ? 'Brak danych' : serverStatus.test_mode?'WŁ.':'WYŁ.'}</span>
+                <span className="text-sm text-gray-500">{ct("Tryb testowy:")}</span> <span className={typeof serverStatus.test_mode !== 'boolean' ? 'sk-muted' : serverStatus.test_mode?'text-red-600':'text-green-600'}>{typeof serverStatus.test_mode !== 'boolean' ? ct("Brak danych") : serverStatus.test_mode?ct("WŁ."):ct("WYŁ.")}</span>
               </div>
-              <div title="Zegar serwera (UTC). Okna wysyłki kampanii są interpretowane w skonfigurowanej strefie czasowej, zapisywane jako UTC i wyświetlane tutaj w lokalnym czasie przeglądarki.">
-                <span className="text-sm text-gray-500">Serwer (UTC):</span>{' '}
+              <div title={ct("Zegar serwera (UTC). Okna wysyłki kampanii są interpretowane w skonfigurowanej strefie czasowej, zapisywane jako UTC i wyświetlane tutaj w lokalnym czasie przeglądarki.")}>
+                <span className="text-sm text-gray-500">{ct("Serwer (UTC):")}</span>{' '}
                 <span className="font-mono text-xs">
                   {serverStatus.server_time
                     ? parseApiDate(serverStatus.server_time).toISOString().replace('T',' ').slice(0,19) + ' UTC'
@@ -509,56 +510,55 @@ export default function Schedule() {
                 </span>
                 {serverStatus.server_time && (
                   <span className="ml-1 text-xs text-gray-400">
-                    = {parseApiDate(serverStatus.server_time).toLocaleTimeString()} lokalnie
-                  </span>
+                    = {parseApiDate(serverStatus.server_time).toLocaleTimeString(language)} {ct("lokalnie")} </span>
                 )}
               </div>
-              <div title="Czas do następnej zaplanowanej wiadomości, obliczony na podstawie czasu UTC serwera.">
-                <span className="text-sm text-gray-500">Następna wiadomość za:</span>{' '}
-                <span className="font-semibold">{timeToNext || '—'}</span>
+              <div title={ct("Czas do następnej zaplanowanej wiadomości, obliczony na podstawie czasu UTC serwera.")}>
+                <span className="text-sm text-gray-500">{ct("Następna wiadomość za:")}</span>{' '}
+                <span className="font-semibold">{ct(timeToNext) || '—'}</span>
               </div>
             </>
           )}
           <div>
-            <span className="text-sm text-gray-500">Harmonogram:</span> <span className={typeof serverStatus.schedule_running !== 'boolean' ? 'sk-muted' : serverStatus.schedule_running ? 'text-green-600' : 'text-red-600'}>{typeof serverStatus.schedule_running !== 'boolean' ? 'Brak danych' : serverStatus.schedule_running ? 'Działa' : 'Zatrzymany'}</span>
+            <span className="text-sm text-gray-500">{ct("Harmonogram:")}</span> <span className={typeof serverStatus.schedule_running !== 'boolean' ? 'sk-muted' : serverStatus.schedule_running ? 'text-green-600' : 'text-red-600'}>{typeof serverStatus.schedule_running !== 'boolean' ? ct("Brak danych") : serverStatus.schedule_running ? ct("Działa") : ct("Zatrzymany")}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Ostatnie uruchomienie:</span> <span className="font-semibold">{renderLastRun(serverStatus.last_send_job_run)}</span>
+            <span className="text-sm text-gray-500">{ct("Ostatnie uruchomienie:")}</span> <span className="font-semibold">{renderLastRun(serverStatus.last_send_job_run)}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Wysłano ostatnio:</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count ?? '—'}</span>
+            <span className="text-sm text-gray-500">{ct("Wysłano ostatnio:")}</span> <span className="font-semibold">{serverStatus.last_send_job_sent_count ?? '—'}</span>
           </div>
           <div>
-            <span className="text-sm text-gray-500">Strategia:</span> <Link to="/settings#general" title="Zmień w ustawieniach">{strategy==='priority'?'Priorytet':strategy==='round_robin'?'Równomiernie':'Brak danych'}</Link>
+            <span className="text-sm text-gray-500">{ct("Strategia:")}</span> <Link to="/settings#general" title={ct("Zmień w ustawieniach")}>{strategy==='priority'?ct("Priorytet"):strategy==='round_robin'?ct("Równomiernie"):ct("Brak danych")}</Link>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Auto-odświeżanie: 30 s</span>
+          <span className="text-xs text-gray-500">{ct("Auto-odświeżanie: 30 s")}</span>
         </div>
       </Card>}
       {view === 'queue' && initialLoaded && !fetchError && <div className="sk-schedule-metrics">
-        <Metric icon="send" title="Wysłane" value={(stats.total_sent||0).toLocaleString('pl-PL')} detail="łącznie w historii wysyłki" tone="blue" />
-        <Metric icon="calendar" title="Zaplanowane" value={(stats.total_scheduled||0).toLocaleString('pl-PL')} detail={timeToNext ? `następna za ${timeToNext}` : 'oczekujące w kolejce'} tone="green" />
-        <Metric icon="campaign" title="Kampanie" value={stats.total_campaigns||0} detail={strategy==='priority'?'strategia priorytetowa':strategy==='round_robin'?'równomierny podział':'brak danych o strategii'} tone="purple" />
-        <Metric icon="server" title="Scheduler" value={typeof serverStatus.schedule_running !== 'boolean' ? '—' : serverStatus.schedule_running ? 'Online' : 'Stop'} detail={`ostatni przebieg: ${renderLastRun(serverStatus.last_send_job_run)}`} tone={typeof serverStatus.schedule_running !== 'boolean' ? 'neutral' : serverStatus.schedule_running ? 'green' : 'red'} />
+        <Metric icon="send" title={ct("Wysłane")} value={(stats.total_sent||0).toLocaleString(language)} detail={ct("łącznie w historii wysyłki")} tone="blue" />
+        <Metric icon="calendar" title={ct("Zaplanowane")} value={(stats.total_scheduled||0).toLocaleString(language)} detail={timeToNext ? ct('następna za {time}',{time:ct(timeToNext)}) : ct("oczekujące w kolejce")} tone="green" />
+        <Metric icon="campaign" title={ct("Kampanie")} value={stats.total_campaigns||0} detail={strategy==='priority'?ct("strategia priorytetowa"):strategy==='round_robin'?ct("równomierny podział"):ct("brak danych o strategii")} tone="purple" />
+        <Metric icon="server" title={ct("Scheduler")} value={typeof serverStatus.schedule_running !== 'boolean' ? '—' : serverStatus.schedule_running ? ct('Działa') : ct('Zatrzymany')} detail={ct('ostatni przebieg: {time}',{time:renderLastRun(serverStatus.last_send_job_run)})} tone={typeof serverStatus.schedule_running !== 'boolean' ? 'neutral' : serverStatus.schedule_running ? 'green' : 'red'} />
       </div>}
-      {validation && <section className="sk-schedule-validation" aria-label="Wynik sprawdzania kolejki"><h2>Sprawdzono {validation.total_slots_checked} pozycji · problemy: {validation.issues?.length || 0}</h2><ul>{(validation.issues || []).map((issue, index) => <li key={index}><strong>{issue.campaign_name || 'Kampania'} · {issue.lead_email || '—'}</strong><p>{issue.details}</p></li>)}</ul><Button variant="outline" onClick={() => setValidation(null)}>Zamknij wynik</Button></section>}
+      {validation && <section className="sk-schedule-validation" aria-label={ct("Wynik sprawdzania kolejki")}><h2>{ct('Sprawdzono {count} pozycji · problemy: {issues}',{count:validation.total_slots_checked,issues:validation.issues?.length||0})}</h2><ul>{(validation.issues || []).map((issue, index) => <li key={index}><strong>{issue.campaign_name || ct("Kampania")} · {issue.lead_email || '—'}</strong><p>{issue.details}</p></li>)}</ul><Button variant="outline" onClick={() => setValidation(null)}>{ct("Zamknij wynik")}</Button></section>}
       {view === 'queue' && filters}
-      <ErrorNotice error={fetchError} onRetry={() => loadData()} />
-      {!initialLoaded ? <StatePanel icon="refresh" title="Ładowanie harmonogramu" description="Pobieramy kolejkę wysyłki." /> : !fetchError && view === 'calendar' && <ScheduleCalendar
+      <ErrorNotice error={ct(fetchError)} onRetry={() => loadData()} />
+      {!initialLoaded ? <StatePanel icon="refresh" title={ct("Ładowanie harmonogramu")} description={ct("Pobieramy kolejkę wysyłki.")} /> : !fetchError && view === 'calendar' && <ScheduleCalendar
         items={[...filteredSent, ...filteredScheduled]} filters={filters} busy={refreshing}
         onRangeChange={showRange} onOpenQueue={() => setView('queue')}
         onPreview={openPreview}
       />}
-      {!fetchError && (sent.length >= SCHEDULE_LIMIT || scheduled.length >= SCHEDULE_LIMIT) && <p className="sk-notice tone-amber">Osiągnięto limit 5000 rekordów. Widok może nie zawierać wszystkich wiadomości w tym okresie.</p>}
+      {!fetchError && (sent.length >= SCHEDULE_LIMIT || scheduled.length >= SCHEDULE_LIMIT) && <p className="sk-notice tone-amber">{ct("Osiągnięto limit 5000 rekordów. Widok może nie zawierać wszystkich wiadomości w tym okresie.")}</p>}
       {view === 'queue' && initialLoaded && !fetchError && <Card className="sk-schedule-list p-4" id="schedule-body">
         {renderSection()}
-        <div className="sk-form-actions"><Button variant="outline" disabled={refreshing || daysBack >= 3650} onClick={() => setDaysBack(v => Math.min(3650, v + 7))}>Starsze wiadomości</Button><Button variant="outline" disabled={refreshing || daysAhead >= 3650} onClick={() => setDaysAhead(v => Math.min(3650, v + 7))}>Kolejne 7 dni</Button></div>
+        <div className="sk-form-actions"><Button variant="outline" disabled={refreshing || daysBack >= 3650} onClick={() => setDaysBack(v => Math.min(3650, v + 7))}>{ct("Starsze wiadomości")}</Button><Button variant="outline" disabled={refreshing || daysAhead >= 3650} onClick={() => setDaysAhead(v => Math.min(3650, v + 7))}>{ct("Kolejne 7 dni")}</Button></div>
       </Card>}
 
       </div>
-      <ErrorNotice error={previewError} onRetry={previewBusy ? undefined : () => openPreview(previewTarget)} />
-      {previewBusy && !previewItem && <p role="status">Wczytywanie podglądu wiadomości…</p>}
+      <ErrorNotice error={ct(previewError)} onRetry={previewBusy ? undefined : () => openPreview(previewTarget)} />
+      {previewBusy && !previewItem && <p role="status">{ct("Wczytywanie podglądu wiadomości…")}</p>}
       {previewItem && <ScheduleMessagePreview item={previewItem} items={[...filteredScheduled, ...filteredSent]} onSelect={openPreview} busy={previewBusy} />}
     </PageFrame>
   );

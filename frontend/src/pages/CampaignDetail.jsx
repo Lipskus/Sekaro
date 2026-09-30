@@ -393,9 +393,10 @@ const STATUS_LABELS = {
 };
 
 function StatusBadge({ label }) {
+  const {ct}=useCampaignLanguage();
   return (
     <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium ${BADGE_STYLES[label] || 'bg-gray-100 text-gray-600'}`}>
-      {STATUS_LABELS[label] || label}
+      {ct(STATUS_LABELS[label] || label)}
     </span>
   );
 }
@@ -418,6 +419,7 @@ function deriveStatuses(lead) {
 
 // ─── Leads Tab ────────────────────────────────────────────────────────────────
 export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
+  const {ct,language}=useCampaignLanguage();
   const notify  = useNotify();
   const confirm = useConfirm();
   const [showAdd, setShowAdd] = useState(false);
@@ -501,7 +503,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       // Nothing queued – ask the user if they want to re-verify existing ones
       if (res.queued === 0 && res.needs_reverify && !forceReverify) {
         const confirmed = await confirm(
-          `Wszystkie kontakty (${res.total_verified}) są już zweryfikowane.\nZweryfikować je ponownie?`
+          ct('Wszystkie kontakty ({count}) są już zweryfikowane. Zweryfikować je ponownie?',{count:res.total_verified})
         );
         setVerifying(false);
         if (confirmed) verifyAllLeads(true);
@@ -509,12 +511,12 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       }
 
       if (res.queued === 0) {
-        notify({ type: 'info', message: 'Brak kontaktów do weryfikacji.' });
+        notify({ type: 'info', message: ct("Brak kontaktów do weryfikacji.") });
         setVerifying(false);
         return;
       }
 
-      notify({ type: 'success', message: `Weryfikacja kontaktów: ${res.queued}…` });
+      notify({ type: 'success', message: ct('Weryfikacja kontaktów: {count}…',{count:res.queued}) });
 
       // Poll verification-status every 5 s and show a toast per change
       let prevStatuses = { ...(verificationSummary?.statuses || {}) };
@@ -532,7 +534,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               const isWarn = status === 'invalid' || status === 'risky';
               notify({
                 type: isWarn ? 'warning' : 'success',
-                message: `Zweryfikowano ${delta} kontaktów → ${STATUS_LABELS[status] || status}`,
+                message: ct('Zweryfikowano {count} kontaktów → {status}',{count:delta,status:ct(STATUS_LABELS[status]||status)}),
               });
             }
           });
@@ -572,7 +574,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
     const newCustom = { ...(lead.custom_data || {}), [editCell.field]: editValue };
     try {
       await api.patch(`/leads/${leadId}`, { custom_data: newCustom });
-      notify({ type: 'success', message: 'Zapisano.' });
+      notify({ type: 'success', message: ct("Zapisano.") });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -581,11 +583,11 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   };
 
   const removeLead = async (lid, email) => {
-    const ok = await confirm(`Usunąć ${email} z tej kampanii?`);
+    const ok = await confirm({message:ct('Usunąć {email} z tej kampanii?',{email}),danger:true});
     if (!ok) return;
     try {
       await api.del(`/campaigns/${campaignId}/leads/${lid}`);
-      notify({ type: 'success', message: 'Kontakt usunięty z kampanii.' });
+      notify({ type: 'success', message: ct("Kontakt usunięty z kampanii.") });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -612,7 +614,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       setSingle({ email: '', name: '', custom: '' });
       setShowAdd(false);
       setLastDuplicates(res?.duplicate_leads || []);
-      notify({ type: 'success', message: `Dodano kontaktów: ${res?.added ?? 1}` });
+      notify({ type: 'success', message: ct('Dodano kontaktów: {count}',{count:res?.added??1}) });
       refresh();
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
@@ -704,12 +706,12 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       if (confirmPayload) {
         res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, confirmPayload);
         setBulk('');
-        const dupMsg = res.duplicate_leads?.length ? ` (pominięto duplikaty: ${res.duplicate_leads.length})` : '';
-        notify({ type: 'success', message: `Dodano kontaktów: ${res.added ?? confirmPayload.length}${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? ct(' (pominięto duplikaty: {count})',{count:res.duplicate_leads.length}) : '';
+        notify({ type: 'success', message: ct('Dodano kontaktów: {count}',{count:res.added??confirmPayload.length})+dupMsg });
       } else if (importFile) {
         res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, importFile);
-        const dupMsg = res.duplicate_leads?.length ? `, pominięto duplikaty: ${res.duplicate_leads.length}` : '';
-        notify({ type: 'success', message: `Import: dodano ${res.added}, już przypisanych ${res.already_enrolled}, błędów ${res.errors}${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? ct(', pominięto duplikaty: {count}',{count:res.duplicate_leads.length}) : '';
+        notify({ type: 'success', message: ct('Import: dodano {added}, już przypisanych {enrolled}, błędów {errors}{duplicates}',{added:res.added,enrolled:res.already_enrolled,errors:res.errors,duplicates:dupMsg}) });
       }
       setShowLeadsConfirm(false);
       setConfirmPreview(null);
@@ -745,20 +747,19 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   return (
     <div className="sk-campaign-recipients">
       <div className="sk-metrics four">
-        <Metric icon="contacts" title="Kontakty w kampanii" value={leads.length} detail="Wszyscy przypisani odbiorcy"/>
-        <Metric icon="chat" title="Odpowiedzi" value={leads.filter(l=>l.replied).length} detail="Kontakty, które odpowiedziały" tone="blue"/>
-        <Metric icon="warning" title="Treści do uzupełnienia" value={leads.filter(l=>l.status==='needs_custom_email').length} detail="Wymagają nowej wiadomości" tone="amber"/>
-        <Metric icon="shield" title="Odbite lub wypisane" value={leads.filter(l=>['bounced','unsubscribed'].includes(l.status)).length} detail="Status kontaktu w kampanii" tone="red"/>
+        <Metric icon="contacts" title={ct("Kontakty w kampanii")} value={leads.length} detail={ct("Wszyscy przypisani odbiorcy")}/>
+        <Metric icon="chat" title={ct("Odpowiedzi")} value={leads.filter(l=>l.replied).length} detail={ct("Kontakty, które odpowiedziały")} tone="blue"/>
+        <Metric icon="warning" title={ct("Treści do uzupełnienia")} value={leads.filter(l=>l.status==='needs_custom_email').length} detail={ct("Wymagają nowej wiadomości")} tone="amber"/>
+        <Metric icon="shield" title={ct("Odbite lub wypisane")} value={leads.filter(l=>['bounced','unsubscribed'].includes(l.status)).length} detail={ct("Status kontaktu w kampanii")} tone="red"/>
       </div>
       {/* Import / Export toolbar */}
       <div className="sk-recipient-toolbar">
-        <Button size="sm" onClick={()=>setShowAdd(true)}>Dodaj kontakty</Button>
-        <input type="search" aria-label="Szukaj odbiorców" placeholder="Szukaj po e-mailu, imieniu, firmie…" value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
-        <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>Filtry</Button>
-        {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>Kolumny</Button>}
+        <Button size="sm" onClick={()=>setShowAdd(true)}>{ct("Dodaj kontakty")}</Button>
+        <input type="search" aria-label={ct("Szukaj odbiorców")} placeholder={ct("Szukaj po e-mailu, imieniu, firmie…")} value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
+        <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>{ct("Filtry")}</Button>
+        {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>{ct("Kolumny")}</Button>}
         <Button size="sm" variant="outline" onClick={handleExport} disabled={!filteredLeads.length}>
-          <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" /></svg>
-          Eksport{hasActiveFilter ? ' (filtrowany)' : ''} CSV
+          <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" /></svg> {ct("Eksport")}{hasActiveFilter ? ct(" (filtrowany)") : ''} CSV
         </Button>
         <FileUploadArea
           ref={fileInputRef}
@@ -770,46 +771,45 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          {importing ? 'Importowanie…' : 'Import CSV'}
+          {importing ? ct("Importowanie…") : ct("Import CSV")}
         </FileUploadArea>
         {emailVerifEnabled && (
           <Button size="sm" variant="outline" onClick={()=>verifyAllLeads()} disabled={verifying}>
-            {verifying ? 'Weryfikowanie…' : 'Zweryfikuj wszystkie e-maile'}
+            {verifying ? ct("Weryfikowanie…") : ct("Zweryfikuj wszystkie e-maile")}
           </Button>
         )}
         <span className="text-xs text-gray-400 ml-1">
-          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} kontaktów
-        </span>
+          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} {ct("kontaktów")} </span>
         {hasActiveFilter && (
           <button
             className="text-xs text-teal-600 hover:underline ml-1"
             onClick={clearFilters}
-          >Wyczyść filtry</button>
+          >{ct("Wyczyść filtry")}</button>
         )}
       </div>
 
       {/* Duplicate leads notice */}
       {lastDuplicates.length > 0 && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm font-medium text-yellow-800 mb-1">Pominięte duplikaty ({lastDuplicates.length}) — już przypisane do kampanii:</p>
+          <p className="text-sm font-medium text-yellow-800 mb-1">{ct("Pominięte duplikaty (")}{lastDuplicates.length}{ct(") — już przypisane do kampanii:")}</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {lastDuplicates.map(email => (
               <span key={email} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{email}</span>
             ))}
           </div>
-          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>Ukryj</button>
+          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>{ct("Ukryj")}</button>
         </div>
       )}
 
       {/* Add contacts stays out of the table flow; drafts survive closing the drawer. */}
-      {showAdd && <Modal title="Dodaj kontakty do kampanii" drawer busy={adding} onClose={()=>setShowAdd(false)}>
+      {showAdd && <Modal title={ct("Dodaj kontakty do kampanii")} drawer busy={adding} onClose={()=>setShowAdd(false)}>
       <div className="sk-recipient-add">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800">Dodaj kontakty</h3>
+          <h3 className="font-semibold text-gray-800">{ct("Dodaj kontakty")}</h3>
           <button
             className="text-gray-400 hover:text-teal-600 transition-colors"
             onClick={() => setShowFormatInfo(v => !v)}
-            title="Obsługiwane formaty danych"
+            title={ct("Obsługiwane formaty danych")}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </button>
@@ -817,21 +817,21 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
         {showFormatInfo && (
           <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-lg text-sm text-teal-800 space-y-2">
-            <p className="font-semibold">Obsługiwane formaty wklejania zbiorczego:</p>
+            <p className="font-semibold">{ct("Obsługiwane formaty wklejania zbiorczego:")}</p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
-              <li><strong>Tylko adresy e-mail</strong> — jeden w wierszu lub rozdzielone przecinkami<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
-              <li><strong>Rozdzielone tabulatorami (Excel / Arkusze)</strong> — pierwszy wiersz to nagłówki<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
-              <li><strong>Rozdzielone przecinkami z nagłówkami</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
+              <li><strong>{ct("Tylko adresy e-mail")}</strong> {ct("— jeden w wierszu lub rozdzielone przecinkami")}<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
+              <li><strong>{ct("Rozdzielone tabulatorami (Excel / Arkusze)")}</strong> {ct("— pierwszy wiersz to nagłówki")}<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
+              <li><strong>{ct("Rozdzielone przecinkami z nagłówkami")}</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
             </ul>
-            <p className="text-xs text-teal-600 mt-1">Kolumny poza <em>email</em> i <em>name</em> są zapisywane jako pola niestandardowe.</p>
-            <p className="font-semibold mt-2">Import pliku CSV:</p>
-            <p className="text-xs">Wgraj plik <code className="bg-teal-100 px-1 rounded">.csv</code> lub <code className="bg-teal-100 px-1 rounded">.tsv</code> z kolumną nagłówkową <em>email</em>. Dodatkowe kolumny staną się polami niestandardowymi.</p>
+            <p className="text-xs text-teal-600 mt-1">{ct("Kolumny poza")} <em>email</em> {ct('i')} <em>name</em> {ct("są zapisywane jako pola niestandardowe.")}</p>
+            <p className="font-semibold mt-2">{ct("Import pliku CSV:")}</p>
+            <p className="text-xs">{ct("Wgraj plik")} <code className="bg-teal-100 px-1 rounded">.csv</code> {ct("lub")} <code className="bg-teal-100 px-1 rounded">.tsv</code> {ct("z kolumną nagłówkową")} <em>email</em>{ct(". Dodatkowe kolumny staną się polami niestandardowymi.")}</p>
           </div>
         )}
 
         <div className="flex gap-2 mb-3">
-          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>Pojedynczo</Button>
-          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>Wklej zbiorczo</Button>
+          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>{ct("Pojedynczo")}</Button>
+          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>{ct("Wklej zbiorczo")}</Button>
         </div>
         <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-2">
           <input
@@ -839,9 +839,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
             checked={skipDuplicates}
             onChange={e => { setSkipDuplicates(e.target.checked); setLastDuplicates([]); }}
             className="rounded"
-          />
-          Pomijaj duplikaty (sprawdza wszystkie kampanie)
-        </label>
+          /> {ct("Pomijaj duplikaty (sprawdza wszystkie kampanie)")} </label>
         {emailVerifEnabled && (
           <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-4">
             <input
@@ -849,88 +847,86 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               checked={verifyEmails}
               onChange={e => setVerifyEmails(e.target.checked)}
               className="rounded"
-            />
-            Weryfikuj e-maile po dodaniu
-          </label>
+            /> {ct("Weryfikuj e-maile po dodaniu")} </label>
         )}
-        {msg && <div className={`mb-2 text-sm ${msg.type==='error'?'text-red-600':'text-green-600'}`}>{msg.text}</div>}
+        {msg && <div className={`mb-2 text-sm ${msg.type==='error'?'text-red-600':'text-green-600'}`}>{ct(msg.text)}</div>}
         {mode === 'single' && (
           <form onSubmit={addSingle} className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">E-mail *</label>
+                <label className="block text-sm text-gray-600 mb-1">{ct("E-mail *")}</label>
                 <input
-                  type="email" aria-label="E-mail kontaktu" required
+                  type="email" aria-label={ct("E-mail kontaktu")} required
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={single.email}
                   onChange={e => setSingle(s=>({...s, email: e.target.value}))}
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Nazwa / imię</label>
+                <label className="block text-sm text-gray-600 mb-1">{ct("Nazwa / imię")}</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  aria-label="Nazwa lub imię kontaktu" value={single.name}
+                  aria-label={ct("Nazwa lub imię kontaktu")} value={single.name}
                   onChange={e => setSingle(s=>({...s, name: e.target.value}))}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Dane niestandardowe (JSON)</label>
+              <label className="block text-sm text-gray-600 mb-1">{ct("Dane niestandardowe (JSON)")}</label>
               <textarea
                 rows={2}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder='{"company": "Acme", "title": "CEO"}'
-                aria-label="Dane niestandardowe JSON" value={single.custom}
+                aria-label={ct("Dane niestandardowe JSON")} value={single.custom}
                 onChange={e => setSingle(s=>({...s, custom: e.target.value}))}
               />
             </div>
-            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Dodawanie…' : 'Dodaj kontakt'}</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? ct("Dodawanie…") : ct("Dodaj kontakt")}</Button>
           </form>
         )}
         {mode === 'bulk' && (
           <form onSubmit={addBulk} className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Wklej kontakty — adresy e-mail, wiersze CSV lub dane skopiowane z Excela (zobacz ⓘ powyżej)</label>
+              <label className="block text-sm text-gray-600 mb-1">{ct("Wklej kontakty — adresy e-mail, wiersze CSV lub dane skopiowane z Excela (zobacz ⓘ powyżej)")}</label>
               <textarea
                 rows={6}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder={"email,name,company\njohn@acme.com,John Doe,Acme Inc\njane@co.io,Jane Smith,Co"}
-                aria-label="Kontakty do dodania zbiorczo" value={bulk}
+                aria-label={ct("Kontakty do dodania zbiorczo")} value={bulk}
                 onChange={e => setBulk(e.target.value)}
               />
             </div>
-            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Sprawdzanie…' : 'Dodaj kontakty'}</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? ct("Sprawdzanie…") : ct("Dodaj kontakty")}</Button>
           </form>
         )}
       </div>
 
       </Modal>}
 
-      {showFilters && <div className="sk-recipient-filters" role="group" aria-label="Filtry odbiorców">
-        {recipientFilters.map(([key,label,options])=><label key={key}>{label}<select value={filters[key]} onChange={e=>setFilter(key,e.target.value)}>{options.map(([v,text])=><option key={v} value={v}>{text}</option>)}</select></label>)}
+      {showFilters && <div className="sk-recipient-filters" role="group" aria-label={ct("Filtry odbiorców")}>
+        {recipientFilters.map(([key,label,options])=><label key={key}>{ct(label)}<select value={filters[key]} onChange={e=>setFilter(key,e.target.value)}>{options.map(([v,text])=><option key={v} value={v}>{ct(text)}</option>)}</select></label>)}
       </div>}
-      {showColumns && <fieldset className="sk-recipient-columns"><legend>Widoczne pola niestandardowe</legend>{customFields.map(f=><label key={f}><input type="checkbox" checked={!hiddenFields.includes(f)} onChange={e=>setHiddenFields(old=>e.target.checked?old.filter(x=>x!==f):[...old,f])}/>{f}</label>)}</fieldset>}
+      {showColumns && <fieldset className="sk-recipient-columns"><legend>{ct("Widoczne pola niestandardowe")}</legend>{customFields.map(f=><label key={f}><input type="checkbox" checked={!hiddenFields.includes(f)} onChange={e=>setHiddenFields(old=>e.target.checked?old.filter(x=>x!==f):[...old,f])}/>{f}</label>)}</fieldset>}
 
       {/* Leads table */}
       {filteredLeads.length === 0 ? (
         <div className="bg-gray-50 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-400">
           {leads.length === 0
-            ? 'Brak kontaktów w kampanii. Użyj przycisku „Dodaj kontakty” lub zaimportuj plik CSV.'
-            : 'Brak kontaktów pasujących do bieżącego filtra.'}
+            ? ct("Brak kontaktów w kampanii. Użyj przycisku „Dodaj kontakty” lub zaimportuj plik CSV.")
+            : ct("Brak kontaktów pasujących do bieżącego filtra.")}
         </div>
       ) : (
         <div className="w-full max-w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
           <table className="sk-table sk-recipient-table">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">E-mail</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Nazwa / imię</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Etap</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Skrzynka</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Dodano</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Wysyłka</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("E-mail")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Nazwa / imię")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Status")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Etap")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Skrzynka")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Dodano")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Wysyłka")}</th>
                 {visibleFields.map(f => (
                   <th key={f} className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap capitalize">{f}</th>
                 ))}
@@ -945,7 +941,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     <button
                       className="font-mono text-teal-600 hover:underline text-left"
                       onClick={() => onViewQueue?.(l.email)}
-                      title="Pokaż kolejkę dla tego kontaktu"
+                      title={ct("Pokaż kolejkę dla tego kontaktu")}
                     >
                       {l.email}
                     </button>
@@ -963,7 +959,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   {/* inbox that last sent or will send next */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
                     {l.from_inbox_email ? (
-                      <span className="font-mono text-xs text-gray-700" title="Ostatnia skrzynka nadawcza albo następna zaplanowana, jeśli jeszcze nic nie wysłano">
+                      <span className="font-mono text-xs text-gray-700" title={ct("Ostatnia skrzynka nadawcza albo następna zaplanowana, jeśli jeszcze nic nie wysłano")}>
                         {l.from_inbox_email}
                       </span>
                     ) : (
@@ -972,7 +968,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   </td>
                   {/* enrolled date */}
                   <td className="px-4 py-2.5 text-gray-500 whitespace-nowrap">
-                    {new Date(l.enrolled_at).toLocaleDateString()}
+                    {new Date(l.enrolled_at).toLocaleDateString(language)}
                   </td>
                   {/* Sending toggle + interest status dropdown */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
@@ -988,34 +984,34 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               sending_paused: !l.sending_paused,
                             });
-                            notify({ type: 'success', message: l.sending_paused ? 'Wysyłka wznowiona' : 'Wysyłka wstrzymana' });
+                            notify({ type: 'success', message: l.sending_paused ? ct("Wysyłka wznowiona") : ct("Wysyłka wstrzymana") });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
-                        title={l.sending_paused ? 'Kliknij, aby wznowić wysyłkę' : 'Kliknij, aby wstrzymać wysyłkę'}
+                        title={l.sending_paused ? ct("Kliknij, aby wznowić wysyłkę") : ct("Kliknij, aby wstrzymać wysyłkę")}
                       >
-                        {l.sending_paused ? 'Wstrzymana' : 'Aktywna'}
+                        {l.sending_paused ? ct("Wstrzymana") : ct("Aktywna")}
                       </button>
                       <select
                         className={`text-[10px] font-medium rounded px-1.5 py-0.5 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-300 ${BADGE_STYLES[l.interest || l.interest_status] || 'bg-gray-50 text-gray-500 border-gray-200'}`}
                         value={l.interest || l.interest_status || ''}
-                        title="Intencja odpowiedzi w tej kampanii — kliknij, aby zmienić lub usunąć"
+                        title={ct("Intencja odpowiedzi w tej kampanii — kliknij, aby zmienić lub usunąć")}
                         onChange={async (e) => {
                           const newStatus = e.target.value;
                           try {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               interest: newStatus,
                             });
-                            notify({ type: 'success', message: newStatus ? `Ustawiono: ${STATUS_LABELS[newStatus] || newStatus.replace(/_/g, ' ')}` : 'Wyczyszczono' });
+                            notify({ type: 'success', message: newStatus ? ct('Ustawiono: {status}',{status:ct(STATUS_LABELS[newStatus]||newStatus.replace(/_/g,' '))}) : ct("Wyczyszczono") });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
                       >
-                        <option value="">— brak oceny —</option>
-                        <option value="interested">Zainteresowany</option>
-                        <option value="not_interested">Niezainteresowany</option>
-                        <option value="out_of_office">Poza biurem</option>
-                        <option value="auto_reply">Automatyczna odpowiedź</option>
+                        <option value="">{ct("— brak oceny —")}</option>
+                        <option value="interested">{ct("Zainteresowany")}</option>
+                        <option value="not_interested">{ct("Niezainteresowany")}</option>
+                        <option value="out_of_office">{ct("Poza biurem")}</option>
+                        <option value="auto_reply">{ct("Automatyczna odpowiedź")}</option>
                       </select>
                     </div>
                   </td>
@@ -1041,11 +1037,11 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                           <button
                             className="w-full text-left px-2 py-1 rounded-md border border-transparent hover:border-teal-200 hover:bg-teal-50 transition-colors group"
                             onClick={() => startEdit(l.lead_id, f, val)}
-                            title="Kliknij, aby edytować"
+                            title={ct("Kliknij, aby edytować")}
                           >
                             {val != null
                               ? <span className="text-gray-800">{String(val)}</span>
-                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">puste</span>
+                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">{ct("puste")}</span>
                             }
                           </button>
                         )}
@@ -1057,9 +1053,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     <button
                       className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors"
                       onClick={() => removeLead(l.lead_id, l.email)}
-                    >
-                      Usuń z kampanii
-                    </button>
+                    > {ct("Usuń z kampanii")} </button>
                   </td>
                 </tr>
               ))}
@@ -1069,24 +1063,24 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       )}
 
       <div className="sk-recipient-pagination">
-        <span role="status">{filteredLeads.length ? (currentPage-1)*pageSize+1 : 0}–{Math.min(currentPage*pageSize,filteredLeads.length)} z {filteredLeads.length} kontaktów</span>
-        <label>Wierszy na stronę <select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[10,25,50,100].map(n=><option key={n}>{n}</option>)}</select></label>
-        <Button size="sm" variant="outline" disabled={currentPage<=1} onClick={()=>setPage(currentPage-1)}>Poprzednia</Button>
-        <span>Strona {currentPage} z {pageCount}</span>
-        <Button size="sm" variant="outline" disabled={currentPage>=pageCount} onClick={()=>setPage(currentPage+1)}>Następna</Button>
+        <span role="status">{filteredLeads.length ? (currentPage-1)*pageSize+1 : 0}–{Math.min(currentPage*pageSize,filteredLeads.length)} {ct("z")} {filteredLeads.length} {ct("kontaktów")}</span>
+        <label>{ct("Wierszy na stronę")} <select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[10,25,50,100].map(n=><option key={n}>{n}</option>)}</select></label>
+        <Button size="sm" variant="outline" disabled={currentPage<=1} onClick={()=>setPage(currentPage-1)}>{ct("Poprzednia")}</Button>
+        <span>{ct("Strona")} {currentPage} {ct("z")} {pageCount}</span>
+        <Button size="sm" variant="outline" disabled={currentPage>=pageCount} onClick={()=>setPage(currentPage+1)}>{ct("Następna")}</Button>
       </div>
 
       {/* Confirm leads modal */}
       {showLeadsConfirm && confirmPreview && (
-        <Modal title="Sprawdź kontakty przed dodaniem" small busy={confirmAddLoading} onClose={()=>setShowLeadsConfirm(false)}>
+        <Modal title={ct("Sprawdź kontakty przed dodaniem")} small busy={confirmAddLoading} onClose={()=>setShowLeadsConfirm(false)}>
             <div className="mb-4 text-center">
               <div className="text-3xl font-bold text-teal-600">{confirmPreview.total_valid}</div>
-              <div className="text-sm text-gray-500">poprawnych kontaktów</div>
+              <div className="text-sm text-gray-500">{ct("poprawnych kontaktów")}</div>
             </div>
 
             {confirmPreview.providers && Object.keys(confirmPreview.providers).length > 0 && (
               <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Dostawcy poczty</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">{ct("Dostawcy poczty")}</h3>
                 <div className="space-y-1">
                   {Object.entries(confirmPreview.providers).map(([provider, count]) => (
                     <div key={provider} className="flex justify-between text-sm py-1 px-2 rounded odd:bg-gray-50">
@@ -1100,10 +1094,10 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
             {confirmPreview.total_flagged > 0 && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm font-semibold text-yellow-800 mb-1">Problemy: {confirmPreview.total_flagged} — te wpisy zostaną pominięte</p>
+                <p className="text-sm font-semibold text-yellow-800 mb-1">{ct("Problemy:")} {confirmPreview.total_flagged} {ct("— te wpisy zostaną pominięte")}</p>
                 {confirmPreview.flagged?.invalid_format?.length > 0 && (
                   <div className="mt-1">
-                    <span className="text-xs text-yellow-700 font-medium">Niepoprawny format:</span>
+                    <span className="text-xs text-yellow-700 font-medium">{ct("Niepoprawny format:")}</span>
                     <div className="flex flex-wrap gap-1 mt-0.5">
                       {confirmPreview.flagged.invalid_format.map((em, i) => (
                         <span key={i} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{em}</span>
@@ -1112,15 +1106,15 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   </div>
                 )}
                 {confirmPreview.flagged?.duplicates_in_batch > 0 && (
-                  <p className="text-xs text-yellow-700 mt-1">Duplikaty w tej partii: {confirmPreview.flagged.duplicates_in_batch}</p>
+                  <p className="text-xs text-yellow-700 mt-1">{ct("Duplikaty w tej partii:")} {confirmPreview.flagged.duplicates_in_batch}</p>
                 )}
               </div>
             )}
 
             <div className="flex justify-end gap-2 mt-6 pt-3 border-t border-gray-100">
-              <Button variant="outline" size="sm" disabled={confirmAddLoading} onClick={() => setShowLeadsConfirm(false)}>Anuluj</Button>
+              <Button variant="outline" size="sm" disabled={confirmAddLoading} onClick={() => setShowLeadsConfirm(false)}>{ct("Anuluj")}</Button>
               <Button variant="default" size="sm" onClick={handleConfirmAdd} disabled={confirmAddLoading}>
-                {confirmAddLoading ? 'Dodawanie…' : `Potwierdź i dodaj (${confirmPreview.total_valid})`}
+                {confirmAddLoading ? ct("Dodawanie…") : ct('Potwierdź i dodaj ({count})',{count:confirmPreview.total_valid})}
               </Button>
             </div>
         </Modal>
@@ -1141,6 +1135,7 @@ const SERIES_LIST = [
 ];
 
 export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = [], onRefresh }) {
+  const {ct,language}=useCampaignLanguage();
   const notify = useNotify();
   const today = new Date();
   const localIso = (dt) => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
@@ -1201,7 +1196,7 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
   const totals = Object.fromEntries(SERIES_LIST.map(s => [s.key, chartData.reduce((sum, row) => sum + row[s.key], 0)]));
   const ready = !daily.loading && !daily.error && !rangeError;
   const hasEvents = chartData.some(row => SERIES_LIST.some(s => row[s.key] > 0));
-  const number = value => value.toLocaleString('pl-PL');
+  const number = value => value.toLocaleString(language);
   const metrics = [
     { key: 'sent', title: 'Wysłane', icon: 'send', tone: 'blue' },
     { key: 'totalReplies', title: 'Odpowiedzi', icon: 'reply', tone: 'green' },
@@ -1216,37 +1211,37 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
     try {
       await api.patch(`/campaigns/${campaignId}/sequences/${seqId}/variants/${variantId}`, { enabled });
       setStepRetry(n => n + 1); onRefresh?.();
-      notify({ type: 'success', message: enabled ? 'Wariant włączony' : 'Wariant wyłączony' });
+      notify({ type: 'success', message: enabled ? ct("Wariant włączony") : ct("Wariant wyłączony") });
     } catch (e) { notify({ type: 'error', message: e.message }); }
     finally { variantBusyRef.current = false; setVariantBusy(false); }
   };
   const exportDaily = () => {
-    const url = URL.createObjectURL(new Blob([analyticsCsv(chartData)], {type:'text/csv;charset=utf-8'}));
+    const url = URL.createObjectURL(new Blob([analyticsCsv(chartData, ct)], {type:'text/csv;charset=utf-8'}));
     const link = document.createElement('a'); link.href = url; link.download = `kampania-${campaignId}-${startDate}-${endDate}.csv`; link.click(); URL.revokeObjectURL(url);
   };
   return (
     <div className="sk-campaign-analytics">
       <div className="sk-ca-toolbar">
-        <div><h2>Analityka kampanii</h2><p>{startDate} — {endDate} · zdarzenia według daty wystąpienia</p></div>
-        <Button variant="outline" onClick={exportDaily} disabled={!ready || !hasEvents}>Eksport CSV</Button>
+        <div><h2>{ct("Analityka kampanii")}</h2><p>{startDate} — {endDate} {ct("· zdarzenia według daty wystąpienia")}</p></div>
+        <Button variant="outline" onClick={exportDaily} disabled={!ready || !hasEvents}>{ct("Eksport CSV")}</Button>
       </div>
-      <div className="sk-ca-presets" aria-label="Zakres analityki">
-        {presets.map(p => <button key={p.label} aria-pressed={activePreset === p.label} onClick={() => { setActivePreset(p.label); setStartDate(p.start); setEndDate(p.end); }}>{p.label}</button>)}
-        <button aria-pressed={activePreset === 'custom'} onClick={() => setActivePreset('custom')}>Własny zakres</button>
+      <div className="sk-ca-presets" aria-label={ct("Zakres analityki")}>
+        {presets.map(p => <button key={p.label} aria-pressed={activePreset === p.label} onClick={() => { setActivePreset(p.label); setStartDate(p.start); setEndDate(p.end); }}>{ct(p.label)}</button>)}
+        <button aria-pressed={activePreset === 'custom'} onClick={() => setActivePreset('custom')}>{ct("Własny zakres")}</button>
       </div>
       {activePreset === 'custom' && <div className="sk-ca-dates">
-        <label>Od<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></label>
-        <label>Do<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></label>
+        <label>{ct("Od")}<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></label>
+        <label>{ct("Do")}<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></label>
       </div>}
-      <ErrorNotice error={rangeError || daily.error} onRetry={rangeError ? undefined : () => setDailyRetry(n => n + 1)} />
-      {daily.loading && <p role="status">Wczytywanie wyników dziennych…</p>}
+      <ErrorNotice error={ct(rangeError || daily.error)} onRetry={rangeError ? undefined : () => setDailyRetry(n => n + 1)} />
+      {daily.loading && <p role="status">{ct("Wczytywanie wyników dziennych…")}</p>}
       <div className="sk-ca-metrics">
-        {metrics.map(m => <Metric key={m.key} icon={m.icon} title={m.title} value={ready ? number(totals[m.key]) : '—'} tone={m.tone} detail="w wybranym zakresie" />)}
+        {metrics.map(m => <Metric key={m.key} icon={m.icon} title={ct(m.title)} value={ready ? number(totals[m.key]) : '—'} tone={m.tone} detail={ct("w wybranym zakresie")} />)}
       </div>
-      {ready && !hasEvents && <p className="sk-ca-empty">Brak zdarzeń w wybranym zakresie. Wybierz inny okres, aby sprawdzić wcześniejsze wyniki.</p>}
+      {ready && !hasEvents && <p className="sk-ca-empty">{ct("Brak zdarzeń w wybranym zakresie. Wybierz inny okres, aby sprawdzić wcześniejsze wyniki.")}</p>}
       {ready && hasEvents && <div className="sk-ca-grid">
         <section className="sk-ca-panel">
-          <h3>Aktywność wysyłki</h3><p>Liczba zdarzeń w kolejnych dniach.</p>
+          <h3>{ct("Aktywność wysyłki")}</h3><p>{ct("Liczba zdarzeń w kolejnych dniach.")}</p>
           <div className="sk-ca-chart">
             <ResponsiveContainer width="100%" height="100%">
               <ReAreaChart data={chartData} margin={{top:12,right:12,left:-20,bottom:0}}>
@@ -1254,33 +1249,33 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
                 <YAxis allowDecimals={false} tick={{fontSize:11,fill:'var(--sk-muted)'}}/>
                 <CartesianGrid stroke="var(--sk-line)" strokeDasharray="3 3"/>
                 <Tooltip contentStyle={{background:'var(--sk-surface)',border:'1px solid var(--sk-line)',borderRadius:8,color:'var(--sk-text)'}}/>
-                {SERIES_LIST.map(s => <Area key={s.key} name={s.name} dataKey={s.key} type="linear" stroke={s.stroke} strokeWidth={2.5} fill={s.fill} hide={!!hide[s.key]}/>) }
+                {SERIES_LIST.map(s => <Area key={s.key} name={ct(s.name)} dataKey={s.key} type="linear" stroke={s.stroke} strokeWidth={2.5} fill={s.fill} hide={!!hide[s.key]}/>) }
               </ReAreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="sk-ca-legend">{SERIES_LIST.map(s => <button key={s.key} aria-pressed={!hide[s.key]} onClick={() => setHide(p => ({...p,[s.key]:!p[s.key]}))}><i style={{background:s.stroke}}/>{s.name}</button>)}</div>
+          <div className="sk-ca-legend">{SERIES_LIST.map(s => <button key={s.key} aria-pressed={!hide[s.key]} onClick={() => setHide(p => ({...p,[s.key]:!p[s.key]}))}><i style={{background:s.stroke}}/>{ct(s.name)}</button>)}</div>
         </section>
         <section className="sk-ca-panel">
-          <h3>Podsumowanie aktywności</h3><p>Zdarzenia z wybranego okresu.</p>
-          <dl className="sk-ca-summary">{metrics.map(m => <div key={m.key}><dt>{m.title}</dt><dd>{number(totals[m.key])}</dd></div>)}</dl>
-          <p className="sk-ca-explanation">Otwarcia i kliknięcia obejmują powtórzenia. Odpowiedzi mogą dotyczyć wiadomości wysłanych wcześniej. Te liczby nie są lejkiem konwersji.</p>
-          <p className="sk-ca-explanation">Unikalne otwarcia i kliknięcia na wykresie oznaczają unikalne adresy IP w danym dniu, nie liczbę odbiorców.</p>
+          <h3>{ct("Podsumowanie aktywności")}</h3><p>{ct("Zdarzenia z wybranego okresu.")}</p>
+          <dl className="sk-ca-summary">{metrics.map(m => <div key={m.key}><dt>{ct(m.title)}</dt><dd>{number(totals[m.key])}</dd></div>)}</dl>
+          <p className="sk-ca-explanation">{ct("Otwarcia i kliknięcia obejmują powtórzenia. Odpowiedzi mogą dotyczyć wiadomości wysłanych wcześniej. Te liczby nie są lejkiem konwersji.")}</p>
+          <p className="sk-ca-explanation">{ct("Unikalne otwarcia i kliknięcia na wykresie oznaczają unikalne adresy IP w danym dniu, nie liczbę odbiorców.")}</p>
         </section>
         <section className="sk-ca-panel">
-          <h3>Wyniki według dnia</h3><p>Wybrany zakres · od najnowszych.</p>
-          <div className="sk-ca-table-scroll"><table><thead><tr><th>Dzień</th><th>Wysłane</th><th>Odpowiedzi</th><th>Otwarcia</th><th>Kliknięcia</th></tr></thead><tbody>
+          <h3>{ct("Wyniki według dnia")}</h3><p>{ct("Wybrany zakres · od najnowszych.")}</p>
+          <div className="sk-ca-table-scroll"><table><thead><tr><th>{ct("Dzień")}</th><th>{ct("Wysłane")}</th><th>{ct("Odpowiedzi")}</th><th>{ct("Otwarcia")}</th><th>{ct("Kliknięcia")}</th></tr></thead><tbody>
             {[...chartData].reverse().map(row => <tr key={row.date}><th scope="row">{row.date}</th>{['sent','totalReplies','totalOpens','totalClicks'].map(k => <td key={k}>{number(row[k])}</td>)}</tr>)}
           </tbody></table></div>
         </section>
         <section className="sk-ca-panel">
-          <h3>Najlepsze warianty</h3><p>Cały okres kampanii · według wskaźnika odpowiedzi.</p>
-          {steps.loading ? <p role="status">Wczytywanie wariantów…</p> : steps.error ? <p>Ranking niedostępny. Ponów pobranie analityki kroków poniżej.</p> : ranked.length === 0 ? <p className="sk-ca-empty">Brak wysłanych wariantów.</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>Temat / wariant</th><th>Wysłane</th><th>Odpowiedzi</th><th>Wskaźnik</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || 'Bez tematu'}</span><small>{v.variant_id == null ? 'Domyślny' : v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString('pl-PL',{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
+          <h3>{ct("Najlepsze warianty")}</h3><p>{ct("Cały okres kampanii · według wskaźnika odpowiedzi.")}</p>
+          {steps.loading ? <p role="status">{ct("Wczytywanie wariantów…")}</p> : steps.error ? <p>{ct("Ranking niedostępny. Ponów pobranie analityki kroków poniżej.")}</p> : ranked.length === 0 ? <p className="sk-ca-empty">{ct("Brak wysłanych wariantów.")}</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>{ct("Temat / wariant")}</th><th>{ct("Wysłane")}</th><th>{ct("Odpowiedzi")}</th><th>{ct("Wskaźnik")}</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || ct("Bez tematu")}</span><small>{v.variant_id == null ? ct("Domyślny") : v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString(language,{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
         </section>
       </div>}
       <section className="sk-ca-panel sk-ca-details">
-        <div className="sk-ca-presets" aria-label="Szczegółowa analityka">{[{key:'steps',label:'Analityka kroków'},{key:'sent',label:'Wysłane wiadomości'}].map(sub => <button key={sub.key} aria-pressed={analyticsSub===sub.key} onClick={() => setAnalyticsSub(sub.key)}>{sub.label}</button>)}</div>
-        <p>Cały okres kampanii — filtr dat powyżej dotyczy wyników dziennych.</p>
-        {analyticsSub === 'steps' ? <><ErrorNotice error={steps.error} onRetry={() => setStepRetry(n => n + 1)}/>{!steps.error && <StepAnalyticsPanel stepStats={steps.rows} loading={steps.loading} campaignId={campaignId} sequences={sequences} onToggleVariant={toggleVariant} variantBusy={variantBusy}/>}</> : <SentEmailsPanel sentData={sentData} filter={sentFilter} onFilterChange={setSentFilter}/>}
+        <div className="sk-ca-presets" aria-label={ct("Szczegółowa analityka")}>{[{key:'steps',label:'Analityka kroków'},{key:'sent',label:'Wysłane wiadomości'}].map(sub => <button key={sub.key} aria-pressed={analyticsSub===sub.key} onClick={() => setAnalyticsSub(sub.key)}>{ct(sub.label)}</button>)}</div>
+        <p>{ct("Cały okres kampanii — filtr dat powyżej dotyczy wyników dziennych.")}</p>
+        {analyticsSub === 'steps' ? <><ErrorNotice error={ct(steps.error)} onRetry={() => setStepRetry(n => n + 1)}/>{!steps.error && <StepAnalyticsPanel stepStats={steps.rows} loading={steps.loading} campaignId={campaignId} sequences={sequences} onToggleVariant={toggleVariant} variantBusy={variantBusy}/>}</> : <SentEmailsPanel sentData={sentData} filter={sentFilter} onFilterChange={setSentFilter}/>}
       </section>
     </div>
   );
@@ -1288,14 +1283,15 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
 
 // ─── Step Analytics Panel ─────────────────────────────────────────────────────
 function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggleVariant, variantBusy }) {
+  const {ct}=useCampaignLanguage();
   const [expandedSteps, setExpandedSteps] = useState({});
 
   const toggleStep = (idx) => setExpandedSteps(p => ({ ...p, [idx]: !p[idx] }));
 
   const pct = (n, total) => total > 0 ? `${Math.round(n / total * 100)}%` : '—';
 
-  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Wczytywanie analityki kroków…</div>;
-  if (!stepStats.length) return <div className="py-8 text-center text-gray-400 text-sm">Brak danych. Wyślij wiadomości, aby zobaczyć analitykę kroków.</div>;
+  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">{ct("Wczytywanie analityki kroków…")}</div>;
+  if (!stepStats.length) return <div className="py-8 text-center text-gray-400 text-sm">{ct("Brak danych. Wyślij wiadomości, aby zobaczyć analitykę kroków.")}</div>;
 
   return (
     <div className="overflow-x-auto">
@@ -1303,12 +1299,12 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
             <th className="px-3 py-2 text-left w-8"></th>
-            <th className="px-3 py-2 text-left">Krok</th>
-            <th className="px-3 py-2 text-right">Wysłane</th>
-            <th className="px-3 py-2 text-right">Otwarcia</th>
-            <th className="px-3 py-2 text-right">Kliknięcia</th>
-            <th className="px-3 py-2 text-right">Odpowiedzi</th>
-            <th className="px-3 py-2 text-right">Szanse</th>
+            <th className="px-3 py-2 text-left">{ct("Krok")}</th>
+            <th className="px-3 py-2 text-right">{ct("Wysłane")}</th>
+            <th className="px-3 py-2 text-right">{ct("Otwarcia")}</th>
+            <th className="px-3 py-2 text-right">{ct("Kliknięcia")}</th>
+            <th className="px-3 py-2 text-right">{ct("Odpowiedzi")}</th>
+            <th className="px-3 py-2 text-right">{ct("Szanse")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1325,16 +1321,15 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                 >
                   <td className="px-3 py-2.5 text-gray-400 text-center">
                     {hasVariants && (
-                      <button aria-label={`Warianty kroku ${step.sequence_index + 1}`} aria-expanded={!!expanded} onClick={e => { e.stopPropagation(); toggleStep(step.sequence_index); }} className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</button>
+                      <button aria-label={ct('Warianty kroku {step}',{step:step.sequence_index+1})} aria-expanded={!!expanded} onClick={e => { e.stopPropagation(); toggleStep(step.sequence_index); }} className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</button>
                     )}
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="max-w-[280px] min-w-0">
-                      <div className="font-medium text-gray-800 truncate">Krok {step.sequence_index + 1}</div>
+                      <div className="font-medium text-gray-800 truncate">{ct("Krok")} {step.sequence_index + 1}</div>
                       {step.subject && <div className="text-xs text-gray-400 truncate">{step.subject}</div>}
                       {hasVariants && (
-                        <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-600 rounded-full px-1.5 py-0.5 mt-0.5">
-                          A/B · warianty: {step.variants.length - 1}
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-600 rounded-full px-1.5 py-0.5 mt-0.5"> {ct("A/B · warianty:")} {step.variants.length - 1}
                         </span>
                       )}
                     </div>
@@ -1361,7 +1356,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                     <td className="px-3 py-2 pl-8">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-purple-700">
-                          {variant.variant_id == null ? 'Domyślny' : variant.variant_label}
+                          {variant.variant_id == null ? ct("Domyślny") : variant.variant_label}
                         </span>
                         {variant.variant_id != null && (
                           <button
@@ -1376,7 +1371,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                                 : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
                             }`}
                           >
-                            {variant.enabled ? 'Włączony' : 'Wyłączony'}
+                            {variant.enabled ? ct("Włączony") : ct("Wyłączony")}
                           </button>
                         )}
                       </div>
@@ -1418,6 +1413,7 @@ const SENT_FILTER_OPTIONS = [
 ];
 
 function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
+  const {ct,language}=useCampaignLanguage();
   const filtered = useMemo(() => {
     switch (filter) {
       case 'opened':      return sentData.filter(e => e.opened);
@@ -1434,14 +1430,14 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
   const fmt = (isoStr) => {
     if (!isoStr) return '';
     const d = new Date(isoStr);
-    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString(language, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <div className="space-y-3">
       {/* Filter bar */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <span className="text-xs font-medium text-gray-500 mr-1">Filtr:</span>
+        <span className="text-xs font-medium text-gray-500 mr-1">{ct("Filtr:")}</span>
         {SENT_FILTER_OPTIONS.map(opt => (
           <button
             key={opt.value}
@@ -1452,29 +1448,29 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
                 : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
             }`}
           >
-            {opt.label}
+            {ct(opt.label)}
           </button>
         ))}
-        <span className="text-xs text-gray-400 ml-2">{filtered.length} wiadomości</span>
+        <span className="text-xs text-gray-400 ml-2">{filtered.length} {ct("wiadomości")}</span>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-8 text-center text-gray-400 text-sm">Brak wiadomości pasujących do filtra.</div>
+        <div className="py-8 text-center text-gray-400 text-sm">{ct("Brak wiadomości pasujących do filtra.")}</div>
       ) : (
         <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white z-10">
               <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
-                <th className="px-3 py-2.5 text-left">Wysłane</th>
-                <th className="px-3 py-2.5 text-left">Od</th>
-                <th className="px-3 py-2.5 text-left">Kontakt</th>
-                <th className="px-3 py-2.5 text-left">Krok</th>
-                <th className="px-3 py-2.5 text-left">Temat</th>
-                <th className="px-3 py-2.5 text-center">Otwarte</th>
-                <th className="px-3 py-2.5 text-center">Kliknięte</th>
-                <th className="px-3 py-2.5 text-center">Odpowiedź</th>
-                <th className="px-3 py-2.5 text-left">Wariant</th>
-                <th className="px-3 py-2.5 text-left">Status</th>
+                <th className="px-3 py-2.5 text-left">{ct("Wysłane")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Od")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Kontakt")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Krok")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Temat")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Otwarte")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Kliknięte")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Odpowiedź")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Wariant")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -1483,7 +1479,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
                   <td className="px-3 py-2 whitespace-nowrap text-gray-500 text-xs">{fmt(e.sent_at)}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-700 max-w-[200px] truncate" title={e.inbox_email || ''}>{e.inbox_email || '—'}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-800 max-w-[180px] truncate">{e.lead_email}</td>
-                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">Krok {(e.sequence_index ?? 0) + 1}</td>
+                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">{ct("Krok")} {(e.sequence_index ?? 0) + 1}</td>
                   <td className="px-3 py-2 text-xs text-gray-700 max-w-[200px] truncate">{e.subject || '—'}</td>
                   <td className="px-3 py-2 text-center">
                     {e.opened

@@ -56,3 +56,33 @@ Lista i profil kontaktu: lokalizacja PL/EN/DE/RU obejmuje listę, filtry, kolumn
 Inbox oraz lista i tworzenie szkicu kampanii: lokalizacja PL/EN/DE/RU, zachowanie szkiców i zaznaczeń przy zmianie języka, jawne destrukcyjne potwierdzenia. Szczegóły: `docs/qa/2026-09-30-p0-outreach-localization.md`. Pełny workspace kampanii, edytor sekwencji i ustawienia pozostają kolejną częścią tego samego P0; etap 2 nadal nie jest rozpoczęty.
 
 Obsługa kampanii i sekwencje: przegląd, harmonogram, skrzynki, ustawienia, pre-flight, aktywność, edycja standardowa/spersonalizowana, warianty i podgląd w PL/EN/DE/RU. Zachowane szkice, kody API i kontrola przed startem; poprawki zawijania treści zastępczej i układu ustawień na tablecie. Raport: `docs/qa/2026-09-30-p0-campaign-workspace-localization.md`. Dalej w P0: odbiorcy i analityka kampanii, pozostałe moduły i odbiór referencyjny. Etap 2 nadal nie jest rozpoczęty.
+
+### Zasada zbiorczego domknięcia P0 — 30.09.2026
+
+Po uwadze użytkownika o zbyt wielu aktualizacjach pozostałe prace P0 są jednym pakietem do odbioru. Zamknięta lista: `docs/qa/2026-09-30-p0-final-scope.md`. Nie wydajemy kolejnych modułów tłumaczeń oddzielnie. Kolejność 11 etapów i zakres CRM pozostają bez zmian.
+
+### Bieżący punkt kontrolny — 30.09.2026
+
+Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są historią prac, a nie aktualną listą braków. Zakres i kolejność 11 etapów pozostają bez zmian.
+
+| Etap | Stan |
+|---|---|
+| 1 — P0 | **W toku.** Lokalnie wykonane P0-01–07; odzyskana końcówka zabezpieczona commitami, regresje ustawień i diagnostyki wykonane. Otwarte końcowe bramki P0-08/09/10. Jeden zbiorczy pakiet do odbioru. |
+| 2 — kontakty i historia | Nierozpoczęty; następny po zamknięciu P0. |
+| 3 — analityka outreach | Nierozpoczęty. Lokalizacja obecnych raportów w P0 nie realizuje tego etapu. |
+| 4 — stabilna baza | Nierozpoczęty. |
+| 5 — rdzeń CRM | Nierozpoczęty; pozostaje w zatwierdzonym miejscu planu. |
+| 6 — sprzedaż | Nierozpoczęty. |
+| 7 — automatyzacje i raporty | Nierozpoczęty. |
+| 8 — użytkownicy | Nierozpoczęty. |
+| 9 — adaptery i Gmail | Nierozpoczęty. |
+| 10 — Microsoft 365 | Nierozpoczęty. |
+| 11 — instalator | Nierozpoczęty. |
+
+Szczegółowa lista bieżących prac: `docs/qa/2026-09-30-p0-final-scope.md`. Ostatnia implementacja: szablony, harmonogram oraz powiadomienia w PL/EN/DE/RU, zachowanie danych przy zmianie języka, naprawa przepełnienia długiego nagłówka. Raport: `docs/qa/2026-09-30-p0-final-operations-worklog.md`. To lokalny punkt kontrolny, nie nowa wersja do instalacji.
+
+Dalszy postęp P0-04 (30.09): archiwum i retencja w czterech językach, lokalizacja listy skrzynek oraz formularzy nadawcy i SMTP/IMAP, kontrola potwierdzenia i zakresu dni również w obsłudze zapisu. P0-04 nadal w toku: tracking i pozostałe komunikaty są otwarte. Raport: `docs/qa/2026-09-30-p0-mailbox-progress.md`. Nie jest to osobne wydanie.
+
+Aktualizacja 30.09 po pracach nad trackingiem: P0-04 wykonane lokalnie. P0-07 rozpoczęte od dashboardu i domen; ustawienia, stan systemu i porady pozostają otwarte. Raport: `docs/qa/2026-09-30-p0-tracking-dashboard.md`. Etap 1 nadal trwa, kolejność etapów 2–11 nie zmienia się.
+
+Odzyskanie 30.09: oryginalny katalog i branch przetrwały. P0-07 wykonane lokalnie; 228 testów frontendu, 70 testów ochrony wysyłki/skrzynki i 180 kombinacji UI zaliczone. Pełny backend: 485 zaliczonych, 8 pominiętych, 6 nieudanych (te same funkcje testowe nie przechodzą na zachowanej bazie). P0-08/09/10 i końcowy odbiór całego pakietu pozostają otwarte. Szczegóły oraz stan publikacji: `docs/qa/2026-09-30-p0-recovery.md`. Nie jest to nowe wydanie ani zgoda na etap 2.

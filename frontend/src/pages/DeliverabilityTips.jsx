@@ -1,3 +1,4 @@
+import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useId, useState } from 'react';
 import { PageFrame, Panel, Button, Icon } from '../redesign/ui';
 import {
@@ -133,18 +134,20 @@ const metrics = [
 ];
 const actionBySection={setup:['/domains','Domeny nadawcze'],writing:['/templates','Otwórz szablony'],sending:['/inboxes','Ustawienia skrzynek'],reputation:['/leads','Otwórz kontakty']};
 function Rule({rule,index}){
+  const {ct,language}=useOperationsLanguage();
  const [open,setOpen]=useState(false),contentId=useId();
  return <article className="sk-deliverability-rule">
   <h3><button type="button" className="sk-deliverability-toggle" aria-expanded={open} aria-controls={contentId} onClick={()=>setOpen(v=>!v)}>
    <span className="sk-deliverability-number">{String(index+1).padStart(2,'0')}</span>
-   <span className="sk-deliverability-rule-copy"><span>{rule.title}</span>{rule.tag&&<span className={`sk-badge ${rule.tag==='Zalecane'?'tone-amber':'tone-red'}`}>{rule.tag}</span>}</span>
+   <span className="sk-deliverability-rule-copy"><span>{ct(rule.title)}</span>{rule.tag&&<span className={`sk-badge ${rule.tag==='Zalecane'?'tone-amber':'tone-red'}`}>{ct(rule.tag)}</span>}</span>
    <RiArrowDownSLine size={20} className={open?'is-open':''}/>
   </button></h3>
-  <div id={contentId} hidden={!open} className="sk-deliverability-body"><p>{rule.body}</p></div>
+  <div id={contentId} hidden={!open} className="sk-deliverability-body"><p>{ct(rule.body)}</p></div>
  </article>;
 }
 
 export default function DeliverabilityTips() {
+  const {ct,language}=useOperationsLanguage();
   const [activeSection, setActiveSection] = useState('setup');
   const section = sections.find(s => s.id === activeSection);
 
@@ -156,25 +159,25 @@ export default function DeliverabilityTips() {
   });
 
   const action=actionBySection[activeSection]||actionBySection.setup;
-  return <PageFrame className="sk-deliverability-page sk-deliverability-workspace" title="Dostarczalność" description="Przewodnik po konfiguracji domen, skrzynek i wiadomości." actions={<Button to="/system-health" icon="shield">Stan systemu</Button>}>
-    <section className="sk-deliverability-intro"><span className="sk-deliverability-intro-icon"><Icon name="shield" size={32}/></span><div><h2>Sprawdź przygotowanie do wysyłki</h2><p>Poniższe wskazówki są materiałem pomocniczym, a nie wynikiem pomiaru Twojej instalacji. Automatyczna analiza DNS, reputacji i dostarczalności nie jest jeszcze dostępna.</p></div></section>
+  return <PageFrame className="sk-deliverability-page sk-deliverability-workspace" title={ct("Dostarczalność")} description={ct("Przewodnik po konfiguracji domen, skrzynek i wiadomości.")} actions={<Button to="/system-health" icon="shield">{ct("Stan systemu")}</Button>}>
+    <section className="sk-deliverability-intro"><span className="sk-deliverability-intro-icon"><Icon name="shield" size={32}/></span><div><h2>{ct("Sprawdź przygotowanie do wysyłki")}</h2><p>{ct("Poniższe wskazówki są materiałem pomocniczym, a nie wynikiem pomiaru Twojej instalacji. Automatyczna analiza DNS, reputacji i dostarczalności nie jest jeszcze dostępna.")}</p></div></section>
     <div className="sk-deliverability-layout">
       <div className="sk-deliverability-main">
-        <Panel title="Lista kontrolna konfiguracji" icon="check" className="sk-deliverability-checklist">
-          <p className="sk-deliverability-description">Wybierz obszar i rozwiń wskazówkę, aby zobaczyć szczegóły.</p>
-          <nav className="sk-deliverability-categories" aria-label="Sekcje dostarczalności">{sections.map(item=><button key={item.id} aria-pressed={item.id===activeSection} onClick={()=>setActiveSection(item.id)}><item.icon size={19}/><span>{item.label}</span><small>{item.rules.length}</small></button>)}</nav>
-          <h3 className="sk-deliverability-section-title">{section.label}</h3>
+        <Panel title={ct("Lista kontrolna konfiguracji")} icon="check" className="sk-deliverability-checklist">
+          <p className="sk-deliverability-description">{ct("Wybierz obszar i rozwiń wskazówkę, aby zobaczyć szczegóły.")}</p>
+          <nav className="sk-deliverability-categories" aria-label={ct("Sekcje dostarczalności")}>{sections.map(item=><button key={item.id} aria-pressed={item.id===activeSection} onClick={()=>setActiveSection(item.id)}><item.icon size={19}/><span>{ct(item.label)}</span><small>{item.rules.length}</small></button>)}</nav>
+          <h3 className="sk-deliverability-section-title">{ct(section.label)}</h3>
           <div className="sk-deliverability-rules">{section.rules.map((rule,i)=><Rule key={rule.title} rule={rule} index={sectionOffsets[activeSection]+i}/>)}</div>
-          <div className="sk-deliverability-footer"><span>{section.rules.length} wskazówki w tym obszarze</span><Button to={action[0]}>{action[1]}</Button></div>
+          <div className="sk-deliverability-footer"><span>{ct('Wskazówki w tym obszarze: {count}',{count:section.rules.length})}</span><Button to={action[0]}>{ct(action[1])}</Button></div>
         </Panel>
-        <Panel title="Orientacyjne wartości z przewodnika" className="sk-deliverability-reference">
-          <p className="sk-deliverability-description">To nie są bieżące wyniki ani gwarancja dostarczenia. Limity zależą od dostawcy, historii skrzynki i odbiorców.</p>
-          <div className="sk-deliverability-table-scroll" tabIndex={0} role="region" aria-label="Orientacyjne wartości — tabela"><table className="sk-table"><thead><tr><th>Metryka</th><th>Poziom orientacyjny</th><th>Sygnał do sprawdzenia</th></tr></thead><tbody>{metrics.map(m=><tr key={m.label}><td>{m.label}</td><td>{m.safe}</td><td>{m.danger}</td></tr>)}</tbody></table></div>
+        <Panel title={ct("Orientacyjne wartości z przewodnika")} className="sk-deliverability-reference">
+          <p className="sk-deliverability-description">{ct("To nie są bieżące wyniki ani gwarancja dostarczenia. Limity zależą od dostawcy, historii skrzynki i odbiorców.")}</p>
+          <div className="sk-deliverability-table-scroll" tabIndex={0} role="region" aria-label={ct("Orientacyjne wartości — tabela")}><table className="sk-table"><thead><tr><th>{ct("Metryka")}</th><th>{ct("Poziom orientacyjny")}</th><th>{ct("Sygnał do sprawdzenia")}</th></tr></thead><tbody>{metrics.map(m=><tr key={m.label}><td>{ct(m.label)}</td><td>{ct(m.safe)}</td><td>{ct(m.danger)}</td></tr>)}</tbody></table></div>
         </Panel>
       </div>
-      <aside className="sk-deliverability-aside" aria-label="Narzędzia i informacje">
-        <Panel title="Narzędzia w Sekaro" icon="settings">{[['/domains','globe','Domeny','Domeny powiązane ze skrzynkami.'],['/inboxes','mail','Skrzynki i rozgrzewanie','Limity, tracking oraz połączenia SMTP/IMAP.'],['/system-health','shield','Diagnostyka systemu','Dostępne kontrole i wykryte problemy.'],['/notifications','bell','Powiadomienia','Zdarzenia i alerty aplikacji.']].map(([to,icon,title,description])=><Button to={to} key={to} className="sk-deliverability-tool" icon={icon}><strong>{title}</strong><small>{description}</small></Button>)}</Panel>
-        <Panel title="Jak czytać ten widok" icon="info"><p className="sk-deliverability-description">Oznaczenia „Wymagane” i „Zalecane” opisują wskazówki. Nie potwierdzają, że konfiguracja została sprawdzona lub wykonana.</p><p className="sk-deliverability-description">Brak alertu nie oznacza potwierdzonej dostarczalności. Obserwuj odpowiedzi i odbicia w kontekście własnej wysyłki.</p></Panel>
+      <aside className="sk-deliverability-aside" aria-label={ct("Narzędzia i informacje")}>
+        <Panel title={ct("Narzędzia w Sekaro")} icon="settings">{[['/domains','globe','Domeny','Domeny powiązane ze skrzynkami.'],['/inboxes','mail','Skrzynki i rozgrzewanie','Limity, tracking oraz połączenia SMTP/IMAP.'],['/system-health','shield','Diagnostyka systemu','Dostępne kontrole i wykryte problemy.'],['/notifications','bell','Powiadomienia','Zdarzenia i alerty aplikacji.']].map(([to,icon,title,description])=><Button to={to} key={to} className="sk-deliverability-tool" icon={icon}><strong>{ct(title)}</strong><small>{ct(description)}</small></Button>)}</Panel>
+        <Panel title={ct("Jak czytać ten widok")} icon="info"><p className="sk-deliverability-description">{ct("Oznaczenia „Wymagane” i „Zalecane” opisują wskazówki. Nie potwierdzają, że konfiguracja została sprawdzona lub wykonana.")}</p><p className="sk-deliverability-description">{ct("Brak alertu nie oznacza potwierdzonej dostarczalności. Obserwuj odpowiedzi i odbicia w kontekście własnej wysyłki.")}</p></Panel>
       </aside>
     </div>
   </PageFrame>;

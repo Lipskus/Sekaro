@@ -76,7 +76,8 @@
     "options": "Opcje (jedna na linię)",
     "optionsPlaceholder": "Pierwsza opcja\nDruga opcja",
     "saveField": "Zapisz pole",
-    "createField": "Utwórz pole"
+    "createField": "Utwórz pole",
+    "demoSendingDisabled": "Wysyłka testowa jest wyłączona w DEMO."
   },
   "en": {
     "close": "Close",
@@ -155,7 +156,8 @@
     "options": "Options (one per line)",
     "optionsPlaceholder": "First option\nSecond option",
     "saveField": "Save field",
-    "createField": "Create field"
+    "createField": "Create field",
+    "demoSendingDisabled": "Test sending is disabled in DEMO."
   },
   "de": {
     "close": "Schließen",
@@ -234,7 +236,8 @@
     "options": "Optionen (eine pro Zeile)",
     "optionsPlaceholder": "Erste Option\nZweite Option",
     "saveField": "Feld speichern",
-    "createField": "Feld erstellen"
+    "createField": "Feld erstellen",
+    "demoSendingDisabled": "Der Testversand ist im DEMO deaktiviert."
   },
   "ru": {
     "close": "Закрыть",
@@ -313,6 +316,7 @@
     "options": "Варианты (по одному в строке)",
     "optionsPlaceholder": "Первый вариант\nВторой вариант",
     "saveField": "Сохранить поле",
-    "createField": "Создать поле"
+    "createField": "Создать поле",
+    "demoSendingDisabled": "Тестовая отправка отключена в ДЕМО."
   }
 }

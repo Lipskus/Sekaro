@@ -4,7 +4,8 @@ import {render,screen,fireEvent,cleanup,waitFor,act} from '@testing-library/reac
 import {MemoryRouter,Link} from 'react-router-dom';
 import Templates from './Templates';
 import {api} from '../api';
-const {confirm,notify}=vi.hoisted(()=>({confirm:vi.fn(),notify:vi.fn()}));
+const {confirm,notify,mode}=vi.hoisted(()=>({confirm:vi.fn(),notify:vi.fn(),mode:{isDemo:false}}));
+vi.mock('../context/AppModeContext',()=>({useAppMode:()=>mode}));
 vi.mock('../api',()=>({api:{get:vi.fn(),post:vi.fn(),patch:vi.fn(),del:vi.fn()}}));
 vi.mock('../context/ConfirmContext',()=>({useConfirm:()=>confirm}));
 vi.mock('../context/NotificationContext',()=>({useNotify:()=>notify}));
@@ -17,7 +18,7 @@ const baseGet=p=>Promise.resolve(p==='/templates'?[first,second]:p==='/templates
 async function mount(){render(<MemoryRouter><Link to="/leads">Kontakty</Link><Templates/></MemoryRouter>);await screen.findByRole('button',{name:/Oferta wersja/});}
 async function open(){await mount();fireEvent.click(screen.getByRole('button',{name:/Oferta wersja/}));await screen.findByDisplayValue('Nowy temat');}
 const change=(name,value)=>fireEvent.change(screen.getByRole('textbox',{name,exact:true}),{target:{value}});
-beforeEach(()=>{vi.clearAllMocks();confirm.mockResolvedValue(false);api.get.mockImplementation(baseGet);});
+beforeEach(()=>{mode.isDemo=false;vi.clearAllMocks();confirm.mockResolvedValue(false);api.get.mockImplementation(baseGet);});
 afterEach(cleanup);
 it('protects the draft across template, version, new and navigation actions',async()=>{
  await open();change('Temat wiadomości','Roboczy');
@@ -48,4 +49,22 @@ it('keeps the selected template and draft when another template fails to load',a
 });
 it('blocks duplicate test sends and preserves inputs after a send failure',async()=>{
  await open();fireEvent.click(screen.getByRole('button',{name:'Wysyłka testowa',exact:true}));change('Adres odbiorcy testowego','test@example.test');let reject;api.post.mockImplementation(()=>new Promise((_,r)=>reject=r));const send=screen.getByRole('button',{name:'Wyślij test'});fireEvent.click(send);fireEvent.click(send);expect(api.post).toHaveBeenCalledTimes(1);reject(Error('Wysyłka zablokowana'));await screen.findByText('Wysyłka zablokowana');expect(screen.getByDisplayValue('test@example.test')).toBeTruthy();
+});
+
+it('blocks the template test form and direct submission in DEMO, while allowing preview',async()=>{
+ mode.isDemo=true;await open();fireEvent.click(screen.getByRole('button',{name:'Wysyłka testowa',exact:true}));
+ expect(screen.getByText('Wysyłka testowa jest wyłączona w DEMO.')).toBeTruthy();
+ const recipient=screen.getByRole('textbox',{name:'Adres odbiorcy testowego'});
+ expect(recipient.closest('fieldset').disabled).toBe(true);
+ fireEvent.change(recipient,{target:{value:'test@example.test'}});
+ fireEvent.submit(recipient.closest('form'));expect(api.post).not.toHaveBeenCalled();
+ api.post.mockResolvedValue({subject:'Bez wysyłki',body:'Podgląd',variables:[],missing_variables:[]});
+ fireEvent.click(screen.getByRole('button',{name:'Generuj podgląd'}));
+ await screen.findByText('Temat: Bez wysyłki');
+ expect(api.post.mock.calls.map(([path])=>path)).toEqual(['/templates/preview/render']);
+});
+it('marks template deletion explicitly destructive and preserves it after cancellation',async()=>{
+ await open();fireEvent.click(screen.getByRole('button',{name:'Usuń',exact:true}));
+ await waitFor(()=>expect(confirm).toHaveBeenCalledWith({message:'Usunąć szablon „Oferta” wraz z historią wersji?',danger:true}));
+ expect(api.del).not.toHaveBeenCalled();expect(screen.getByDisplayValue('Nowy temat')).toBeTruthy();
 });

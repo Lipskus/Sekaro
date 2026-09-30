@@ -623,3 +623,36 @@ async def test_csv_import_all_new_no_duplicates(session):
     assert result["added"] == 2
     assert result["duplicate_leads"] == []
     assert result["already_enrolled"] == 0
+
+@pytest.mark.asyncio
+async def test_delete_inbox_with_queue_preserves_assignments_and_history(session):
+    from app.models import EmailLog
+    from tests.conftest import make_email_log
+    inbox = await make_inbox(session, email='queued-delete@test.com')
+    campaign = await make_campaign(session)
+    lead = await make_lead(session)
+    enrollment = await make_campaign_lead(session, campaign.id, lead.id)
+    slot = await make_queue_slot(session, enrollment.id, inbox.id)
+    history = await make_email_log(session, lead.id, campaign.id, inbox_id=inbox.id)
+    with pytest.raises(HTTPException) as error:
+        await inbox_router.delete_inbox(inbox.id, db=session)
+    assert error.value.status_code == 400
+    assert 'pending queue slots' in error.value.detail
+    assert await session.get(Inbox, inbox.id) is not None
+    assert await session.get(QueueSlot, slot.id) is not None
+    await session.refresh(history)
+    assert history.inbox_id == inbox.id
+
+
+@pytest.mark.asyncio
+async def test_delete_unused_inbox_preserves_email_history(session):
+    from tests.conftest import make_email_log
+    inbox = await make_inbox(session, email='history-delete@test.com')
+    campaign = await make_campaign(session)
+    lead = await make_lead(session)
+    history = await make_email_log(session, lead.id, campaign.id, inbox_id=inbox.id)
+    assert await inbox_router.delete_inbox(inbox.id, db=session) == {'ok': True}
+    await session.refresh(history)
+    assert history.inbox_id is None
+    assert history.lead_id == lead.id
+    assert history.campaign_id == campaign.id

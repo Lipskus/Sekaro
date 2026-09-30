@@ -23,11 +23,11 @@ export const systemSettingsGroups = [
   ]},
 ];
 export const normalizeSettingsSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').replace(/Ł/g, 'L').toLocaleLowerCase('pl').trim();
-export function settingsGroupsFor({ isProduction = true, isAdmin = false, search = '' } = {}) {
+export function settingsGroupsFor({ isProduction = true, isAdmin = false, search = '', translate = value => value } = {}) {
   const query = normalizeSettingsSearch(search);
   return systemSettingsGroups.map(group => ({ ...group, items: group.items.filter(item =>
     (!item.admin || isAdmin) && (!item.development || !isProduction) &&
-    (!query || normalizeSettingsSearch(item.label + ' ' + item.keywords).includes(query))
+    (!query || normalizeSettingsSearch(item.label + ' ' + translate(item.label) + ' ' + translate(item.description) + ' ' + item.keywords).includes(query))
   ) })).filter(group => group.items.length);
 }
 export function resolveSettingsSection(hash, items) {

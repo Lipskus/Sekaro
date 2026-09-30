@@ -1,0 +1,1430 @@
+[
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2064,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2065,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1409,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 631,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1877,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1878,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1400,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 615,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2064,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2065,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1409,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 631,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1877,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1878,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1400,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 615,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2047,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2048,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1338,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 614,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1860,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1861,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1324,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 598,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2047,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2048,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1338,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-768-light-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 614,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1860,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1861,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1324,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 598,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2040,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2041,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1331,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 607,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1853,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1854,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1317,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 591,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2040,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 2041,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Hallo, qa! 👋",
+      "Versandaktivität",
+      "Domainstatus und Zustellbarkeit",
+      "Letzte Kampagnenaktivitäten",
+      "Neueste Gespräche"
+    ],
+    "bodyLength": 1331,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-390-light-fixture-de.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Domains",
+      "Absenderdomains"
+    ],
+    "bodyLength": 607,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-tracking-dns",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1853,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-dns-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-tracking-beacon",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1854,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-tracking-beacon-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "dashboard-localized",
+    "route": "/",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Здравствуйте, qa! 👋",
+      "Активность отправки",
+      "Статус доменов и доставляемость",
+      "Последние действия кампаний",
+      "Последние переписки"
+    ],
+    "bodyLength": 1317,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "dashboard-localized-dashboard-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "domains-localized",
+    "route": "/domains",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Домены",
+      "Домены отправителей"
+    ],
+    "bodyLength": 591,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "domains-localized-domains-390-light-fixture-ru.png"
+  }
+]

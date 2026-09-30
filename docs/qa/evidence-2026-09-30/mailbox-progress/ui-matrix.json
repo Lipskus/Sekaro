@@ -1,0 +1,1538 @@
+[
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1314,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1016,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1796,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1867,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1307,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1036,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1773,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1694,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1314,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1016,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1796,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1867,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1307,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1036,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1773,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1694,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1297,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 999,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1779,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1850,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1290,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1019,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1756,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1677,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1297,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 999,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1779,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1850,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1290,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1019,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1756,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 51.203125,
+        "bottom": 972.796875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1677,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1290,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 992,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1772,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1842,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1283,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1012,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1749,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1670,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1290,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 992,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste",
+      "Postfach hinzufügen"
+    ],
+    "bodyLength": 1772,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Postfächer",
+      "Postfachliste"
+    ],
+    "bodyLength": 1843,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-light-fixture-de.png"
+  },
+  {
+    "flow": "mailbox-smtp",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1283,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-smtp-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-sender",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1012,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-sender-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-add",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков",
+      "Добавить ящик"
+    ],
+    "bodyLength": 1749,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-add-inboxes-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "mailbox-retention",
+    "route": "/inboxes",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Почтовые ящики",
+      "Список ящиков"
+    ],
+    "bodyLength": 1670,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "mailbox-retention-inboxes-390-light-fixture-ru.png"
+  }
+]
