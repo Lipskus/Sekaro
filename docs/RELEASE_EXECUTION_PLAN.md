@@ -50,3 +50,5 @@ Etap 1 trwa. Branch: `fix/p0-safety-sekaro-identity-2026-09-29`. Ochrona wysyłk
 ### Postęp 30.09.2026
 
 Kontynuacja etapu 1 zgodnie z zatwierdzoną kolejnością. Propozycja warunkowego odbioru z `2026-09-29-p0-acceptance-proposal.md` nie została potraktowana jako zgoda na przesunięcie pozostałych prac. Dodano lokalizację wspólnych kontrolek, potwierdzeń, importu i własnych pól kontaktu w PL/EN/DE/RU. Treści pozostałych modułów i pełny odbiór referencyjny nadal pozostają otwarte w P0. Etap 2 nie jest rozpoczęty. Szczegóły: `docs/qa/2026-09-30-p0-shared-localization.md`.
+
+Lista i profil kontaktu: lokalizacja PL/EN/DE/RU obejmuje listę, filtry, kolumny, formularze, wykluczenia, zakładki profilu, historię, etykiety statusów i lokalny format dat. Szczegóły i regresje: `docs/qa/2026-09-30-p0-contact-localization.md`. Dalszy P0: lokalizacja kampanii i Inbox oraz pozostały odbiór referencyjny; bez przesuwania tych prac do etapu 2.

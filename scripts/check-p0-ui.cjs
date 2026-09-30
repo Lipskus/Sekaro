@@ -12,8 +12,9 @@ const http=require('http');
 const routes=process.env.P0_UI_ROUTES?.split(',') || ['/','/campaigns','/campaigns/add','/campaigns/1','/leads','/leads/1','/contacts-tools','/templates','/inboxes','/unibox','/domains','/schedule','/analytics','/settings','/deliverability-tips','/system-health','/notifications','/login'];
 const languages=(process.env.P0_UI_LANGUAGES || 'pl').split(',');
 const copy=require('../frontend/src/i18n/workspace.json');
+const contactCopy=require('../frontend/src/i18n/contacts.json');
 const workflowMode=process.env.P0_UI_WORKFLOWS==='1';
-const workflowCases=[['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
+const workflowCases=[['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider:'smtp',paused:false,max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
@@ -22,6 +23,8 @@ function fixture(p){
  if(p==='/api/auth/refresh')return {access_token:'isolated-qa-fixture'};
  if(p==='/api/auth/me')return {id:1,username:'qa',email:'qa@example.com',role:'admin',is_active:true};
  if(workflowMode){
+  if(p==='/api/leads/1')return {...lead,email_verification_status:'unknown',campaigns:[{campaign_id:1,campaign_name:campaign.name,status:'unsubscribed',sending_paused:true,enrolled_at:'2026-09-01T10:00:00Z'}],interactions:[{kind:'sent',direction:'outbound',at:'2026-09-02T10:00:00Z',subject:'Przykładowy temat klienta',campaign_id:1},{kind:'reply_marker',direction:'inbound',at:'2026-09-03T10:00:00Z',campaign_id:1}]};
+  if(p==='/api/leads/suppression')return [{id:1,email:'blocked@example.test',reason:'unsubscribe',created_at:'2026-09-01T10:00:00Z'}];
   if(p==='/api/inboxes')return [inbox];
   if(p==='/api/leads/import/preview')return {headers:['email','name','company'],suggested_mapping:{email:'email',name:'name',company:'custom:company'},total_rows:1,sample_rows:[{email:'qa@example.com',name:'Aleksandra',company:'Przykładowa firma z długą nazwą'}]};
   if(p==='/api/contact-fields')return [{id:1,key:'company',label:'Firma z bardzo długą nazwą pola testowego',field_type:'text',system:false}];
@@ -90,13 +93,15 @@ function fixture(p){
   if(routePath!=='/login')await page.locator('.sk-sidebar').waitFor({state:'attached'});
   await page.waitForTimeout(state==='loading'?250:400);
   if(workflowMode){
-   if(flow==='contact-create')await page.getByRole('button',{name:'Dodaj kontakt',exact:true}).click();
+   if(flow==='contact-suppression'){await page.getByRole('button',{name:contactCopy[language].suppression,exact:true}).click();await page.getByRole('dialog',{name:contactCopy[language].suppressionTitle}).waitFor();}
+   if(['contact-activity','contact-campaigns','contact-messages'].includes(flow)){await page.getByRole('tab',{name:contactCopy[language][flow.slice(8)],exact:true}).click();}
+   if(flow==='contact-create')await page.getByRole('button',{name:contactCopy[language].add,exact:true}).click();
    if(flow==='contact-import'){
     await page.locator('input[type=file]').setInputFiles({name:'qa.csv',mimeType:'text/csv',buffer:Buffer.from('email,name,company\nqa@example.com,Aleksandra,Przykładowa firma\n')});
     await page.getByRole('button',{name:copy[language].readFile,exact:true}).click();
     await page.getByRole('combobox',{name:copy[language].mapping.replace('{column}','email')}).waitFor();
    }
-   if(flow==='contact-fields')await page.getByRole('button',{name:'Zarządzaj polami',exact:true}).click();
+   if(flow==='contact-fields')await page.getByRole('button',{name:contactCopy[language].manageFields,exact:true}).click();
    if(flow==='sequence-preview'){
     await page.getByRole('button',{name:'Podgląd',exact:true}).click();
     await page.getByText('Temat podglądu QA',{exact:true}).waitFor();
@@ -112,6 +117,7 @@ function fixture(p){
   await page.evaluate(()=>document.fonts.ready);
   const measurements=await page.evaluate(()=>({
    viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+   sidebarContentOverflow:[...document.querySelectorAll('.sk-system-card,.sk-selfhost')].some(el=>{const sidebar=el.closest('.sk-sidebar')?.getBoundingClientRect(),r=el.getBoundingClientRect();return sidebar?.right>0&&(r.right>sidebar.right+1||el.scrollWidth>el.clientWidth+1);}),
    bodyWidth:document.body.scrollWidth,theme:document.documentElement.dataset.theme,
    font:getComputedStyle(document.body).fontFamily,figtreeLoaded:document.fonts.check('14px Figtree'),
    headings:[...document.querySelectorAll('h1,h2')].map(e=>e.textContent),
@@ -128,7 +134,7 @@ function fixture(p){
  await browser.close();
  await new Promise(r=>server.close(r));
  fs.writeFileSync(path.join(out,'ui-matrix.json'),JSON.stringify(results,null,2)+'\n');
- const failures=results.filter(r=>r.documentWidth>r.viewport || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
+ const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
  console.log(JSON.stringify({captures:results.length,failures},null,2));
  process.exitCode=failures.length?1:0;
 })().catch(e=>{console.error(e);process.exit(1)});

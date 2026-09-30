@@ -46,10 +46,10 @@ html.sekaro-ui body{font-family:'Figtree',ui-sans-serif,system-ui,sans-serif;fon
 .sk-nav-item.active{background:var(--sk-green-soft);color:var(--sk-green-text)!important;font-weight:600}
 .sk-nav-item.active svg{color:inherit}
 .sk-nav-item:hover{background:var(--sk-green-soft)}
-.sk-sidebar-bottom{flex-shrink:0;margin-top:auto;padding:12px 13px 14px;display:grid;gap:12px}
+.sk-sidebar-bottom{flex-shrink:0;margin-top:auto;padding:12px 13px 14px;display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
 .sk-system-card,.sk-selfhost{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:10px;padding:16px 14px}
-.sk-system-card>div:first-child{display:flex;justify-content:space-between;align-items:center;font-size:12px;gap:5px}
-.sk-system-card .sk-badge{font-size:10px;background:transparent;padding:0}
+.sk-system-card>div:first-child{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;font-size:12px;gap:5px}
+.sk-system-card .sk-badge{font-size:10px;background:transparent;padding:0;max-width:100%;white-space:normal;overflow-wrap:anywhere}
 .sk-system-card .sk-dot{color:inherit}
 .sk-system-card dl{display:grid;grid-template-columns:1fr auto;font-size:11px;gap:11px;margin:20px 0 12px}
 .sk-system-card dt{color:var(--sk-muted)}
