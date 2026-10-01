@@ -57,3 +57,5 @@ Manifesty pomiarowe zachowują nazwy wszystkich wygenerowanych zrzutów; w Git z
 ## Wznowienie 01.10.2026
 
 Potwierdzono zachowanie commita `3a21394` i ponownie wykonano 48 kontroli dialogów importu/suppression (PL/EN/DE/RU, trzy szerokości, oba motywy): 48 zaliczonych, bez błędów. Obejrzano końcowy rosyjski dialog importu na telefonie w ciemnym motywie; pola zachowują szerokość, tabela przewija się wewnątrz dialogu. Manifest ponownej kontroli: `evidence-2026-09-30/final-checks/dialogs-recheck-2026-10-01.json`. Zweryfikowano istnienie i SHA-256 wszystkich 98 dowodów wskazanych w macierzy. Wyniki pełnych testów powyżej pochodzą z zachowanych logów 30.09; nie uruchamiano ich ponownie dla samego raportu. Nadal bez merge’a, wdrożenia i etapu 2.
+
+Dalszy przegląd 01.10: poprawka czytelności wspólnych nagłówków oraz konkretna propozycja rozstrzygnięcia odstępstw — [odbiór P0](2026-10-01-p0-review-decisions.md). Wyniki wcześniejsze pozostają historyczne; odstępstwa nadal nie są zatwierdzone.

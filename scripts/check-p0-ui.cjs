@@ -228,7 +228,7 @@ function fixture(p,flow){
    bodyWidth:document.body.scrollWidth,theme:document.documentElement.dataset.theme,
    font:getComputedStyle(document.body).fontFamily,figtreeLoaded:document.fonts.check('14px Figtree'),
    headings:[...document.querySelectorAll('h1,h2')].map(e=>e.textContent),
-   contactToolsTitleCramped:[...document.querySelectorAll('.sk-contact-tools-page h1')].some(el=>el.getBoundingClientRect().height>parseFloat(getComputedStyle(el).lineHeight)*3+1),
+   pageTitleCramped:[...document.querySelectorAll('.sk-page-header h1')].some(el=>{const r=el.getBoundingClientRect(),line=parseFloat(getComputedStyle(el).lineHeight),available=el.closest('.sk-page-header').clientWidth;return r.height>line*3+1||(r.width<Math.min(280,available)-1&&r.height>line*1.5);}),
    bodyLength:document.body.innerText.length,
    dialogs:[...document.querySelectorAll('[role=dialog]')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,focusInside:el.contains(document.activeElement)};}),
    backgroundLocked:document.body.style.overflow==='hidden',
@@ -243,7 +243,7 @@ function fixture(p,flow){
  await browser.close();
  await new Promise(r=>server.close(r));
  fs.writeFileSync(path.join(out,'ui-matrix.json'),JSON.stringify(results,null,2)+'\n');
- const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.contactToolsTitleCramped || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
+ const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.pageTitleCramped || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
  console.log(JSON.stringify({captures:results.length,failures},null,2));
  process.exitCode=failures.length?1:0;
 })().catch(e=>{console.error(e);process.exit(1)});

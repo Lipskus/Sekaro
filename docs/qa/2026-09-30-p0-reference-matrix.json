@@ -742,7 +742,8 @@
       "finding": "Lista, edytor i historia wersji istnieją. Kategorie i liczniki użycia nie są wymyślane; dodatkowy panel zmiennych i pól. Szkic pozostaje po zmianie języka.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 38,
@@ -762,7 +763,8 @@
       "finding": "Lista, edytor i historia wersji istnieją. Kategorie i liczniki użycia nie są wymyślane; dodatkowy panel zmiennych i pól. Szkic pozostaje po zmianie języka.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 39,
@@ -782,7 +784,8 @@
       "finding": "Podgląd kontaktu/wiadomości/zmiennych istnieje. Brak edycji fikcyjnego kontaktu tylko dla preview; test-send wyłączony w DEMO także w obsłudze submit.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 40,
@@ -802,7 +805,8 @@
       "finding": "Podgląd kontaktu/wiadomości/zmiennych istnieje. Brak edycji fikcyjnego kontaktu tylko dla preview; test-send wyłączony w DEMO także w obsłudze submit.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 41,
@@ -1182,7 +1186,8 @@
       "finding": "Stany, wersje i potwierdzenia działają osobno, nie jako tablica wzorców. Brak kategorii/usage bez modelu danych; brak pozornie udanej wysyłki w DEMO.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 60,
@@ -1202,7 +1207,8 @@
       "finding": "Stany, wersje i potwierdzenia działają osobno, nie jako tablica wzorców. Brak kategorii/usage bez modelu danych; brak pozornie udanej wysyłki w DEMO.",
       "later_scope": null,
       "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
-      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie",
+      "followup_2026_10_01": "Naprawiono ściskanie nagłówka szablonów na tablecie we wspólnym PageFrame; dodatkowy przegląd: 2026-10-01-p0-review-decisions.md. Pierwotny zrzut desktop pozostaje historycznym dowodem, a naprawa nie akceptuje pozostałych odstępstw."
     },
     {
       "id": 61,

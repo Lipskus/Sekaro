@@ -43,12 +43,14 @@ html[data-theme=dark] {
 }
 .sk-page-header {
   display:flex;
+  flex-wrap:wrap;
   align-items:flex-start;
   justify-content:space-between;
   gap:var(--sk-space-6);
   margin-bottom:var(--sk-space-5);
 }
-.sk-page-header-copy {min-width:0}
+/* Keep long translated titles readable before moving actions to the next row. */
+.sk-page-header-copy {flex:1;min-width:min(100%,20rem)}
 .sk-page-header h1 {
   margin:0;
   overflow-wrap:anywhere;
@@ -69,8 +71,10 @@ html[data-theme=dark] {
   justify-content:flex-end;
   gap:var(--sk-space-3);
   flex-wrap:wrap;
-  flex-shrink:0;
+  flex-shrink:1;
+  max-width:100%;
 }
+.sk-page-header-actions > * {max-width:100%}
 
 /* Tabs */
 .sk-section-tabs {
