@@ -1559,6 +1559,22 @@ class TestCampaignStats:
     progress bar.
     """
 
+    @pytest.mark.parametrize("interest, expected", [
+        (None, 1), ("interested", 1), ("not_interested", 1),
+        ("out_of_office", 0), ("auto_reply", 0),
+    ])
+    async def test_reply_counts_include_unclassified_but_exclude_automated(self, session, interest, expected):
+        from app.routers.campaigns import list_campaigns, get_campaign
+        from app.models import LeadReply
+        camp = await make_campaign(session, stop_on_reply=False)
+        lead = await make_lead(session)
+        enrollment = await make_campaign_lead(session, camp.id, lead.id)
+        enrollment.interest_status = interest
+        session.add(LeadReply(lead_id=lead.id, campaign_id=camp.id))
+        await session.flush()
+        assert (await list_campaigns(db=session))[0].stats.replies == expected
+        assert (await get_campaign(camp.id, db=session)).stats.replies == expected
+
     async def test_list_and_get_include_counts(self, session):
         from app.routers.campaigns import list_campaigns, get_campaign
         from app.models import LeadReply

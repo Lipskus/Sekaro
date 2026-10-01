@@ -67,7 +67,7 @@ Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są hi
 
 | Etap | Stan |
 |---|---|
-| 1 — P0 | **W toku.** Lokalnie wykonane P0-01–07; odzyskana końcówka zabezpieczona commitami, regresje ustawień i diagnostyki wykonane. Otwarte końcowe bramki P0-08/09/10. Jeden zbiorczy pakiet do odbioru. |
+| 1 — P0 | **W toku — zbiorczy pakiet do przeglądu.** Implementacja P0-01–07 i końcowe regresje wykonane; macierz 98 referencji gotowa z jawnymi odstępstwami. P0-08/09/10 mają dowody techniczne, ale odbiór całego P0 i akceptacja odstępstw pozostają otwarte. Branch `work/p0-final-bundle-2026-09-30`. |
 | 2 — kontakty i historia | Nierozpoczęty; następny po zamknięciu P0. |
 | 3 — analityka outreach | Nierozpoczęty. Lokalizacja obecnych raportów w P0 nie realizuje tego etapu. |
 | 4 — stabilna baza | Nierozpoczęty. |
@@ -86,3 +86,5 @@ Dalszy postęp P0-04 (30.09): archiwum i retencja w czterech językach, lokaliza
 Aktualizacja 30.09 po pracach nad trackingiem: P0-04 wykonane lokalnie. P0-07 rozpoczęte od dashboardu i domen; ustawienia, stan systemu i porady pozostają otwarte. Raport: `docs/qa/2026-09-30-p0-tracking-dashboard.md`. Etap 1 nadal trwa, kolejność etapów 2–11 nie zmienia się.
 
 Odzyskanie 30.09: oryginalny katalog i branch przetrwały. P0-07 wykonane lokalnie; 228 testów frontendu, 70 testów ochrony wysyłki/skrzynki i 180 kombinacji UI zaliczone. Pełny backend: 485 zaliczonych, 8 pominiętych, 6 nieudanych (te same funkcje testowe nie przechodzą na zachowanej bazie). P0-08/09/10 i końcowy odbiór całego pakietu pozostają otwarte. Szczegóły oraz stan publikacji: `docs/qa/2026-09-30-p0-recovery.md`. Nie jest to nowe wydanie ani zgoda na etap 2.
+
+Końcowy przegląd 30.09: odzyskany katalog i branch zachowane, opublikowano zbiorczą gałąź roboczą. Backend: **501 zaliczonych, 8 pominiętych testów PostgreSQL**; frontend: **233 zaliczone**, build poprawny. Naprawiono agregację odpowiedzi bez klasyfikacji, uaktualniono testy do istniejących granic autoryzacji oraz domknięto narzędzia kontaktów w PL/EN/DE/RU. Macierz 98 plansz opisuje 82 jawne odstępstwa i 16 pozycji zależnych od późniejszych etapów; nie oznacza to ich akceptacji. Aktualny bilans: `docs/qa/2026-09-30-p0-consolidated-review.md`. Wcześniejsze wyniki sześciu nieudanych testów są historyczne. Etap 1 nadal trwa; bez merge’a, wdrożenia, nowej wersji i rozpoczęcia etapu 2.

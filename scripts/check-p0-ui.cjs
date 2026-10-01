@@ -7,7 +7,8 @@ const {chromium}=require(process.env.P0_PLAYWRIGHT_MODULE || 'playwright');
 const fs=require('fs');
 const path=require('path');
 const out=process.env.P0_UI_OUTPUT || 'docs/qa/evidence-2026-09-29';
-const base='http://127.0.0.1:4173';
+const port=Number(process.env.P0_UI_PORT || 4173);
+const base=`http://127.0.0.1:${port}`;
 const http=require('http');
 const routes=process.env.P0_UI_ROUTES?.split(',') || ['/','/campaigns','/campaigns/add','/campaigns/1','/leads','/leads/1','/contacts-tools','/templates','/inboxes','/unibox','/domains','/schedule','/analytics','/settings','/deliverability-tips','/system-health','/notifications','/login'];
 const languages=(process.env.P0_UI_LANGUAGES || 'pl').split(',');
@@ -18,11 +19,12 @@ const campaignCopy=require('../frontend/src/i18n/campaign.json');
 const operationsCopy=require('../frontend/src/i18n/operations.json');
 const op=(language,source)=>operationsCopy[language][source]??campaignCopy[language][source]??source;
 const workflowMode=process.env.P0_UI_WORKFLOWS==='1';
-const workflowCases=[['settings-ai-expanded','/settings#ai'],['settings-custom-verification','/settings#verification'],['settings-restore-preview','/settings#backup-restore'],['health-unknown','/system-health'],['settings-general','/settings#general'],['settings-appearance','/settings#appearance'],['settings-account','/settings#account'],['settings-known-ips','/settings#known-ips'],['settings-backup-restore','/settings#backup-restore'],['settings-ai','/settings#ai'],['settings-verification','/settings#verification'],['settings-other','/settings#other'],['settings-api-keys','/settings#api-keys'],['settings-webhooks','/settings#webhooks'],['settings-mcp','/settings#mcp'],['health-localized','/system-health'],['tips-localized','/deliverability-tips'],['mailbox-tracking-dns','/inboxes'],['mailbox-tracking-beacon','/inboxes'],['dashboard-localized','/'],['domains-localized','/domains'],['mailbox-smtp','/inboxes'],['mailbox-sender','/inboxes'],['mailbox-add','/inboxes'],['schedule-calendar','/schedule'],['schedule-queue','/schedule'],['schedule-preview','/schedule'],['template-editor','/templates'],['template-preview','/templates'],['notification-detail','/notifications'],['notification-preferences','/notifications'],['campaign-recipients','/campaigns/1#leads'],['campaign-recipient-add','/campaigns/1#leads'],['campaign-analytics','/campaigns/1#analytics'],['global-analytics','/analytics'],['campaign-overview','/campaigns/1'],['campaign-schedule','/campaigns/1?setup=1#schedule'],['campaign-inboxes','/campaigns/1?setup=1#inboxes'],['campaign-settings','/campaigns/1#settings'],['campaign-preflight','/campaigns/1?setup=1#overview'],['campaign-activity','/campaigns/1#queue'],['sequence-edit','/campaigns/1#sequences'],['sequence-variant','/campaigns/1#sequences'],['sequence-personalized','/campaigns/1#sequences'],['inbox-thread','/unibox'],['inbox-confirm','/unibox'],['campaign-list','/campaigns'],['campaign-delete','/campaigns'],['campaign-draft','/campaigns/add'],['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
+const workflowCases=[['contact-tools-import','/contacts-tools?tab=bounced'],['contact-tools-recovery','/contacts-tools?tab=bounced'],['contact-tools-suppression','/contacts-tools?tab=bounced'],['settings-ai-expanded','/settings#ai'],['settings-custom-verification','/settings#verification'],['settings-restore-preview','/settings#backup-restore'],['health-unknown','/system-health'],['settings-general','/settings#general'],['settings-appearance','/settings#appearance'],['settings-account','/settings#account'],['settings-known-ips','/settings#known-ips'],['settings-backup-restore','/settings#backup-restore'],['settings-ai','/settings#ai'],['settings-verification','/settings#verification'],['settings-other','/settings#other'],['settings-api-keys','/settings#api-keys'],['settings-webhooks','/settings#webhooks'],['settings-mcp','/settings#mcp'],['health-localized','/system-health'],['tips-localized','/deliverability-tips'],['mailbox-tracking-dns','/inboxes'],['mailbox-tracking-beacon','/inboxes'],['dashboard-localized','/'],['domains-localized','/domains'],['mailbox-smtp','/inboxes'],['mailbox-sender','/inboxes'],['mailbox-add','/inboxes'],['schedule-calendar','/schedule'],['schedule-queue','/schedule'],['schedule-preview','/schedule'],['template-editor','/templates'],['template-preview','/templates'],['notification-detail','/notifications'],['notification-preferences','/notifications'],['campaign-recipients','/campaigns/1#leads'],['campaign-recipient-add','/campaigns/1#leads'],['campaign-analytics','/campaigns/1#analytics'],['global-analytics','/analytics'],['campaign-overview','/campaigns/1'],['campaign-schedule','/campaigns/1?setup=1#schedule'],['campaign-inboxes','/campaigns/1?setup=1#inboxes'],['campaign-settings','/campaigns/1#settings'],['campaign-preflight','/campaigns/1?setup=1#overview'],['campaign-activity','/campaigns/1#queue'],['sequence-edit','/campaigns/1#sequences'],['sequence-variant','/campaigns/1#sequences'],['sequence-personalized','/campaigns/1#sequences'],['inbox-thread','/unibox'],['inbox-confirm','/unibox'],['campaign-list','/campaigns'],['campaign-delete','/campaigns'],['campaign-draft','/campaigns/add'],['contact-list','/leads'],['contact-summary','/leads/1'],['contact-activity','/leads/1'],['contact-campaigns','/leads/1'],['contact-messages','/leads/1'],['contact-suppression','/leads'],['contact-create','/leads'],['contact-import','/leads'],['contact-fields','/leads'],['sequence-preview','/campaigns/1#sequences'],['mailbox-retention','/inboxes'],['mobile-menu','/']];
 const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider:'smtp',paused:false,max_emails_per_day:100,max_emails_per_hour:10,wait_minutes_between:5};
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
 function fixture(p,flow){
+ if(flow.startsWith('contact-tools-')&&p==='/api/leads')return [{...lead,email_verification_status:'invalid',campaigns:[]}];
  if(flow==='settings-ai-expanded'){
   if(p==='/api/settings/ai')return {features:[{id:'reply_classifier',label:'Reply Interest Classifier',description:Object.keys(operationsCopy.en).find(k=>k.startsWith('Classifies lead replies')),enabled:false,provider:'openai',model:'qa-model',api_key_set:false}]};
   if(p==='/api/settings/ai/providers')return {providers:[{id:'openai',name:'OpenAI'}]};
@@ -69,7 +71,7 @@ function fixture(p,flow){
   if(p==='/api/leads/1')return {...lead,email_verification_status:'unknown',campaigns:[{campaign_id:1,campaign_name:campaign.name,status:'unsubscribed',sending_paused:true,enrolled_at:'2026-09-01T10:00:00Z'}],interactions:[{kind:'sent',direction:'outbound',at:'2026-09-02T10:00:00Z',subject:'Przykładowy temat klienta',campaign_id:1},{kind:'reply_marker',direction:'inbound',at:'2026-09-03T10:00:00Z',campaign_id:1}]};
   if(p==='/api/leads/suppression')return [{id:1,email:'blocked@example.test',reason:'unsubscribe',created_at:'2026-09-01T10:00:00Z'}];
   if(p==='/api/inboxes')return [inbox];
-  if(p==='/api/leads/import/preview')return {headers:['email','name','company'],suggested_mapping:{email:'email',name:'name',company:'custom:company'},total_rows:1,sample_rows:[{email:'qa@example.com',name:'Aleksandra',company:'Przykładowa firma z długą nazwą'}]};
+  if(p==='/api/leads/import/preview')return {filename:'qa.csv',valid_unique_emails:1,existing_contacts:0,suppressed_contacts:0,duplicates_in_file:0,invalid_count:0,headers:['email','name','company'],suggested_mapping:{email:'email',name:'name',company:'custom:company'},total_rows:1,sample_rows:[{email:'qa@example.com',name:'Aleksandra',company:'Przykładowa firma z długą nazwą'}]};
   if(p==='/api/contact-fields')return [{id:1,key:'company',label:'Firma z bardzo długą nazwą pola testowego',field_type:'text',system:false}];
   if(p==='/api/campaigns/1/sequences')return [{id:1,position:0,subject:'Podgląd bardzo długiego tematu wiadomości — sprawdzenie zawijania',body:'Treść QA',wait_days_after_previous:0,is_html:false}];
   if(p==='/api/campaigns/1/preview')return {subject:'Temat podglądu QA',body:'DługiAdresBezSpacji'.repeat(24)+'\n'+('Przykładowa treść do kontroli przewijania. '.repeat(80)),is_html:false};
@@ -111,7 +113,7 @@ function fixture(p,flow){
   res.setHeader('Content-Type',types[path.extname(file)]||'application/octet-stream');
   fs.createReadStream(file).pipe(res);
  });
- await new Promise(r=>server.listen(4173,'127.0.0.1',r));
+ await new Promise(r=>server.listen(port,'127.0.0.1',r));
  const browser=await chromium.launch({headless:true,executablePath:process.env.P0_CHROMIUM || undefined,args:['--no-sandbox','--disable-dev-shm-usage','--disable-gpu']});
  const results=[];
  const states=(process.env.P0_UI_STATES || 'fixture').split(',');
@@ -137,6 +139,8 @@ function fixture(p,flow){
   if(routePath!=='/login')await page.locator('.sk-sidebar').waitFor({state:'attached'});
   await page.waitForTimeout(state==='loading'?250:400);
   if(workflowMode){
+   if(flow.startsWith('contact-tools-')){await page.getByRole('textbox',{name:op(language,'Nowy e-mail')+': '+lead.email}).fill('corrected@example.test');await page.getByRole('checkbox',{name:op(language,'Select {p0}').replace('{p0}',lead.email)}).check();if(flow==='contact-tools-suppression')await page.getByRole('button',{name:op(language,'Lista wykluczeń'),exact:true}).click();}
+   if(flow==='contact-tools-import'){await page.locator('input[type=file]').nth(1).setInputFiles({name:'qa.csv',mimeType:'text/csv',buffer:Buffer.from('email,name,company\nqa@example.com,Aleksandra,QA')});await page.getByRole('dialog').waitFor();}
    if(flow==='settings-ai-expanded'){const button=page.getByRole('button',{name:op(language,'Konfiguracja: {name}').replace('{name}',op(language,'Reply Interest Classifier'))});await button.focus();await page.keyboard.press('Enter');}
    if(flow==='settings-custom-verification'){const button=page.locator('#settings-verification').getByRole('button',{name:op(language,'Weryfikacja e-mail'),exact:true});await button.focus();await page.keyboard.press('Enter');await page.keyboard.press('Space');}
    if(flow==='settings-restore-preview'){await page.locator('input[type=file]').setInputFiles({name:'qa.qbk',mimeType:'application/octet-stream',buffer:Buffer.from('mock QA fixture')});await page.getByRole('button',{name:op(language,'Sprawdź kopię'),exact:true}).click();await page.getByRole('button',{name:op(language,'Potwierdź i przywróć'),exact:true}).waitFor();await page.getByText(op(language,'Zweryfikowano — potwierdź przywracanie'),{exact:true}).scrollIntoViewIfNeeded();}
@@ -214,15 +218,17 @@ function fixture(p,flow){
     }
     if(flow==='mailbox-sender')await page.getByRole('textbox',{name:op(language,'Nazwa nadawcy'),exact:true}).fill('Nadawca klienta QA');
    }
-   if(flow==='mobile-menu'&&width<761)await page.getByRole('button',{name:'Otwórz menu',exact:true}).click();
+   if(flow==='mobile-menu'&&width<761)await page.locator('.sk-mobile-menu').click();
   }
   await page.evaluate(()=>document.fonts.ready);
   const measurements=await page.evaluate(()=>({
    viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
+   overflowCandidates:document.documentElement.scrollWidth>innerWidth?[...document.querySelectorAll(".sk-page-header,.sk-page-header *, .sk-page-actions, .sk-page-actions *, .sk-contact-tools-page > *")].map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,text:el.textContent.slice(0,90)})).filter(el=>el.right>innerWidth+1).slice(0,20):[],
    sidebarContentOverflow:[...document.querySelectorAll('.sk-system-card,.sk-selfhost')].some(el=>{const sidebar=el.closest('.sk-sidebar')?.getBoundingClientRect(),r=el.getBoundingClientRect();return sidebar?.right>0&&(r.right>sidebar.right+1||el.scrollWidth>el.clientWidth+1);}),
    bodyWidth:document.body.scrollWidth,theme:document.documentElement.dataset.theme,
    font:getComputedStyle(document.body).fontFamily,figtreeLoaded:document.fonts.check('14px Figtree'),
    headings:[...document.querySelectorAll('h1,h2')].map(e=>e.textContent),
+   contactToolsTitleCramped:[...document.querySelectorAll('.sk-contact-tools-page h1')].some(el=>el.getBoundingClientRect().height>parseFloat(getComputedStyle(el).lineHeight)*3+1),
    bodyLength:document.body.innerText.length,
    dialogs:[...document.querySelectorAll('[role=dialog]')].map(el=>{const r=el.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,scrollWidth:el.scrollWidth,clientWidth:el.clientWidth,focusInside:el.contains(document.activeElement)};}),
    backgroundLocked:document.body.style.overflow==='hidden',
@@ -237,7 +243,7 @@ function fixture(p,flow){
  await browser.close();
  await new Promise(r=>server.close(r));
  fs.writeFileSync(path.join(out,'ui-matrix.json'),JSON.stringify(results,null,2)+'\n');
- const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
+ const failures=results.filter(r=>r.documentWidth>r.viewport || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.contactToolsTitleCramped || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
  console.log(JSON.stringify({captures:results.length,failures},null,2));
  process.exitCode=failures.length?1:0;
 })().catch(e=>{console.error(e);process.exit(1)});

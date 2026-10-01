@@ -1,0 +1,1968 @@
+{
+  "archive": "sekaro-ui-mockups-98.zip",
+  "archive_sha256": "aa040e101fc187387655a5d47c8b570dd822ea0afc0f062e407b27a06c3153c9",
+  "date": "2026-09-30",
+  "scope": "P0-09 — rejestr porównania 98 plansz, nie deklaracja 1:1",
+  "items": [
+    {
+      "id": 1,
+      "reference": "batch-01-02/001-a_wide_dark_themed_desktop_application_ui_screens.png",
+      "reference_sha256": "85c83b26304c0c629e616aa64d6613321bed0288b7f88dde1d9f3edf358f53f4",
+      "reference_size": [
+        1536,
+        1024
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / General",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-general-settings-general-1600-dark-fixture-de.png",
+      "evidence_sha256": "77a2fb884c1ff8d2a9e6beabf871224ea0533dcc414ef62e767b11adfcfba656",
+      "evidence_workflow": "settings-general",
+      "classification": "jawne odstępstwo",
+      "finding": "Boczne kategorie ustawień zamiast starszego poziomego menu; język i motyw w osobnej sekcji. Brak globalnego formularza dni/godzin i gęstości UI z planszy.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 2,
+      "reference": "batch-01-02/002-ustawienia_sekaro_po_polsku.png",
+      "reference_sha256": "5ec6eedee1a9caffc4e10ffa05e5c9cfd5d8148ca04774ed3cb3a1bd0a24c73c",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / General",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-general-settings-general-1600-light-fixture-de.png",
+      "evidence_sha256": "ae4e692a5e765d71d300a74a760349babdf7dc99e70558d17bbd13a51671a525",
+      "evidence_workflow": "settings-general",
+      "classification": "jawne odstępstwo",
+      "finding": "Boczne kategorie ustawień zamiast starszego poziomego menu; język i motyw w osobnej sekcji. Brak globalnego formularza dni/godzin i gęstości UI z planszy.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 3,
+      "reference": "batch-01-02/003-ustawienia_sekaro_w_jasnym_motywie.png",
+      "reference_sha256": "c7fc63e648696ff965e0b701ea15b01b8c819d4cc6255b30b54b240d58099120",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Features",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-ai-expanded-settings-ai-1600-light-fixture-de.png",
+      "evidence_sha256": "5c1bc3dfb5299f0ba7dcb399cd79b8946b7a1069538d8a25b1fafc44bfdb6061",
+      "evidence_workflow": "settings-ai-expanded",
+      "classification": "jawne odstępstwo",
+      "finding": "Konfiguracja istniejących funkcji AI i kluczy zamiast dekoracyjnego katalogu wkrótce. Powiadomienia i weryfikacja mają własne sekcje; brak obietnic nieistniejących funkcji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 4,
+      "reference": "batch-01-02/004-panel_ustawień_sekaro_w_ciemnym_motywie.png",
+      "reference_sha256": "ca74a7657964b569b6fcefecaf312f0d66974dc69c0770884ae58251d65144c7",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Features",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-ai-expanded-settings-ai-1600-dark-fixture-de.png",
+      "evidence_sha256": "f7f36c5367d3bdfbd3c88d29f5f29d656bd9c09033b84494fa21fadc14ffdff3",
+      "evidence_workflow": "settings-ai-expanded",
+      "classification": "jawne odstępstwo",
+      "finding": "Konfiguracja istniejących funkcji AI i kluczy zamiast dekoracyjnego katalogu wkrótce. Powiadomienia i weryfikacja mają własne sekcje; brak obietnic nieistniejących funkcji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 5,
+      "reference": "batch-01-02/005-ustawienia_backupu_w_sekaro.png",
+      "reference_sha256": "06e1c2a5bd272154bb7b100d669b7f974532980a72375332e592d8978c53ecf8",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Backup",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-backup-restore-settings-backup-restore-1600-light-fixture-de.png",
+      "evidence_sha256": "a88fe2885e714d029f602ddb1bbfddce4ab4aa607a7631b56636ea0d85196fb6",
+      "evidence_workflow": "settings-backup-restore",
+      "classification": "jawne odstępstwo",
+      "finding": "Istnieją szyfrowanie, konfiguracja i operacje backupu; inny układ formularza i brak tabeli pełnej historii operacji. Ta kontrola UI nie zalicza backup/restore PostgreSQL.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 6,
+      "reference": "batch-01-02/006-ustawienia_bezpieczeństwa_sekaro.png",
+      "reference_sha256": "0f1081e2cd8281131cb68be928cb9ba9a5bf6cfa1998d284e39c95e4a605a054",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Account and security",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-account-settings-account-1600-light-fixture-de.png",
+      "evidence_sha256": "9198ac631f5a19c37c8ef0909f238f629f75afd1c1e4adb627e96d1f84fd4c4c",
+      "evidence_workflow": "settings-account",
+      "classification": "jawne odstępstwo",
+      "finding": "Bieżące dane konta i wylogowanie; brak pełnego panelu sesji, ostatnich logowań i bezpieczeństwa z referencji. Dalszy zakres operacyjny/użytkownicy pozostaje według etapów 4 i 8.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 7,
+      "reference": "batch-01-02/007-panel_ustawień_kopii_zapasowych_sekaro.png",
+      "reference_sha256": "4bd0717f71bb23832abc852747070a8707d9b302dbc1b29f365d6a62deaf37cf",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Backup",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-backup-restore-settings-backup-restore-1600-dark-fixture-de.png",
+      "evidence_sha256": "f61e492898477eb6853f2ace7b31cb6fb8128f1eeb390e4a4c7cb677422f8436",
+      "evidence_workflow": "settings-backup-restore",
+      "classification": "jawne odstępstwo",
+      "finding": "Istnieją szyfrowanie, konfiguracja i operacje backupu; inny układ formularza i brak tabeli pełnej historii operacji. Ta kontrola UI nie zalicza backup/restore PostgreSQL.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 8,
+      "reference": "batch-01-02/008-ustawienia_bezpieczeństwa_w_panelu_sekaro.png",
+      "reference_sha256": "9834ea6c07b570abf7937981a53a7df3c02e9151de1a09751431e0dd72bff9d9",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Account and security",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-account-settings-account-1600-dark-fixture-de.png",
+      "evidence_sha256": "7da05509e83c3d4012bac4c84b97ba0fa03c39f42be7e858b648c0d2d27786cc",
+      "evidence_workflow": "settings-account",
+      "classification": "jawne odstępstwo",
+      "finding": "Bieżące dane konta i wylogowanie; brak pełnego panelu sesji, ostatnich logowań i bezpieczeństwa z referencji. Dalszy zakres operacyjny/użytkownicy pozostaje według etapów 4 i 8.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 9,
+      "reference": "batch-01-02/009-sekaro_integracje_w_trybie_wkrótce.png",
+      "reference_sha256": "4f0fd51c617e2363881906e2f7c431fc766a97909727df0e80378473e8f3f947",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Integrations",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-webhooks-settings-webhooks-1600-dark-fixture-de.png",
+      "evidence_sha256": "57baa5fadebb0b880e1a722e7aa9d78fa4b9e3bc22d28fa2c5e3e6977563c5e7",
+      "evidence_workflow": "settings-webhooks",
+      "classification": "jawne odstępstwo",
+      "finding": "API keys, webhooki i MCP w osobnych kategoriach; brak wspólnej tabeli ostatnich wykonań. Nie pokazujemy fikcyjnej aktywności integracji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 10,
+      "reference": "batch-01-02/010-sekaro_tryb_testowy_dashboardu.png",
+      "reference_sha256": "1412a602ea87cc52b99804f28dd6545581bf1f42eef4f8959cc5b574f1768be0",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Test mode",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-other-settings-other-1600-dark-fixture-de.png",
+      "evidence_sha256": "e5b28f9bc958b7aa4a1b1cbefa079a6e3e96c0efc9d21c6270fcf80a55c32880",
+      "evidence_workflow": "settings-other",
+      "classification": "jawne odstępstwo",
+      "finding": "Testowe narzędzia są zależne od trybu instalacji; produkcyjna sekcja nie odtwarza pełnej konsoli developerskiej ani pozornych sandbox metrics. Ochronę DEMO sprawdzają testy backend/frontend.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 11,
+      "reference": "batch-01-02/011-panel_integracji_sekaro_w_jasnym_motywie.png",
+      "reference_sha256": "dacb2ad93659940e0b72fe619dbc04eaa1ed1fa8e5ded097f7b9ae8560f96b9d",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Integrations",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-webhooks-settings-webhooks-1600-light-fixture-de.png",
+      "evidence_sha256": "287edfeda30d96a25db600ee309b0f86daeb75c2c7b3c5b99ee5c75c9273e35f",
+      "evidence_workflow": "settings-webhooks",
+      "classification": "jawne odstępstwo",
+      "finding": "API keys, webhooki i MCP w osobnych kategoriach; brak wspólnej tabeli ostatnich wykonań. Nie pokazujemy fikcyjnej aktywności integracji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 12,
+      "reference": "batch-01-02/012-ustawienia_trybu_testowego_sekaro.png",
+      "reference_sha256": "3e015394aefd65e71edac828eb110dfb7e5a44e2a7167a853450ee8a757710ab",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Test mode",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-other-settings-other-1600-light-fixture-de.png",
+      "evidence_sha256": "025492b6f49e405555225efb5f54f00291eaa6452981c31da841fcb89f0e9d9a",
+      "evidence_workflow": "settings-other",
+      "classification": "jawne odstępstwo",
+      "finding": "Testowe narzędzia są zależne od trybu instalacji; produkcyjna sekcja nie odtwarza pełnej konsoli developerskiej ani pozornych sandbox metrics. Ochronę DEMO sprawdzają testy backend/frontend.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 13,
+      "reference": "batch-01-02/013-panel_kampanii_sekaro_w_ciemnym_stylu.png",
+      "reference_sha256": "b4801543c11cb5d6677e4f4c99ec964d728abe5108b762326968e4d867af85fb",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Campaigns / Earlier list",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-dark-fixture-de.png",
+      "evidence_sha256": "4306a108d535bc0ccd07ac7300ecc8ba0559868cc48e37647409b629fa862285",
+      "evidence_workflow": "campaign-list",
+      "classification": "jawne odstępstwo",
+      "finding": "Tabela, filtry i akcje istnieją; brak właścicieli i tagów oraz innych pól bez kontraktu backendu. Starsze 013/014 mają inną geometrię niż seria 063/064. Dane fixture nie są referencyjnymi licznikami.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 14,
+      "reference": "batch-01-02/014-panel_kampanii_sekaro_w_języku_polskim.png",
+      "reference_sha256": "82f40f3014f710dc4d998ef01c2900ca97aa8f6631f583ad2a76a14dd1716832",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Campaigns / Earlier list",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-light-fixture-de.png",
+      "evidence_sha256": "8db55cbb1091095e1de4d6521c4cd8a89a283dff8dbe23fb9025963eba9a3f1b",
+      "evidence_workflow": "campaign-list",
+      "classification": "jawne odstępstwo",
+      "finding": "Tabela, filtry i akcje istnieją; brak właścicieli i tagów oraz innych pól bez kontraktu backendu. Starsze 013/014 mają inną geometrię niż seria 063/064. Dane fixture nie są referencyjnymi licznikami.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 15,
+      "reference": "batch-01-02/015-tworzenie_nowej_kampanii_w_sekaro.png",
+      "reference_sha256": "2777c816cc02b84f71469210b098231d13121c9600399bc54ca513688a48f7c1",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "New campaign / Builder",
+      "existing_source": "frontend/src/pages/AddCampaign.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-draft-campaigns-add-1600-light-fixture-de.png",
+      "evidence_sha256": "bebbe5477c5460ff3b48ff44b884880fdecf56e8dcfe54a6f55885cee3e992a3",
+      "evidence_workflow": "campaign-draft",
+      "classification": "jawne odstępstwo",
+      "finding": "Szkic i sześć kroków konfiguracji zachowane; pierwszy ekran ma nazwę, skrzynkę i podsumowanie, bez fikcyjnych prognoz, celu sprzedażowego i właściciela.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 16,
+      "reference": "batch-01-02/016-nowa_kampania_w_sekaro.png",
+      "reference_sha256": "9524d44c75de38a0eb161e36e8828b058f3ea59a2c79631738412757045232fc",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "New campaign / Builder",
+      "existing_source": "frontend/src/pages/AddCampaign.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-draft-campaigns-add-1600-dark-fixture-de.png",
+      "evidence_sha256": "9d6c6e48486a005f86ffc1b353015eeef76a7dd0de400ca7071873ecbb46c7c2",
+      "evidence_workflow": "campaign-draft",
+      "classification": "jawne odstępstwo",
+      "finding": "Szkic i sześć kroków konfiguracji zachowane; pierwszy ekran ma nazwę, skrzynkę i podsumowanie, bez fikcyjnych prognoz, celu sprzedażowego i właściciela.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 17,
+      "reference": "batch-01-02/017-panel_sekaro_sekwencja_kampanii_b2b.png",
+      "reference_sha256": "3e7a5da75d05a6a8fdd3d3a7b2640718e3606c9347b0cd2347ea691a42c374ac",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Campaign / Sequence",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/sequence-edit-campaigns-1-sequences-1600-light-fixture-de.png",
+      "evidence_sha256": "9e3edb0370aed0d02971918247b520e8fae9e2d41e1975e3004b5faa7451cbb5",
+      "evidence_workflow": "sequence-edit",
+      "classification": "jawne odstępstwo",
+      "finding": "Oś sekwencji i edytor kroku istnieją; opóźnienie należy do kroku, nie do osobnej karty akcji. Warianty i spersonalizowane treści korzystają z istniejącego modelu; układ nie jest kopią obu sprzecznych plansz.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 18,
+      "reference": "batch-01-02/018-sekaro_sekwencja_kampanii_b2b.png",
+      "reference_sha256": "7d2980b215428bfbddf3adf2c0f2b0d6f285b8b542b47203a434f64de0ea90d2",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign / Sequence",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/sequence-edit-campaigns-1-sequences-1600-dark-fixture-de.png",
+      "evidence_sha256": "d9906f3a66fc34873c7b290767ead6b6416420a512a3931687563609de1bb727",
+      "evidence_workflow": "sequence-edit",
+      "classification": "jawne odstępstwo",
+      "finding": "Oś sekwencji i edytor kroku istnieją; opóźnienie należy do kroku, nie do osobnej karty akcji. Warianty i spersonalizowane treści korzystają z istniejącego modelu; układ nie jest kopią obu sprzecznych plansz.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 19,
+      "reference": "batch-01-02/019-panel_odbiorców_kampanii_outreach_b2b_pl.png",
+      "reference_sha256": "cfd5f48b26f2d6546864a244b19dc7efe9f3407bf6906ffdfceea679045d195e",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Campaign / Recipients",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-recipients-campaigns-1-leads-1600-light-fixture-de.png",
+      "evidence_sha256": "d7f59d591f2c5c8ef3312040ad4248e0b9bbe1109ff91931c4846eef981103a2",
+      "evidence_workflow": "campaign-recipients",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista, filtry, statusy, import i boczny formularz dostępne. Formularz dodania nie jest katalogiem segmentów jak na planszy. Zaznaczenia i kody API pozostają stabilne przy zmianie języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 20,
+      "reference": "batch-01-02/020-panel_kampanii_outreach_b2b_pl.png",
+      "reference_sha256": "3fa5dd453705cd607a2905822ec88eaa4c8b0f405dae6e98e31b1b8c60a3f391",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign / Recipients",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-recipients-campaigns-1-leads-1600-dark-fixture-de.png",
+      "evidence_sha256": "97e1ed837b7ae512b030ae317cc0fb31839b3bf55ee79d73595be483da23ed81",
+      "evidence_workflow": "campaign-recipients",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista, filtry, statusy, import i boczny formularz dostępne. Formularz dodania nie jest katalogiem segmentów jak na planszy. Zaznaczenia i kody API pozostają stabilne przy zmianie języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 21,
+      "reference": "batch-01-02/021-ustawienia_kampanii_sekaro_w_trybie_ciemnym.png",
+      "reference_sha256": "2b198e7df0a6e4d7ba6b2327eb9aaca15921021d612384919fb9cdc57ad24831",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign / Settings",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-settings-campaigns-1-settings-1600-dark-fixture-de.png",
+      "evidence_sha256": "1f140704f4740e602c87ec312b1ddbb2da39d796158a6c2ee5e7f4c6d87c481d",
+      "evidence_workflow": "campaign-settings",
+      "classification": "jawne odstępstwo",
+      "finding": "Karty ustawień i harmonogram obecne, wspólne dane nadawcy wynikają ze skrzynki. Brak dodatkowych reguł/UTM bez obsługi API; inne rozmieszczenie podsumowania.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 22,
+      "reference": "sekaro_mockups_batch3_redone/022-campaign-analytics-dark.png",
+      "reference_sha256": "c5329b0228c0458323769ccb26e324a40f04cb14f0782ecce9c84036c2d53ea7",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign / Analytics",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-analytics-campaigns-1-analytics-1600-dark-fixture-de.png",
+      "evidence_sha256": "7bbbc26a4e649edfef597fc5098f1793aa407efc71938ec990b4f491b7c3aa0f",
+      "evidence_workflow": "campaign-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Raport pokazuje istniejące zdarzenia i zakresy; zamiast lejka spotkań jest jawne podsumowanie aktywności. Brak metryk bez źródła i nowego lejka CRM. Naprawiono liczenie odpowiedzi bez klasyfikacji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 23,
+      "reference": "sekaro_mockups_batch3_redone/023-campaign-analytics-light.png",
+      "reference_sha256": "f22ba09010c3edcf20ced8159159989d7ecf22b29e46a2df3d87427b8e87a596",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaign / Analytics",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-analytics-campaigns-1-analytics-1600-light-fixture-de.png",
+      "evidence_sha256": "cd669918225231ca91cd2df6054e7791bd6cab1df0e0d520942b15290caf90b4",
+      "evidence_workflow": "campaign-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Raport pokazuje istniejące zdarzenia i zakresy; zamiast lejka spotkań jest jawne podsumowanie aktywności. Brak metryk bez źródła i nowego lejka CRM. Naprawiono liczenie odpowiedzi bez klasyfikacji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 24,
+      "reference": "sekaro_mockups_batch3_redone/024-campaign-queue-dark.png",
+      "reference_sha256": "e47b1f1db452a6963e0d2b3a9a39c7db24ab9d38a7c56c72f3d8530e374e5e83",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign / Queue and activity",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-activity-campaigns-1-queue-1600-dark-fixture-de.png",
+      "evidence_sha256": "3e4d9f1bc84d4534977c00ed202525318bcde7b1093f7d503eed444bc307fb48",
+      "evidence_workflow": "campaign-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Kolejka, historia i niepewne próby istnieją. Stan danych decyduje o pustych kartach; brak fikcyjnych zdarzeń. Kontrola kolejki ma istniejące zabezpieczenia.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 25,
+      "reference": "sekaro_mockups_batch3_redone/025-campaign-queue-light.png",
+      "reference_sha256": "68e773de995301b8abe380eb4d4e618ba568bbbbaf6fb2f138fa2ab083f96768",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaign / Queue and activity",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-activity-campaigns-1-queue-1600-light-fixture-de.png",
+      "evidence_sha256": "1786e7f7be9d64703b4e8abab41b1cb4fc7032943f4cefbde139a26a1cb37869",
+      "evidence_workflow": "campaign-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Kolejka, historia i niepewne próby istnieją. Stan danych decyduje o pustych kartach; brak fikcyjnych zdarzeń. Kontrola kolejki ma istniejące zabezpieczenia.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 26,
+      "reference": "sekaro_mockups_batch3_redone/026-campaign-settings-light.png",
+      "reference_sha256": "5f93f395700b8443e2d09e566cc225a93f2ebe3a9817b9c7e273852456eb1ac5",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaign / Settings",
+      "existing_source": "frontend/src/pages/CampaignDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-settings-campaigns-1-settings-1600-light-fixture-de.png",
+      "evidence_sha256": "b780577b408a09351fb9c78d5fae4c2a1121be7d9b728c858f250916154e1b80",
+      "evidence_workflow": "campaign-settings",
+      "classification": "jawne odstępstwo",
+      "finding": "Karty ustawień i harmonogram obecne, wspólne dane nadawcy wynikają ze skrzynki. Brak dodatkowych reguł/UTM bez obsługi API; inne rozmieszczenie podsumowania.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 27,
+      "reference": "sekaro_mockups_batch3_redone/027-mailbox-edit-dark.png",
+      "reference_sha256": "a91cc35580d240f922c59e51a67545f8ab95a027d49a11c8122f3a560e6a85b1",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / SMTP + IMAP editor",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "fb7834c2fb0090fceb30be2afab0263efe956cc842e7184dfa5ebb7ea30b2e17",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "jawne odstępstwo",
+      "finding": "Edytor SMTP/IMAP jest panelem przy liście, z zakładkami nadawca/połączenie/limity/retencja. Referencja to osobna szeroka strona; zachowano rzeczywiste formularze i testy połączeń.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 28,
+      "reference": "sekaro_mockups_batch3_redone/028-mailbox-edit-light.png",
+      "reference_sha256": "fe6ccff6408b0880383bfcd080ec797e586e9771c838c4bb2095b2f7535ef29e",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / SMTP + IMAP editor",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "5e356eb43a371dc1e9163777b8126f7cfac0224b213a8fb76eb82c6a714297c3",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "jawne odstępstwo",
+      "finding": "Edytor SMTP/IMAP jest panelem przy liście, z zakładkami nadawca/połączenie/limity/retencja. Referencja to osobna szeroka strona; zachowano rzeczywiste formularze i testy połączeń.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 29,
+      "reference": "sekaro_mockups_batch3_redone/029-mailboxes-dark.png",
+      "reference_sha256": "de63a60eb479ee8b574c6c2e5c25e04f46b5d23fdbe8e009a3849d2be711fe5b",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailboxes / List",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "3d46caeb82cdb096aa0431ba815478ddc35ae73e535398da64574b71d2a26028",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista i wybrana skrzynka zamiast powtórzenia tej samej skrzynki jednocześnie w tabeli i kartach. Brak ostatniej synchronizacji nie jest pokazywany jako poprawne połączenie.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 30,
+      "reference": "sekaro_mockups_batch3_redone/030-mailboxes-light.png",
+      "reference_sha256": "91cd220f307e14a4c4902874e47e4366e6a97b8dc0d71301e02096d3c56a72dd",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailboxes / List",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "6e921152d836d97a799a78962edfcc8dd04a9871e3ec1ae263f2c0a520e7873c",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista i wybrana skrzynka zamiast powtórzenia tej samej skrzynki jednocześnie w tabeli i kartach. Brak ostatniej synchronizacji nie jest pokazywany jako poprawne połączenie.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 31,
+      "reference": "sekaro_mockups_batch3_redone/031-tracking-dark.png",
+      "reference_sha256": "582d6454cbdefd22412afebaee2be7db8f927649bc0997fd475b7e73d84ad9ca",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / Tracking",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-tracking-dns-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "40413ecdee3ae7b3e0b691f383291678d48a9e8fe0d37940eda059f646fb8ebc",
+      "evidence_workflow": "mailbox-tracking-dns",
+      "classification": "jawne odstępstwo",
+      "finding": "Tracking Beacon/DNS jest zakładką skrzynki. Instrukcje i sprawdzanie istnieją; brak nieobsługiwanych ustawień retencji pomiarów/DNT/UTM i fikcyjnej historii DNS.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 32,
+      "reference": "sekaro_mockups_batch4_redone/032-analytics-dark.png",
+      "reference_sha256": "49aa4b7ca12d9d0c903faa122f991ee10d58d7a1dc4eaf3f69e8d89b5811eb12",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Analytics / Main",
+      "existing_source": "frontend/src/pages/Analytics.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/global-analytics-analytics-1600-dark-fixture-de.png",
+      "evidence_sha256": "9503f252f1b2cae56144f64c45a6966df216da5629ab5b7f4a097c9bf513e86a",
+      "evidence_workflow": "global-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Istnieją zakresy, wykres, CSV i kampanie; podsumowanie dotyczy dostępnych zdarzeń. Brak spotkań i rankingu segmentów z nieistniejących źródeł.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 33,
+      "reference": "sekaro_mockups_batch4_redone/033-analytics-light.png",
+      "reference_sha256": "9d361cfb9a6e312071d6e1d1958c59bac59ba88c2b826855eb043c6544621615",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Analytics / Main",
+      "existing_source": "frontend/src/pages/Analytics.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/global-analytics-analytics-1600-light-fixture-de.png",
+      "evidence_sha256": "dadda4df198654ababa75ed96925bb981d50fc9c688e6c1cc90d7d21105663a9",
+      "evidence_workflow": "global-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Istnieją zakresy, wykres, CSV i kampanie; podsumowanie dotyczy dostępnych zdarzeń. Brak spotkań i rankingu segmentów z nieistniejących źródeł.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 34,
+      "reference": "sekaro_mockups_batch4_redone/034-schedule-calendar-dark.png",
+      "reference_sha256": "ca71d76e8956243d71d67c92999fed7ee08a36262c099942459884d6c6890dee",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Schedule / Calendar",
+      "existing_source": "frontend/src/pages/Schedule.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/schedule-calendar-schedule-1600-dark-fixture-de.png",
+      "evidence_sha256": "04d4b951d6158ea7a98c1f876325fcd36b92b00894489517e653f653f129125f",
+      "evidence_workflow": "schedule-calendar",
+      "classification": "jawne odstępstwo",
+      "finding": "Układ kalendarz plus filtry/agenda zachowany; inne dodatkowe kontrolki i sposób prezentacji strefy. Dostępne dane są bieżącą kolejką, nie liczbami referencyjnymi.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 35,
+      "reference": "sekaro_mockups_batch4_redone/035-schedule-calendar-light.png",
+      "reference_sha256": "99b3d9b7c2837dd3dd1f5102e7d229898ee5a1ceb4d81a89465c0b2b2d2d7e11",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Schedule / Calendar",
+      "existing_source": "frontend/src/pages/Schedule.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/schedule-calendar-schedule-1600-light-fixture-de.png",
+      "evidence_sha256": "a3ed4f717819bbdbb73d3fda716a0d35f4c5b910fbc528c99581b8427b26a78e",
+      "evidence_workflow": "schedule-calendar",
+      "classification": "jawne odstępstwo",
+      "finding": "Układ kalendarz plus filtry/agenda zachowany; inne dodatkowe kontrolki i sposób prezentacji strefy. Dostępne dane są bieżącą kolejką, nie liczbami referencyjnymi.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 36,
+      "reference": "sekaro_mockups_batch4_redone/036-schedule-message-preview-dark.png",
+      "reference_sha256": "f2a813eeaae6542eea8a0d96937036f11f950c4e8799662edc1d1dc3ca8262f6",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Schedule / Message preview",
+      "existing_source": "frontend/src/pages/Schedule.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/schedule-preview-schedule-1600-dark-fixture-de.png",
+      "evidence_sha256": "ac21086edd81362c81c9640a09939b4be6eda252a764135282700906747a4a8f",
+      "evidence_workflow": "schedule-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Trzy kolumny kolejka/podgląd/szczegóły zachowane. Brak skip/send-now/zmiany skrzynki i ręcznego przesunięcia bez bezpiecznych endpointów; odnośniki prowadzą do istniejących ustawień.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 37,
+      "reference": "sekaro_mockups_batch4_redone/037-templates-list-editor-dark.png",
+      "reference_sha256": "0cbff0ba3a6b2f5e9352369c769ede9a6a14d50037ad7bf0c7bc1bc74547b5a3",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Templates / Editor and history",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-editor-templates-1600-dark-fixture-de.png",
+      "evidence_sha256": "464aaf54d20cc48bc7aef295b0ae3151ac02adb59aa3db56813f770a7ef4e5b9",
+      "evidence_workflow": "template-editor",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista, edytor i historia wersji istnieją. Kategorie i liczniki użycia nie są wymyślane; dodatkowy panel zmiennych i pól. Szkic pozostaje po zmianie języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 38,
+      "reference": "sekaro_mockups_batch4_redone/038-templates-list-editor-light.png",
+      "reference_sha256": "cf6ec909a84a0f8c0bd4f694e39ceaacc7133efce4e8711fe756804f1a19d1f8",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Templates / Editor and history",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-editor-templates-1600-light-fixture-de.png",
+      "evidence_sha256": "a657bc7560a13b16e76476cd4584fee53f0ef2590063d1d84ca76bede30d9b2b",
+      "evidence_workflow": "template-editor",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista, edytor i historia wersji istnieją. Kategorie i liczniki użycia nie są wymyślane; dodatkowy panel zmiennych i pól. Szkic pozostaje po zmianie języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 39,
+      "reference": "sekaro_mockups_batch4_redone/039-templates-preview-dark.png",
+      "reference_sha256": "396bf01bb34d051ae9d409e0ee11046c20c8e8b2c5dbc56f319970037e14e4fa",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Templates / Contact preview",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-preview-templates-1600-dark-fixture-de.png",
+      "evidence_sha256": "844c896ee3b35113d92daff4ca190debdbf72e6fcca81f30f4c36938cdd2e29c",
+      "evidence_workflow": "template-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Podgląd kontaktu/wiadomości/zmiennych istnieje. Brak edycji fikcyjnego kontaktu tylko dla preview; test-send wyłączony w DEMO także w obsłudze submit.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 40,
+      "reference": "sekaro_mockups_batch4_redone/040-templates-preview-light.png",
+      "reference_sha256": "c083cbf93778db8e2ac41c277dd5f8e8fa2ca3b8b80fe93e68b8376008ebf590",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Templates / Contact preview",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-preview-templates-1600-light-fixture-de.png",
+      "evidence_sha256": "a13c39c5ebfa7f42a5efd455f186e6787459c0c00da47fc35f4011bc649fd217",
+      "evidence_workflow": "template-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Podgląd kontaktu/wiadomości/zmiennych istnieje. Brak edycji fikcyjnego kontaktu tylko dla preview; test-send wyłączony w DEMO także w obsłudze submit.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 41,
+      "reference": "sekaro_mockups_batch4_redone/041-tracking-light.png",
+      "reference_sha256": "d54ee33963b8b0b12026a4333ceec68ac78ad1008fd1f094ab60663b4af86ad4",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / Tracking",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-tracking-dns-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "aff780922440931bb9f693e8fd5ad8a9b7caf0027e5df5afb863503f4493c791",
+      "evidence_workflow": "mailbox-tracking-dns",
+      "classification": "jawne odstępstwo",
+      "finding": "Tracking Beacon/DNS jest zakładką skrzynki. Instrukcje i sprawdzanie istnieją; brak nieobsługiwanych ustawień retencji pomiarów/DNT/UTM i fikcyjnej historii DNS.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 42,
+      "reference": "sekaro_mockups_batch5_svg/042-contact-detail-activity-dark.png",
+      "reference_sha256": "e654299ac7d4c913885dcb46c90c36f6301719f6850cc1c5341d7b6e801a1cff",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Contact / Activity",
+      "existing_source": "frontend/src/pages/LeadDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-activity-leads-1-1600-dark-fixture-de.png",
+      "evidence_sha256": "283737a6814a0a8050506aa2d10fa6daff167967ab5eafedfc8f0623f79b2b83",
+      "evidence_workflow": "contact-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Oś istniejącej korespondencji i kampanii. Notes/zadania/spotkania i pełny audyt zmian pól należą do późniejszego CRM; układ używa obecnego Lead, bez fikcyjnych zdarzeń.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 43,
+      "reference": "sekaro_mockups_batch5_svg/043-contact-detail-overview-dark.png",
+      "reference_sha256": "d52240c60817d24bd84cb9c4b61272b8b1f9e9521161c1e3cd6521a9702586c5",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Contact / Overview",
+      "existing_source": "frontend/src/pages/LeadDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-summary-leads-1-1600-dark-fixture-de.png",
+      "evidence_sha256": "231b2c94f2b1ad220f6a9d2d69758125ecbc78ec3b4ee67cf7c6f38be2e4cc33",
+      "evidence_workflow": "contact-summary",
+      "classification": "jawne odstępstwo",
+      "finding": "Profil i pola własne istnieją. Układ ma edytowalne dane i panel podsumowania; brak opiekuna, spotkań i danych bez źródła. Nie przekształcono rekordu w nowy CRM.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 44,
+      "reference": "sekaro_mockups_batch5_svg/044-contact-detail-overview-light.png",
+      "reference_sha256": "b262d9a50bc9118d612a0d3c98f1033a9635009b958adec2a022309f92e4f150",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Contact / Overview",
+      "existing_source": "frontend/src/pages/LeadDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-summary-leads-1-1600-light-fixture-de.png",
+      "evidence_sha256": "56058cca4f762331ca3e11cb48f20e6fae58f321fc9202e5d42f23c995f04a29",
+      "evidence_workflow": "contact-summary",
+      "classification": "jawne odstępstwo",
+      "finding": "Profil i pola własne istnieją. Układ ma edytowalne dane i panel podsumowania; brak opiekuna, spotkań i danych bez źródła. Nie przekształcono rekordu w nowy CRM.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 45,
+      "reference": "sekaro_mockups_batch5_svg/045-notifications-center-dark.png",
+      "reference_sha256": "7e9b43def0eea8e3043cb1db40200c73b32228b0280ffe57217ba7296ef7f918",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Notifications / Center",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-detail-notifications-1600-dark-fixture-de.png",
+      "evidence_sha256": "f6b115f5d2de30c0973adda4b3d23805ef2a88360f263c0f92979e73102fcc0c",
+      "evidence_workflow": "notification-detail",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista i szczegóły obecne. Filtry odpowiadają dostępnym typom; oryginalne treści zdarzeń nie są tłumaczone jako dane użytkownika. Inne szczegóły akcji i liczniki.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 46,
+      "reference": "sekaro_mockups_batch5_svg/046-notifications-center-light.png",
+      "reference_sha256": "42318284a05328f571ae9eac89864e3b581c6a72508f2e02d11562c957799e0d",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Notifications / Center",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-detail-notifications-1600-light-fixture-de.png",
+      "evidence_sha256": "881db45001fc3cc12f2848bba366131213f1a3be436773dac532f8ff48bd1fd8",
+      "evidence_workflow": "notification-detail",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista i szczegóły obecne. Filtry odpowiadają dostępnym typom; oryginalne treści zdarzeń nie są tłumaczone jako dane użytkownika. Inne szczegóły akcji i liczniki.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 47,
+      "reference": "sekaro_mockups_batch5_svg/047-notifications-preferences-dark.png",
+      "reference_sha256": "9f4424ff03199c75b4f847658f0a11bee87f02d449acacfd765d3f826b0df403",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Notifications / Preferences",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-preferences-notifications-1600-dark-fixture-de.png",
+      "evidence_sha256": "4f6bef067e29c46a7d1a29d38f305212d68a557b8585c55222571ac521f32407",
+      "evidence_workflow": "notification-preferences",
+      "classification": "element przyszłego etapu",
+      "finding": "Dostępne ustawienia e-mail, zdarzeń i limitu. Brak quiet hours/digest/per-channel matrix i historii dostarczeń; nie dodano nowych kanałów.",
+      "later_scope": "7 — zakres automatyzacji do rozstrzygnięcia; obecne preferencje pozostają w P0",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 48,
+      "reference": "sekaro_mockups_batch5_svg/048-notifications-preferences-light.png",
+      "reference_sha256": "81d82eb322a346a64b6d1b72c78605b43980a820ccf2e3b4aa1edf693f5b129f",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Notifications / Preferences",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-preferences-notifications-1600-light-fixture-de.png",
+      "evidence_sha256": "688e7917863adfc8b6a2573ca91071a0eb01978d9322495de5d8c7ed19976e52",
+      "evidence_workflow": "notification-preferences",
+      "classification": "element przyszłego etapu",
+      "finding": "Dostępne ustawienia e-mail, zdarzeń i limitu. Brak quiet hours/digest/per-channel matrix i historii dostarczeń; nie dodano nowych kanałów.",
+      "later_scope": "7 — zakres automatyzacji do rozstrzygnięcia; obecne preferencje pozostają w P0",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 49,
+      "reference": "sekaro_mockups_batch5_svg/049-notifications-states-dark.png",
+      "reference_sha256": "0132def8b58f11c54f2ed68fdb673228e93e08e6600072e91a61328b8192f732",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Notifications / States",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-detail-notifications-1600-dark-fixture-de.png",
+      "evidence_sha256": "f6b115f5d2de30c0973adda4b3d23805ef2a88360f263c0f92979e73102fcc0c",
+      "evidence_workflow": "notification-detail",
+      "classification": "jawne odstępstwo",
+      "finding": "Plansza łączy empty/loading/error/success i modal; aplikacja pokazuje jeden stan właściwy dla operacji. Nie istnieje czasowe wyciszenie z referencji. Regresje stanu w testach, render error/loading w final-states.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 50,
+      "reference": "sekaro_mockups_batch5_svg/050-notifications-states-light.png",
+      "reference_sha256": "b4fdef62e23fbabb1e093016b70225128247d268ba376b88fcffd66917365a8f",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Notifications / States",
+      "existing_source": "frontend/src/pages/Notifications.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-detail-notifications-1600-light-fixture-de.png",
+      "evidence_sha256": "881db45001fc3cc12f2848bba366131213f1a3be436773dac532f8ff48bd1fd8",
+      "evidence_workflow": "notification-detail",
+      "classification": "jawne odstępstwo",
+      "finding": "Plansza łączy empty/loading/error/success i modal; aplikacja pokazuje jeden stan właściwy dla operacji. Nie istnieje czasowe wyciszenie z referencji. Regresje stanu w testach, render error/loading w final-states.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 51,
+      "reference": "sekaro_mockups_batch5_svg/051-schedule-message-preview-light.png",
+      "reference_sha256": "eeb86a5fc2373f1ffe7c42def6f54f1a03907d6eb86bd12c1209985f183c87cc",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Schedule / Message preview",
+      "existing_source": "frontend/src/pages/Schedule.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/schedule-preview-schedule-1600-light-fixture-de.png",
+      "evidence_sha256": "0d484d3d608eb689e5b455fa19fb807c49d9af64bb6ae904dd597a520b89a671",
+      "evidence_workflow": "schedule-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Trzy kolumny kolejka/podgląd/szczegóły zachowane. Brak skip/send-now/zmiany skrzynki i ręcznego przesunięcia bez bezpiecznych endpointów; odnośniki prowadzą do istniejących ustawień.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 52,
+      "reference": "batch6-expanded/052-panel_crm_sekaro_aktywność_kontaktu.png",
+      "reference_sha256": "2c9f5bb68bfc8ab230807781a36b48aca8f83699d3c67707e857eb3641b9409c",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Contact / Activity",
+      "existing_source": "frontend/src/pages/LeadDetail.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-activity-leads-1-1600-light-fixture-de.png",
+      "evidence_sha256": "df97d5de7a46a6e9a563ff4194885a51f626ca9af327580904df15af15a716e8",
+      "evidence_workflow": "contact-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Oś istniejącej korespondencji i kampanii. Notes/zadania/spotkania i pełny audyt zmian pól należą do późniejszego CRM; układ używa obecnego Lead, bez fikcyjnych zdarzeń.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 53,
+      "reference": "batch6-expanded/053-panel_odzyskiwania_kontaktów_sekaro.png",
+      "reference_sha256": "f225a6fa0b3c3a0056e4be3b46b5dc55c55ac76fbdf9da332940c58d2b0364a5",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Contacts / Recovery",
+      "existing_source": "frontend/src/pages/Leads.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-tools-recovery-contacts-tools-tab-bounced-1600-dark-fixture.png",
+      "evidence_sha256": "b36f08a675278faf7dc56ca5949425be488045d35c3d688535ba96489f680c79",
+      "evidence_workflow": "contact-tools-recovery",
+      "classification": "jawne odstępstwo",
+      "finding": "Odzyskiwanie błędnych/odbitych adresów z edycją, filtrami i importem. Zamiast fikcyjnych rankingów przyczyn są faktyczne rekordy. To istniejące recovery, nie archiwizacja kontaktów z etapu 2.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 54,
+      "reference": "batch6-expanded/054-panel_sekaro_odzyskiwanie_kontaktów.png",
+      "reference_sha256": "cbd78fb281c9051bcaca9275db9ac9bc507a1f313e0aa5db02568728576cc86e",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Contacts / Recovery",
+      "existing_source": "frontend/src/pages/Leads.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-tools-recovery-contacts-tools-tab-bounced-1600-light-fixture.png",
+      "evidence_sha256": "1afa209d1f364873a34ff67761127770e5f82cc53e697f87d4bfab160e9e9d00",
+      "evidence_workflow": "contact-tools-recovery",
+      "classification": "jawne odstępstwo",
+      "finding": "Odzyskiwanie błędnych/odbitych adresów z edycją, filtrami i importem. Zamiast fikcyjnych rankingów przyczyn są faktyczne rekordy. To istniejące recovery, nie archiwizacja kontaktów z etapu 2.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 55,
+      "reference": "batch6-expanded/055-sekaro_stany_narzędzi_kontaktów.png",
+      "reference_sha256": "30950a5744ee07b4477c3d21e0b115e41862a559b8508beccdcb147e2bbc8acd",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Contacts / Recovery states",
+      "existing_source": "frontend/src/pages/Leads.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-tools-suppression-contacts-tools-tab-bounced-1600-dark-fixture.png",
+      "evidence_sha256": "794840c703c7c1148a24dc89774cfd41f619ce002dc732012ce2f4782014a9b1",
+      "evidence_workflow": "contact-tools-suppression",
+      "classification": "jawne odstępstwo",
+      "finding": "Stan zależy od operacji, nie wszystkie karty jednocześnie. Naprawiono tłumaczenia, zachowanie szkiców, destrukcyjne potwierdzenie, fokus/Escape i odróżnienie błędu od pustej listy. Brak fikcyjnych liczb odzyskanych rekordów.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 56,
+      "reference": "batch6-expanded/056-panel_sekaro_statusy_kontaktów.png",
+      "reference_sha256": "586023ac2c77030b8d6ba77f28f04e1034b1a7b5bcfb72667b218d228653e2d0",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Contacts / Recovery states",
+      "existing_source": "frontend/src/pages/Leads.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/contact-tools-suppression-contacts-tools-tab-bounced-1600-light-fixture.png",
+      "evidence_sha256": "1495c266044a6a3ed7744054b2cca3fd54ee5e18047f7b2fcf958fb8c5991523",
+      "evidence_workflow": "contact-tools-suppression",
+      "classification": "jawne odstępstwo",
+      "finding": "Stan zależy od operacji, nie wszystkie karty jednocześnie. Naprawiono tłumaczenia, zachowanie szkiców, destrukcyjne potwierdzenie, fokus/Escape i odróżnienie błędu od pustej listy. Brak fikcyjnych liczb odzyskanych rekordów.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 57,
+      "reference": "batch6-expanded/057-ciemny_dashboard_dostarczalności_sekaro.png",
+      "reference_sha256": "051eda6e155e90702fb690a009c8f8cbcc6658bfa1fa79deed2bc4d298e731c7",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Deliverability / Dashboard",
+      "existing_source": "frontend/src/pages/DeliverabilityTips.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/tips-localized-deliverability-tips-1600-dark-fixture-de.png",
+      "evidence_sha256": "276c5d05c1c25fd8690c3e0107bf9a7ac15ffa2bd3d456c7d97dfb9c58038107",
+      "evidence_workflow": "tips-localized",
+      "classification": "element przyszłego etapu",
+      "finding": "Obecny widok jest poradnikiem z odnośnikami. Dashboard reputacji, blacklist, trendów i incydentów wymaga rzeczywistych pomiarów; nie zastępujemy ich wymyślonym wynikiem 92/100.",
+      "later_scope": "3 — źródła i definicje diagnostyki/outreach",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 58,
+      "reference": "batch6-expanded/058-panel_dostarczalności_sekaro_w_języku_polskim.png",
+      "reference_sha256": "d07b09e8f32169f66b21c28ae6eaf3c81378c2003bf6bccfca2da7a891a5fe70",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Deliverability / Dashboard",
+      "existing_source": "frontend/src/pages/DeliverabilityTips.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/tips-localized-deliverability-tips-1600-light-fixture-de.png",
+      "evidence_sha256": "df78620e3af50dcf0e004735877738fc8173ac8ed9a6b1aee75065207d56333a",
+      "evidence_workflow": "tips-localized",
+      "classification": "element przyszłego etapu",
+      "finding": "Obecny widok jest poradnikiem z odnośnikami. Dashboard reputacji, blacklist, trendów i incydentów wymaga rzeczywistych pomiarów; nie zastępujemy ich wymyślonym wynikiem 92/100.",
+      "later_scope": "3 — źródła i definicje diagnostyki/outreach",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 59,
+      "reference": "batch6-expanded/059-panel_sekaro_szablony_i_modale.png",
+      "reference_sha256": "0604aefb872c82773a98192960d1785f9e92670ab45974e38515114cb323ddee",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "Templates / States",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-editor-templates-1600-light-fixture-de.png",
+      "evidence_sha256": "a657bc7560a13b16e76476cd4584fee53f0ef2590063d1d84ca76bede30d9b2b",
+      "evidence_workflow": "template-editor",
+      "classification": "jawne odstępstwo",
+      "finding": "Stany, wersje i potwierdzenia działają osobno, nie jako tablica wzorców. Brak kategorii/usage bez modelu danych; brak pozornie udanej wysyłki w DEMO.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 60,
+      "reference": "batch6-expanded/060-sekaro_szablony_stany_i_modale.png",
+      "reference_sha256": "d1b345ed912b30ad9e42e5ae93c9b860999ebb3a0fbeae1c653ef09dabb41441",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Templates / States",
+      "existing_source": "frontend/src/pages/Templates.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/template-editor-templates-1600-dark-fixture-de.png",
+      "evidence_sha256": "464aaf54d20cc48bc7aef295b0ae3151ac02adb59aa3db56813f770a7ef4e5b9",
+      "evidence_workflow": "template-editor",
+      "classification": "jawne odstępstwo",
+      "finding": "Stany, wersje i potwierdzenia działają osobno, nie jako tablica wzorców. Brak kategorii/usage bez modelu danych; brak pozornie udanej wysyłki w DEMO.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 61,
+      "reference": "batch6-expanded/061-panel_analityczny_sekaro_stany_danych.png",
+      "reference_sha256": "c546291a53525ffec87eed054771969db6e64cb0574f97af9cb243c10f56cca3",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "Analytics / States",
+      "existing_source": "frontend/src/pages/Analytics.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/global-analytics-analytics-1600-dark-fixture-de.png",
+      "evidence_sha256": "9503f252f1b2cae56144f64c45a6966df216da5629ab5b7f4a097c9bf513e86a",
+      "evidence_workflow": "global-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Empty/loading/error są rzeczywistymi stanami odczytu, nie jednoczesnym dashboardem. Brak KPI bez pomiarów. Final-states sprawdza geometrie błędu i ładowania; testy komponentu obejmują retry/stale response.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 62,
+      "reference": "sekaro_mockups_batch7/062-01-analytics-states-light.png",
+      "reference_sha256": "c3259beccee2eed3c465ab7a8498ce378d66fad473df105a8d224e9d532a2c37",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Analytics / States",
+      "existing_source": "frontend/src/pages/Analytics.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/global-analytics-analytics-1600-light-fixture-de.png",
+      "evidence_sha256": "dadda4df198654ababa75ed96925bb981d50fc9c688e6c1cc90d7d21105663a9",
+      "evidence_workflow": "global-analytics",
+      "classification": "jawne odstępstwo",
+      "finding": "Empty/loading/error są rzeczywistymi stanami odczytu, nie jednoczesnym dashboardem. Brak KPI bez pomiarów. Final-states sprawdza geometrie błędu i ładowania; testy komponentu obejmują retry/stale response.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 63,
+      "reference": "sekaro_mockups_batch7/063-02-campaigns-main-dark.png",
+      "reference_sha256": "98b10ef7b99b0e6a6e5a124ae4def7a5a6025e0788188c814f3778f75fd933fa",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaigns / Final list",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-dark-fixture-de.png",
+      "evidence_sha256": "4306a108d535bc0ccd07ac7300ecc8ba0559868cc48e37647409b629fa862285",
+      "evidence_workflow": "campaign-list",
+      "classification": "jawne odstępstwo",
+      "finding": "Tabela, filtry i akcje istnieją; brak właścicieli i tagów oraz innych pól bez kontraktu backendu. Starsze 013/014 mają inną geometrię niż seria 063/064. Dane fixture nie są referencyjnymi licznikami.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 64,
+      "reference": "sekaro_mockups_batch7/064-03-campaigns-main-light.png",
+      "reference_sha256": "d1fcd3a0d8c1825b74a7fd24afd9ae533a2b4d74bbb294e05794ce781707855d",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaigns / Final list",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-light-fixture-de.png",
+      "evidence_sha256": "8db55cbb1091095e1de4d6521c4cd8a89a283dff8dbe23fb9025963eba9a3f1b",
+      "evidence_workflow": "campaign-list",
+      "classification": "jawne odstępstwo",
+      "finding": "Tabela, filtry i akcje istnieją; brak właścicieli i tagów oraz innych pól bez kontraktu backendu. Starsze 013/014 mają inną geometrię niż seria 063/064. Dane fixture nie są referencyjnymi licznikami.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 65,
+      "reference": "sekaro_mockups_batch7/065-04-campaigns-states-dark.png",
+      "reference_sha256": "7a3acca3cfad6c53efe0477f449403c2865a4db7d9fbeafa826eb5586bce14e9",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaigns / States",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-delete-campaigns-1600-dark-fixture-de.png",
+      "evidence_sha256": "7a2871533388dfea8b88431bc81e832a7bb7e94d935c5ca6ddeb62b4a763e0bc",
+      "evidence_workflow": "campaign-delete",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista stanów z planszy jest rozdzielona według operacji. Potwierdzenie usuwania ma jawne danger; start wymaga preflight. Zrzut pokazuje dialog, a testy i final-states pozostałe stany.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 66,
+      "reference": "sekaro_mockups_batch7/066-05-campaigns-states-light.png",
+      "reference_sha256": "9f318ad2eedbc353c13d5326f7824bc663968a7e9dae896f4e79e09d16cbb585",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaigns / States",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-delete-campaigns-1600-light-fixture-de.png",
+      "evidence_sha256": "67bfcacb82c8c9c7a864b4203c3406f55c912805cbfde81352ec1065bfbf7384",
+      "evidence_workflow": "campaign-delete",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista stanów z planszy jest rozdzielona według operacji. Potwierdzenie usuwania ma jawne danger; start wymaga preflight. Zrzut pokazuje dialog, a testy i final-states pozostałe stany.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 67,
+      "reference": "sekaro_mockups_batch7/067-06-new-campaign-preflight-dark.png",
+      "reference_sha256": "3fc671822a13210cb1697546645ed578372d0201c21b74604ed1d6f8dbd650a9",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "New campaign / Preflight",
+      "existing_source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-preflight-campaigns-1-setup-1-overview-1600-dark-fixture-de.png",
+      "evidence_sha256": "22eefdbc9961929d21f109c25c279c9a30471688bdbc5cd8856df6ef0a559823",
+      "evidence_workflow": "campaign-preflight",
+      "classification": "jawne odstępstwo",
+      "finding": "Sześć kroków i lista kontroli istnieją; liczby/checks wynikają z API. Nie dodano startu z pominięciem ostrzeżeń ani prognoz odpowiedzi bez danych.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 68,
+      "reference": "sekaro_mockups_batch7/068-07-new-campaign-preflight-light.png",
+      "reference_sha256": "bc3458dcae1cc78b2166c896fc69dbabcf0130f768f1c141cf83c3f9fe769dce",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "New campaign / Preflight",
+      "existing_source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-preflight-campaigns-1-setup-1-overview-1600-light-fixture-de.png",
+      "evidence_sha256": "3d787f8fb8a07afbcee2a643a3f3c2b99a08b775b0a5cdf34ff8a674e0929107",
+      "evidence_workflow": "campaign-preflight",
+      "classification": "jawne odstępstwo",
+      "finding": "Sześć kroków i lista kontroli istnieją; liczby/checks wynikają z API. Nie dodano startu z pominięciem ostrzeżeń ani prognoz odpowiedzi bez danych.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 69,
+      "reference": "sekaro_mockups_batch7/069-08-workspace-states-dark.png",
+      "reference_sha256": "442925a12a707edcb55c73c2e461f7f2bc4ea4ac8b3930f8567dde0c43f69e3a",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaign workspace / States",
+      "existing_source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-activity-campaigns-1-queue-1600-dark-fixture-de.png",
+      "evidence_sha256": "3e4d9f1bc84d4534977c00ed202525318bcde7b1093f7d503eed444bc307fb48",
+      "evidence_workflow": "campaign-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Pusty stan, błąd i niepewna próba są oddzielne. UI nie pokazuje sukcesu, jeśli dane się nie wczytały. Reset niepewnej próby ma osobne potwierdzenie/testy.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 70,
+      "reference": "sekaro_mockups_batch7/070-09-workspace-states-light.png",
+      "reference_sha256": "7e81ace2f516887e61f5db6528faf6134ca9082c5904b1dad149067664afdf9e",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaign workspace / States",
+      "existing_source": "frontend/src/redesign/pages/CampaignWorkspace.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-activity-campaigns-1-queue-1600-light-fixture-de.png",
+      "evidence_sha256": "1786e7f7be9d64703b4e8abab41b1cb4fc7032943f4cefbde139a26a1cb37869",
+      "evidence_workflow": "campaign-activity",
+      "classification": "jawne odstępstwo",
+      "finding": "Pusty stan, błąd i niepewna próba są oddzielne. UI nie pokazuje sukcesu, jeśli dane się nie wczytały. Reset niepewnej próby ma osobne potwierdzenie/testy.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 71,
+      "reference": "sekaro_mockups_batch7/071-10-inbox-diagnostics-dark.png",
+      "reference_sha256": "16040e2f1f3be7baf11b2fde9bcbc185c59d22456c526ff0ea8c743e0ec865ef",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / Diagnostics",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "fb7834c2fb0090fceb30be2afab0263efe956cc842e7184dfa5ebb7ea30b2e17",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "element przyszłego etapu",
+      "finding": "Istnieją formularze i test połączenia; brak osobnego dashboardu diagnostycznego z pełną oceną DNS, UID checkpoint i wynikiem health.",
+      "later_scope": "9 — diagnostyka adapterów; reputacja zależy także od etapu 3",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 72,
+      "reference": "sekaro_mockups_batch8/072-01-inbox-diagnostics-light.png",
+      "reference_sha256": "998b39ec112331fb275f58596d275f08f69a05a9fd3013b576bd37511f17a608",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / Diagnostics",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "5e356eb43a371dc1e9163777b8126f7cfac0224b213a8fb76eb82c6a714297c3",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "element przyszłego etapu",
+      "finding": "Istnieją formularze i test połączenia; brak osobnego dashboardu diagnostycznego z pełną oceną DNS, UID checkpoint i wynikiem health.",
+      "later_scope": "9 — diagnostyka adapterów; reputacja zależy także od etapu 3",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 73,
+      "reference": "sekaro_mockups_batch8/073-02-inbox-health-dark.png",
+      "reference_sha256": "02461418a1f305035f169e76d765c7955426d15b25853849a432406c7b01d56a",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / Health",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "3d46caeb82cdb096aa0431ba815478ddc35ae73e535398da64574b71d2a26028",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "element przyszłego etapu",
+      "finding": "Status, limity i pause istnieją; brak trendu reputacji i tabeli dziennej historii diagnostycznej.",
+      "later_scope": "3/9 — pomiary oraz historia diagnostyki",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 74,
+      "reference": "sekaro_mockups_batch8/074-03-inbox-health-light.png",
+      "reference_sha256": "ff82e86e4027298d29afdb1248fdccab00f60c12682f2833cfeb8dc12f010b99",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / Health",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "6e921152d836d97a799a78962edfcc8dd04a9871e3ec1ae263f2c0a520e7873c",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "element przyszłego etapu",
+      "finding": "Status, limity i pause istnieją; brak trendu reputacji i tabeli dziennej historii diagnostycznej.",
+      "later_scope": "3/9 — pomiary oraz historia diagnostyki",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 75,
+      "reference": "sekaro_mockups_batch8/075-04-inbox-connection-logs-dark.png",
+      "reference_sha256": "7986ae298ba3976d39287d144e508698238aa2a7ce7cf5dfd40059b73687be0c",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / Connection logs",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "fb7834c2fb0090fceb30be2afab0263efe956cc842e7184dfa5ebb7ea30b2e17",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "element przyszłego etapu",
+      "finding": "Test połączenia pozostaje w edytorze. Brak trwałego dziennika kroków SMTP/IMAP z czasami; nie generujemy logów wyglądających na rzeczywiste.",
+      "later_scope": "9 — historia diagnostyki adapterów",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 76,
+      "reference": "sekaro_mockups_batch8/076-05-inbox-connection-logs-light.png",
+      "reference_sha256": "f334ab6a123bb57d31fa8b5482cfaa2944bdfbb1aefed91e017642c9adf90a77",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / Connection logs",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-smtp-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "5e356eb43a371dc1e9163777b8126f7cfac0224b213a8fb76eb82c6a714297c3",
+      "evidence_workflow": "mailbox-smtp",
+      "classification": "element przyszłego etapu",
+      "finding": "Test połączenia pozostaje w edytorze. Brak trwałego dziennika kroków SMTP/IMAP z czasami; nie generujemy logów wyglądających na rzeczywiste.",
+      "later_scope": "9 — historia diagnostyki adapterów",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 77,
+      "reference": "sekaro_mockups_batch8/077-06-inbox-sync-activity-dark.png",
+      "reference_sha256": "717f65c2b3b6ad557bc843e3cf420dcea248e2cb2eb5e491db2ac3e0690fb0d4",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / Sync activity",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-retention-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "ac3ca91f5cef02199de07e27fe0d69f4bc51c98e47f2985a2a726a4c30ccb51b",
+      "evidence_workflow": "mailbox-retention",
+      "classification": "element przyszłego etapu",
+      "finding": "Konfiguracja IMAP/retencji i bieżące dane istnieją. Brak osobnej historii synchronizacji, checkpointów i przebiegów z planszy.",
+      "later_scope": "9 — historia synchronizacji adapterów",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 78,
+      "reference": "sekaro_mockups_batch8/078-07-inbox-sync-activity-light.png",
+      "reference_sha256": "8cb1b604613d63e569bc2591079169b06e2a3c307b4fc0a2d00f981b934dfa05",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / Sync activity",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-retention-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "f14a611e9514c25dec7817e8f0cf9078c27dc250f4a3073b0b838de4cde289e6",
+      "evidence_workflow": "mailbox-retention",
+      "classification": "element przyszłego etapu",
+      "finding": "Konfiguracja IMAP/retencji i bieżące dane istnieją. Brak osobnej historii synchronizacji, checkpointów i przebiegów z planszy.",
+      "later_scope": "9 — historia synchronizacji adapterów",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 79,
+      "reference": "sekaro_mockups_batch8/079-08-inbox-states-dark.png",
+      "reference_sha256": "7205d26275048d57c7da675301810d3d0b2d8737c8e13041d334874720a7c28b",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Mailbox / States",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-dark-fixture-de.png",
+      "evidence_sha256": "3d46caeb82cdb096aa0431ba815478ddc35ae73e535398da64574b71d2a26028",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "jawne odstępstwo",
+      "finding": "Nie pokazujemy wszystkich stanów naraz. Usunięcie używanej skrzynki jest blokowane zamiast obiecywać niezaimplementowane przeniesienie. API i UI mają regresje blokady.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 80,
+      "reference": "sekaro_mockups_batch8/080-09-inbox-states-light.png",
+      "reference_sha256": "2853ce1ae958a7140ec5941dc36aaafc4e1324c14845626c810250c2237e6523",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Mailbox / States",
+      "existing_source": "frontend/src/pages/Inboxes.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/mailbox-sender-inboxes-1600-light-fixture-de.png",
+      "evidence_sha256": "6e921152d836d97a799a78962edfcc8dd04a9871e3ec1ae263f2c0a520e7873c",
+      "evidence_workflow": "mailbox-sender",
+      "classification": "jawne odstępstwo",
+      "finding": "Nie pokazujemy wszystkich stanów naraz. Usunięcie używanej skrzynki jest blokowane zamiast obiecywać niezaimplementowane przeniesienie. API i UI mają regresje blokady.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 81,
+      "reference": "sekaro_mockups_batch8/081-10-campaigns-bulk-actions-dark.png",
+      "reference_sha256": "977c19e6145cf6f865155f79d2d6ae904a1759aaa9beb4a50db2b25867838915",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Campaigns / Bulk actions",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-delete-campaigns-1600-dark-fixture-de.png",
+      "evidence_sha256": "7a2871533388dfea8b88431bc81e832a7bb7e94d935c5ca6ddeb62b4a763e0bc",
+      "evidence_workflow": "campaign-delete",
+      "classification": "jawne odstępstwo",
+      "finding": "Zaznaczenie i potwierdzenie zbiorcze istnieją; brak właścicieli i nieobsługiwanych masowych operacji. Bez automatycznego wznowienia przez zmianę filtra/języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 82,
+      "reference": "sekaro_mockups_batch9/082-01-campaigns-bulk-actions-light.png",
+      "reference_sha256": "8c48935b700789ee119773ed4317195b608659554990317890eb556875667a13",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Campaigns / Bulk actions",
+      "existing_source": "frontend/src/pages/Campaigns.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/campaign-delete-campaigns-1600-light-fixture-de.png",
+      "evidence_sha256": "67bfcacb82c8c9c7a864b4203c3406f55c912805cbfde81352ec1065bfbf7384",
+      "evidence_workflow": "campaign-delete",
+      "classification": "jawne odstępstwo",
+      "finding": "Zaznaczenie i potwierdzenie zbiorcze istnieją; brak właścicieli i nieobsługiwanych masowych operacji. Bez automatycznego wznowienia przez zmianę filtra/języka.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 83,
+      "reference": "sekaro_mockups_batch9/083-02-settings-schedule-dark.png",
+      "reference_sha256": "93c432b9cde4ca473aafe151d21a2121b5c3b669c34b7e99fe748134bfbf18c2",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Schedule",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-general-settings-general-1600-dark-fixture-de.png",
+      "evidence_sha256": "77a2fb884c1ff8d2a9e6beabf871224ea0533dcc414ef62e767b11adfcfba656",
+      "evidence_workflow": "settings-general",
+      "classification": "jawne odstępstwo",
+      "finding": "Globalnie wybierana jest strategia planowania; dni i godziny konfiguruje się w kampanii. Referencyjny globalny formularz i podgląd tygodnia nie mają obecnego kontraktu. Pozostaje jawna różnica zakresu, nie dodana nowa funkcja.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 84,
+      "reference": "sekaro_mockups_batch9/084-03-settings-schedule-light.png",
+      "reference_sha256": "b44d17369e673038cceaa9a93af3e87f491dadb1bb826501f9fb428f0c002fa2",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Schedule",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-general-settings-general-1600-light-fixture-de.png",
+      "evidence_sha256": "ae4e692a5e765d71d300a74a760349babdf7dc99e70558d17bbd13a51671a525",
+      "evidence_workflow": "settings-general",
+      "classification": "jawne odstępstwo",
+      "finding": "Globalnie wybierana jest strategia planowania; dni i godziny konfiguruje się w kampanii. Referencyjny globalny formularz i podgląd tygodnia nie mają obecnego kontraktu. Pozostaje jawna różnica zakresu, nie dodana nowa funkcja.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 85,
+      "reference": "sekaro_mockups_batch9/085-04-settings-appearance-dark.png",
+      "reference_sha256": "2a779f9acc75b25d28188923bf1435e479cbed14c2b4b7004c2d01e75a8f8cd1",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Appearance",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-appearance-settings-appearance-1600-dark-fixture-de.png",
+      "evidence_sha256": "cf98b5a176b91743c669a744c6f5adc6220b8e9a67b2b5d624d7b3db8c33c2e2",
+      "evidence_workflow": "settings-appearance",
+      "classification": "jawne odstępstwo",
+      "finding": "Język i trzy motywy są funkcjonalne. Brak gęstości, skali typografii i zestawu przełączników preferencji z makiety. Obecny interfejs używa wspólnych tokenów i podglądu.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 86,
+      "reference": "sekaro_mockups_batch9/086-05-settings-appearance-light.png",
+      "reference_sha256": "b0c8550ce13562bfb306b25bda4fff7ef82e0104eea930ff4ffef2dc0b5b7874",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Appearance",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-appearance-settings-appearance-1600-light-fixture-de.png",
+      "evidence_sha256": "693e5860ec1f794167170a0d027fd6d632768891cb0c7ab57415417102bb5cf7",
+      "evidence_workflow": "settings-appearance",
+      "classification": "jawne odstępstwo",
+      "finding": "Język i trzy motywy są funkcjonalne. Brak gęstości, skali typografii i zestawu przełączników preferencji z makiety. Obecny interfejs używa wspólnych tokenów i podglądu.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 87,
+      "reference": "sekaro_mockups_batch9/087-06-settings-known-ips-dark.png",
+      "reference_sha256": "e20b26f799fda0a870e146968ac03fa463c161b0858646721d2234fbf9a54b93",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Known IPs",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-known-ips-settings-known-ips-1600-dark-fixture-de.png",
+      "evidence_sha256": "2b5deabd3b0d20be2d39410a325de0f9a4840d0e3b2501ebe1d06fa37040238d",
+      "evidence_workflow": "settings-known-ips",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista znanych adresów i zarządzanie istnieją. Brak pełnego panelu ostatnich logowań/urządzeń i dodatkowych reguł bezpieczeństwa; nie pozorujemy ich stanów.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 88,
+      "reference": "sekaro_mockups_batch9/088-07-settings-known-ips-light.png",
+      "reference_sha256": "bd26482262c1bacdbb8b07878f360679bca89a784afffd5487e3a651ea950c61",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Known IPs",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-known-ips-settings-known-ips-1600-light-fixture-de.png",
+      "evidence_sha256": "991995933ecdc86eda72d6792251e9992feffa5e58c434171dd704381226cc2b",
+      "evidence_workflow": "settings-known-ips",
+      "classification": "jawne odstępstwo",
+      "finding": "Lista znanych adresów i zarządzanie istnieją. Brak pełnego panelu ostatnich logowań/urządzeń i dodatkowych reguł bezpieczeństwa; nie pozorujemy ich stanów.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 89,
+      "reference": "sekaro_mockups_batch9/089-08-settings-restore-dark.png",
+      "reference_sha256": "d7a251edc76cad9b9655092dcb6f09db79d85ebedec25f8b4d4e9eb3680a4d91",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Restore",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-restore-preview-settings-backup-restore-1600-dark-fixture-de.png",
+      "evidence_sha256": "236f01129616756dabc2fcb15a83b1740b6cbaeb1a8b452ce7e2e394c99004dc",
+      "evidence_workflow": "settings-restore-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Rzeczywisty wybór pliku, metadane, podgląd i potwierdzenie zamiast historycznej listy backupów z makiety. Test UI jest mockowany; odtworzenie PostgreSQL nadal należy do etapu 4.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 90,
+      "reference": "sekaro_mockups_batch9/090-09-settings-restore-light.png",
+      "reference_sha256": "b6190f0fd0e2c130cb14485b64255a526f5a1496305b33761674f24bdf279529",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Restore",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-restore-preview-settings-backup-restore-1600-light-fixture-de.png",
+      "evidence_sha256": "0abba14f43e78011408f9e6067993f4500c44885368a5ff455b5a70e4bccf8d6",
+      "evidence_workflow": "settings-restore-preview",
+      "classification": "jawne odstępstwo",
+      "finding": "Rzeczywisty wybór pliku, metadane, podgląd i potwierdzenie zamiast historycznej listy backupów z makiety. Test UI jest mockowany; odtworzenie PostgreSQL nadal należy do etapu 4.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 91,
+      "reference": "sekaro_mockups_batch9/091-10-settings-notifications-dark.png",
+      "reference_sha256": "b4ddbf03da8bc3d8460e723479d1ee519197b66da73944b1c82cd1dc0731f0c4",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Notifications",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-preferences-notifications-1600-dark-fixture-de.png",
+      "evidence_sha256": "4f6bef067e29c46a7d1a29d38f305212d68a557b8585c55222571ac521f32407",
+      "evidence_workflow": "notification-preferences",
+      "classification": "element przyszłego etapu",
+      "finding": "Dostępne ustawienia e-mail, zdarzeń i limitu. Brak quiet hours/digest/per-channel matrix i historii dostarczeń; nie dodano nowych kanałów.",
+      "later_scope": "7 — zakres automatyzacji do rozstrzygnięcia; obecne preferencje pozostają w P0",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 92,
+      "reference": "sekaro_mockups_final/092-01-settings-notifications-light.png",
+      "reference_sha256": "d29d372da182e135f2091d75986b9dbe68c38a53fec3012dd17d342ad4b05da4",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Notifications",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/notification-preferences-notifications-1600-light-fixture-de.png",
+      "evidence_sha256": "688e7917863adfc8b6a2573ca91071a0eb01978d9322495de5d8c7ed19976e52",
+      "evidence_workflow": "notification-preferences",
+      "classification": "element przyszłego etapu",
+      "finding": "Dostępne ustawienia e-mail, zdarzeń i limitu. Brak quiet hours/digest/per-channel matrix i historii dostarczeń; nie dodano nowych kanałów.",
+      "later_scope": "7 — zakres automatyzacji do rozstrzygnięcia; obecne preferencje pozostają w P0",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 93,
+      "reference": "sekaro_mockups_final/093-02-settings-email-verification-dark.png",
+      "reference_sha256": "1ca63012396a7c3cb852507c743274c85bd2b17afe04051e03e6d3962e412eb0",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Verification",
+      "existing_source": "frontend/src/components/EmailVerificationSettings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-custom-verification-settings-verification-1600-dark-fixture-de.png",
+      "evidence_sha256": "5000d7bf1a31971a6d5c01228ea1ebdf6546c414338893e5c4679f7d103033a6",
+      "evidence_workflow": "settings-custom-verification",
+      "classification": "jawne odstępstwo",
+      "finding": "Dostawca, parametry i test adresu istnieją, w tym własna API. Brak fikcyjnych statystyk globalnych i polityk, których backend nie obsługuje; układ sekcji zamiast czterech paneli.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 94,
+      "reference": "sekaro_mockups_final/094-03-settings-email-verification-light.png",
+      "reference_sha256": "16812914f7a51a09b6f92f71411936f140b0cbada128ffdfff6088afec4a5b54",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Verification",
+      "existing_source": "frontend/src/components/EmailVerificationSettings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-custom-verification-settings-verification-1600-light-fixture-de.png",
+      "evidence_sha256": "d7a3daa563eb059d721c6e176f22714951895e2114295af69164080a96d22d47",
+      "evidence_workflow": "settings-custom-verification",
+      "classification": "jawne odstępstwo",
+      "finding": "Dostawca, parametry i test adresu istnieją, w tym własna API. Brak fikcyjnych statystyk globalnych i polityk, których backend nie obsługuje; układ sekcji zamiast czterech paneli.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 95,
+      "reference": "sekaro_mockups_final/095-04-settings-webhooks-mcp-dark.png",
+      "reference_sha256": "9a4f89c488807c3fb5fd6b23ff892fd85ff4436a55174756fe3b33cd1a499c5b",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "dark",
+      "area": "Settings / Webhooks and MCP",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-webhooks-settings-webhooks-1600-dark-fixture-de.png",
+      "evidence_sha256": "57baa5fadebb0b880e1a722e7aa9d78fa4b9e3bc22d28fa2c5e3e6977563c5e7",
+      "evidence_workflow": "settings-webhooks",
+      "classification": "jawne odstępstwo",
+      "finding": "Webhooki i MCP w oddzielnych sekcjach; brak tabeli pełnej historii wykonań i wszystkich narzędzi referencyjnych. Zachowano istniejące kontrakty integracji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 96,
+      "reference": "sekaro_mockups_final/096-05-settings-webhooks-mcp-light.png",
+      "reference_sha256": "3ebdced3d47afb3407450748237ec9e4c8eb83be9b9576114c56a86d674a37d6",
+      "reference_size": [
+        1600,
+        900
+      ],
+      "reference_theme": "light",
+      "area": "Settings / Webhooks and MCP",
+      "existing_source": "frontend/src/pages/Settings.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/settings-webhooks-settings-webhooks-1600-light-fixture-de.png",
+      "evidence_sha256": "287edfeda30d96a25db600ee309b0f86daeb75c2c7b3c5b99ee5c75c9273e35f",
+      "evidence_workflow": "settings-webhooks",
+      "classification": "jawne odstępstwo",
+      "finding": "Webhooki i MCP w oddzielnych sekcjach; brak tabeli pełnej historii wykonań i wszystkich narzędzi referencyjnych. Zachowano istniejące kontrakty integracji.",
+      "later_scope": null,
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 97,
+      "reference": "system-health/097-panel_kondycji_systemu_sekaro.png",
+      "reference_sha256": "afc740e6fde907d68ea085c1faefcde0bd146a38e6824e42cb19042f172a5f4f",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "dark",
+      "area": "System health",
+      "existing_source": "frontend/src/pages/SystemHealth.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/health-localized-system-health-1600-dark-fixture-de.png",
+      "evidence_sha256": "84939d55013c33b3d1055284010e782236358b71917b5a5a096e7865e4d2aa81",
+      "evidence_workflow": "health-localized",
+      "classification": "element przyszłego etapu",
+      "finding": "Aktualne checks, problem/error/unknown, storage i odnośniki są rzeczywiste. Brak CPU/RAM history, logów workerów, restartu i eksportu ZIP. Brak pomiaru pozostaje nieznany.",
+      "later_scope": "4 — zakres operacyjny i diagnostyka systemu",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    },
+    {
+      "id": 98,
+      "reference": "system-health/098-panel_zdrowia_systemu_sekaro.png",
+      "reference_sha256": "4b2678431c9a46f47e51e171d72ab088f6a6e0cfa41b960870cc1e496eaee0fd",
+      "reference_size": [
+        1672,
+        941
+      ],
+      "reference_theme": "light",
+      "area": "System health",
+      "existing_source": "frontend/src/pages/SystemHealth.jsx",
+      "evidence": "evidence-2026-09-30/reference-review/health-localized-system-health-1600-light-fixture-de.png",
+      "evidence_sha256": "a264e84a307f0ac09d3645c1141876ee6826ff5e5dc7664586117512b828be6b",
+      "evidence_workflow": "health-localized",
+      "classification": "element przyszłego etapu",
+      "finding": "Aktualne checks, problem/error/unknown, storage i odnośniki są rzeczywiste. Brak CPU/RAM history, logów workerów, restartu i eksportu ZIP. Brak pomiaru pozostaje nieznany.",
+      "later_scope": "4 — zakres operacyjny i diagnostyka systemu",
+      "review_method": "Układ referencji obejrzany na planszy zbiorczej; porównanie z renderem fixture i kontrolą źródła. Nie jest to porównanie pikselowe ani akceptacja odstępstw.",
+      "acceptance": "do odbioru; nie zaakceptowano automatycznie"
+    }
+  ]
+}

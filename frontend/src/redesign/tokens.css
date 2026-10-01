@@ -2263,3 +2263,15 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-setup-entry{display:flex;justify-content:flex-end;margin-bottom:12px}
 .sk-preflight-workspace .sk-panel-heading{flex-wrap:wrap;gap:12px}
 .sk-preflight-workspace .sk-panel-heading h2{min-width:0}
+
+/* Recovery toolbar must wrap translated labels within tablet content width. */
+.sk-contact-tools-page .sk-page-header-actions{flex-wrap:wrap;min-width:0;max-width:100%}
+.sk-contact-tools-page .sk-page-header-actions>*{max-width:100%}
+@media(max-width:1100px){
+  .sk-contact-tools-page .sk-page-header{flex-direction:column;align-items:stretch}
+  .sk-contact-tools-page .sk-page-header-actions{justify-content:flex-start}
+}
+/* The shared dialog keeps legacy import/suppression tables on theme tokens. */
+.sk-contact-tools-page .sk-modal table tbody tr:nth-child(even){background:var(--sk-surface-alt)!important}
+.sk-contact-tools-page .sk-modal table :is(th,td){border-color:var(--sk-line)}
+.sk-contact-tools-dialog-table{min-width:600px}

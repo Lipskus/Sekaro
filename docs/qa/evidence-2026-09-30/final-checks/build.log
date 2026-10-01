@@ -1,0 +1,22 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> campaign-engine-frontend@0.1.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1019 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/assets/sekaro_logo-cFnbBMuO.svg                             0.66 kB │ gzip:   0.39 kB
+dist/index.html                                                  0.68 kB │ gzip:   0.42 kB
+dist/assets/Figtree-VariableFont_wght-CQcOzkRQ.woff2            27.68 kB
+dist/assets/Figtree-Italic-VariableFont_wght-Bdt1SEEb.woff2     28.13 kB
+dist/assets/index-DrjhaPwh.css                                 278.07 kB │ gzip:  44.73 kB
+dist/assets/index-D2L8vIgZ.js                                1,980.53 kB │ gzip: 596.16 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 6.40s

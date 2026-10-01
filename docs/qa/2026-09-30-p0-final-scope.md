@@ -19,9 +19,9 @@ Pozostały P0 tworzy **jeden zbiorczy pakiet do odbioru**. Commity robocze i rap
 | P0-05 | Harmonogram, kalendarz i podgląd | Lokalizacja; poprawne strefy czasu, filtry i stany; bez nowych operacji kolejki | Wykonane lokalnie; strefy czasu, filtry, kalendarz i podgląd sprawdzone |
 | P0-06 | Powiadomienia i konfiguracja | Lokalizacja; zachowane filtry i niezapisane ustawienia | Wykonane lokalnie; preferencje, filtry i zdarzenia sprawdzone |
 | P0-07 | Ustawienia, stan systemu, domeny, porady, dashboard | Lokalizacja istniejących kontrolek, komunikatów i dat; bez tworzenia brakujących pomiarów | Wykonane lokalnie; ustawienia, stan systemu i porady odzyskane i sprawdzone — raport p0-recovery; końcowy odbiór P0-08/09/10 otwarty |
-| P0-08 | Wspólne błędy, potwierdzenia, Dark/Light, klawiatura, responsywność | Regresje całego pakietu; DE/RU na 1600/768/390 px, PL/EN kontrolnie; brak utraty danych i przepełnień | W toku; 84 dodatkowe kontrole DE/RU, poprawiony nagłówek na telefonie |
-| P0-09 | Porównanie referencyjne istniejących widoków i stanów | Macierz pokrycia 98 plansz: zgodne / naprawione / jawne odstępstwo / element przyszłego etapu; z dowodami, bez deklaracji pełnego 1:1 przed kontrolą | Otwarte |
-| P0-10 | Regresja ochrony wysyłki i końcowy odbiór | Mockowany transport, wypisania, suppression, pause, DEMO; testy backend/frontend i build; raport z rzeczywistymi blokerami | Poprzednie dowody dostępne, finał otwarty |
+| P0-08 | Wspólne błędy, potwierdzenia, Dark/Light, klawiatura, responsywność | Regresje całego pakietu; DE/RU na 1600/768/390 px, PL/EN kontrolnie; brak utraty danych i przepełnień | Regresje techniczne zakończone: 432 renderów tras, 192 stanów oraz 72 przepływów narzędzi kontaktów; ręcznie poprawiony tytuł tabletu i kontrast dialogu. Odbiór pakietu otwarty |
+| P0-09 | Porównanie referencyjne istniejących widoków i stanów | Macierz pokrycia 98 plansz: zgodne / naprawione / jawne odstępstwo / element przyszłego etapu; z dowodami, bez deklaracji pełnego 1:1 przed kontrolą | Macierz wszystkich 98 plansz gotowa; 82 jawne odstępstwa, 16 zależności późniejszych etapów; akceptacja nadal otwarta |
+| P0-10 | Regresja ochrony wysyłki i końcowy odbiór | Mockowany transport, wypisania, suppression, pause, DEMO; testy backend/frontend i build; raport z rzeczywistymi blokerami | Backend 501/8 skip, frontend 233, build poprawny; końcowy odbiór oraz akceptacja odstępstw otwarte |
 
 Nie dopisujemy do P0 nowych funkcji CRM, raportów bez źródeł, adapterów ani instalatora. Upgrade/restore PostgreSQL, backup i izolacja publicznej rezygnacji należą do etapu 4 i nadal warunkują stabilne 1.0. To przypomnienie zatwierdzonego planu, nie przesunięcie prac.
 
@@ -38,3 +38,7 @@ Przegląd kodu obejmuje trasy z `frontend/src/App.jsx` i ich komponenty. Liczba 
 ### Punkt kontrolny po odzyskaniu
 
 P0-07 zakończone lokalnie: ustawienia, diagnostyka i porady są objęte regresjami języka i 180 kombinacjami UI. Wcześniejsze wpisy powyżej opisują historię, nie aktualny brak implementacji tych modułów. Nadal otwarte P0-08 (regresja całego pakietu), P0-09 (98 plansz) i P0-10 (końcowy bilans odbioru). Nie przesuwamy ich do etapu 2. Raport `2026-09-30-p0-recovery.md` zawiera wyniki, ograniczenia i stan publikacji.
+
+### Aktualny bilans zbiorczego pakietu
+
+Powyższe wcześniejsze punkty kontrolne stanowią historię. Końcowe regresje P0-08/10 oraz macierz porównawcza P0-09 zostały wykonane; nie oznacza to akceptacji odstępstw ani zakończenia etapu 1. Aktualne dowody, ograniczenia i wynik napraw opisuje `2026-09-30-p0-consolidated-review.md`. Nie przenosimy otwartych różnic UI do etapu 2.

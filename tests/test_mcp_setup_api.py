@@ -5,16 +5,15 @@ from fastapi.testclient import TestClient
 from app.main import app
 
 
-def test_mcp_setup_public():
-    """MCP setup is public (URLs + Cursor fragment only; secrets are placeholders)."""
+def test_mcp_setup_requires_authentication(engine):
+    """Integration configuration stays behind the private application login."""
     with TestClient(app) as client:
         r = client.get("/api/settings/mcp-setup")
-    assert r.status_code == 200
-    data = r.json()
-    assert "mcp_http_url" in data and "cursor_mcp_fragment" in data
+    assert r.status_code == 401
+    assert "mcp_http_url" not in r.json()
 
 
-def test_mcp_setup_returns_fragment():
+def test_mcp_setup_returns_fragment(engine):
     from app.auth import get_current_user as _real_auth
 
     async def _fake_auth():

@@ -1,0 +1,336 @@
+..........................................................ssssssss...... [ 14%]
+........................................................................ [ 28%]
+........................................................................ [ 42%]
+........................................................................ [ 56%]
+........................................................................ [ 70%]
+........................................................................ [ 84%]
+........................................................................ [ 99%]
+.....                                                                    [100%]
+=============================== warnings summary ===============================
+app/database.py:39
+  /workspace/scratch/978d9bbb679c/p0-publish/app/database.py:39: SAWarning: Query string argument(s) 'cache' are not accepted by the pysqlite driver and are being ignored; SQLite URI arguments require that 'uri=true' also be present in the URL. (Background on this warning at: https://sqlalche.me/e/21/squa)
+    engine = create_async_engine(
+
+app/schemas.py:12
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:12: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class LeadCampaignInfo(BaseModel):
+
+app/schemas.py:59
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:59: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class LeadResponse(BaseModel):
+
+app/schemas.py:94
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:94: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class SuppressionResponse(BaseModel):
+
+app/schemas.py:162
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:162: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class MessageTemplateVersionResponse(BaseModel):
+
+app/schemas.py:246
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:246: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class InboxResponse(BaseModel):
+
+app/schemas.py:319
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:319: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class SequenceVariantResponse(BaseModel):
+
+app/schemas.py:372
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:372: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CustomEmailWrite(BaseModel):
+
+app/schemas.py:426
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:426: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CampaignStats(BaseModel):
+
+app/schemas.py:463
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:463: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class CampaignResponse(BaseModel):
+
+app/schemas.py:508
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:508: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class QueueSlotResponse(BaseModel):
+
+app/schemas.py:519
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:519: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class EmailLogResponse(BaseModel):
+
+app/schemas.py:569
+  /workspace/scratch/978d9bbb679c/p0-publish/app/schemas.py:569: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class WebhookResponse(BaseModel):
+
+app/routers/smtp.py:45
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/smtp.py:45: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class SmtpAccountResponse(BaseModel):
+
+app/routers/notifications.py:26
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/notifications.py:26: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class NotificationItem(BaseModel):
+
+app/routers/notifications.py:54
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/notifications.py:54: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class NotificationConfigResponse(BaseModel):
+
+app/routers/auth.py:126
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/auth.py:126: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class APIKeyResponse(BaseModel):
+
+app/routers/auth.py:146
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/auth.py:146: PydanticDeprecatedSince20: Support for class-based `config` is deprecated, use ConfigDict instead. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    class UserResponse(BaseModel):
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'GmailMessage.inbox' will copy column inbox.id to column gmail_message.inbox_id, which conflicts with relationship(s): 'GmailThread.messages' (copies gmail_thread.inbox_id to gmail_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="messages"' to the 'GmailMessage.inbox' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'GmailMessage.thread' will copy column gmail_thread.inbox_id to column gmail_message.inbox_id, which conflicts with relationship(s): 'GmailMessage.inbox' (copies inbox.id to gmail_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="inbox"' to the 'GmailMessage.thread' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'Office365Message.inbox' will copy column inbox.id to column office365_message.inbox_id, which conflicts with relationship(s): 'Office365Thread.messages' (copies office365_thread.inbox_id to office365_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="messages"' to the 'Office365Message.inbox' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'Office365Message.thread' will copy column office365_thread.inbox_id to column office365_message.inbox_id, which conflicts with relationship(s): 'Office365Message.inbox' (copies inbox.id to office365_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="inbox"' to the 'Office365Message.thread' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'SmtpMessage.inbox' will copy column inbox.id to column smtp_message.inbox_id, which conflicts with relationship(s): 'SmtpThread.messages' (copies smtp_thread.inbox_id to smtp_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="messages"' to the 'SmtpMessage.inbox' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py::test_temperature_flag_and_retry
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_ai_features.py:9: SAWarning: relationship 'SmtpMessage.thread' will copy column smtp_thread.inbox_id to column smtp_message.inbox_id, which conflicts with relationship(s): 'SmtpMessage.inbox' (copies inbox.id to smtp_message.inbox_id). If this is not the intention, consider if these relationships should be linked with back_populates, or if viewonly=True should be applied to one or more if they are read-only. For the less common case that foreign key constraints are partially overlapping, the orm.foreign() annotation can be used to isolate the columns that should be written towards.   To silence this warning, add the parameter 'overlaps="inbox"' to the 'SmtpMessage.thread' relationship. (Background on this warning at: https://sqlalche.me/e/21/qzyx) (This warning originated from the `configure_mappers()` process, which was invoked automatically in response to a user-initiated operation.)
+    session.add(AppSetting(key=key, value=value))
+
+tests/test_ai_features.py: 5 warnings
+tests/test_beacon_ingest.py: 7 warnings
+tests/test_beacon_sync.py: 11 warnings
+tests/test_bulk_reservation.py: 12 warnings
+tests/test_contact_import.py: 14 warnings
+tests/test_cors.py: 8 warnings
+tests/test_custom_sequence_mode_e2e.py: 19 warnings
+tests/test_demo.py: 395 warnings
+tests/test_gmail_oauth.py: 24 warnings
+tests/test_inboxes_api.py: 2 warnings
+tests/test_mail_archive.py: 38 warnings
+tests/test_mcp_setup_api.py: 16 warnings
+tests/test_new_features.py: 111 warnings
+tests/test_office365_webhook.py: 10 warnings
+tests/test_outbound_safety.py: 82 warnings
+tests/test_pause_inbox_and_bulk_duplicates.py: 82 warnings
+tests/test_queue_logic.py: 409 warnings
+tests/test_redesign.py: 25 warnings
+tests/test_schedule_api.py: 45 warnings
+tests/test_schedule_body_resolution.py: 90 warnings
+tests/test_scheduler_05.py: 38 warnings
+tests/test_sender_gmail.py: 6 warnings
+tests/test_server_info_api.py: 24 warnings
+tests/test_settings_api.py: 28 warnings
+tests/test_smtp.py: 46 warnings
+tests/test_smtp_e2e.py: 51 warnings
+tests/test_templates.py: 25 warnings
+tests/test_time_offset.py: 2 warnings
+tests/test_tracking_router.py: 116 warnings
+tests/test_unibox_api.py: 104 warnings
+tests/test_webhook_crud.py: 36 warnings
+tests/test_webhooks.py: 30 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/time.py:29: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return datetime.utcnow() + _offset_timedelta()
+
+tests/test_beacon_ingest.py: 1 warning
+tests/test_beacon_sync.py: 3 warnings
+tests/test_inboxes_api.py: 2 warnings
+tests/test_pause_inbox_and_bulk_duplicates.py: 2 warnings
+tests/test_queue_logic.py: 9 warnings
+tests/test_schedule_api.py: 1 warning
+tests/test_schedule_body_resolution.py: 4 warnings
+tests/test_settings_api.py: 1 warning
+tests/test_tracking_router.py: 10 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/conftest.py:294: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    sent_at=sent_at or datetime.utcnow(),
+
+tests/test_custom_sequence_mode_e2e.py: 2 warnings
+tests/test_pause_inbox_and_bulk_duplicates.py: 1 warning
+tests/test_queue_logic.py: 27 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/queue_logic.py:1182: SADeprecationWarning: Passing expression to ``distinct`` to generate a DISTINCT ON clause is deprecated. Use instead the ``postgresql.distinct_on`` function as an extension.
+    .distinct(EmailLog.lead_id)
+
+tests/test_custom_sequence_mode_e2e.py: 4 warnings
+tests/test_pause_inbox_and_bulk_duplicates.py: 2 warnings
+tests/test_queue_logic.py: 46 warnings
+tests/test_schedule_api.py: 1 warning
+  sys:1: SADeprecationWarning: DISTINCT ON is currently supported only by the PostgreSQL dialect.  Use of DISTINCT ON for other backends is currently silently ignored, however this usage is deprecated, and will raise CompileError in a future release for all backends that do not support this syntax.
+
+tests/test_custom_sequence_mode_e2e.py: 2 warnings
+tests/test_pause_inbox_and_bulk_duplicates.py: 1 warning
+tests/test_queue_logic.py: 27 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/queue_logic.py:1192: SADeprecationWarning: Passing expression to ``distinct`` to generate a DISTINCT ON clause is deprecated. Use instead the ``postgresql.distinct_on`` function as an extension.
+    .distinct(QueueSlot.campaign_lead_id)
+
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_new_features.py::test_list_inboxes_auto_disables_complete_ramp
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:165: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    today = datetime.utcnow().date()
+
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+tests/test_new_features.py::test_list_inboxes_auto_disables_complete_ramp
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:178: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_inboxes_api.py::test_list_inboxes_sent_today
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_inboxes_api.py:33: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    yesterday = datetime.utcnow() - timedelta(days=1)
+
+tests/test_inboxes_api.py::test_get_single_inbox_returns_sent_today
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:241: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    today = datetime.utcnow().date()
+
+tests/test_inboxes_api.py::test_get_single_inbox_returns_sent_today
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:253: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    hour_start = datetime.utcnow() - timedelta(hours=1)
+
+tests/test_new_features.py: 15 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:55: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow() - timedelta(days=days),
+
+tests/test_new_features.py: 22 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/queue_logic.py:53: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    ref = for_date or datetime.utcnow().date()
+
+tests/test_new_features.py::test_auto_disable_ramp_up_when_complete
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:105: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow() - timedelta(days=5),  # 5 days old → effective=6 > max=3
+
+tests/test_new_features.py::test_auto_disable_not_triggered_while_still_ramping
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:122: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow() - timedelta(days=0),  # day 0 → effective=1 < 50
+
+tests/test_new_features.py::test_list_inboxes_auto_disables_complete_ramp
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:139: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow() - timedelta(days=10),  # day 10 → effective=11 > max=2
+
+tests/test_new_features.py::test_create_inbox_with_ramp_up
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:221: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    ramp_up_started_at=datetime.utcnow() if data.ramp_up_enabled else None,
+
+tests/test_new_features.py::test_update_inbox_disables_ramp_up
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:176: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    created_at=datetime.utcnow() - timedelta(days=0),
+
+tests/test_new_features.py::test_update_inbox_preserves_ramp_up_start_when_already_enabled
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_new_features.py:194: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    started = datetime.utcnow() - timedelta(days=10)
+
+tests/test_office365_webhook.py::test_ensure_subscription_creates_new
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_office365_webhook.py:19: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    token_expiry=datetime.utcnow() + timedelta(hours=1),
+
+tests/test_office365_webhook.py::test_ensure_subscription_creates_new
+tests/test_office365_webhook.py::test_ensure_subscription_renews_existing
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/office365_webhook.py:219: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    new_expiry = datetime.utcnow() + timedelta(minutes=SUBSCRIPTION_LIFETIME_MINUTES)
+
+tests/test_office365_webhook.py::test_ensure_subscription_renews_existing
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_office365_webhook.py:57: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    token_expiry=datetime.utcnow() + timedelta(hours=1),
+
+tests/test_office365_webhook.py::test_ensure_subscription_renews_existing
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_office365_webhook.py:63: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    old_expiry = datetime.utcnow() + timedelta(minutes=10)
+
+tests/test_office365_webhook.py::test_ensure_subscription_renews_existing
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/office365_webhook.py:233: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    existing.updated_at = datetime.utcnow()
+
+tests/test_pause_inbox_and_bulk_duplicates.py::test_update_inbox_sets_paused
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:349: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    inbox.ramp_up_paused_at = datetime.utcnow()
+
+tests/test_pause_inbox_and_bulk_duplicates.py::test_update_inbox_sets_paused
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:353: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    paused_dur = datetime.utcnow() - inbox.ramp_up_paused_at
+
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_pause_leads_sets_sending_paused
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_moves_slots
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_does_not_pause_leads
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_pause_inbox_and_bulk_duplicates.py:46: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    return datetime.utcnow() + timedelta(days=1)
+
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_pause_leads_sets_sending_paused
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_pause_leads_ignores_past_slots
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_marks_inbox_paused
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_moves_slots
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_does_not_pause_leads
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_no_target_succeeds
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_with_nonexistent_target_succeeds
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_target_validation_removed
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_reassign_sets_paused_flag
+  /workspace/scratch/978d9bbb679c/p0-publish/app/routers/inbox.py:491: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now = datetime.utcnow()
+
+tests/test_pause_inbox_and_bulk_duplicates.py::test_pause_inbox_pause_leads_ignores_past_slots
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_pause_inbox_and_bulk_duplicates.py:114: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    past_date = datetime.utcnow() - timedelta(days=1)
+
+tests/test_queue_logic.py: 18 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/queue_logic.py:1582: SADeprecationWarning: Passing expression to ``distinct`` to generate a DISTINCT ON clause is deprecated. Use instead the ``postgresql.distinct_on`` function as an extension.
+    .distinct(EmailLog.lead_id)
+
+tests/test_queue_logic.py: 18 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/queue_logic.py:1591: SADeprecationWarning: Passing expression to ``distinct`` to generate a DISTINCT ON clause is deprecated. Use instead the ``postgresql.distinct_on`` function as an extension.
+    .distinct(QueueSlot.campaign_lead_id)
+
+tests/test_queue_logic.py::TestApiRecalculationTriggers::test_delete_campaign_cascades_email_clicks
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/conftest.py:311: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    clicked_at=clicked_at or datetime.utcnow(),
+
+tests/test_queue_logic.py::TestCampaignStats::test_stats_reflects_reply_and_slot_deletion
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_queue_logic.py:1656: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    scheduled_date=datetime.utcnow(),
+
+tests/test_redesign.py::test_inbox_filter_uses_latest_message_direction_per_mailbox
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_redesign.py:84: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    now=datetime.utcnow()
+
+tests/test_schedule_api.py::test_schedule_api_basic_endpoints
+  /workspace/scratch/978d9bbb679c/p0-publish/smoke_test/validate_scheduled_emails.py:266: SADeprecationWarning: Passing expression to ``distinct`` to generate a DISTINCT ON clause is deprecated. Use instead the ``postgresql.distinct_on`` function as an extension.
+    .distinct(Campaign.id)
+
+tests/test_scheduler_05.py::test_send_attempt_claim_is_exclusive_and_releasable
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_scheduler_05.py:157: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    scheduled_date=datetime.utcnow(),
+
+tests/test_scheduler_05.py::test_send_attempt_claim_is_exclusive_and_releasable
+tests/test_scheduler_05.py::test_send_attempt_claim_is_exclusive_and_releasable
+tests/test_scheduler_05.py::test_send_attempt_claim_is_exclusive_and_releasable
+tests/test_scheduler_05.py::test_preflight_blocks_uncertain_send_attempt
+  /workspace/scratch/978d9bbb679c/venv/lib/python3.12/site-packages/aiosqlite/core.py:63: DeprecationWarning: The default datetime adapter is deprecated as of Python 3.12; see the sqlite3 documentation for suggested replacement recipes
+    result = function()
+
+tests/test_scheduler_05.py::test_preflight_blocks_uncertain_send_attempt
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_scheduler_05.py:193: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    scheduled_date=datetime.utcnow() + timedelta(minutes=1),
+
+tests/test_smtp.py::test_smtp_reply_detection
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_smtp.py:664: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    "date": datetime.utcnow(),
+
+tests/test_smtp.py::test_smtp_list_conversations
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_smtp.py:735: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    last_received_at=datetime.utcnow(),
+
+tests/test_smtp.py::test_smtp_list_conversations
+  /workspace/scratch/978d9bbb679c/p0-publish/tests/test_smtp.py:747: DeprecationWarning: datetime.datetime.utcnow() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.now(datetime.UTC).
+    received_at=datetime.utcnow(),
+
+tests/test_unibox_api.py: 16 warnings
+  /workspace/scratch/978d9bbb679c/p0-publish/app/unibox.py:257: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+    return datetime.utcfromtimestamp(ms / 1000.0)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+501 passed, 8 skipped, 2221 warnings in 40.22s

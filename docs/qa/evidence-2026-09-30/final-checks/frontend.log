@@ -1,0 +1,46 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> campaign-engine-frontend@0.1.0 test
+> vitest run --run
+
+
+ RUN  v2.1.9 /workspace/scratch/978d9bbb679c/p0-publish/frontend
+
+stderr | src/pages/qa-states.test.jsx > shows a real queued message, blocks remote email content and links to existing views
+⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+
+ ✓ src/pages/qa-states.test.jsx (51 tests) 3285ms
+   ✓ system settings navigation and save semantics > opens every available category and keeps legacy deep links working 379ms
+ ✓ src/pages/mailbox-editor.test.jsx (14 tests) 2231ms
+   ✓ preserves SMTP drafts across sections and cancellation, and saves only once 339ms
+ ✓ src/pages/operations-workspace.test.jsx (12 tests) 1226ms
+   ✓ notification workspace > restarts pagination after a deletion instead of skipping the shifted row 792ms
+ ✓ src/pages/operations-language.test.jsx (11 tests) 932ms
+ ✓ src/pages/campaign-language.test.jsx (12 tests) 898ms
+ ✓ src/pages/templates-workspace.test.jsx (10 tests) 1116ms
+ ✓ src/pages/contacts-language.test.jsx (9 tests) 671ms
+ ✓ src/pages/contacts-workspace.test.jsx (8 tests) 326ms
+ ✓ src/pages/outreach-language.test.jsx (10 tests) 603ms
+ ✓ src/pages/analytics-workspace.test.jsx (7 tests) 330ms
+ ✓ src/redesign/mailbox-archive.test.jsx (18 tests) 456ms
+ ✓ src/pages/inbox-drafts.test.jsx (6 tests) 693ms
+ ✓ src/pages/settings-language.test.jsx (6 tests) 564ms
+ ✓ src/pages/remaining-outreach-language.test.jsx (7 tests) 446ms
+ ✓ src/context/workspace-language.test.jsx (9 tests) 257ms
+ ✓ src/pages/campaign-sequence.test.jsx (7 tests) 280ms
+ ✓ src/pages/campaign-analytics.test.jsx (7 tests) 163ms
+ ✓ src/pages/campaign-recipients.test.jsx (6 tests) 952ms
+   ✓ campaign recipients > keeps add drafts when the drawer closes without submitting 336ms
+ ✓ src/pages/dashboard-loading.test.jsx (4 tests) 144ms
+ ✓ src/context/responsive-foundation.test.jsx (3 tests) 34ms
+ ✓ src/pages/contact-tools-language.test.jsx (5 tests) 271ms
+ ✓ src/pages/system-language.test.jsx (4 tests) 235ms
+ ✓ src/redesign/Modal.test.jsx (4 tests) 26ms
+ ✓ src/context/SystemHealthContext.test.jsx (2 tests) 15ms
+ ✓ src/context/language-regression.test.jsx (1 test) 61ms
+
+ Test Files  25 passed (25)
+      Tests  233 passed (233)
+   Start at  16:37:59
+   Duration  19.66s (transform 1.80s, setup 0ms, collect 2.79s, tests 16.21s, environment 278ms, prepare 131ms)
