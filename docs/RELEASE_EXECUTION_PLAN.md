@@ -69,7 +69,7 @@ Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są hi
 |---|---|
 | 1 — P0 | Pakiet `8f5c7b4` zainstalowany przez użytkownika. 04.10 potwierdzono wersję z przekazanego terminala oraz odczyt demo po logowaniu: dashboard, kontakty i szablony. Polecenie kontynuowania harmonogramu jest podstawą rozpoczęcia etapu 2; nie oznacza potwierdzenia zgodności 1:1 z referencjami. Odstępstwa pozostają opisane w raporcie P0. |
 | 2 — kontakty i historia | **Wdrożony i odebrany 04.10.2026.** Archiwizacja, przywracanie, historia autora/czasu i zachowanie blokad potwierdzone na demo. Raport: `docs/qa/2026-10-04-stage2-contacts.md`. |
-| 3 — analityka outreach | Nierozpoczęty. Lokalizacja obecnych raportów w P0 nie realizuje tego etapu. |
+| 3 — analityka outreach | **Pakiet gotowy do wdrożenia i odbioru, 04.10.2026.** Raport odbiorców w przekrojach kampanii, skrzynki i pól kontaktu; poprawione definicje/liczenie odpowiedzi; diagnostyka domen i skrzynek. Bez migracji. Raport: `docs/qa/2026-10-04-stage3-analytics.md`. |
 | 4 — stabilna baza | Nierozpoczęty. |
 | 5 — rdzeń CRM | Nierozpoczęty; pozostaje w zatwierdzonym miejscu planu. |
 | 6 — sprzedaż | Nierozpoczęty. |

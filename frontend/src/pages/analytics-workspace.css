@@ -35,3 +35,5 @@
 .sk-analytics-progress progress{width:70px;height:6px;accent-color:var(--sk-primary)}
 @media(max-width:1050px){.sk-analytics-overview{grid-template-columns:minmax(0,1fr)}.sk-analytics-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}.sk-analytics-summary>.sk-panel-heading,.sk-analytics-summary>.sk-analytics-note{grid-column:1/-1}}
 @media(max-width:600px){.sk-analytics-workspace .sk-analytics-filters,.sk-analytics-overview>.sk-panel,.sk-analytics-results{padding:12px}.sk-analytics-filter-line select{flex-basis:100%;min-width:0;max-width:none}.sk-analytics-plot{height:220px}.sk-analytics-series{gap:6px}.sk-analytics-summary{display:block}}
+.sk-analytics-filter-line input{max-width:100%;height:38px;border:1px solid var(--sk-line);border-radius:8px;padding:0 10px;background:var(--sk-surface);color:var(--sk-text)}
+.sk-analytics-filter-line label{min-width:0;max-width:100%}

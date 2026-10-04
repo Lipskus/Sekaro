@@ -406,9 +406,9 @@ it('calculates the analytics reply rate from the selected period, not lifetime t
   });
   const { container } = mount(Analytics);
   await screen.findByRole('link', { name: 'Okres QA' });
-  const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Wskaźnik odpowiedzi'));
+  const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Odpowiedzi / wysyłki w okresie'));
   expect(metric.querySelector('.sk-metric-value').textContent).toBe('20%');
-  expect(screen.getByTitle('Brak danych o unikalnych kontaktach w wybranym okresie').textContent).toBe('—');
+  expect(screen.getByText('Skuteczność wybranych wysyłek')).toBeTruthy();
 });
 
 

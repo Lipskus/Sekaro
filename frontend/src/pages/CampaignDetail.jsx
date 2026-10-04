@@ -1,5 +1,5 @@
 import {useCampaignLanguage} from '../context/campaignLanguage';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from 'react';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
@@ -1295,6 +1295,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
 
   return (
     <div className="overflow-x-auto">
+      <p className="sk-analytics-note">{ct("Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.")}</p>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
@@ -1523,6 +1524,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
 
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
+  const {ct}=useCampaignLanguage();
   const confirm = useConfirm();
   const notify  = useNotify();
   const [form, setForm] = useState({
@@ -1721,6 +1723,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {preflight && (
           <div className="space-y-3">
+            <p>{ct("Gotowość nie obejmuje pomiaru DNS.")} <Link to="/domains">{ct("Sprawdź domeny przed wysyłką")}</Link></p>
             <div className={`rounded-lg px-3 py-2 text-sm ${
               preflight.ready
                 ? 'border border-green-200 bg-green-50 text-green-800'

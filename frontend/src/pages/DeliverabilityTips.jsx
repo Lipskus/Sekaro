@@ -160,7 +160,7 @@ export default function DeliverabilityTips() {
 
   const action=actionBySection[activeSection]||actionBySection.setup;
   return <PageFrame className="sk-deliverability-page sk-deliverability-workspace" title={ct("Dostarczalność")} description={ct("Przewodnik po konfiguracji domen, skrzynek i wiadomości.")} actions={<Button to="/system-health" icon="shield">{ct("Stan systemu")}</Button>}>
-    <section className="sk-deliverability-intro"><span className="sk-deliverability-intro-icon"><Icon name="shield" size={32}/></span><div><h2>{ct("Sprawdź przygotowanie do wysyłki")}</h2><p>{ct("Poniższe wskazówki są materiałem pomocniczym, a nie wynikiem pomiaru Twojej instalacji. Automatyczna analiza DNS, reputacji i dostarczalności nie jest jeszcze dostępna.")}</p></div></section>
+    <section className="sk-deliverability-intro"><span className="sk-deliverability-intro-icon"><Icon name="shield" size={32}/></span><div><h2>{ct("Sprawdź przygotowanie do wysyłki")}</h2><p>{ct("Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.")}</p></div></section>
     <div className="sk-deliverability-layout">
       <div className="sk-deliverability-main">
         <Panel title={ct("Lista kontrolna konfiguracji")} icon="check" className="sk-deliverability-checklist">

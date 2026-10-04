@@ -166,6 +166,9 @@ async def upsert_smtp_account(
             raise HTTPException(400, "smtp_password is required")
         acct = SmtpAccount(inbox_id=inbox_id)
         db.add(acct)
+    connection_fields = ("smtp_host", "smtp_port", "smtp_username", "smtp_password", "smtp_use_tls", "smtp_use_ssl",
+                         "imap_host", "imap_port", "imap_username", "imap_password", "imap_use_ssl")
+    previous_connection = tuple(getattr(acct, key) for key in connection_fields)
     previous_source = source_key(acct) if not is_create else None
     acct.smtp_host = payload["smtp_host"].strip()
     acct.smtp_port = int(payload["smtp_port"])
@@ -187,6 +190,10 @@ async def upsert_smtp_account(
     elif not acct.imap_host:
         acct.imap_password = ""
     acct.imap_use_ssl = bool(payload.get("imap_use_ssl", True))
+    if previous_connection != tuple(getattr(acct, key) for key in connection_fields):
+        acct.last_tested_at = None
+        acct.last_test_ok = False
+        acct.last_test_error = ""
     if previous_source is not None and previous_source != source_key(acct):
         state = (await db.execute(select(SmtpSyncState).where(SmtpSyncState.inbox_id == inbox_id))).scalar_one_or_none()
         if state:

@@ -124,7 +124,7 @@ async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
             account = smtp_by_inbox.get(inbox.id)
             if account is None or not (account.smtp_host or "").strip():
                 add("error", "smtp_missing", f"Skrzynka {inbox.email} nie ma kompletnej konfiguracji SMTP.", inbox_id=inbox.id)
-            elif not bool(account.last_test_ok):
+            elif not account.last_tested_at or not bool(account.last_test_ok):
                 add("warning", "smtp_not_verified", f"Ostatni test SMTP skrzynki {inbox.email} nie zakończył się powodzeniem.", inbox_id=inbox.id)
             if int(inbox.max_emails_per_day or 0) <= 0:
                 add("error", "daily_limit_invalid", f"Skrzynka {inbox.email} ma niepoprawny limit dzienny.", inbox_id=inbox.id)
@@ -2064,17 +2064,17 @@ async def step_analytics(campaign_id: int, db: AsyncSession = Depends(get_db)):
         .where(
             CampaignLead.campaign_id == campaign_id,
             CampaignLead.interest_status == "interested",
+            CampaignLead.id.in_(select(func.max(CampaignLead.id)).where(
+                CampaignLead.campaign_id == campaign_id).group_by(CampaignLead.lead_id)),
         )
     )
     interested_lead_ids = {r[0] for r in interested_result.all()}
 
-    # Replied lead IDs for this campaign
-    replied_result = await db.execute(
-        select(LeadReply.lead_id)
-        .where(LeadReply.campaign_id == campaign_id)
-        .distinct()
-    )
-    replied_lead_ids = {r[0] for r in replied_result.all()}
+    # Attribute once per sent message; a later reply must not credit every step.
+    from app.analytics_metrics import attributed_replies
+    replies = attributed_replies().where(LeadReply.campaign_id == campaign_id).subquery()
+    replied_result = await db.execute(select(replies.c.email_log_id).distinct())
+    replied_message_ids = {r[0] for r in replied_result.all() if r[0] is not None}
 
     # Build per-step metrics
     analytics = []
@@ -2111,7 +2111,7 @@ async def step_analytics(campaign_id: int, db: AsyncSession = Depends(get_db)):
                 bucket["opens"] += 1
             if el.clicked:
                 bucket["clicks"] += 1
-            if el.lead_id in replied_lead_ids:
+            if el.id in replied_message_ids:
                 bucket["replies"] += 1
             if el.lead_id in interested_lead_ids:
                 bucket["opportunities"] += 1

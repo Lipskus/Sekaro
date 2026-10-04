@@ -619,7 +619,12 @@
     "Odpowiedział": "Odpowiedział",
     "Catch-all": "Catch-all",
     "Dodaj": "Dodaj",
-    "i": "i"
+    "i": "i",
+    "Odpowiedzi / wysyłki w okresie": "Odpowiedzi / wysyłki w okresie",
+    "Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.": "Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.",
+    "Gotowość nie obejmuje pomiaru DNS.": "Gotowość nie obejmuje pomiaru DNS.",
+    "Sprawdź domeny przed wysyłką": "Sprawdź domeny przed wysyłką",
+    "Odpowiedzi liczymy raz na kontakt, kampanię i dzień.": "Odpowiedzi liczymy raz na kontakt, kampanię i dzień."
   },
   "en": {
     "Kontakty w kampanii": "Campaign contacts",
@@ -1241,7 +1246,12 @@
     "Odpowiedział": "Replied",
     "Catch-all": "Catch-all",
     "Dodaj": "Add",
-    "i": "and"
+    "i": "and",
+    "Odpowiedzi / wysyłki w okresie": "Replies / sends in period",
+    "Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.": "Replies are attributed to the last preceding message. Opportunities count sends to currently interested contacts, not historical conversions.",
+    "Gotowość nie obejmuje pomiaru DNS.": "Readiness does not include a DNS measurement.",
+    "Sprawdź domeny przed wysyłką": "Check domains before sending",
+    "Odpowiedzi liczymy raz na kontakt, kampanię i dzień.": "Replies count once per contact, campaign and day."
   },
   "de": {
     "Kontakty w kampanii": "Kampagnenkontakte",
@@ -1863,7 +1873,12 @@
     "Odpowiedział": "Geantwortet",
     "Catch-all": "Catch-all",
     "Dodaj": "Hinzufügen",
-    "i": "und"
+    "i": "und",
+    "Odpowiedzi / wysyłki w okresie": "Antworten / Sendungen im Zeitraum",
+    "Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.": "Antworten werden der letzten vorherigen Nachricht zugeordnet. Chancen zählen Sendungen an aktuell interessierte Kontakte, keine historischen Konversionen.",
+    "Gotowość nie obejmuje pomiaru DNS.": "Die Bereitschaftsprüfung umfasst keine DNS-Messung.",
+    "Sprawdź domeny przed wysyłką": "Domains vor dem Versand prüfen",
+    "Odpowiedzi liczymy raz na kontakt, kampanię i dzień.": "Antworten zählen einmal pro Kontakt, Kampagne und Tag."
   },
   "ru": {
     "Kontakty w kampanii": "Контакты кампании",
@@ -2485,6 +2500,11 @@
     "Odpowiedział": "Ответил",
     "Catch-all": "Catch-all",
     "Dodaj": "Добавить",
-    "i": "и"
+    "i": "и",
+    "Odpowiedzi / wysyłki w okresie": "Ответы / отправки за период",
+    "Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.": "Ответы относятся к последнему предшествующему письму. Возможности — это отправки контактам, заинтересованным сейчас, а не исторические конверсии.",
+    "Gotowość nie obejmuje pomiaru DNS.": "Проверка готовности не включает измерение DNS.",
+    "Sprawdź domeny przed wysyłką": "Проверьте домены перед отправкой",
+    "Odpowiedzi liczymy raz na kontakt, kampanię i dzień.": "Ответ учитывается один раз на контакт, кампанию и день."
   }
 }
