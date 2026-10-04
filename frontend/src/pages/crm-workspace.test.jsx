@@ -1,7 +1,7 @@
 import React from 'react';
 import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import {render,screen,fireEvent,cleanup,waitFor,act} from '@testing-library/react';
-import {MemoryRouter} from 'react-router-dom';
+import {MemoryRouter,Routes,Route} from 'react-router-dom';
 import CrmContact from './CrmContact';
 import Companies from './Companies';
 import {api} from '../api';
@@ -25,4 +25,19 @@ it('merged source is read only and links to its surviving identity',async()=>{
 });
 it('keeps company search mounted while results refresh',async()=>{
  render(<MemoryRouter><Companies/></MemoryRouter>);const search=await screen.findByLabelText('Szukaj firmy');search.focus();fireEvent.change(search,{target:{value:'Ma'}});expect(document.activeElement).toBe(search);await waitFor(()=>expect(api.get).toHaveBeenCalledWith('/crm/companies?q=Ma&archived=false'));expect(screen.getByLabelText('Szukaj firmy')).toBe(search);
+});
+
+it('company profile keeps edits after failed save and protects archive while dirty',async()=>{
+ const company={id:7,name:'Marina',domain:'marina.example',description:'Port',created_at:'2026-10-04T12:00:00Z',archived_at:null,contacts:[{id:1,name:'Anna',email:'anna@example.com',role:'Manager'}],history:[]};
+ api.get.mockResolvedValue(company);api.patch.mockRejectedValue(Error('Save failed'));
+ render(<MemoryRouter initialEntries={['/companies/7']}><Routes><Route path="/companies/:id" element={<Companies/>}/></Routes></MemoryRouter>);
+ const name=await screen.findByLabelText('Nazwa');
+ expect(screen.getByRole('link',{name:'Anna'}).getAttribute('href')).toBe('/leads/1');
+ expect(screen.getByRole('button',{name:'Archiwizuj'}).disabled).toBe(false);
+ fireEvent.change(name,{target:{value:'Marina updated'}});
+ expect(screen.getByRole('button',{name:'Archiwizuj'}).disabled).toBe(true);
+ fireEvent.submit(name.closest('form'));
+ await screen.findByText('Save failed');
+ expect(name.value).toBe('Marina updated');
+ expect(api.patch).toHaveBeenCalledWith('/crm/companies/7',{name:'Marina updated',domain:'marina.example',description:'Port'});
 });
