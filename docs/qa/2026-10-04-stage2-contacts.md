@@ -46,3 +46,21 @@ na istniejącym demo. Banner blokuje wysyłkę/synchronizację. Użytkownik wcze
 podał zgodne ID uruchomionego i zbudowanego obrazu oraz HEAD `8f5c7b4`.
 Nie ma nowego demo, merge do main ani wdrożenia etapu 2.
 Etap 3 nie jest rozpoczęty. Brak nowych etapów lub rozszerzeń CRM.
+
+## Odbiór wdrożenia — 04.10.2026, 14:14 Europe/Warsaw
+
+Użytkownik potwierdził wdrożenie. Po odświeżeniu istniejącej zalogowanej
+sesji demo wykonano test na fikcyjnym kontakcie #52 z globalną blokadą
+wysyłki i statusem wypisany.
+
+- Archiwizacja: liczba bieżących kontaktów 60 → 59; w archiwum jeden kontakt #52.
+- Przywrócenie z listy archiwum: archiwum ponownie puste, ten sam profil #52.
+- Historia: dwa nowe zdarzenia archive/restore z autorem demo i czasem 14:14.
+- Globalna blokada: Tak; wysyłka wstrzymana: Tak; wypisanie w kampanii: Tak.
+- Zachowane przypisanie do kampanii, dane własne i wcześniejszy wpis historii.
+- Banner demo nadal potwierdza blokadę wysyłki i synchronizacji.
+
+Odbiór funkcjonalny etapu 2 zaliczony. Następny jest etap 3 — analityka outreach.
+To zapis odbioru, bez zmian aplikacji i bez potrzeby ponownego wdrożenia.
+
+![Stan kontaktu po przywróceniu](2026-10-04-stage2-accepted.jpg)
