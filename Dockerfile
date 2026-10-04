@@ -15,12 +15,12 @@ RUN npm run build
 
 
 # 2. production Python image
-FROM python:3.12-slim AS backend
+FROM python:3.12-slim-trixie AS backend
 WORKDIR /app
 
 # pg_dump / pg_restore for backup & restore (see app/backup_pg.py)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends postgresql-client \
+    && apt-get install -y --no-install-recommends postgresql-client-17 \
     && rm -rf /var/lib/apt/lists/*
 
 # install runtime dependencies

@@ -1,0 +1,1 @@
+{"result":"PASS","engine":"PostgreSQL 18.3 via PGlite 0.5.8","checks":["restricted role cannot read private tables","idempotent global suppression","unknown token rejected","future unclaimed queue removed","uncertain send retained"],"notTested":["native PG15 to PG17 dump/restore","Docker network boundary"]}

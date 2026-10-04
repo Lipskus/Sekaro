@@ -50,6 +50,9 @@ import app.scheduler as scheduler_mod
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    if __import__("os").getenv("SEKARO_MAINTENANCE") == "1":
+        yield
+        return
 
     unibox_interval_minutes = 5
 
@@ -138,6 +141,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Sekaro", lifespan=lifespan)
+
+@app.middleware("http")
+async def maintenance_boundary(request, call_next):
+    import os
+    from fastapi.responses import JSONResponse
+    if os.getenv("SEKARO_MAINTENANCE") == "1":
+        path = request.url.path
+        allowed = path.startswith(("/api/auth/", "/api/settings/backup/")) or (
+            request.method in {"GET", "HEAD"} and (path in {"/", "/login", "/settings"} or path.startswith("/assets/")))
+        if not allowed:
+            return JSONResponse({"detail": "Maintenance mode: mail, synchronization and ordinary API operations are stopped."}, status_code=503)
+    return await call_next(request)
 
 # ---------------------------------------------------------------------------
 # Security middleware (CSP, HSTS, X-Frame-Options, …)

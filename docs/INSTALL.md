@@ -1,3 +1,5 @@
+> **Sekaro — aktualna ścieżka prywatnego wdrożenia:** zobacz [operacje i granicę publicznej rezygnacji](STAGE_4_OPERATIONS.md). Poniższy poradnik Quickly opisuje historyczne warianty wdrożenia; nie jest zgodą na publiczne wystawienie panelu Sekaro.
+
 # Quickly — Installation Guide
 
 > **How to use this guide:** Start at [Step 1](#step-1-choose-your-deployment-path) and follow the path that matches your situation. Every path leads back to the shared steps at the end.

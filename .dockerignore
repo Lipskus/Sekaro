@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+.sekaro-demo
+backups
+**/node_modules
+**/dist
+**/__pycache__
+**/.pytest_cache
+.venv
+venv
+*.qbk
+*.dump
+*.log
+docs/qa/evidence-*

@@ -20,6 +20,7 @@ except ImportError:
     ZoneInfo = None  # type: ignore[assignment,misc]
 
 from app.settings_manager import settings
+from app.public_links import get_unsubscribe_base
 from app.database import AsyncSessionLocal
 from app.models import (
     QueueSlot,
@@ -710,7 +711,7 @@ async def run_send_job():
                     session.add(unsub_row)
                     await session.flush()  # get the token persisted
 
-                unsub_url = f"{inbox_tracking_base}/u/{unsub_row.token}"
+                unsub_url = f"{get_unsubscribe_base(inbox_tracking_base)}/u/{unsub_row.token}"
 
                 # Build lead data dict with built-in unsubscribe_link variable
                 lead_data = get_lead_data(lead)
@@ -1518,7 +1519,7 @@ async def send_slot_job(slot_id: int) -> None:
             session.add(unsub_row)
             await session.flush()
 
-        unsub_url = f"{inbox_tracking_base}/u/{unsub_row.token}"
+        unsub_url = f"{get_unsubscribe_base(inbox_tracking_base)}/u/{unsub_row.token}"
         lead_data = get_lead_data(lead)
         lead_data["unsubscribe_link"] = unsub_url
 

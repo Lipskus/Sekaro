@@ -18,3 +18,7 @@ Sprawdzić w tej samej zalogowanej sesji demo: Analityka (kampania, skrzynka, kr
 Zewnętrzne DNS i lista blokad były testowane kontrolowanymi odpowiedziami. Nie wykonano pomiarów DNS na serwerze klienta ani połączeń SMTP/IMAP. Własności protokołów, reputacja i dostarczalność nie są potwierdzone przez obecność rekordów.
 
 Etap 4 pozostaje nierozpoczęty. Nie scalono do main i nie wdrożono aplikacji z konta agenta.
+
+## Odbiór demo i przejście do etapu 4
+
+04.10 po ponownym wdrożeniu potwierdzono rzeczywisty nowy widok Domeny oraz raporty kampanii, skrzynek i kraju w działającej sesji. Dla 30 dni było 82 wysyłki; przekrój krajów: DE 29/16/4, DK 20/16/0, PL 33/16/4 (wysyłki/kontakty w kampaniach/odpowiadający). Diagnostyka sieci demo pozostaje zablokowana i bez pozytywnego wyniku pomiaru. Narzędzie przeglądarki nie udostępniło pobranego CSV; ten element odbioru live pozostaje niepotwierdzony, test generowania CSV przeszedł lokalnie. Użytkownik po otrzymaniu tej informacji polecił kontynuację harmonogramu. Nie oznaczamy pobrania CSV jako zaliczonego.
