@@ -168,7 +168,15 @@
     "operation": {
       "archive": "Kontakt zarchiwizowany",
       "restore": "Kontakt przywrócony",
-      "update": "Kontakt zmieniony"
+      "update": "Kontakt zmieniony",
+      "crm_kind": "Zmiana rodzaju kontaktu",
+      "crm_address": "Dodanie adresu",
+      "crm_address_removed": "Usunięcie dodatkowego adresu",
+      "crm_note": "Dodanie notatki",
+      "crm_company": "Powiązanie z firmą",
+      "crm_company_removed": "Usunięcie powiązania z firmą",
+      "merge": "Scalenie kontaktów",
+      "merged": "Dołączenie do innego kontaktu"
     },
     "operationActor": "Autor: {actor}"
   },
@@ -341,7 +349,15 @@
     "operation": {
       "archive": "Contact archived",
       "restore": "Contact restored",
-      "update": "Contact updated"
+      "update": "Contact updated",
+      "crm_kind": "Contact type changed",
+      "crm_address": "Address added",
+      "crm_address_removed": "Additional address removed",
+      "crm_note": "Note added",
+      "crm_company": "Company linked",
+      "crm_company_removed": "Company link removed",
+      "merge": "Contacts merged",
+      "merged": "Joined another contact"
     },
     "operationActor": "By: {actor}"
   },
@@ -514,7 +530,15 @@
     "operation": {
       "archive": "Kontakt archiviert",
       "restore": "Kontakt wiederhergestellt",
-      "update": "Kontakt bearbeitet"
+      "update": "Kontakt bearbeitet",
+      "crm_kind": "Kontaktart geändert",
+      "crm_address": "Adresse hinzugefügt",
+      "crm_address_removed": "Zusätzliche Adresse entfernt",
+      "crm_note": "Notiz hinzugefügt",
+      "crm_company": "Firma verknüpft",
+      "crm_company_removed": "Firmenverknüpfung entfernt",
+      "merge": "Kontakte zusammengeführt",
+      "merged": "Mit anderem Kontakt verbunden"
     },
     "operationActor": "Von: {actor}"
   },
@@ -687,7 +711,15 @@
     "operation": {
       "archive": "Контакт архивирован",
       "restore": "Контакт восстановлен",
-      "update": "Контакт изменён"
+      "update": "Контакт изменён",
+      "crm_kind": "Изменён тип контакта",
+      "crm_address": "Добавлен адрес",
+      "crm_address_removed": "Удалён дополнительный адрес",
+      "crm_note": "Добавлена заметка",
+      "crm_company": "Связь с компанией",
+      "crm_company_removed": "Удалена связь с компанией",
+      "merge": "Объединены контакты",
+      "merged": "Присоединён к другому контакту"
     },
     "operationActor": "Автор: {actor}"
   }

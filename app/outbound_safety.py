@@ -1,6 +1,6 @@
 """Shared outbound policy for campaigns, operator messages and test sends."""
 from fastapi import HTTPException
-from sqlalchemy import func, select
+from sqlalchemy import func, select, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import CampaignLead, Inbox, Lead
@@ -8,9 +8,15 @@ from app.suppression import is_suppressed
 
 
 async def outbound_block_reason(db: AsyncSession, recipient: str, inbox_id: int, *, campaign_lead_id: int | None = None) -> str | None:
+    from app.crm import crm_block_reason
+    from app.crm_models import CrmProfile
+    crm_reason = await crm_block_reason(db, recipient)
+    if crm_reason == "archived":
+        return crm_reason
     # Serialize final delivery with lifecycle operations; avoid stale ORM state.
     contacts = (await db.execute(
-        select(Lead.archived_at).where(func.lower(Lead.email) == recipient.strip().lower())
+        select(Lead.archived_at).where(func.lower(Lead.email) == recipient.strip().lower(),
+            ~exists(select(1).where(CrmProfile.lead_id == Lead.id, CrmProfile.merged_into.is_not(None))))
         .order_by(Lead.id).with_for_update()
     )).all()
     if any(row[0] is not None for row in contacts):
@@ -21,7 +27,7 @@ async def outbound_block_reason(db: AsyncSession, recipient: str, inbox_id: int,
         ).where(CampaignLead.id == campaign_lead_id))).first()
         if enrollment is None or enrollment[0] or enrollment[1]:
             return "paused_contact"
-    if await is_suppressed(db, recipient):
+    if crm_reason == "suppressed" or await is_suppressed(db, recipient):
         return "suppressed"
     # Read the scalar from the database instead of trusting an older ORM snapshot.
     row = (await db.execute(select(Inbox.paused).where(Inbox.id == inbox_id))).first()

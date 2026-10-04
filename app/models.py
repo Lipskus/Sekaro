@@ -1109,3 +1109,6 @@ class SmtpArchive(Base):
     last_attempt_at = Column(DateTime, nullable=True)
     removal_status = Column(String(20), nullable=False, default="retained")
     last_error = Column(Text, nullable=False, default="")
+
+# Register CRM extension tables in the same metadata.
+from app import crm_models  # noqa: E402,F401

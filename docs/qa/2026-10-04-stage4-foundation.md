@@ -19,3 +19,9 @@ W środowisku wykonawczym nie ma Dockera ani natywnego PostgreSQL. **Nie wykonan
 Na istniejącym demo skrypt aktualizacji sam wymaga zgodności liczebności i sygnatur pełnych danych wszystkich tabel przed przełączeniem, zachowuje dump i stary wolumen. Wynik tej operacji należy dopisać tutaj przed uznaniem aktualizacji za odebraną. Następnie potwierdzić działanie aplikacji i blokady demo. Wystawienie osobnej domeny rezygnacji wymaga przygotowania operatora; nie otwarto panelu ani nowych publicznych tras w obecnej instalacji.
 
 Przegląd bezpieczeństwa tego pakietu dotyczy backup/restore i granicy publicznej usługi. Nie jest certyfikacją całej aplikacji ani zakończeniem przyszłego etapu uprawnień użytkowników.
+
+## Odbiór demo — 04.10.2026
+
+Operator wdrożył `c94de57` i przekazał wynik rzeczywistej migracji: `PG15 → PG17: restore and all public table data signatures verified`. Zachowano dump i stary wolumen. Przeglądarka potwierdziła odczyt 60 kontaktów i blokadę kontaktu 52; panel diagnostyczny pokazał wyłącznie przykładowy błąd IMAP z danych demo.
+
+Operator następnie zbudował obraz modułu rezygnacji i uruchomił test na tymczasowej kopii PG17: prywatne trasy 404, odmowa odczytu lead/app_user/smtp_account, wewnętrzna sieć bez portów hosta i brak połączenia z prywatną aplikacją. Wszystkie testy zwróciły PASS; kontenery i sieć testowa zostały objęte sprzątaniem skryptu. Dowód pochodzi z wyniku terminala przekazanego przez operatora. Nie testowano publicznego DNS/TLS ani pełnej macierzy produkcyjnej. Etap odebrany w zakresie demo; użytkownik polecił rozpoczęcie etapu 5.

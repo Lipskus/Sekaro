@@ -1,0 +1,1 @@
+{"result": "PASS", "engine": "PostgreSQL via PGlite", "checks": ["migration on pre-CRM schema", "existing IDs/email/custom fields preserved", "company names not auto-deduplicated", "no inferred person identity", "second migration preserves manual edits"]}

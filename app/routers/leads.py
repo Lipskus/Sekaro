@@ -249,7 +249,8 @@ def _build_leads_stmt(
 
     if q and q.strip():
         pat = f"%{q.strip()}%"
-        stmt = stmt.where(or_(Lead.email.ilike(pat), Lead.name.ilike(pat)))
+        from app.crm_models import ContactAddress
+        stmt = stmt.where(or_(Lead.email.ilike(pat), Lead.name.ilike(pat), exists(select(1).where(ContactAddress.lead_id == Lead.id, ContactAddress.email.ilike(pat)))))
     return stmt
 
 
@@ -707,6 +708,8 @@ async def bulk_delete_leads(
 ):
     if not body.lead_ids:
         return {"ok": True, "deleted": 0}
+    from app.crm import protect_delete
+    await protect_delete(db, body.lead_ids)
     all_campaign_ids: set[int] = set()
     deleted = 0
     for lead_id in body.lead_ids:
@@ -910,7 +913,7 @@ async def _existing_contact_map(
     result: dict[str, Lead] = {}
     for chunk in _batch(emails):
         rows = await db.execute(
-            select(Lead).where(func.lower(Lead.email).in_(chunk)).order_by(Lead.id.asc())
+            select(Lead).where(func.lower(Lead.email).in_(chunk)).order_by(Lead.id.asc()).with_for_update()
         )
         for lead in rows.scalars().all():
             key = (lead.email or "").strip().lower()
@@ -1090,6 +1093,11 @@ async def import_contacts_file(
 
         lead = existing.get(email)
         if lead is not None:
+            from app.crm_models import CrmProfile
+            crm_profile = await db.get(CrmProfile, lead.id)
+            if crm_profile and crm_profile.merged_into:
+                skipped_existing += 1
+                continue
             if contact_list is not None and lead.id not in list_member_ids:
                 db.add(ContactListMember(list_id=contact_list.id, lead_id=lead.id))
                 list_member_ids.add(lead.id)
@@ -1313,6 +1321,8 @@ async def update_lead(
     lead = result.scalar_one_or_none()
     if not lead:
         raise HTTPException(404, "Lead not found")
+    from app.crm import writable
+    await writable(db, lead_id)
     before = {"name": lead.name, "custom_data": lead.custom_data}
     if data.name is not None:
         lead.name = data.name
@@ -1425,6 +1435,8 @@ async def delete_lead(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
+    from app.crm import protect_delete
+    await protect_delete(db, [lead_id])
     result = await db.execute(select(Lead).where(Lead.id == lead_id))
     lead = result.scalar_one_or_none()
     if not lead:

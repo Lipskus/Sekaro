@@ -48,7 +48,7 @@ def allowed_request(method, path):
         return True
     if method == "POST" and re.fullmatch(r"/api/unibox/threads/[^/]+/mark-read", path):
         return True
-    return bool(re.fullmatch(r"/api/(?:leads|contact-fields|contact-lists|campaigns|inboxes|templates|notifications|ui/contacts)(?:/.*)?", path))
+    return bool(re.fullmatch(r"/api/(?:crm|leads|contact-fields|contact-lists|campaigns|inboxes|templates|notifications|ui/contacts)(?:/.*)?", path))
 
 
 class DemoMiddleware(BaseHTTPMiddleware):

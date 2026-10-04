@@ -402,6 +402,8 @@ async def init_db():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await _run_migrations(conn)
+        from app.crm_migration import migrate_crm
+        await migrate_crm(conn)
 
     # Load settings from database into memory
     async with AsyncSessionLocal() as session:

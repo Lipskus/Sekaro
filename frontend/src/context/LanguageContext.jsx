@@ -47,6 +47,7 @@ const translations = {
       privateLogin: 'Panel prywatny • Brak logowania przez Google i Microsoft',
     },
     nav: {
+      companies: 'Firmy',
       dashboard: 'Dashboard',
       analytics: 'Analityka',
       campaigns: 'Kampanie',
@@ -110,6 +111,7 @@ const translations = {
       privateLogin: 'Private dashboard • No Google or Microsoft sign-in',
     },
     nav: {
+      companies: 'Companies',
       dashboard: 'Dashboard',
       analytics: 'Analytics',
       campaigns: 'Campaigns',
@@ -173,6 +175,7 @@ const translations = {
       privateLogin: 'Privater Bereich • Keine Anmeldung über Google oder Microsoft',
     },
     nav: {
+      companies: 'Firmen',
       dashboard: 'Übersicht',
       analytics: 'Analysen',
       campaigns: 'Kampagnen',
@@ -236,6 +239,7 @@ const translations = {
       privateLogin: 'Приватная панель • Без входа через Google и Microsoft',
     },
     nav: {
+      companies: 'Компании',
       dashboard: 'Панель',
       analytics: 'Аналитика',
       campaigns: 'Кампании',

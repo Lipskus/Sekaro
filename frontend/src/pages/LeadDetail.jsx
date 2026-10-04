@@ -6,6 +6,7 @@ import {Button, Panel, Avatar, ContactStatus, PageFrame, Badge, ErrorNotice, Sta
 import {FieldInput} from '../redesign/FieldManager';
 import {useNotify} from '../context/NotificationContext';
 import {useConfirm} from '../context/ConfirmContext';
+import CrmContact from './CrmContact';
 import {parseApiDate} from '../utils/datetime';
 
 const displayValue = value => value == null || value === '' ? '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
@@ -37,6 +38,7 @@ export default function LeadDetail() {
   const [tab,setTab]=useState('summary'),[lead,setLead]=useState(null),[fields,setFields]=useState([]);
   const [editName,setEditName]=useState(''),[editCustom,setEditCustom]=useState({});
   const [loading,setLoading]=useState(true),[saving,setSaving]=useState(false),[error,setError]=useState(null),[saveError,setSaveError]=useState(null);
+  const [crmDirty,setCrmDirty]=useState(false);
   const [kind,setKind]=useState(''),[campaign,setCampaign]=useState('');
   const seq=useRef(0),saveLock=useRef(false),leaveLock=useRef(false);
   const dirty=!!lead&&(editName!==(lead.name||'')||JSON.stringify(editCustom)!==JSON.stringify(lead.custom_data||{}));
@@ -77,7 +79,7 @@ export default function LeadDetail() {
   const replies=interactions.filter(e=>e.kind==='reply_marker').length;
   const customFields=fields.filter(f=>!f.system);
   return <PageFrame className="sk-contact-workspace" title={lead.name||lead.email} description={lead.email} actions={<><Button disabled={saving||dirty} onClick={archive}>{t(lead.archived_at?'contacts.restore':'contacts.archive')}</Button><Button to="/leads" icon="back">{t('contacts.back')}</Button></>}>
-    {tab!=='summary'&&<ErrorNotice error={saveError}/>}<SectionTabs ariaLabel={t('contacts.contactView')} items={[{id:'summary',label:t('contacts.summary')},{id:'activity',label:t('contacts.activity')},{id:'campaigns',label:t('contacts.campaigns')},{id:'messages',label:t('contacts.messages')}]} value={tab} onChange={setTab}/>
+    {tab!=='summary'&&<ErrorNotice error={saveError}/>}<SectionTabs ariaLabel={t('contacts.contactView')} items={[{id:'summary',label:t('contacts.summary')},{id:'crm',label:'CRM'},{id:'activity',label:t('contacts.activity')},{id:'campaigns',label:t('contacts.campaigns')},{id:'messages',label:t('contacts.messages')}]} value={tab} onChange={async next=>{if(tab==='crm'&&crmDirty&&!await confirm(t('contacts.leaveWarning')))return;setTab(next);}}/>
     <div className="sk-contact-workspace-grid"><div className="sk-contact-workspace-main">
       {tab==='summary'&&<form onSubmit={save}>
         <Panel className="sk-contact-profile"><div className="sk-contact-identity"><Avatar name={lead.name||lead.email}/><div><h2>{lead.name||lead.email}</h2><p>{lead.email}</p><small>{t('contacts.profileMeta',{id:lead.id,date:dateTime(lead.created_at,{year:'numeric'},language)})}</small></div><ContactStatus lead={lead}/></div>
@@ -91,6 +93,7 @@ export default function LeadDetail() {
         </Panel>
         <Panel title={t('contacts.profileStatus')}><dl className="sk-contact-status-grid"><div><dt>{t('contacts.archived')}</dt><dd>{lead.archived_at?dateTime(lead.archived_at,{},language):t('contacts.no')}</dd></div><div><dt>{t('contacts.suppressed')}</dt><dd>{lead.suppressed?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.sendingPaused')}</dt><dd>{campaigns.some(c=>c.sending_paused)?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.verification')}</dt><dd>{lead.email_verification_status?contactStatusLabel(lead.email_verification_status,t):t('contacts.noResult')}</dd></div><div><dt>{t('contacts.campaignUnsubscribe')}</dt><dd>{campaigns.some(c=>c.status==='unsubscribed')?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.campaignBounce')}</dt><dd>{campaigns.some(c=>c.status==='bounced')?t('contacts.yes'):t('contacts.no')}</dd></div></dl></Panel>
       </form>}
+      {tab==='crm'&&(dirty?<Panel title={t('contacts.unsaved')}><Button onClick={()=>setTab('summary')}>{t('contacts.summary')}</Button></Panel>:<CrmContact key={id} id={id} onDirtyChange={setCrmDirty} onChanged={()=>{api.get(`/leads/${id}`).then(l=>{setLead(l);setEditName(l.name||'');setEditCustom({...l.custom_data});}).catch(setSaveError);}}/>)}
       {tab==='activity'&&<Panel title={t('contacts.timeline')}><p className="sk-muted sk-small">{t('contacts.timelineHelp')}</p><div className="sk-contact-activity-filters"><label>{t('contacts.activityType')}<select value={kind} onChange={e=>setKind(e.target.value)}><option value="">{t('contacts.allEvents')}</option><option value="messages">{t('contacts.messagesReplies')}</option><option value="operation">{t('contacts.operations')}</option><option value="enrolled">{t('contacts.assignments')}</option><option value="reply_marker">{t('contacts.confirmedReplies')}</option></select></label><label>{t('contacts.campaign')}<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="">{t('contacts.allCampaigns')}</option>{campaigns.map(c=><option key={c.campaign_id} value={c.campaign_id}>{c.campaign_name}</option>)}</select></label></div><Timeline events={filtered}/></Panel>}
       {tab==='campaigns'&&<Panel title={t('contacts.contactCampaigns')}><Campaigns items={campaigns}/></Panel>}
       {tab==='messages'&&<Panel title={t('contacts.messages')}><p className="sk-muted sk-small">{t('contacts.messagesHelp')}</p><Timeline events={events.filter(e=>!!e.direction&&e.kind!=='reply_marker')}/><Button to="/unibox" icon="mail">{t('contacts.openInbox')}</Button></Panel>}

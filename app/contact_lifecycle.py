@@ -21,6 +21,10 @@ async def set_archived(db, lead_ids, archived, actor):
     )).scalars())
     if len(leads) != len(ids):
         raise HTTPException(404, "Contact not found")
+    if not archived:
+        from app.crm import writable
+        for lead in leads:
+            await writable(db, lead.id)
     changed = 0
     for lead in leads:
         if (lead.archived_at is not None) == archived:
