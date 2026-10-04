@@ -4,15 +4,18 @@ import csv
 import io
 import json
 import logging
+from typing import Literal
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import StreamingResponse
 from sqlalchemy import delete, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, with_expression
 
 from app.campaign_lead_status import LEAD_INTERESTS, normalize_enrollment_status, normalize_interest
+from app.auth import get_current_user
+from app.contact_lifecycle import record_operation, set_archived
 from app.database import get_db
 from app.lead_inbox_resolution import from_inbox_email_by_lead_campaign
 from app.models import (
@@ -29,6 +32,7 @@ from app.models import (
     SuppressionEntry,
 )
 from app.schemas import (
+    LeadArchiveRequest,
     LeadBulkDeleteRequest,
     LeadBulkRecoverItem,
     LeadBulkRecoverRequest,
@@ -102,11 +106,19 @@ def _lead_to_response(
                 opened=pair in opened,
                 clicked=pair in clicked,
                 replied=pair in replied,
-                sending_paused=cl.sending_paused,
+                sending_paused=cl.sending_paused or cl.archive_sending_paused,
                 from_inbox_email=ib.get(pair),
             )
         )
     return LeadResponse(
+        archived_at=lead.archived_at,
+        lead_status=lead.status or "active",
+        suppressed=bool(lead.suppressed),
+        operations=[{
+            "id": op.id, "kind": "operation", "action": op.action,
+            "at": op.occurred_at, "actor_id": op.actor_id,
+            "actor_name": op.actor_name, "details": op.details,
+        } for op in lead.operations],
         id=lead.id,
         email=lead.email,
         name=lead.name or "",
@@ -122,6 +134,10 @@ def _lead_to_response(
 def _lead_query_with_campaigns():
     return select(Lead).options(
         selectinload(Lead.campaign_leads).selectinload(CampaignLead.campaign),
+        selectinload(Lead.operations),
+        with_expression(Lead.suppressed, exists(select(1).where(
+            func.lower(SuppressionEntry.email) == func.lower(Lead.email)
+        ))),
     )
 
 
@@ -165,8 +181,11 @@ def _build_leads_stmt(
     status: str | None,
     bad_only: bool,
     interest: str | None,
+    scope: str = "current",
 ):
     stmt = _lead_query_with_campaigns().order_by(Lead.id.desc())
+    if scope != "all":
+        stmt = stmt.where(Lead.archived_at.is_not(None) if scope == "archived" else Lead.archived_at.is_(None))
     if bad_only:
         bounced_enrollment = exists(
             select(1).select_from(CampaignLead).where(
@@ -240,6 +259,7 @@ async def _reset_all_enrollments_for_lead(db: AsyncSession, lead_id: int) -> Non
         cl.enrollment_status = "active"
         cl.interest_status = None
         cl.sending_paused = False
+        cl.archive_sending_paused = False
 
 
 async def _fetch_lead_interactions(db: AsyncSession, lead_id: int) -> list[dict]:
@@ -486,6 +506,8 @@ def _enrolled_earliest_iso(lead: Lead) -> str:
 
 
 async def _mutate_lead_recover(lead: Lead, norm: str, verify: bool) -> None:
+    if lead.archived_at is not None:
+        raise HTTPException(409, "Restore the archived contact before recovery")
     from app.email_verification import PENDING
 
     lead.email = norm
@@ -522,6 +544,7 @@ async def _finalize_lead_recovery(
 
 @router.get("", response_model=list[LeadResponse])
 async def list_leads(
+    scope: Literal["current", "archived", "all"] = Query("current"),
     list_id: int | None = Query(None, ge=1),
     status: str | None = Query(None),
     bad_only: bool = Query(
@@ -536,7 +559,7 @@ async def list_leads(
     db: AsyncSession = Depends(get_db),
 ):
     intr = _optional_interest_for_stmt(interest)
-    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr)
+    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr, scope=scope)
     if list_id is not None:
         stmt = stmt.where(
             exists(
@@ -568,6 +591,7 @@ async def list_leads(
 
 @router.get("/export")
 async def export_leads_csv(
+    scope: Literal["current", "archived", "all"] = Query("current"),
     list_id: int | None = Query(None, ge=1),
     status: str | None = Query(None),
     bad_only: bool = Query(False),
@@ -580,7 +604,7 @@ async def export_leads_csv(
 ):
     """CSV export aligned with the Leads UI: core columns plus all custom_data keys."""
     intr = _optional_interest_for_stmt(interest)
-    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr)
+    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr, scope=scope)
     if list_id is not None:
         stmt = stmt.where(
             exists(
@@ -632,7 +656,7 @@ async def export_leads_csv(
                     "opened": pair in opened,
                     "clicked": pair in clicked,
                     "replied": pair in replied,
-                    "sending_paused": cl.sending_paused,
+                    "sending_paused": cl.sending_paused or cl.archive_sending_paused,
                 }
             )
         row = [
@@ -662,6 +686,17 @@ async def export_leads_csv(
         media_type="text/csv; charset=utf-8",
         headers={"Content-Disposition": f'attachment; filename="leads_{suffix}.csv"'},
     )
+
+
+@router.post("/archive")
+async def archive_contacts(
+    body: LeadArchiveRequest,
+    db: AsyncSession = Depends(get_db),
+    actor=Depends(get_current_user),
+):
+    changed = await set_archived(db, body.lead_ids, body.archived, actor)
+    await db.commit()
+    return {"ok": True, "updated": changed}
 
 
 @router.post("/bulk-delete")
@@ -1272,11 +1307,13 @@ async def update_lead(
     data: LeadUpdate,
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
+    actor=Depends(get_current_user),
 ):
-    result = await db.execute(select(Lead).where(Lead.id == lead_id))
+    result = await db.execute(select(Lead).where(Lead.id == lead_id).with_for_update())
     lead = result.scalar_one_or_none()
     if not lead:
         raise HTTPException(404, "Lead not found")
+    before = {"name": lead.name, "custom_data": lead.custom_data}
     if data.name is not None:
         lead.name = data.name
     if data.custom_data is not None:
@@ -1289,6 +1326,12 @@ async def update_lead(
             if cl.enrollment_status != target:
                 cl.enrollment_status = target
                 enrollment_changed = True
+    after = {"name": lead.name, "custom_data": lead.custom_data}
+    if before != after or enrollment_changed:
+        record_operation(db, lead.id, "update", actor, {
+            "before": before, "after": after,
+            "enrollment_status": data.enrollment_status,
+        })
     await db.flush()
 
     if enrollment_changed:
@@ -1302,7 +1345,7 @@ async def update_lead(
         enqueue_global_recalculate(background_tasks)
 
     result2 = await db.execute(
-        _lead_query_with_campaigns().where(Lead.id == lead_id),
+        _lead_query_with_campaigns().where(Lead.id == lead_id).execution_options(populate_existing=True),
     )
     lead_loaded = result2.scalar_one()
     opened, clicked, replied = await _engagement_pair_sets(db, [lead_id])

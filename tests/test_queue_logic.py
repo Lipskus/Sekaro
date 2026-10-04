@@ -1363,6 +1363,10 @@ class TestApiRecalculationTriggers:
         )
         assert cnt.scalar() == 1
 
+        from app.models import User
+        operator = User(username="qa-operator", email="qa-operator@example.com")
+        session.add(operator)
+        await session.flush()
         # change status to unsubscribed
         bg = BackgroundTasks()
         await update_lead(
@@ -1370,6 +1374,7 @@ class TestApiRecalculationTriggers:
             LeadUpdate(enrollment_status="unsubscribed"),
             background_tasks=bg,
             db=session,
+            actor=operator,
         )
         await bg()
         cnt2 = await session.execute(

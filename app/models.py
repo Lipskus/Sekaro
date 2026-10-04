@@ -22,7 +22,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Index,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, query_expression
 from app.time import utcnow as _utcnow
 
 from app.database import Base
@@ -142,6 +142,9 @@ class Lead(Base):
     name = Column(String(255), default="")
     custom_data = Column(JSON, default=dict)  # e.g. {"company": "...", "title": "..."}
     status = Column(String(32), default="active")  # active, unsubscribed, bounced, replied, invalid
+    archived_at = Column(DateTime, nullable=True, default=None, index=True)
+    suppressed = query_expression()
+    operations = relationship("ContactOperation", cascade="all, delete-orphan", order_by="ContactOperation.id.desc()")
     # Email verification: pending, valid, invalid, catch_all, unknown, risky, or null (not verified)
     email_verification_status = Column(String(32), nullable=True, default=None, index=True)
     # Raw JSON result from the verification provider
@@ -157,6 +160,18 @@ class Lead(Base):
         back_populates="lead",
         cascade="all, delete-orphan",
     )
+
+
+class ContactOperation(Base):
+    """Contact lifecycle history; correspondence stays in its existing tables."""
+    __tablename__ = "contact_operation"
+    id = Column(Integer, primary_key=True)
+    lead_id = Column(Integer, ForeignKey("lead.id", ondelete="CASCADE"), nullable=False, index=True)
+    action = Column(String(32), nullable=False)
+    occurred_at = Column(DateTime, default=_utcnow, nullable=False)
+    actor_id = Column(Integer, ForeignKey("app_user.id", ondelete="SET NULL"), nullable=True)
+    actor_name = Column(String(255), nullable=False)
+    details = Column(JSON, default=dict, nullable=False)
 
 
 class ContactFieldDefinition(Base):
@@ -333,6 +348,7 @@ class CampaignLead(Base):
     # Whether sending is paused for this specific campaign-lead pair
     # (e.g. auto-paused by AI classifier when marked not_interested)
     sending_paused = Column(Boolean, default=False, nullable=False)
+    archive_sending_paused = Column(Boolean, default=False, server_default="false", nullable=False)
     campaign = relationship("Campaign", back_populates="campaign_leads")
     lead = relationship("Lead", back_populates="campaign_leads")
     queue_slots = relationship("QueueSlot", back_populates="campaign_lead", cascade="all, delete-orphan", order_by="QueueSlot.sequence_index")

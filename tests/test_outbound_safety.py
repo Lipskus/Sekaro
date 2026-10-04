@@ -9,7 +9,8 @@ from sqlalchemy import func, select
 from app.auth import get_current_user
 from app.database import get_db
 from app.main import app
-from app.models import SmtpAccount, SmtpMessage
+from app.models import SmtpAccount, SmtpMessage, Lead
+from app.time import utcnow
 from app.sender import SendResult
 from app.suppression import suppress_email
 from tests.conftest import make_campaign, make_campaign_inbox, make_inbox, make_sequence
@@ -17,7 +18,7 @@ from tests.conftest import make_campaign, make_campaign_inbox, make_inbox, make_
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("route", ["reply", "unibox", "template", "campaign"])
-@pytest.mark.parametrize("condition", ["suppressed", "paused", "allowed", "unauthenticated"])
+@pytest.mark.parametrize("condition", ["suppressed", "paused", "archived", "allowed", "unauthenticated"])
 async def test_outbound_route_policy(session, monkeypatch, route, condition):
     inbox = await make_inbox(session, email="sender@example.com", provider="smtp")
     inbox.paused = condition == "paused"
@@ -27,6 +28,8 @@ async def test_outbound_route_policy(session, monkeypatch, route, condition):
     seq = await make_sequence(session, campaign.id)
     if condition == "suppressed":
         await suppress_email(session, "blocked@example.com", stop_active_sends=False)
+    if condition == "archived":
+        session.add(Lead(email="operator@example.com", archived_at=utcnow()))
     await session.commit()
 
     transport = Mock(return_value=SendResult(message_id="<mock@example.com>", thread_id="mock-thread"))

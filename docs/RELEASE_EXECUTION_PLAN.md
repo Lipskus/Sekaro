@@ -67,8 +67,8 @@ Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są hi
 
 | Etap | Stan |
 |---|---|
-| 1 — P0 | **W toku — zbiorczy pakiet do przeglądu.** Implementacja P0-01–07 i końcowe regresje wykonane; macierz 98 referencji gotowa z jawnymi odstępstwami. P0-08/09/10 mają dowody techniczne, ale odbiór całego P0 i akceptacja odstępstw pozostają otwarte. Branch `work/p0-final-bundle-2026-09-30`. |
-| 2 — kontakty i historia | Nierozpoczęty; następny po zamknięciu P0. |
+| 1 — P0 | Pakiet `8f5c7b4` zainstalowany przez użytkownika. 04.10 potwierdzono wersję z przekazanego terminala oraz odczyt demo po logowaniu: dashboard, kontakty i szablony. Polecenie kontynuowania harmonogramu jest podstawą rozpoczęcia etapu 2; nie oznacza potwierdzenia zgodności 1:1 z referencjami. Odstępstwa pozostają opisane w raporcie P0. |
+| 2 — kontakty i historia | Zbiorczy pakiet implementacji na `work/stage-2-contacts-history-2026-10-04`; archiwum/przywracanie, niezależne blokady i historia operacji. Schemat: `docs/STAGE_2_CONTACTS.md`, weryfikacja: `docs/qa/2026-10-04-stage2-contacts.md`. Bez wdrożenia na demo. |
 | 3 — analityka outreach | Nierozpoczęty. Lokalizacja obecnych raportów w P0 nie realizuje tego etapu. |
 | 4 — stabilna baza | Nierozpoczęty. |
 | 5 — rdzeń CRM | Nierozpoczęty; pozostaje w zatwierdzonym miejscu planu. |

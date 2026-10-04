@@ -81,6 +81,9 @@ async def _run_migrations(conn) -> None:
         return
 
     pg_alters = [
+        "ALTER TABLE campaign_lead ADD COLUMN IF NOT EXISTS archive_sending_paused BOOLEAN NOT NULL DEFAULT FALSE",
+        "ALTER TABLE lead ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP NULL",
+        "CREATE INDEX IF NOT EXISTS ix_lead_archived_at ON lead (archived_at)",
         "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_mode VARCHAR(16) NOT NULL DEFAULT 'keep'",
         "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_days INTEGER NOT NULL DEFAULT 30",
         "ALTER TABLE smtp_sync_state ADD COLUMN IF NOT EXISTS archive_last_uid INTEGER NOT NULL DEFAULT 0",

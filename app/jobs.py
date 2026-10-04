@@ -814,7 +814,7 @@ async def run_send_job():
                 list_unsub_url = unsub_url if getattr(campaign, 'add_unsubscribe_header', True) else None
 
                 from app.outbound_safety import outbound_block_reason
-                if await outbound_block_reason(session, lead.email, inbox.id):
+                if await outbound_block_reason(session, lead.email, inbox.id, campaign_lead_id=cl.id):
                     await session.delete(email_log_entry)
                     continue
 
@@ -1608,7 +1608,7 @@ async def send_slot_job(slot_id: int) -> None:
         list_unsub_url = unsub_url if getattr(campaign, "add_unsubscribe_header", True) else None
 
         from app.outbound_safety import outbound_block_reason
-        if await outbound_block_reason(session, lead.email, inbox.id):
+        if await outbound_block_reason(session, lead.email, inbox.id, campaign_lead_id=cl.id):
             await session.delete(email_log_entry)
             await session.commit()
             return

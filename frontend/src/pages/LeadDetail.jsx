@@ -9,16 +9,16 @@ import {useConfirm} from '../context/ConfirmContext';
 import {parseApiDate} from '../utils/datetime';
 
 const displayValue = value => value == null || value === '' ? '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
-const eventTitle = (row,t) => row.kind === 'enrolled' ? t('contacts.eventEnrolled') : row.kind === 'reply_marker' ? t('contacts.eventReply') : row.direction === 'outbound' ? t('contacts.eventSent') : t('contacts.eventReceived');
+const eventTitle = (row,t) => row.kind === 'operation' ? t('contacts.operation.'+row.action) : row.kind === 'enrolled' ? t('contacts.eventEnrolled') : row.kind === 'reply_marker' ? t('contacts.eventReply') : row.direction === 'outbound' ? t('contacts.eventSent') : t('contacts.eventReceived');
 const timestamp = value => value ? +parseApiDate(value) || 0 : 0;
 export function contactEvents(lead) {
-  return [...(lead.interactions || []), ...(lead.campaigns || []).map(c => ({kind:'enrolled', at:c.enrolled_at, campaign_id:c.campaign_id, campaign_name:c.campaign_name}))]
+  return [...(lead.operations || []), ...(lead.interactions || []), ...(lead.campaigns || []).map(c => ({kind:'enrolled', at:c.enrolled_at, campaign_id:c.campaign_id, campaign_name:c.campaign_name}))]
     .sort((a,b) => timestamp(b.at) - timestamp(a.at));
 }
 function Timeline({events, compact=false}) {
   const {t,language}=useUiLanguage();
   return events.length ? <ol className={`sk-contact-timeline ${compact?'is-compact':''}`}>{events.map((row,i) => <li key={`${row.at}-${row.kind}-${row.campaign_id}-${i}`}>
-    <div className="sk-contact-event-heading"><strong>{eventTitle(row,t)}</strong><time>{dateTime(row.at,{year:'numeric'},language)}</time></div>
+    <div className="sk-contact-event-heading"><strong>{eventTitle(row,t)}</strong><time>{dateTime(row.at,{year:'numeric'},language)}</time></div>{row.actor_name&&<small>{t('contacts.operationActor',{actor:row.actor_name})}</small>}
     {!compact && <>{row.campaign_name && <Link to={`/campaigns/${row.campaign_id}`}>{row.campaign_name}</Link>}{row.subject && <p>{row.subject}</p>}{row.snippet && <p className="sk-contact-event-snippet">{row.snippet}</p>}</>}
   </li>)}</ol> : <StatePanel title={t('contacts.noActivity')} description={t('contacts.noActivityHelp')} icon="history"/>;
 }
@@ -60,8 +60,15 @@ export default function LeadDetail() {
     catch(e){if(request===seq.current)setSaveError(e);}
     finally{saveLock.current=false;setSaving(false);}
   };
+  const archive=async()=>{
+    if(!lead||saving||dirty||saveLock.current)return;
+    if(!await confirm(t(lead.archived_at?'contacts.restoreWarning':'contacts.archiveWarning',{count:1})))return;
+    saveLock.current=true;setSaving(true);setSaveError(null);
+    try{await api.post('/leads/archive',{lead_ids:[lead.id],archived:!lead.archived_at});await load();}
+    catch(e){setSaveError(e);}finally{saveLock.current=false;setSaving(false);}
+  };
   const events=useMemo(()=>lead?contactEvents(lead):[],[lead]);
-  const filtered=events.filter(e=>(!kind||(kind==='messages'?e.kind!=='enrolled':e.kind===kind))&&(!campaign||String(e.campaign_id)===campaign));
+  const filtered=events.filter(e=>(!kind||(kind==='messages'?!!e.direction||e.kind==='reply_marker':e.kind===kind))&&(!campaign||String(e.campaign_id)===campaign));
   if(error)return <PageFrame title={t('contacts.contact')}><ErrorNotice error={error} onRetry={load}/><Button to="/leads">{t('contacts.back')}</Button></PageFrame>;
   if(loading||!lead)return <PageFrame title={t('contacts.contact')}><StatePanel title={t('contacts.loading')} description={t('contacts.loadingProfile')} icon="refresh"/></PageFrame>;
   const campaigns=lead.campaigns||[],interactions=lead.interactions||[];
@@ -69,8 +76,8 @@ export default function LeadDetail() {
   const received=interactions.filter(e=>e.direction==='inbound'&&e.kind!=='reply_marker').length;
   const replies=interactions.filter(e=>e.kind==='reply_marker').length;
   const customFields=fields.filter(f=>!f.system);
-  return <PageFrame className="sk-contact-workspace" title={lead.name||lead.email} description={lead.email} actions={<Button to="/leads" icon="back">{t('contacts.back')}</Button>}>
-    <SectionTabs ariaLabel={t('contacts.contactView')} items={[{id:'summary',label:t('contacts.summary')},{id:'activity',label:t('contacts.activity')},{id:'campaigns',label:t('contacts.campaigns')},{id:'messages',label:t('contacts.messages')}]} value={tab} onChange={setTab}/>
+  return <PageFrame className="sk-contact-workspace" title={lead.name||lead.email} description={lead.email} actions={<><Button disabled={saving||dirty} onClick={archive}>{t(lead.archived_at?'contacts.restore':'contacts.archive')}</Button><Button to="/leads" icon="back">{t('contacts.back')}</Button></>}>
+    {tab!=='summary'&&<ErrorNotice error={saveError}/>}<SectionTabs ariaLabel={t('contacts.contactView')} items={[{id:'summary',label:t('contacts.summary')},{id:'activity',label:t('contacts.activity')},{id:'campaigns',label:t('contacts.campaigns')},{id:'messages',label:t('contacts.messages')}]} value={tab} onChange={setTab}/>
     <div className="sk-contact-workspace-grid"><div className="sk-contact-workspace-main">
       {tab==='summary'&&<form onSubmit={save}>
         <Panel className="sk-contact-profile"><div className="sk-contact-identity"><Avatar name={lead.name||lead.email}/><div><h2>{lead.name||lead.email}</h2><p>{lead.email}</p><small>{t('contacts.profileMeta',{id:lead.id,date:dateTime(lead.created_at,{year:'numeric'},language)})}</small></div><ContactStatus lead={lead}/></div>
@@ -82,11 +89,11 @@ export default function LeadDetail() {
           {!customFields.length&&<p className="sk-muted">{t('contacts.noFields')}</p>}
           <ErrorNotice error={saveError}/><div className="sk-contact-savebar"><span role="status">{saving?t('contacts.saving'):dirty?t('contacts.unsaved'):t('contacts.clean')}</span><Button disabled={saving||!dirty} onClick={async()=>{if(await confirm(t('contacts.discardWarning'))){setEditName(lead.name||'');setEditCustom({...lead.custom_data});setSaveError(null);}}}>{t('contacts.discard')}</Button><Button type="submit" variant="primary" disabled={saving||!dirty}>{t('contacts.save')}</Button></div>
         </Panel>
-        <Panel title={t('contacts.profileStatus')}><dl className="sk-contact-status-grid"><div><dt>{t('contacts.verification')}</dt><dd>{lead.email_verification_status?contactStatusLabel(lead.email_verification_status,t):t('contacts.noResult')}</dd></div><div><dt>{t('contacts.campaignUnsubscribe')}</dt><dd>{campaigns.some(c=>c.status==='unsubscribed')?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.campaignBounce')}</dt><dd>{campaigns.some(c=>c.status==='bounced')?t('contacts.yes'):t('contacts.no')}</dd></div></dl></Panel>
+        <Panel title={t('contacts.profileStatus')}><dl className="sk-contact-status-grid"><div><dt>{t('contacts.archived')}</dt><dd>{lead.archived_at?dateTime(lead.archived_at,{},language):t('contacts.no')}</dd></div><div><dt>{t('contacts.suppressed')}</dt><dd>{lead.suppressed?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.sendingPaused')}</dt><dd>{campaigns.some(c=>c.sending_paused)?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.verification')}</dt><dd>{lead.email_verification_status?contactStatusLabel(lead.email_verification_status,t):t('contacts.noResult')}</dd></div><div><dt>{t('contacts.campaignUnsubscribe')}</dt><dd>{campaigns.some(c=>c.status==='unsubscribed')?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.campaignBounce')}</dt><dd>{campaigns.some(c=>c.status==='bounced')?t('contacts.yes'):t('contacts.no')}</dd></div></dl></Panel>
       </form>}
-      {tab==='activity'&&<Panel title={t('contacts.timeline')}><p className="sk-muted sk-small">{t('contacts.timelineHelp')}</p><div className="sk-contact-activity-filters"><label>{t('contacts.activityType')}<select value={kind} onChange={e=>setKind(e.target.value)}><option value="">{t('contacts.allEvents')}</option><option value="messages">{t('contacts.messagesReplies')}</option><option value="enrolled">{t('contacts.assignments')}</option><option value="reply_marker">{t('contacts.confirmedReplies')}</option></select></label><label>{t('contacts.campaign')}<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="">{t('contacts.allCampaigns')}</option>{campaigns.map(c=><option key={c.campaign_id} value={c.campaign_id}>{c.campaign_name}</option>)}</select></label></div><Timeline events={filtered}/></Panel>}
+      {tab==='activity'&&<Panel title={t('contacts.timeline')}><p className="sk-muted sk-small">{t('contacts.timelineHelp')}</p><div className="sk-contact-activity-filters"><label>{t('contacts.activityType')}<select value={kind} onChange={e=>setKind(e.target.value)}><option value="">{t('contacts.allEvents')}</option><option value="messages">{t('contacts.messagesReplies')}</option><option value="operation">{t('contacts.operations')}</option><option value="enrolled">{t('contacts.assignments')}</option><option value="reply_marker">{t('contacts.confirmedReplies')}</option></select></label><label>{t('contacts.campaign')}<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="">{t('contacts.allCampaigns')}</option>{campaigns.map(c=><option key={c.campaign_id} value={c.campaign_id}>{c.campaign_name}</option>)}</select></label></div><Timeline events={filtered}/></Panel>}
       {tab==='campaigns'&&<Panel title={t('contacts.contactCampaigns')}><Campaigns items={campaigns}/></Panel>}
-      {tab==='messages'&&<Panel title={t('contacts.messages')}><p className="sk-muted sk-small">{t('contacts.messagesHelp')}</p><Timeline events={events.filter(e=>e.kind!=='enrolled'&&e.kind!=='reply_marker')}/><Button to="/unibox" icon="mail">{t('contacts.openInbox')}</Button></Panel>}
+      {tab==='messages'&&<Panel title={t('contacts.messages')}><p className="sk-muted sk-small">{t('contacts.messagesHelp')}</p><Timeline events={events.filter(e=>!!e.direction&&e.kind!=='reply_marker')}/><Button to="/unibox" icon="mail">{t('contacts.openInbox')}</Button></Panel>}
     </div><aside className="sk-contact-workspace-aside">
       <Panel title={t('contacts.summary')}><dl className="sk-contact-summary">{[[t('contacts.campaigns'),campaigns.length],[t('contacts.sent'),outbound],[t('contacts.received'),received],[t('contacts.replyMarkers'),replies]].map(([label,value])=><div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl></Panel>
       {tab==='summary'?<Panel title={t('contacts.recentActivity')}><Timeline events={events.slice(0,4)} compact/><Button className="sk-full-width" onClick={()=>setTab('activity')}>{t('contacts.fullHistory')}</Button></Panel>:<Panel title={t('contacts.relatedCampaigns')}><Campaigns items={campaigns}/></Panel>}

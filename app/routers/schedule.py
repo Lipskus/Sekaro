@@ -504,6 +504,8 @@ async def global_scheduled(
         )
         .where(
             CampaignLead.sending_paused == False,  # noqa: E712
+            CampaignLead.archive_sending_paused.is_(False),
+            Lead.archived_at.is_(None),
             CampaignLead.enrollment_status.in_(["active", "contacted"]),
         )
         .order_by(QueueSlot.scheduled_date.asc(), QueueSlot.position_in_day)

@@ -32,10 +32,12 @@ def interest_blocks_sends(interest: str | None) -> bool:
 
 def campaign_lead_may_receive_sends(cl: "CampaignLead", lead: "Lead") -> bool:
     """True if this enrollment should be considered for outbound scheduling."""
+    if getattr(lead, "archived_at", None) is not None:
+        return False
     ev = getattr(lead, "email_verification_status", None)
     if ev in VERIFICATION_BLOCKS_SEND:
         return False
-    if getattr(cl, "sending_paused", False):
+    if getattr(cl, "sending_paused", False) or getattr(cl, "archive_sending_paused", False):
         return False
     st = getattr(cl, "enrollment_status", None) or "active"
     if enrollment_blocks_sends(st):
@@ -63,7 +65,9 @@ def campaign_lead_schedule_eligibility_clause():
         )
     )
     return and_(
+        Lead.archived_at.is_(None),
         CampaignLead.sending_paused.is_(False),
+        CampaignLead.archive_sending_paused.is_(False),
         CampaignLead.enrollment_status.in_(("active", "contacted")),
         or_(
             CampaignLead.interest_status.is_(None),

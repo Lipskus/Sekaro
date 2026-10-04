@@ -151,7 +151,26 @@
       "catch_all": "Catch-all",
       "unknown": "Nieznany",
       "risky": "Ryzykowny"
-    }
+    },
+    "archive": "Archiwizuj",
+    "restore": "Przywróć",
+    "archived": "W archiwum",
+    "suppressed": "Globalna blokada wysyłki",
+    "archiveScope": "Zakres kontaktów",
+    "scope": {
+      "current": "Bieżące kontakty",
+      "archived": "Archiwum",
+      "all": "Wszystkie kontakty"
+    },
+    "archiveWarning": "Zarchiwizować kontakty ({count})? Zachowamy historię i wstrzymamy wysyłkę.",
+    "restoreWarning": "Przywrócić kontakty ({count})? Wysyłka pozostanie wstrzymana. Blokady i historia zostaną zachowane.",
+    "operations": "Operacje na kontakcie",
+    "operation": {
+      "archive": "Kontakt zarchiwizowany",
+      "restore": "Kontakt przywrócony",
+      "update": "Kontakt zmieniony"
+    },
+    "operationActor": "Autor: {actor}"
   },
   "en": {
     "contacts": "Contacts",
@@ -305,7 +324,26 @@
       "catch_all": "Catch-all",
       "unknown": "Unknown",
       "risky": "Risky"
-    }
+    },
+    "archive": "Archive",
+    "restore": "Restore",
+    "archived": "Archived",
+    "suppressed": "Global sending block",
+    "archiveScope": "Contact scope",
+    "scope": {
+      "current": "Current contacts",
+      "archived": "Archive",
+      "all": "All contacts"
+    },
+    "archiveWarning": "Archive contacts ({count})? History will be preserved and sending paused.",
+    "restoreWarning": "Restore contacts ({count})? Sending will remain paused. Blocks and history will be preserved.",
+    "operations": "Contact operations",
+    "operation": {
+      "archive": "Contact archived",
+      "restore": "Contact restored",
+      "update": "Contact updated"
+    },
+    "operationActor": "By: {actor}"
   },
   "de": {
     "contacts": "Kontakte",
@@ -459,7 +497,26 @@
       "catch_all": "Catch-all",
       "unknown": "Unbekannt",
       "risky": "Riskant"
-    }
+    },
+    "archive": "Archivieren",
+    "restore": "Wiederherstellen",
+    "archived": "Archiviert",
+    "suppressed": "Globale Versandsperre",
+    "archiveScope": "Kontaktbereich",
+    "scope": {
+      "current": "Aktuelle Kontakte",
+      "archived": "Archiv",
+      "all": "Alle Kontakte"
+    },
+    "archiveWarning": "Kontakte ({count}) archivieren? Der Verlauf bleibt erhalten, der Versand wird pausiert.",
+    "restoreWarning": "Kontakte ({count}) wiederherstellen? Der Versand bleibt pausiert. Sperren und Verlauf bleiben erhalten.",
+    "operations": "Kontaktaktionen",
+    "operation": {
+      "archive": "Kontakt archiviert",
+      "restore": "Kontakt wiederhergestellt",
+      "update": "Kontakt bearbeitet"
+    },
+    "operationActor": "Von: {actor}"
   },
   "ru": {
     "contacts": "Контакты",
@@ -613,6 +670,25 @@
       "catch_all": "Catch-all",
       "unknown": "Неизвестен",
       "risky": "Рискованный"
-    }
+    },
+    "archive": "Архивировать",
+    "restore": "Восстановить",
+    "archived": "В архиве",
+    "suppressed": "Глобальная блокировка отправки",
+    "archiveScope": "Область контактов",
+    "scope": {
+      "current": "Текущие контакты",
+      "archived": "Архив",
+      "all": "Все контакты"
+    },
+    "archiveWarning": "Архивировать контакты ({count})? История сохранится, отправка будет приостановлена.",
+    "restoreWarning": "Восстановить контакты ({count})? Отправка останется приостановленной. Блокировки и история сохранятся.",
+    "operations": "Операции с контактом",
+    "operation": {
+      "archive": "Контакт архивирован",
+      "restore": "Контакт восстановлен",
+      "update": "Контакт изменён"
+    },
+    "operationActor": "Автор: {actor}"
   }
 }

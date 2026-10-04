@@ -1377,7 +1377,7 @@ async def list_campaign_leads(campaign_id: int, db: AsyncSession = Depends(get_d
             "opened": lead.id in opened_set,
             "clicked": lead.id in clicked_set,
             "replied": lead.id in replied_set,
-            "sending_paused": cl.sending_paused,
+            "sending_paused": cl.sending_paused or cl.archive_sending_paused,
             "email_verification_status": lead.email_verification_status,
             "provider": lead.provider,
             "from_inbox_email": inbox_by_lead.get((lead.id, campaign_id)),
@@ -1430,7 +1430,12 @@ async def patch_campaign_lead(
             cl.interest_status = norm
 
     if payload.sending_paused is not None:
+        lead = (await db.execute(select(Lead).where(Lead.id == lead_id).with_for_update())).scalar_one()
+        if not payload.sending_paused and lead.archived_at is not None:
+            raise HTTPException(409, "Restore the archived contact before resuming sends")
         cl.sending_paused = payload.sending_paused
+        if not payload.sending_paused:
+            cl.archive_sending_paused = False
 
     await db.flush()
     # Full global recalculation: schedule must mirror what the send job will deliver.
@@ -1442,7 +1447,7 @@ async def patch_campaign_lead(
         "ok": True,
         "status": cl.enrollment_status,
         "interest": cl.interest_status,
-        "sending_paused": cl.sending_paused,
+        "sending_paused": cl.sending_paused or cl.archive_sending_paused,
     }
 
 
@@ -2315,8 +2320,12 @@ async def bulk_add_leads_to_campaign(
 
         try:
             # Find or create lead by email
-            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email).with_for_update())
             lead = lead_result.scalar_one_or_none()
+            if lead and lead.archived_at is not None:
+                results.append({"email": email, "status": "archived", "detail": "Restore the contact before enrolling"})
+                errors += 1
+                continue
             if not lead:
                 lead = Lead(
                     email=email,
@@ -3056,8 +3065,12 @@ async def import_campaign_leads(
             return None
 
         try:
-            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email).with_for_update())
             lead = lead_result.scalar_one_or_none()
+            if lead and lead.archived_at is not None:
+                results_list.append({"email": email, "status": "archived", "detail": "Restore the contact before enrolling"})
+                errors += 1
+                continue
             if not lead:
                 lead = Lead(email=email, name=name, custom_data=custom_data)
                 db.add(lead)
