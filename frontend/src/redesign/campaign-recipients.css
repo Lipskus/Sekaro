@@ -31,3 +31,6 @@
 @media(max-width:480px){.sk-recipient-filters{grid-template-columns:1fr}.sk-modal-drawer .sk-modal-body{padding:16px}}
 
 .sk-modal-drawer .sk-modal-header{flex-shrink:0}
+/* Enrollment feedback gets a row of its own; keep the search usable after adding a group. */
+.sk-recipient-toolbar>.sk-group-result{flex:0 0 100%;order:1;margin:0;overflow-wrap:anywhere}
+.sk-shell .sk-recipient-toolbar>input[type=search]{flex:1 1 240px;min-width:min(240px,100%)}

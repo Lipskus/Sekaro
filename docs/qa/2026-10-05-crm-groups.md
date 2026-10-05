@@ -33,3 +33,18 @@ Odbiór na działającym demo nowego pakietu pozostaje do wykonania po wdrożeni
 Jedna gałąź: `work/crm-navigation-groups-2026-10-05`. Operator aktualizuje istniejące demo skryptem `scripts/sekaro-demo.sh up`, z zachowaniem override PG17 i konfiguracji demo. Nie zmieniać produkcji ani main.
 
 Po wdrożeniu: zaznaczyć dwa istniejące kontakty → „Dodaj do grupy” → nowa grupa; w CRM/Grupy wyszukać i dodać trzeciego, usunąć jednego członka i potwierdzić obecność jego profilu; w odbiorcach kampanii wybrać tę grupę, sprawdzić liczniki i ponowić dodanie (bez duplikatów). W demo sending_enabled i scheduler_enabled pozostają false.
+
+## Odbiór demo po aktualizacji obrazu (05.10, wieczór)
+
+- Nowa nawigacja CRM widoczna. Szanse, zadania i kalendarz dostępne przez wspólne zakładki; zapisane wcześniej spotkanie QA jest widoczne.
+- Utworzono grupę `QA CRM — 05.10 odbiór` (ID 4). Wyszukiwanie istniejących kontaktów działa. Dodano kontakty 8 i 9; usunięto członkostwo 8. Grupa ma 1 członka także po pełnym przeładowaniu.
+- Profil kontaktu 8 zachowany wraz z kampanią i historią dwóch wiadomości.
+- W wstrzymanej kampanii QA (ID 7) wybór grupy domyślnie pominął kontakt 9 jako już przypisany do innej kampanii. Po wyłączeniu globalnego pomijania dodano go do kampanii 7. Ponowienie przy nadal wyłączonym globalnym pomijaniu zwróciło 0 dodanych, 1 już przypisany. Nie uruchamiano kampanii; banner demo nadal potwierdza zablokowaną wysyłkę/synchronizację.
+- Pozostawiono grupę QA i odbiorcę w kampanii QA jako dane odbioru.
+- Zrzut jasnego widoku grup: `2026-10-05-crm-group-live.jpg`.
+- Wykryto ściskanie wyszukiwarki odbiorców przez komunikat wyniku. Poprawka CSS przenosi komunikat do pełnego wiersza i zachowuje minimalną szerokość wyszukiwania. Ta poprawka wymaga kolejnego zbudowania obrazu; nie jest jeszcze odebrana na demo.
+- Ten odbiór nie potwierdza Dark/mobile ani zgodności 1:1 z brakującymi PNG.
+
+### Poprawiona procedura aktualizacji
+
+`sekaro-demo.sh up` nie buduje obrazu. Po przełączeniu commita najpierw wykonać `docker build --label "org.opencontainers.image.revision=$(git rev-parse HEAD)" -t sekaro:local .`, następnie `bash scripts/sekaro-demo.sh up`. Bez kroku build uruchamiana jest poprzednia wersja obrazu mimo nowego HEAD.
