@@ -3,6 +3,8 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import Modal from '../redesign/Modal';
 import MailboxArchive from '../redesign/MailboxArchive';
 import GmailConnection from '../redesign/GmailConnection';
+import Office365Connection from '../redesign/Office365Connection';
+import MailIdentity from '../redesign/MailIdentity';
 import '../redesign/mailbox-editor.css';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
@@ -520,6 +522,7 @@ export default function Inboxes() {
   const [editSection, setEditSection] = useState('identity');
   const [smtpDirty, setSmtpDirty] = useState(false);
   const [archiveDirty, setArchiveDirty] = useState(false);
+  const [identityDirty, setIdentityDirty] = useState(false);
   const [archiveRevision, setArchiveRevision] = useState(0);
   const [smtpLoadError, setSmtpLoadError] = useState(null);
   const [editBusy, setEditBusy] = useState(false);
@@ -748,7 +751,7 @@ export default function Inboxes() {
     setEditMsg(null);
     setEditingSmtp(null);
     setSmtpTestMsg(null);
-    setArchiveDirty(false); setSmtpDirty(false); setEditSection('identity');
+    setArchiveDirty(false); setIdentityDirty(false); setSmtpDirty(false); setEditSection('identity');
     loadEditingSmtp(inbox);
     editOriginalDomain.current = inbox.tracking_domain || '';
     setEditDomainVerified(false);
@@ -761,7 +764,7 @@ export default function Inboxes() {
     );
   };
   const closeEdit = () => {
-    ++smtpLoadGeneration.current; setArchiveDirty(false); setSmtpDirty(false); setSmtpLoadError(null);
+    ++smtpLoadGeneration.current; setArchiveDirty(false); setIdentityDirty(false); setSmtpDirty(false); setSmtpLoadError(null);
     setEditing(null);
     setEditDirty(false);
     setEditingSmtp(null);
@@ -769,7 +772,7 @@ export default function Inboxes() {
   };
   const tryCloseEdit = () => {
     if (editBusyRef.current) return;
-    if (editDirty || smtpDirty || archiveDirty) {
+    if (editDirty || smtpDirty || archiveDirty || identityDirty) {
       setEditWarningCloseSidebar(false);
       setShowEditWarning(true);
     } else {
@@ -778,7 +781,7 @@ export default function Inboxes() {
   };
   const tryCloseSidebar = () => {
     if (editBusyRef.current) return;
-    if (editing && (editDirty || smtpDirty || archiveDirty)) {
+    if (editing && (editDirty || smtpDirty || archiveDirty || identityDirty)) {
       setEditWarningCloseSidebar(true);
       setShowEditWarning(true);
     } else {
@@ -811,6 +814,7 @@ export default function Inboxes() {
 
   const doSave = async () => {
     if (!editing || editBusyRef.current) return;
+    if (identityDirty) { setEditSection('signature'); return; }
     if (archiveDirty) { setEditSection('archive'); return; }
     if (smtpDirty) { setEditSection('connection'); setEditMsg({type:'error',text:'Najpierw zapisz zmiany połączenia SMTP / IMAP.'}); return; }
     const newDomain = editTrackingMode === 'dns' ? (editing.tracking_domain || '').trim() : '';
@@ -849,6 +853,7 @@ export default function Inboxes() {
 
   const saveEditingSmtp = async () => {
     if (!editing || !editingSmtp || editBusyRef.current) return;
+    if (identityDirty) { setEditSection('signature'); return; }
     if (archiveDirty) { setEditSection('archive'); return; }
     editBusyRef.current = true; setEditBusy(true);
     setSmtpTestMsg(null);
@@ -983,7 +988,7 @@ export default function Inboxes() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [showEditWarning, showAdd, editing, editDirty, smtpDirty, archiveDirty]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [showEditWarning, showAdd, editing, editDirty, smtpDirty, archiveDirty, identityDirty]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const deleteInbox = async (id, email) => {
     const ok = await confirm({message:ct('Usuń skrzynkę "{email}"?',{email}),danger:true});
@@ -1075,6 +1080,7 @@ export default function Inboxes() {
       }
     >
       <GmailConnection />
+      <Office365Connection />
       <ErrorNotice error={listError} onRetry={load} />
       {!showAdd && message && <div className={`sk-notice tone-${message.type === 'error' ? 'red' : 'green'}`} role={message.type === 'error' ? 'alert' : 'status'}>{ct(message.text,message.params)}</div>}
       {listLoading && inboxes.length === 0 && <StatePanel icon="refresh" title={ct("Ładowanie skrzynek")} description={ct("Pobieramy konfigurację skrzynek.")} />}
@@ -1145,7 +1151,7 @@ export default function Inboxes() {
                     </button>
                   </div>
 
-                  <nav className="sk-mailbox-edit-nav" aria-label={ct("Sekcje edycji skrzynki")}>{[['identity','Nadawca'],...(editing.provider==='smtp'?[['connection','SMTP / IMAP']]:[]),['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie'],...(editing.provider==='smtp'?[['archive','Przechowywanie']]:[])].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{ct(label)}</button>)}</nav>
+                  <nav className="sk-mailbox-edit-nav" aria-label={ct("Sekcje edycji skrzynki")}>{[['identity','Nadawca'],['signature','Stopka i S/MIME'],...(editing.provider==='smtp'?[['connection','SMTP / IMAP']]:[]),['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie'],...(editing.provider==='smtp'?[['archive','Przechowywanie']]:[])].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{ct(label)}</button>)}</nav>
                   {/* Edit form */}
                   <div className="px-5 py-4 overflow-y-auto flex-1 min-w-0">
                     {editMsg && <div role={editMsg.type === 'error' ? 'alert' : 'status'} className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{ct(editMsg.text)}</div>}
@@ -1369,12 +1375,15 @@ export default function Inboxes() {
                       </div>
                     </section>
                     </fieldset>
+                    <section hidden={editSection!=='signature'} className="sk-mailbox-edit-section">
+                      <MailIdentity inboxId={editing.id} onDirtyChange={setIdentityDirty} onBusyChange={busy=>{editBusyRef.current=busy;setEditBusy(busy);}}/>
+                    </section>
                     <section hidden={editSection!=='archive'} className="sk-mailbox-edit-section" aria-label={ct("Archiwum poczty")}>
                       {editing.provider==='smtp'&&<MailboxArchive key={editing.id} inboxId={editing.id} disabled={editBusy||smtpDirty} revision={archiveRevision} onDirtyChange={setArchiveDirty} onBusyChange={busy=>{editBusyRef.current=busy;setEditBusy(busy);}}/>}
                     </section>
                       <div className="sk-mailbox-edit-actions">
-                        <p role="status">{editBusy ? ct('Trwa przetwarzanie…') : archiveDirty ? ct('Niezapisane zasady przechowywania') : smtpDirty ? ct('Niezapisane zmiany SMTP / IMAP') : editDirty ? ct('Niezapisane ustawienia skrzynki') : ct("Brak niezapisanych zmian")}</p>
-                        <Button type="submit" size="sm" variant="default" disabled={editBusy || smtpDirty || archiveDirty || !editDirty}>{ct("Zapisz ustawienia")}</Button>
+                        <p role="status">{editBusy ? ct('Trwa przetwarzanie…') : identityDirty ? ct('Stopka i S/MIME') : archiveDirty ? ct('Niezapisane zasady przechowywania') : smtpDirty ? ct('Niezapisane zmiany SMTP / IMAP') : editDirty ? ct('Niezapisane ustawienia skrzynki') : ct("Brak niezapisanych zmian")}</p>
+                        <Button type="submit" size="sm" variant="default" disabled={editBusy || smtpDirty || archiveDirty || identityDirty || !editDirty}>{ct("Zapisz ustawienia")}</Button>
                         <Button type="button" size="sm" variant="outline" disabled={editBusy} onClick={tryCloseEdit}>{ct("Anuluj")}</Button>
                       </div>
                     </form>

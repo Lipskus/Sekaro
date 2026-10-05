@@ -2156,6 +2156,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   return (
     <Modal title={<>{ct("Podgląd — krok #")}{(sequence.position ?? 0) + 1}{variant && <span> · {variant.label || ct("Wariant")}</span>}</>}
       onClose={onClose} busy={testState === 'sending'}>
+        {preview?.signature_inbox&&<p className="sk-muted">{ct("Stopka")}: {preview.signature_inbox}</p>}
         {/* Lead picker */}
         <div className="px-6 py-3 border-b bg-gray-50 flex flex-wrap items-center gap-3">
           <label className="text-sm font-medium text-gray-600">{ct("Podgląd dla:")}</label>

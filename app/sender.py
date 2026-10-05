@@ -1,4 +1,5 @@
 from __future__ import annotations
+from app.mail_identity import finalize_mime
 
 """Email sending with template substitution and threading. Gmail and Office 365."""
 import base64
@@ -307,6 +308,8 @@ def _build_email_message(
     list_unsubscribe_url: Optional[str] = None,
 ) -> EmailMessage:
     """Build an EmailMessage using Python's stdlib email module (policy.SMTP)."""
+    from app.mail_identity import append_footer, identity_context
+    body = append_footer(body, is_html, identity_context.get())
     msg = EmailMessage(policy=email.policy.SMTP)
 
     # Set body content first — set_content/add_alternative must be called
@@ -390,7 +393,7 @@ def build_raw_mime(
         message_id=message_id,
         list_unsubscribe_url=list_unsubscribe_url,
     )
-    return base64.urlsafe_b64encode(msg.as_bytes()).decode("utf-8")
+    return base64.urlsafe_b64encode(finalize_mime(msg)).decode("utf-8")
 
 
 def _send_via_gmail(
@@ -473,7 +476,7 @@ def _send_via_gmail(
         list_unsubscribe_url=list_unsubscribe_url,
     )
 
-    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode("ascii")
+    raw = base64.urlsafe_b64encode(finalize_mime(msg)).decode("ascii")
     body_payload: Dict[str, Any] = {"raw": raw}
     if thread_id:
         body_payload["threadId"] = thread_id
@@ -622,7 +625,20 @@ def _send_via_gmail(
         return None
 
 
-def send_email(
+def send_email(*args, mail_identity=None, **kwargs):
+    from app.mail_identity import identity_context, SigningError, certificate_data
+    token = identity_context.set(mail_identity)
+    try:
+        if mail_identity and mail_identity.get("smime_enabled"):
+            certificate_data(mail_identity, kwargs.get("from_email") or (args[3] if len(args)>3 else ""))
+        return _send_email(*args, **kwargs)
+    except SigningError as exc:
+        return SendFailure(error_type="signing_failed", message=str(exc))
+    finally:
+        identity_context.reset(token)
+
+
+def _send_email(
     to_email: str,
     subject: str,
     body: str,
@@ -712,6 +728,7 @@ def send_email(
             body=body,
             from_email=from_email,
             from_name=from_name,
+            reply_to_address=reply_to_address,
             reply_to_msg_id=reply_to_msg_id,
             references=references,
             is_html=is_html,
@@ -789,6 +806,7 @@ def _send_via_office365(
     body: str,
     from_email: str,
     from_name: str = "",
+    reply_to_address: Optional[str] = None,
     reply_to_msg_id: Optional[str] = None,
     references: Optional[str] = None,
     is_html: bool = False,
@@ -839,13 +857,14 @@ def _send_via_office365(
         body=body,
         from_email=from_email,
         from_name=from_name,
+        reply_to_address=reply_to_address,
         reply_to_msg_id=reply_to_msg_id,
         references=references,
         is_html=is_html,
         message_id=message_id,
         list_unsubscribe_url=list_unsubscribe_url,
     )
-    raw_mime: bytes = mime_msg.as_bytes()
+    raw_mime: bytes = finalize_mime(mime_msg)
 
     def _do_json(url: str, payload: bytes, method: str = "POST") -> tuple[int, bytes]:
         req = urllib.request.Request(
@@ -878,33 +897,21 @@ def _send_via_office365(
 
     try:
         if use_reply_api:
-            # ── Graph Reply API (3-step): createReply → upload MIME → send ──
+            # ── Graph Reply API: createReply with final MIME → send ──
             # Step 1: create a reply draft so Graph assigns the correct
             # conversationIndex (the binary Outlook threading blob).
             create_url = (
                 f"https://graph.microsoft.com/v1.0/me/messages/"
-                f"{reply_graph_message_id}/createReply"
+                f"{urllib.parse.quote(reply_graph_message_id, safe='')}/createReply"
             )
-            _, create_body = _do_json(create_url, b"{}")
+            _, create_body = _do_mime(create_url, base64.b64encode(raw_mime))
             draft = json.loads(create_body)
             draft_id = draft["id"]
             draft_conv_id = draft.get("conversationId") or conversation_id
 
-            # Step 2: replace the draft content with our full MIME payload.
-            # Using $value with Content-Type: message/rfc822 sets all RFC
-            # headers (including List-Unsubscribe-Post) while the server-side
-            # conversationId / conversationIndex assigned in step 1 are
-            # preserved as message-object properties.
-            _do_mime(
-                f"https://graph.microsoft.com/v1.0/me/messages/{draft_id}/$value",
-                raw_mime,
-                method="PUT",
-                content_type="message/rfc822",
-            )
-
             # Step 3: send the draft.
             _do_json(
-                f"https://graph.microsoft.com/v1.0/me/messages/{draft_id}/send",
+                f"https://graph.microsoft.com/v1.0/me/messages/{urllib.parse.quote(draft_id, safe='')}/send",
                 b"{}",
             )
 
@@ -978,6 +985,7 @@ def _send_via_office365(
                         body=body,
                         from_email=from_email,
                         from_name=from_name,
+                        reply_to_address=reply_to_address,
                         reply_to_msg_id=reply_to_msg_id,
                         references=references,
                         is_html=is_html,
@@ -1091,7 +1099,7 @@ def _send_via_smtp(
         message_id=message_id,
         list_unsubscribe_url=list_unsubscribe_url,
     )
-    raw_bytes: bytes = mime_msg.as_bytes()
+    raw_bytes: bytes = finalize_mime(mime_msg)
     # Thread key: the root message of the chain (first References entry) or
     # our own Message-ID for a new thread.  Stored on EmailLog.thread_id so
     # follow-ups, unibox grouping, and In-Reply-To all stay consistent.

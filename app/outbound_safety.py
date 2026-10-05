@@ -35,6 +35,12 @@ async def outbound_block_reason(db: AsyncSession, recipient: str, inbox_id: int,
         return "missing_inbox"
     if row[0]:
         return "paused"
+    from app.mail_identity import load_identity, certificate_data, SigningError
+    identity = await load_identity(db, inbox_id)
+    if identity and identity.get("smime_enabled"):
+        email = await db.scalar(select(Inbox.email).where(Inbox.id == inbox_id))
+        try: certificate_data(identity, email)
+        except SigningError: return "signing_failed"
     return None
 
 
@@ -48,3 +54,6 @@ async def require_outbound_allowed(db: AsyncSession, recipient: str, inbox_id: i
         raise HTTPException(409, "Adres jest na liście wykluczeń. Wiadomość nie została wysłana.")
     if reason == "paused":
         raise HTTPException(409, "Skrzynka jest wstrzymana. Wiadomość nie została wysłana.")
+
+    if reason == "signing_failed":
+        raise HTTPException(409, "S/MIME signing is unavailable. Check the mailbox certificate before sending.")

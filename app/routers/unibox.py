@@ -1,6 +1,7 @@
 """Unibox API routes."""
 
 from __future__ import annotations
+from app.mail_identity import load_identity
 
 import asyncio
 import json
@@ -302,7 +303,9 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
                     references = reply_to
 
     await require_outbound_allowed(db, data.to_email, data.inbox_id)
+    identity = await load_identity(db, inbox.id)
     send_result = send_email(
+        mail_identity=identity,
         to_email=data.to_email,
         subject=data.subject,
         body=data.body,
@@ -333,6 +336,8 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
     if not thread_id:
         raise HTTPException(status_code=502, detail="Send succeeded but did not return thread id")
 
+    from app.mail_identity import append_footer
+    stored_body = append_footer(data.body, data.is_html, identity)
     # Store the sent message in the appropriate provider's local mirror.
     stored_message_id: str = send_result.message_id
     if provider == "smtp":
@@ -344,7 +349,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
             subject=data.subject,
             to_email=str(data.to_email),
             from_email=inbox.email,
-            body=data.body,
+            body=stored_body,
             is_html=data.is_html,
         )
         if smtp_msg:
@@ -358,7 +363,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
             subject=data.subject,
             to_email=str(data.to_email),
             from_email=inbox.email,
-            body=data.body,
+            body=stored_body,
             is_html=data.is_html,
         )
         if o365_msg:
@@ -373,7 +378,7 @@ async def send_unibox_email(data: UniboxSendRequest, db: AsyncSession = Depends(
             subject=data.subject,
             to_email=str(data.to_email),
             from_email=inbox.email,
-            body=data.body,
+            body=stored_body,
             is_html=data.is_html,
         )
         stored_message_id = stored_message.message_id

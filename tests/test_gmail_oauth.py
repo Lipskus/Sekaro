@@ -55,6 +55,7 @@ async def test_connection_paused_encrypted_and_single_use(client,session):
     c,a,o,u=client;state=await start(c,a)
     assert (await finish(c,o,state)).status_code==400
     result=await finish(c,a,state);assert result.status_code==303,result.text
+    assert result.headers['referrer-policy']=='no-referrer'
     inbox=await session.scalar(select(Inbox).where(Inbox.email=='mail@example.com'))
     assert inbox.provider=='gmail' and inbox.paused
     row=(await session.execute(text('select access_token, refresh_token from gmail_account'))).one()

@@ -1858,6 +1858,12 @@ async def preview_email(
         except Exception:
             pass  # non-fatal; show untracked version
 
+    from app.mail_identity import load_identity, append_footer
+    preview_inbox = await db.scalar(select(Inbox).join(CampaignInbox, Inbox.id == CampaignInbox.inbox_id)
+        .where(CampaignInbox.campaign_id == campaign_id).order_by(CampaignInbox.position, CampaignInbox.inbox_id).limit(1))
+    if preview_inbox:
+        rendered_body = append_footer(rendered_body, preview_is_html, await load_identity(db, preview_inbox.id))
+
     return {
         "subject": rendered_subject,
         "body": rendered_body,
@@ -1865,6 +1871,7 @@ async def preview_email(
         "sequence_position": seq.position,
         "variant_label": variant_label,
         "tracking_note": tracking_urls_note,
+        "signature_inbox": preview_inbox.email if preview_inbox else None,
     }
 
 
@@ -1946,7 +1953,7 @@ async def send_test_email(
     if getattr(inbox, "provider", "") == "gmail":
         from app.models import GmailAccount
         ga_result = await db.execute(
-            select(GmailAccount).where(GmailAccount.email == inbox.email)
+            select(GmailAccount).where(GmailAccount.inbox_id == inbox.id)
         )
         gmail_account = ga_result.scalar_one_or_none()
 
@@ -1966,9 +1973,15 @@ async def send_test_email(
     from app.outbound_safety import require_outbound_allowed
     await require_outbound_allowed(db, data.to_email, inbox.id)
 
+    from app.mail_identity import load_identity
+    identity = await load_identity(db, inbox.id)
+    from app.models import Office365Account
+    office_account = await db.scalar(select(Office365Account).where(Office365Account.inbox_id == inbox.id)) if inbox.provider == "office365" else None
     result = await asyncio.get_event_loop().run_in_executor(
         None,
         lambda: send_email(
+            mail_identity=identity,
+            office365_account=office_account,
             to_email=data.to_email,
             subject=f"[TEST] {rendered_subject}",
             body=rendered_body,

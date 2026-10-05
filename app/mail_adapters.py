@@ -1,7 +1,7 @@
 """Provider boundary shared by delivery and mailbox synchronization.
 
 Transport implementations stay in sender/unibox; lazy imports prevent cycles.
-Office365 is retained for existing installations, not exposed for new connections.
+SMTP, Gmail and Microsoft 365 use their existing transport implementations.
 """
 from dataclasses import dataclass
 

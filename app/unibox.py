@@ -3746,7 +3746,7 @@ async def _sync_inbox_office365(
         touched_threads.add((inbox.id, row.conversation_id))
         if idx % FULL_SYNC_PROGRESS_COMMIT_INTERVAL == 0:
             state.last_sync_at = time_provider.utcnow()
-            await db.commit()
+            await db.flush()  # Checkpoint and all folder rows commit together in the caller.
             log.info(
                 "Unibox O365 Inbox sync progress inbox_id=%s processed=%s/%s",
                 inbox.id, idx, len(inbox_messages),
@@ -3759,7 +3759,7 @@ async def _sync_inbox_office365(
         touched_threads.add((inbox.id, row.conversation_id))
         if idx % FULL_SYNC_PROGRESS_COMMIT_INTERVAL == 0:
             state.last_sync_at = time_provider.utcnow()
-            await db.commit()
+            await db.flush()  # Checkpoint and all folder rows commit together in the caller.
             log.info(
                 "Unibox O365 SentItems sync progress inbox_id=%s processed=%s/%s",
                 inbox.id, idx, len(sent_messages),
@@ -3772,7 +3772,7 @@ async def _sync_inbox_office365(
         touched_threads.add((inbox.id, row.conversation_id))
         if idx % FULL_SYNC_PROGRESS_COMMIT_INTERVAL == 0:
             state.last_sync_at = time_provider.utcnow()
-            await db.commit()
+            await db.flush()  # Checkpoint and all folder rows commit together in the caller.
             log.info(
                 "Unibox O365 JunkEmail sync progress inbox_id=%s processed=%s/%s",
                 inbox.id, idx, len(junk_messages),

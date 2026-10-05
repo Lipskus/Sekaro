@@ -1,3 +1,4 @@
+from app.mail_identity import load_identity
 """Background job: send due emails from the queue."""
 # // BEACON SYNC: This file handles tracking logic that Beacon mirrors.
 # // Any changes to tracking behavior, event types, metadata collected, or URL structure
@@ -829,6 +830,7 @@ async def run_send_job():
                     )
                 else:
                     result = send_email(
+                    mail_identity=await load_identity(session, inbox.id),
                         to_email=lead.email,
                         subject=subject,
                         body=send_body,
@@ -1635,6 +1637,7 @@ async def send_slot_job(slot_id: int) -> None:
                 )
             else:
                 result = send_email(
+                    mail_identity=await load_identity(session, inbox.id),
                     to_email=lead.email,
                     subject=subject,
                     body=send_body,

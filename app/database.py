@@ -396,7 +396,7 @@ async def _run_migrations(conn) -> None:
 
 
 async def init_db():
-    from app import models  # noqa: F401 - so Base.metadata has all tables
+    from app import models, mail_identity  # noqa: F401 - register mailbox identity for CLI startup too
     from app.settings_manager import initialize_settings
 
     async with engine.begin() as conn:

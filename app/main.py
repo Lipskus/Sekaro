@@ -215,6 +215,11 @@ from app.routers import access as access_router
 app.include_router(access_router.router)
 from app.routers import gmail_private
 app.include_router(gmail_private.router)
+from app.routers import mail_identity
+app.include_router(mail_identity.router)
+app.include_router(mail_identity.preview_router)
+from app.routers import office365_private
+app.include_router(office365_private.router)
 
 # ---------------------------------------------------------------------------
 # Protected routers – all require authentication

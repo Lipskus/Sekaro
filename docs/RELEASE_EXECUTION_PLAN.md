@@ -106,3 +106,20 @@ Pakiet implementacyjny: wspólna granica adapterów wysyłki/synchronizacji, odr
 Weryfikacja: pełny backend 589 zaliczonych / 9 pominiętych; dodatkowy końcowy zestaw Gmail 13/13 po dodaniu testów błędu odnowienia i Reply-To. Testy korzystają z SQLite i mockowanego Google; bez rzeczywistej wysyłki. Build frontendu poprawny (istniejące ostrzeżenie o wielkości bundla). UI: nowy panel, formularze skrzynek i języki w końcowym zestawie 70/70; poprawiono mock auth w testach po dodaniu administratorowego panelu. W pierwszym pełnym przebiegu UI wystąpił również timeout istniejącego podglądu harmonogramu; końcowe powtórzenie pełnego zestawu UI: **266/266**.
 
 Status: przygotowanie do odbioru na obecnym demo, bez scalenia do main. Demo nie umożliwia rzeczywistego połączenia Google. Zgoda OAuth, odnowienie i synchronizacja prawdziwego konta oraz współbieżność PostgreSQL pozostają do weryfikacji na docelowej konfiguracji. Etap 10 (Microsoft 365) i etap 11 (instalator + README/dokumentacja) zachowują kolejność.
+
+### Zatwierdzone rozszerzenia etapów 10–11 (05.10.2026)
+
+Etap 10 obejmuje Microsoft 365 oraz dwie niezależne opcje per skrzynka, domyślnie wyłączone: stopkę HTML/plain text i podpis cyfrowy S/MIME z importowanego P12/PFX. Włączenie podpisu oznacza blokadę wysyłki przy błędzie, bez cichego przejścia na niepodpisaną wiadomość. Podpis powstaje po wszystkich zmianach MIME; nie obiecujemy omijania spamu. Klucze i hasła są szyfrowane.
+
+Etap 11 obejmuje dodatkowo opcjonalne zdalne backupy S3/SFTP/FTPS: harmonogram, retencja, szyfrowanie przed transferem, test połączenia, historia i odtwarzanie. Błąd transferu zachowuje lokalną kopię. Zwykły FTP nie jest planowany. Bez dodatkowego etapu ani wydania.
+
+
+### Etap 10 — pakiet implementacyjny (05.10.2026)
+
+Microsoft 365: prywatny OAuth administratora z PKCE, zaszyfrowane tokeny i reconnect; istniejący adapter Graph, poprawiona ścieżka odpowiedzi MIME i atomowy zapis wiadomości/checkpointów synchronizacji. Nowe skrzynki mają wstrzymaną wysyłkę.
+
+Stopki i S/MIME: dwa niezależne przełączniki, domyślnie wyłączone per skrzynka. Edytor stopki HTML/plain text, podgląd oraz import P12/PFX z szyfrowanym przechowywaniem. Włączony podpis z błędnym certyfikatem zatrzymuje wysyłkę; podpisywany jest końcowy MIME. Dokumentacja konfiguracji i ograniczeń: `docs/STAGE_10_MAIL.md`. Publiczne logowanie OAuth nie zostało włączone.
+
+Końcowy pełny backend 609 zaliczonych / 9 pominiętych, frontend 272/272, build poprawny. Niezależna kontrola S/MIME przez OpenSSL, test zmiany treści, mocki transportów i OAuth, kontrola uprawnień i szyfrowania. Po poprawce Referrer-Policy dodatkowe 15/15 testów callbacków zaliczone. Nie wysłano realnych wiadomości. Odbiór docelowego OAuth/skrzynek/certyfikatu przez operatora pozostaje wymagany; SQLite nie potwierdza współbieżności PostgreSQL. Publikacja na gałęzi wydania, bez merge ani wdrożenia przez agenta.
+
+Pozostaje etap 11: instalator, opcjonalne backupy S3/SFTP/FTPS i odtwarzanie, README oraz instrukcje instalacji/aktualizacji.
