@@ -404,6 +404,8 @@ async def init_db():
         await _run_migrations(conn)
         from app.crm_migration import migrate_crm
         await migrate_crm(conn)
+        from app.mail_credentials_migration import migrate_mail_credentials
+        await migrate_mail_credentials(conn)
 
     # Load settings from database into memory
     async with AsyncSessionLocal() as session:

@@ -444,7 +444,7 @@ def _send_via_gmail(
                 "token_uri": "https://oauth2.googleapis.com/token",
                 "client_id": google_client_id or settings.google_client_id,
                 "client_secret": google_client_secret or settings.google_client_secret,
-                "scopes": ["https://www.googleapis.com/auth/gmail.send"],
+                "scopes": (getattr(gmail_account, "scopes", None) or "https://www.googleapis.com/auth/gmail.send").split(),
             }
         )
     creds = Credentials(**creds_kwargs)  # type: ignore[arg-type]
@@ -581,6 +581,7 @@ def _send_via_gmail(
                         body=body,
                         from_email=from_email,
                         from_name=from_name,
+                        reply_to_address=reply_to_address,
                         reply_to_msg_id=reply_to_msg_id,
                         references=references,
                         is_html=is_html,
@@ -657,8 +658,12 @@ def send_email(
     fake ``SendResult`` is returned so that the rest of the pipeline (DB
     logging, analytics, webhooks) proceeds normally.
     """
-    if not provider:
-        provider = "smtp"
+    from app.mail_adapters import get_adapter
+    try:
+        adapter = get_adapter(provider)
+        provider = adapter.name
+    except ValueError:
+        return SendFailure(error_type="unsupported_provider", message="Unsupported mail provider")
 
     if settings.test_mode:
         fake_id = make_msgid()
@@ -683,7 +688,7 @@ def send_email(
         if not smtp_account:
             log.error("send_email: no SMTP credentials for %s", from_email)
             return SendFailure(error_type="auth_failed", message="No SMTP credentials provided")
-        return _send_via_smtp(
+        return adapter.send(
             to_email=to_email,
             subject=subject,
             body=body,
@@ -701,7 +706,7 @@ def send_email(
         if not office365_account:
             log.error("send_email: no Office 365 credentials for %s", from_email)
             return SendFailure(error_type="auth_failed", message="No Office 365 credentials provided")
-        return _send_via_office365(
+        return adapter.send(
             to_email=to_email,
             subject=subject,
             body=body,
@@ -719,12 +724,12 @@ def send_email(
             reply_graph_message_id=reply_graph_message_id,
         )
 
-    # Default: Gmail
+    # Explicit Gmail adapter (unknown providers were rejected above).
     if not (gmail_access_token or gmail_account):
         log.error("send_email: no gmail credentials for %s", from_email)
         return SendFailure(error_type="auth_failed", message="No Gmail credentials provided")
 
-    return _send_via_gmail(
+    return adapter.send(
         to_email=to_email,
         subject=subject,
         body=body,

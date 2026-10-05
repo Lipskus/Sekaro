@@ -75,6 +75,11 @@ def init_encryption(key: str | None = None) -> None:
 init_encryption()
 
 
+def encryption_enabled() -> bool:
+    """Whether new credentials can be encrypted at rest."""
+    return _fernet is not None
+
+
 def generate_encryption_key() -> str:
     """Generate a random URL-safe key suitable for ``SEKARO_ENCRYPTION_KEY``."""
     return secrets.token_urlsafe(32)

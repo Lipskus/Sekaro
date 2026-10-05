@@ -139,3 +139,25 @@ def test_render_body_restored():
     from app.sender import render_body
 
     assert render_body("hello {{name}}", {"name": "z"}) == "hello z"
+
+
+def test_auth_retry_preserves_reply_to(monkeypatch):
+    from googleapiclient.errors import HttpError
+    from app import sender
+    calls=[]
+    def build(*args,**kwargs):
+        assert kwargs['credentials'].scopes == ['https://www.googleapis.com/auth/gmail.modify']
+        class Messages:
+            def send(self,**params):
+                calls.append(params)
+                if len(calls)==1:raise HttpError(resp=SimpleNamespace(status=401,reason='expired'),content=b'{}')
+                return DummyMessage({'id':'sent','threadId':'thread'})
+            def get(self,**params):return DummyMessage({'payload':{'headers':[]}})
+        return SimpleNamespace(users=lambda:SimpleNamespace(messages=lambda:Messages()))
+    monkeypatch.setattr(sender,'build',build)
+    def refresh(account,*args):account.access_token='fresh';return 'fresh'
+    monkeypatch.setattr(sender,'refresh_access_token',refresh)
+    account=SimpleNamespace(access_token='old',refresh_token='refresh',token_expiry=None,scopes='https://www.googleapis.com/auth/gmail.modify')
+    result=sender._send_via_gmail('to@example.com','test','body','from@example.com',reply_to_address='reply@example.com',gmail_account=account)
+    assert result is not None and len(calls)==2
+    assert 'Reply-To: reply@example.com' in base64.urlsafe_b64decode(calls[1]['body']['raw']).decode()

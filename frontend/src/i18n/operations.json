@@ -1242,7 +1242,18 @@
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.",
     "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.",
     "Użytkownicy i uprawnienia": "Użytkownicy i uprawnienia",
-    "Konta, role, zespoły i historia dostępu.": "Konta, role, zespoły i historia dostępu."
+    "Konta, role, zespoły i historia dostępu.": "Konta, role, zespoły i historia dostępu.",
+    "Połącz Gmail lub Google Workspace. Nowa skrzynka rozpocznie pracę ze wstrzymaną wysyłką.": "Połącz Gmail lub Google Workspace. Nowa skrzynka rozpocznie pracę ze wstrzymaną wysyłką.",
+    "Skrzynka Gmail została połączona.": "Skrzynka Gmail została połączona.",
+    "Anulowano zgodę Google. Możesz spróbować ponownie.": "Anulowano zgodę Google. Możesz spróbować ponownie.",
+    "Sprawdzanie konfiguracji Gmail…": "Sprawdzanie konfiguracji Gmail…",
+    "Połączenia Gmail są wyłączone w demo.": "Połączenia Gmail są wyłączone w demo.",
+    "Administrator serwera musi skonfigurować Google OAuth, HTTPS i klucz szyfrowania. Instrukcja: docs/STAGE_9_GMAIL.md.": "Administrator serwera musi skonfigurować Google OAuth, HTTPS i klucz szyfrowania. Instrukcja: docs/STAGE_9_GMAIL.md.",
+    "Połącz Gmail": "Połącz Gmail",
+    "Połącz ponownie": "Połącz ponownie",
+    "Nieprawidłowy adres autoryzacji.": "Nieprawidłowy adres autoryzacji.",
+    "Wysyłka wstrzymana": "Wysyłka wstrzymana",
+    "Wysyłka aktywna": "Wysyłka aktywna"
   },
   "en": {
     "Brak wartości": "No value",
@@ -2487,7 +2498,18 @@
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Record presence does not verify signatures, IP authorization or delivery. DMARC is checked only at the specified domain, without inherited policy. DKIM requires a selector; the blocklist requires the actual sending IP. The list result covers Spamhaus ZEN only.",
     "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "These tips are not measurements. On-demand DNS checks are available in Domains. Automated reputation and deliverability scoring is not yet available.",
     "Użytkownicy i uprawnienia": "Users and permissions",
-    "Konta, role, zespoły i historia dostępu.": "Accounts, roles, teams and access history."
+    "Konta, role, zespoły i historia dostępu.": "Accounts, roles, teams and access history.",
+    "Połącz Gmail lub Google Workspace. Nowa skrzynka rozpocznie pracę ze wstrzymaną wysyłką.": "Connect Gmail or Google Workspace. Sending starts paused for a new mailbox.",
+    "Skrzynka Gmail została połączona.": "Gmail mailbox connected.",
+    "Anulowano zgodę Google. Możesz spróbować ponownie.": "Google consent cancelled. You can try again.",
+    "Sprawdzanie konfiguracji Gmail…": "Checking Gmail configuration…",
+    "Połączenia Gmail są wyłączone w demo.": "Gmail connections are disabled in demo.",
+    "Administrator serwera musi skonfigurować Google OAuth, HTTPS i klucz szyfrowania. Instrukcja: docs/STAGE_9_GMAIL.md.": "The server administrator must configure Google OAuth, HTTPS and encryption. Guide: docs/STAGE_9_GMAIL.md.",
+    "Połącz Gmail": "Connect Gmail",
+    "Połącz ponownie": "Reconnect",
+    "Nieprawidłowy adres autoryzacji.": "Invalid authorization URL.",
+    "Wysyłka wstrzymana": "Sending paused",
+    "Wysyłka aktywna": "Sending active"
   },
   "de": {
     "Brak wartości": "Kein Wert",
@@ -3732,7 +3754,18 @@
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Vorhandene Einträge bestätigen weder Signaturen noch IP-Autorisierung oder Zustellung. DMARC wird nur an der angegebenen Domain ohne vererbte Richtlinie geprüft. DKIM benötigt einen Selektor; die Sperrliste benötigt die tatsächliche Versand-IP. Das Listenergebnis gilt nur für Spamhaus ZEN.",
     "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Diese Hinweise sind keine Messergebnisse. DNS-Prüfungen auf Abruf finden Sie unter Domains. Eine automatische Bewertung von Reputation und Zustellbarkeit ist noch nicht verfügbar.",
     "Użytkownicy i uprawnienia": "Benutzer und Berechtigungen",
-    "Konta, role, zespoły i historia dostępu.": "Konten, Rollen, Teams und Zugriffsverlauf."
+    "Konta, role, zespoły i historia dostępu.": "Konten, Rollen, Teams und Zugriffsverlauf.",
+    "Połącz Gmail lub Google Workspace. Nowa skrzynka rozpocznie pracę ze wstrzymaną wysyłką.": "Gmail oder Google Workspace verbinden. Der Versand neuer Postfächer ist zunächst pausiert.",
+    "Skrzynka Gmail została połączona.": "Gmail-Postfach verbunden.",
+    "Anulowano zgodę Google. Możesz spróbować ponownie.": "Google-Zustimmung abgebrochen. Sie können es erneut versuchen.",
+    "Sprawdzanie konfiguracji Gmail…": "Gmail-Konfiguration wird geprüft…",
+    "Połączenia Gmail są wyłączone w demo.": "Gmail-Verbindungen sind in der Demo deaktiviert.",
+    "Administrator serwera musi skonfigurować Google OAuth, HTTPS i klucz szyfrowania. Instrukcja: docs/STAGE_9_GMAIL.md.": "Der Serveradministrator muss Google OAuth, HTTPS und Verschlüsselung einrichten. Anleitung: docs/STAGE_9_GMAIL.md.",
+    "Połącz Gmail": "Gmail verbinden",
+    "Połącz ponownie": "Erneut verbinden",
+    "Nieprawidłowy adres autoryzacji.": "Ungültige Autorisierungsadresse.",
+    "Wysyłka wstrzymana": "Versand pausiert",
+    "Wysyłka aktywna": "Versand aktiv"
   },
   "ru": {
     "Brak wartości": "Нет значения",
@@ -4977,6 +5010,17 @@
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Наличие записей не подтверждает подпись, авторизацию IP или доставляемость. DMARC проверяется только на указанном домене, без наследования политики. Для DKIM нужен селектор, для списка блокировок — фактический IP отправки. Результат относится только к Spamhaus ZEN.",
     "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Рекомендации не являются результатами измерений. Проверка DNS по запросу доступна в Домены. Автоматическая оценка репутации и доставляемости пока недоступна.",
     "Użytkownicy i uprawnienia": "Пользователи и права",
-    "Konta, role, zespoły i historia dostępu.": "Учётные записи, роли, команды и история доступа."
+    "Konta, role, zespoły i historia dostępu.": "Учётные записи, роли, команды и история доступа.",
+    "Połącz Gmail lub Google Workspace. Nowa skrzynka rozpocznie pracę ze wstrzymaną wysyłką.": "Подключите Gmail или Google Workspace. Отправка новой почты изначально приостановлена.",
+    "Skrzynka Gmail została połączona.": "Почта Gmail подключена.",
+    "Anulowano zgodę Google. Możesz spróbować ponownie.": "Согласие Google отменено. Можно повторить попытку.",
+    "Sprawdzanie konfiguracji Gmail…": "Проверка настройки Gmail…",
+    "Połączenia Gmail są wyłączone w demo.": "Подключение Gmail отключено в демо.",
+    "Administrator serwera musi skonfigurować Google OAuth, HTTPS i klucz szyfrowania. Instrukcja: docs/STAGE_9_GMAIL.md.": "Администратор сервера должен настроить Google OAuth, HTTPS и шифрование. Инструкция: docs/STAGE_9_GMAIL.md.",
+    "Połącz Gmail": "Подключить Gmail",
+    "Połącz ponownie": "Подключить повторно",
+    "Nieprawidłowy adres autoryzacji.": "Неверный адрес авторизации.",
+    "Wysyłka wstrzymana": "Отправка приостановлена",
+    "Wysyłka aktywna": "Отправка активна"
   }
 }

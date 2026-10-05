@@ -98,3 +98,11 @@ Na prośbę użytkownika do następnego pakietu (etap 8) dołączamy zmianę obs
 ### Uzupełnienie etapu 11 — prezentacja repozytorium i dokumentacja (05.10.2026)
 
 Po ukończeniu instalatora, w tym samym pakiecie: przygotować dopracowane README GitHub z identyfikacją Sekaro, czytelną prezentacją funkcji, rzeczywistymi zrzutami, architekturą, wymaganiami i odsyłaczami do dokumentacji. Przygotować instrukcję świeżej instalacji, pierwszego uruchomienia, aktualizacji, backupu/odtworzenia i rozwiązywania typowych problemów, zgodną z finalnym instalatorem. Sprawdzić komendy na wspieranej ścieżce instalacji; nie opisywać funkcji planowanych jako gotowych. README i dokumentacja są częścią etapu 11, bez osobnego wydania. Publikacja na gałęzi wydania; dotychczasowa zasada braku samodzielnego merge do main pozostaje aktualna.
+
+### Etap 9 — adaptery i Gmail (05.10.2026)
+
+Pakiet implementacyjny: wspólna granica adapterów wysyłki/synchronizacji, odrzucanie nieznanych dostawców, prywatne połączenie Gmail przez administratora, szyfrowanie tokenów i migracja starych poświadczeń, reconnect bez konwersji SMTP, panel połączenia w 4 językach i instrukcja `docs/STAGE_9_GMAIL.md`. Nowe skrzynki mają wstrzymaną wysyłkę. Zachowano istniejące SMTP/IMAP, keep/immediate/days i EML. Poprawiono zachowanie Reply-To podczas ponowienia Gmail po odnowieniu tokenu.
+
+Weryfikacja: pełny backend 589 zaliczonych / 9 pominiętych; dodatkowy końcowy zestaw Gmail 13/13 po dodaniu testów błędu odnowienia i Reply-To. Testy korzystają z SQLite i mockowanego Google; bez rzeczywistej wysyłki. Build frontendu poprawny (istniejące ostrzeżenie o wielkości bundla). UI: nowy panel, formularze skrzynek i języki w końcowym zestawie 70/70; poprawiono mock auth w testach po dodaniu administratorowego panelu. W pierwszym pełnym przebiegu UI wystąpił również timeout istniejącego podglądu harmonogramu; końcowe powtórzenie pełnego zestawu UI: **266/266**.
+
+Status: przygotowanie do odbioru na obecnym demo, bez scalenia do main. Demo nie umożliwia rzeczywistego połączenia Google. Zgoda OAuth, odnowienie i synchronizacja prawdziwego konta oraz współbieżność PostgreSQL pozostają do weryfikacji na docelowej konfiguracji. Etap 10 (Microsoft 365) i etap 11 (instalator + README/dokumentacja) zachowują kolejność.

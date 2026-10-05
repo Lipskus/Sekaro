@@ -213,6 +213,8 @@ from app.routers import auth as auth_router
 app.include_router(auth_router.router)
 from app.routers import access as access_router
 app.include_router(access_router.router)
+from app.routers import gmail_private
+app.include_router(gmail_private.router)
 
 # ---------------------------------------------------------------------------
 # Protected routers – all require authentication

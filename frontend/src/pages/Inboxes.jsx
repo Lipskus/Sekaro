@@ -2,6 +2,7 @@ import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import Modal from '../redesign/Modal';
 import MailboxArchive from '../redesign/MailboxArchive';
+import GmailConnection from '../redesign/GmailConnection';
 import '../redesign/mailbox-editor.css';
 import { api, apiCache } from '../api';
 import { Button } from '../components/ui/Button';
@@ -1073,6 +1074,7 @@ export default function Inboxes() {
         > {ct("Dodaj skrzynkę")} </SkButton>
       }
     >
+      <GmailConnection />
       <ErrorNotice error={listError} onRetry={load} />
       {!showAdd && message && <div className={`sk-notice tone-${message.type === 'error' ? 'red' : 'green'}`} role={message.type === 'error' ? 'alert' : 'status'}>{ct(message.text,message.params)}</div>}
       {listLoading && inboxes.length === 0 && <StatePanel icon="refresh" title={ct("Ładowanie skrzynek")} description={ct("Pobieramy konfigurację skrzynek.")} />}
@@ -1143,7 +1145,7 @@ export default function Inboxes() {
                     </button>
                   </div>
 
-                  <nav className="sk-mailbox-edit-nav" aria-label={ct("Sekcje edycji skrzynki")}>{[['identity','Nadawca'],['connection','SMTP / IMAP'],['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie'],...(editing.provider==='smtp'?[['archive','Przechowywanie']]:[])].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{ct(label)}</button>)}</nav>
+                  <nav className="sk-mailbox-edit-nav" aria-label={ct("Sekcje edycji skrzynki")}>{[['identity','Nadawca'],...(editing.provider==='smtp'?[['connection','SMTP / IMAP']]:[]),['limits','Limity'],['warmup','Rozgrzewanie'],['tracking','Śledzenie'],...(editing.provider==='smtp'?[['archive','Przechowywanie']]:[])].map(([key,label]) => <button key={key} type="button" aria-pressed={editSection===key} onClick={() => setEditSection(key)}>{ct(label)}</button>)}</nav>
                   {/* Edit form */}
                   <div className="px-5 py-4 overflow-y-auto flex-1 min-w-0">
                     {editMsg && <div role={editMsg.type === 'error' ? 'alert' : 'status'} className={`mb-3 text-sm ${editMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{ct(editMsg.text)}</div>}
@@ -1171,7 +1173,9 @@ export default function Inboxes() {
                       </div>
                       <div>
                         <label htmlFor="mailbox-edit-4" className="block text-xs font-medium text-gray-700">{ct("Typ skrzynki")}</label>
-                        <select id="mailbox-edit-4" name="provider" value="smtp" className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
+                        <select id="mailbox-edit-4" name="provider" value={editing.provider} className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 text-sm" disabled>
+                          <option value="gmail">Gmail API</option>
+                          <option value="office365">Microsoft 365</option>
                           <option value="smtp">SMTP / IMAP</option>
                         </select>
                       </div>

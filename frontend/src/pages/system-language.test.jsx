@@ -9,7 +9,7 @@ import SystemHealth from './SystemHealth';
 import DeliverabilityTips from './DeliverabilityTips';
 import {api} from '../api';
 vi.mock('../api',()=>({api:{get:vi.fn()}}));
-vi.mock('../context/AuthContext',()=>({useAuth:()=>({user:{id:1,role:'admin'}})}));
+vi.mock('../context/AuthContext',()=>({useAuth:()=>({user:{id:1,role:'admin'}}),useOptionalAuth:()=>null}));
 vi.mock('../context/AppModeContext',()=>({useAppMode:()=>({isProduction:true})}));
 const t=(l,s,p)=>operationsText(l,s,p);
 function Switch(){const {setLanguage}=useLanguage();return <>{['pl','de','ru'].map(l=><button key={l} onClick={()=>setLanguage(l)}>{l}</button>)}</>;}

@@ -3200,14 +3200,9 @@ async def sync_single_inbox(inbox_id: int, reason: str = "scheduled") -> bool:
             if not inbox:
                 await db.rollback()
                 return False
-            if inbox.provider == "office365":
-                touched = await _sync_inbox_office365(db, inbox, reason)
-                hydrate_thread_ids = set()
-            elif inbox.provider == "smtp":
-                touched = await _sync_inbox_smtp(db, inbox, reason)
-                hydrate_thread_ids = set()
-            else:
-                touched, hydrate_thread_ids = await _sync_inbox(db, inbox, reason)
+            from app.mail_adapters import get_adapter
+            adapter = get_adapter(inbox.provider)
+            touched, hydrate_thread_ids = await adapter.sync(db, inbox, reason)
             await db.commit()
             if inbox.provider == "smtp":
                 from app.mail_archive import process_retention

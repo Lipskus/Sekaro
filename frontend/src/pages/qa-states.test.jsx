@@ -31,7 +31,7 @@ vi.mock('../context/AppModeContext', () => ({ useAppMode: () => ({ isProduction:
 vi.mock('../context/LoadingContext', () => ({ useLoading: () => mocks.loading }));
 vi.mock('../context/NotificationsContext', () => ({ useNotifications: () => ({ refresh() {} }) }));
 vi.mock('../context/SystemHealthContext', () => ({ useSystemHealth: () => mocks.health }));
-vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }) }));
+vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }), useOptionalAuth: () => ({user:mocks.user}) }));
 vi.mock('../context/DarkModeContext', () => ({ useDarkMode: () => ({ themePreference: 'light', setThemePreference: vi.fn() }) }));
 vi.mock('../context/LanguageContext', async importOriginal => ({ ...await importOriginal(), useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
   'appearance.title':'Wygląd i język','appearance.description':'Dostosuj wygląd interfejsu do swoich preferencji.',
