@@ -37,3 +37,7 @@ Pełny backend: 575 zaliczonych, 9 pominiętych. Po rozszerzeniu testów: 6/6 te
 Odbiór demo po wspólnym wdrożeniu: administrator tworzy rolę odczytu CRM, konto i zespół; oddzielna sesja użytkownika sprawdza odczyt oraz odmowę zapisu; administrator zmienia/odbiera rolę i blokuje konto; historia oraz kalendarz szczegóły→edycja. Bez wysyłki i bez odbierania administracji kontu operatora. Dark/mobile i odbiór wizualny demo pozostają do wykonania po wdrożeniu.
 
 Frontend: pełny przebieg 257/261; cztery testy diagnostyki wymagały ustawienia roli admin w starych atrapach kont. Po poprawieniu tych atrap i dodaniu testu odmowy pobierania diagnostyki dla zwykłego użytkownika: końcowy przebieg dostępu/kalendarza/diagnostyki 15/15. Wcześniejszy przebieg przerwano po znalezieniu zależności efektu wyszukiwania Shell od całego obiektu użytkownika; zależność zastąpiono stabilnymi polami ID/rola/uprawnienia. Produkcyjny build poprawny, pozostaje znane ostrzeżenie o dużym bundlu.
+
+### Odczyt wdrożonego demo — 05.10.2026
+
+Panel Ustawienia → Użytkownicy i uprawnienia jest dostępny w sesji administratora; poprawnie pokazuje istniejące konto demo oraz sekcje ról, zespołów i historii. Kalendarz: kliknięcie spotkania QA otwiera szczegóły bez pól formularza; „Edytuj” otwiera formularz, a „Anuluj” zamyka go bez zmian. W tej sesji nie tworzono kont ani nie zmieniano uprawnień na serwerze. Testy ograniczonego konta na żywym demo pozostają odrębne od zaliczonych testów API.

@@ -94,3 +94,7 @@ Przegląd 01.10: poprawiono czytelność wspólnego nagłówka wykrytą w edytor
 ### Uzupełnienie etapu 8 — kalendarz CRM (05.10.2026)
 
 Na prośbę użytkownika do następnego pakietu (etap 8) dołączamy zmianę obsługi wpisu kalendarza CRM: kliknięcie zadania lub spotkania otwiera okno informacji/szczegółów w trybie podglądu. Dopiero osobny przycisk „Edytuj” przełącza do formularza edycji. Samo otwarcie wpisu nie uruchamia edycji. Dostępność przycisku i zapis muszą respektować uprawnienia wdrażane w etapie 8. Test odbioru: kliknięcie wpisu → szczegóły → „Edytuj” → formularz; użytkownik bez prawa edycji może tylko przeglądać dane w swoim dozwolonym zakresie. Zmiana wchodzi do tego samego wydania, bez osobnego etapu ani aktualizacji.
+
+### Uzupełnienie etapu 11 — prezentacja repozytorium i dokumentacja (05.10.2026)
+
+Po ukończeniu instalatora, w tym samym pakiecie: przygotować dopracowane README GitHub z identyfikacją Sekaro, czytelną prezentacją funkcji, rzeczywistymi zrzutami, architekturą, wymaganiami i odsyłaczami do dokumentacji. Przygotować instrukcję świeżej instalacji, pierwszego uruchomienia, aktualizacji, backupu/odtworzenia i rozwiązywania typowych problemów, zgodną z finalnym instalatorem. Sprawdzić komendy na wspieranej ścieżce instalacji; nie opisywać funkcji planowanych jako gotowych. README i dokumentacja są częścią etapu 11, bez osobnego wydania. Publikacja na gałęzi wydania; dotychczasowa zasada braku samodzielnego merge do main pozostaje aktualna.
