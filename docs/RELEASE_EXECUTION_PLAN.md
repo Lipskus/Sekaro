@@ -123,3 +123,15 @@ Stopki i S/MIME: dwa niezależne przełączniki, domyślnie wyłączone per skrz
 Końcowy pełny backend 609 zaliczonych / 9 pominiętych, frontend 272/272, build poprawny. Niezależna kontrola S/MIME przez OpenSSL, test zmiany treści, mocki transportów i OAuth, kontrola uprawnień i szyfrowania. Po poprawce Referrer-Policy dodatkowe 15/15 testów callbacków zaliczone. Nie wysłano realnych wiadomości. Odbiór docelowego OAuth/skrzynek/certyfikatu przez operatora pozostaje wymagany; SQLite nie potwierdza współbieżności PostgreSQL. Publikacja na gałęzi wydania, bez merge ani wdrożenia przez agenta.
 
 Pozostaje etap 11: instalator, opcjonalne backupy S3/SFTP/FTPS i odtwarzanie, README oraz instrukcje instalacji/aktualizacji.
+
+### Uzupełnienie etapu 11 — favicon i końcowy odbiór interfejsu (05.10.2026)
+
+Na prośbę użytkownika do tego samego ostatniego pakietu dodajemy:
+
+- Zastąpienie pozostałej favicon Quickly ikoną Sekaro. Sprawdzić odwołania w HTML, manifest i warianty ikon, jeśli istnieją, oraz odświeżenie ikony po aktualizacji przy zachowanej pamięci podręcznej przeglądarki.
+- Pełny przegląd wizualny wszystkich modułów, formularzy, okien szczegółów i edycji, modali oraz nowych ekranów etapu 11. Sprawdzić odstępy, wyrównanie, typografię, zawijanie tekstu, przycięcia ikon, nakładanie elementów i niezamierzony przewijany obszar. Poprawić wykryte rozjazdy przed odbiorem.
+- Kontrola Dark/Light, PL/EN/DE/RU oraz szerokości desktop/tablet/mobile. Każda kontrolka ma reagować na zmianę języka i motywu; sprawdzić także otwarte modale, etykiety, podpowiedzi i komunikaty. Treść użytkowników pozostaje niezmieniana.
+- Test działania kontrolek: przyciski, przełączniki, pola, listy wyboru, zakładki, filtry, daty, paginacja i akcje w tabelach. Sprawdzić zmianę wartości/stanu, widoczną reakcję, zapis i odczyt po ponownym wejściu tam, gdzie ustawienie jest trwałe, anulowanie oraz ostrzeganie o niezapisanych zmianach. Kontrolki niedostępne muszą respektować uprawnienia i blokady demo.
+- Sprawdzić stany ładowania, pustej listy, błędu, sukcesu i wyłączenia oraz obsługę klawiatury i widoczny fokus. Nie potwierdzać odbioru wyłącznie na podstawie buildu lub testów komponentów: potrzebny jest przegląd działającego UI w przeglądarce z checklistą i dowodami dla znalezionych/poprawionych błędów.
+
+To rozszerzenie etapu 11, bez dodatkowej wersji ani drugiego demo. Testy nie mogą uruchamiać prawdziwych wysyłek lub transferów do zewnętrznych usług bez odpowiedniej konfiguracji i autoryzacji. Powyższe punkty są zaplanowane, nie oznaczają już wykonanej korekty favicon ani zakończonego QA.
