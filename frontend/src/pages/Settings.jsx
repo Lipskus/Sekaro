@@ -1,3 +1,4 @@
+import AccessManagement from './AccessManagement';
 import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { api, apiCache, postJsonForDownload } from '../api';
@@ -800,6 +801,7 @@ export default function Settings() {
 
         {true && (
           <>
+        {user?.role === 'admin' && activeTab === 'users' && <AccessManagement/>}
         {user?.role === 'admin' && (
         <section id="settings-backup-restore" hidden={activeTab !== 'backup-restore'} className="mb-10 scroll-mt-6">
           <h2 className="text-lg font-semibold mb-1 border-b pb-2 dark:border-gray-700">{ct("Kopia i przywracanie")}</h2>

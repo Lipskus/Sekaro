@@ -431,7 +431,7 @@ export function SystemHealthProvider({ children }) {
 
   useEffect(() => {
     setRawData(null); setLastChecked(null); setFetchError(null); setLoading(false);
-    if (user) {
+    if (user?.role === 'admin') {
       refresh();
       refreshTimerRef.current = setInterval(refresh, AUTO_REFRESH_MS);
     }
@@ -439,7 +439,7 @@ export function SystemHealthProvider({ children }) {
       ++generation.current; pending.current = null;
       clearInterval(refreshTimerRef.current); refreshTimerRef.current = null;
     };
-  }, [refresh, user?.id]);
+  }, [refresh, user?.id, user?.role]);
 
   const toggleMute = useCallback((checkId) => {
     setMutedState(prev => {

@@ -1240,7 +1240,9 @@
     "Demo: diagnostyka sieci jest wyłączona, a stan skrzynek jest fikcyjny.": "Demo: diagnostyka sieci jest wyłączona, a stan skrzynek jest fikcyjny.",
     "Ostatni zapisany test SMTP/IMAP i synchronizacja nie są testem na żywo. Zmiana konfiguracji połączenia unieważnia wynik testu.": "Ostatni zapisany test SMTP/IMAP i synchronizacja nie są testem na żywo. Zmiana konfiguracji połączenia unieważnia wynik testu. IMAP jest testowany tylko wtedy, gdy został skonfigurowany.",
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.",
-    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna."
+    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.",
+    "Użytkownicy i uprawnienia": "Użytkownicy i uprawnienia",
+    "Konta, role, zespoły i historia dostępu.": "Konta, role, zespoły i historia dostępu."
   },
   "en": {
     "Brak wartości": "No value",
@@ -2483,7 +2485,9 @@
     "Demo: diagnostyka sieci jest wyłączona, a stan skrzynek jest fikcyjny.": "Demo: network diagnostics are disabled and mailbox status is fictional.",
     "Ostatni zapisany test SMTP/IMAP i synchronizacja nie są testem na żywo. Zmiana konfiguracji połączenia unieważnia wynik testu.": "The last saved SMTP/IMAP test and sync are not live checks. Changing connection settings invalidates the test result. IMAP is tested only when configured.",
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Record presence does not verify signatures, IP authorization or delivery. DMARC is checked only at the specified domain, without inherited policy. DKIM requires a selector; the blocklist requires the actual sending IP. The list result covers Spamhaus ZEN only.",
-    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "These tips are not measurements. On-demand DNS checks are available in Domains. Automated reputation and deliverability scoring is not yet available."
+    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "These tips are not measurements. On-demand DNS checks are available in Domains. Automated reputation and deliverability scoring is not yet available.",
+    "Użytkownicy i uprawnienia": "Users and permissions",
+    "Konta, role, zespoły i historia dostępu.": "Accounts, roles, teams and access history."
   },
   "de": {
     "Brak wartości": "Kein Wert",
@@ -3726,7 +3730,9 @@
     "Demo: diagnostyka sieci jest wyłączona, a stan skrzynek jest fikcyjny.": "Demo: Netzwerkdiagnosen sind deaktiviert; der Postfachstatus ist fiktiv.",
     "Ostatni zapisany test SMTP/IMAP i synchronizacja nie są testem na żywo. Zmiana konfiguracji połączenia unieważnia wynik testu.": "Der letzte gespeicherte SMTP/IMAP-Test und die Synchronisation sind keine Live-Prüfung. Geänderte Verbindungseinstellungen machen das Testergebnis ungültig. IMAP wird nur getestet, wenn es konfiguriert ist.",
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Vorhandene Einträge bestätigen weder Signaturen noch IP-Autorisierung oder Zustellung. DMARC wird nur an der angegebenen Domain ohne vererbte Richtlinie geprüft. DKIM benötigt einen Selektor; die Sperrliste benötigt die tatsächliche Versand-IP. Das Listenergebnis gilt nur für Spamhaus ZEN.",
-    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Diese Hinweise sind keine Messergebnisse. DNS-Prüfungen auf Abruf finden Sie unter Domains. Eine automatische Bewertung von Reputation und Zustellbarkeit ist noch nicht verfügbar."
+    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Diese Hinweise sind keine Messergebnisse. DNS-Prüfungen auf Abruf finden Sie unter Domains. Eine automatische Bewertung von Reputation und Zustellbarkeit ist noch nicht verfügbar.",
+    "Użytkownicy i uprawnienia": "Benutzer und Berechtigungen",
+    "Konta, role, zespoły i historia dostępu.": "Konten, Rollen, Teams und Zugriffsverlauf."
   },
   "ru": {
     "Brak wartości": "Нет значения",
@@ -4969,6 +4975,8 @@
     "Demo: diagnostyka sieci jest wyłączona, a stan skrzynek jest fikcyjny.": "Демо: сетевая диагностика отключена, данные ящиков вымышлены.",
     "Ostatni zapisany test SMTP/IMAP i synchronizacja nie są testem na żywo. Zmiana konfiguracji połączenia unieważnia wynik testu.": "Последние сохранённые проверка SMTP/IMAP и синхронизация не являются проверкой сейчас. Изменение подключения аннулирует результат теста. IMAP проверяется только при наличии настройки.",
     "Obecność rekordów nie potwierdza poprawności podpisu, autoryzacji IP ani dostarczalności. DMARC sprawdzamy tylko pod podaną domeną, bez dziedziczenia polityki. DKIM wymaga selektora; lista blokad wymaga rzeczywistego IP wysyłki. Wynik listy dotyczy wyłącznie Spamhaus ZEN.": "Наличие записей не подтверждает подпись, авторизацию IP или доставляемость. DMARC проверяется только на указанном домене, без наследования политики. Для DKIM нужен селектор, для списка блокировок — фактический IP отправки. Результат относится только к Spamhaus ZEN.",
-    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Рекомендации не являются результатами измерений. Проверка DNS по запросу доступна в Домены. Автоматическая оценка репутации и доставляемости пока недоступна."
+    "Wskazówki nie są wynikiem pomiaru. Sprawdzenie DNS na żądanie znajdziesz w Domenach. Automatyczna ocena reputacji i dostarczalności nie jest jeszcze dostępna.": "Рекомендации не являются результатами измерений. Проверка DNS по запросу доступна в Домены. Автоматическая оценка репутации и доставляемости пока недоступна.",
+    "Użytkownicy i uprawnienia": "Пользователи и права",
+    "Konta, role, zespoły i historia dostępu.": "Учётные записи, роли, команды и история доступа."
   }
 }

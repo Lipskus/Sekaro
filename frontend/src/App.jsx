@@ -1,3 +1,4 @@
+import {PermissionPage} from './context/Permissions';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Layout from './components/Layout';
@@ -65,7 +66,7 @@ function AppRoutes() {
       <Route path="/*" element={
         <ProtectedRoute>
           <Layout>
-            <Routes>
+            <PermissionPage><Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaigns/add" element={<AddCampaign />} />
@@ -91,7 +92,7 @@ function AppRoutes() {
               <Route path="/system-health" element={<SystemHealth />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
+            </Routes></PermissionPage>
           </Layout>
         </ProtectedRoute>
       } />

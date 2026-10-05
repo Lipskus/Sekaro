@@ -205,6 +205,10 @@ class _MCPAuthASGI:
             resp = JSONResponse({"detail": "Not authenticated"}, status_code=401)
             await resp(scope, receive, send)
             return
+        if user.role != 'admin':
+            resp = JSONResponse({"detail": "MCP requires administrator access"}, status_code=403)
+            await resp(scope, receive, send)
+            return
         await self._inner(scope, receive, send)
 
 

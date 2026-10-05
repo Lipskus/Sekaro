@@ -6,6 +6,7 @@ import Sales from './Sales';
 import CrmNavigation from '../redesign/CrmNavigation';
 import {api} from '../api';
 const {confirm}=vi.hoisted(()=>({confirm:vi.fn()}));
+vi.mock('../context/Permissions',()=>({useCan:()=>true}));
 vi.mock('../api',()=>({api:{get:vi.fn(),put:vi.fn(),post:vi.fn()}}));
 vi.mock('../context/ConfirmContext',()=>({useConfirm:()=>confirm}));
 const pipeline={id:1,name:'Sprzedaż B2B',revision:3,stages:[{key:'new',name:'Nowa'},{key:'offer',name:'Oferta'}]};

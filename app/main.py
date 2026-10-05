@@ -211,6 +211,8 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ---------------------------------------------------------------------------
 from app.routers import auth as auth_router
 app.include_router(auth_router.router)
+from app.routers import access as access_router
+app.include_router(access_router.router)
 
 # ---------------------------------------------------------------------------
 # Protected routers – all require authentication

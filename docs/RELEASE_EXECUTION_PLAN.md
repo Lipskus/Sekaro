@@ -73,8 +73,8 @@ Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są hi
 | 4 — stabilna baza | **Odebrany w zakresie demo 04.10.2026.** Operator potwierdził PG15→17, zgodność odtworzonych danych i test izolacji kontenerów. Odczyt panelu i 60 kontaktów potwierdzony. Publiczna domena/TLS pozostają konfiguracją produkcyjną; numer 1.0 niezatwierdzony. |
 | 5 — rdzeń CRM | **Odbiór funkcjonalny demo 05.10.2026.** Potwierdzono zapis firmy, dwie osoby, relacje, adresy, notatki i scalenie z zachowaniem ID/historii. Dark/Light desktop sprawdzone. Poprawiono etykietę potwierdzenia scalenia; wymaga aktualizacji. Ograniczenia QA: `docs/qa/2026-10-04-stage5-crm.md`. Następny etap: 6. |
 | 6 — sprzedaż | **Wdrożony, podstawowy odbiór demo 05.10.2026.** Pipeline, szansa/wygrana, zadanie, przypomnienie, zakończenie i spotkanie w kalendarzu potwierdzone. Light/Dark desktop sprawdzone. Ograniczenia: `docs/qa/2026-10-05-stage6-sales.md`. |
-| 7 — automatyzacje i raporty | **Implementacja gotowa do odbioru demo.** Reguły z zatwierdzaniem/trybem automatycznym, historia, limity i raporty CRM. Po pakiecie porządkowym CRM/grupy. Szczegóły i ograniczenia: `docs/qa/2026-10-05-stage7-automation-reports.md`. |
-| 8 — użytkownicy | Nierozpoczęty. |
+| 7 — automatyzacje i raporty | **Wdrożony; główne ścieżki odebrane 05.10.2026.** Reguły z zatwierdzaniem/trybem automatycznym, historia, limity i raporty CRM. Po pakiecie porządkowym CRM/grupy. Szczegóły i ograniczenia: `docs/qa/2026-10-05-stage7-automation-reports.md`. |
+| 8 — użytkownicy | **Implementacja gotowa do odbioru demo.** Konta, role modułowe, zespoły, kontrola API/UI, blokowanie kont i unieważnianie sesji/kluczy, audyt oraz podgląd kalendarza przed edycją. Zakres globalny instalacji i ograniczenia: `docs/STAGE_8_ACCESS.md`. |
 | 9 — adaptery i Gmail | Nierozpoczęty. |
 | 10 — Microsoft 365 | Nierozpoczęty. |
 | 11 — instalator | Nierozpoczęty. |

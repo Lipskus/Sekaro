@@ -1116,3 +1116,5 @@ from app import crm_models  # noqa: E402,F401
 from app import sales_models  # noqa: E402,F401
 
 from app import automation_models  # noqa: E402,F401
+
+from app import access  # noqa: E402,F401
