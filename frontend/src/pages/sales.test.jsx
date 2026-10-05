@@ -37,3 +37,18 @@ it('filters the calendar month on the server and preserves contact context',asyn
  await waitFor(()=>expect(api.get).toHaveBeenCalledWith(expect.stringContaining('date_from='+encodeURIComponent(new Date(2026,10,1).toISOString()))));
  const requests=api.get.mock.calls.map(x=>x[0]).filter(x=>x.includes('date_from='));expect(requests.at(-1)).toContain('lead_id=9');expect(requests.at(-1)).toContain('date_to='+encodeURIComponent(new Date(2026,11,1).toISOString()));
 });
+it('opens calendar details without editing and enters the editor only on Edit',async()=>{
+ const row={id:21,title:'Spotkanie w porcie',description:'Agenda spotkania',kind:'meeting',starts_at:'2026-11-09T10:00:00Z',due_at:'2026-11-09T11:00:00Z',location:'Sala A',priority:'high',status:'planned',revision:4,lead_id:9,company_id:4,opportunity_id:7};
+ const original=api.get.getMockImplementation();api.get.mockImplementation(p=>p.includes('/activities?')?Promise.resolve({items:[row],total:1}):original(p));
+ mount('/sales?view=calendar');fireEvent.change(await screen.findByLabelText('Miesiąc'),{target:{value:'2026-11'}});
+ fireEvent.click(await screen.findByRole('button',{name:/Spotkanie w porcie/}));
+ const details=screen.getByRole('dialog',{name:'Szczegóły działania'});
+ expect(within(details).getByText('Agenda spotkania')).toBeTruthy();expect(within(details).getByText('Sala A')).toBeTruthy();
+ expect(within(details).queryByRole('textbox')).toBeNull();expect(within(details).queryByRole('button',{name:'Zapisz'})).toBeNull();
+ expect(api.put).not.toHaveBeenCalled();expect(api.post).not.toHaveBeenCalled();
+ fireEvent.click(within(details).getByRole('button',{name:'Zamknij',exact:true}));expect(screen.queryByRole('dialog')).toBeNull();expect(confirm).not.toHaveBeenCalled();
+ fireEvent.click(screen.getByRole('button',{name:/Spotkanie w porcie/}));fireEvent.click(within(screen.getByRole('dialog')).getByRole('button',{name:'Edytuj'}));
+ expect(screen.getByLabelText('Nazwa').value).toBe(row.title);expect(screen.getByLabelText('Opis').value).toBe(row.description);
+ fireEvent.change(screen.getByLabelText('Nazwa'),{target:{value:'Spotkanie po zmianie'}});fireEvent.click(screen.getByRole('button',{name:'Zapisz'}));
+ await waitFor(()=>expect(api.put).toHaveBeenCalledWith('/crm/sales/activities/21',expect.objectContaining({title:'Spotkanie po zmianie',revision:4,lead_id:9,company_id:4,opportunity_id:7})));
+});

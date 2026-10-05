@@ -1,6 +1,9 @@
 import {useUiLanguage} from '../context/LanguageContext';
 const words={
   "pl": {
+    "activityDetails": "Szczegóły działania",
+    "edit": "Edytuj",
+    "close": "Zamknij",
     "name": "Nazwa pipeline",
     "addStage": "Dodaj etap",
     "removeStage": "Usuń etap",
@@ -88,6 +91,9 @@ const words={
     "closed": "Data zamknięcia"
   },
   "en": {
+    "activityDetails": "Activity details",
+    "edit": "Edit",
+    "close": "Close",
     "name": "Pipeline name",
     "addStage": "Add stage",
     "removeStage": "Remove stage",
@@ -175,6 +181,9 @@ const words={
     "closed": "Closed at"
   },
   "de": {
+    "activityDetails": "Aktivitätsdetails",
+    "edit": "Bearbeiten",
+    "close": "Schließen",
     "name": "Pipeline-Name",
     "addStage": "Phase hinzufügen",
     "removeStage": "Phase entfernen",
@@ -262,6 +271,9 @@ const words={
     "closed": "Abgeschlossen am"
   },
   "ru": {
+    "activityDetails": "Сведения о действии",
+    "edit": "Редактировать",
+    "close": "Закрыть",
     "name": "Название воронки",
     "addStage": "Добавить этап",
     "removeStage": "Удалить этап",
