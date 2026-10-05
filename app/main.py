@@ -99,6 +99,8 @@ async def lifespan(app: FastAPI):
             replace_existing=True,
             max_instances=1,
         )
+        from app.automation import run_crm_automation_job
+        schedule.add_job(run_crm_automation_job, 'interval', minutes=1, id='crm_automation', replace_existing=True, max_instances=1)
         schedule.start()
 
         from app.backup_schedule import register_scheduled_backup_from_db
@@ -237,6 +239,10 @@ app.include_router(analytics_router.router, dependencies=_auth_deps)
 app.include_router(diagnostics_router.router, dependencies=_auth_deps)
 app.include_router(templates_router.router, dependencies=_auth_deps)
 app.include_router(contact_fields_router.router, dependencies=_auth_deps)
+from app.routers import crm_reports as crm_reports_router
+app.include_router(crm_reports_router.router, dependencies=_auth_deps)
+from app.routers import automation as automation_router
+app.include_router(automation_router.router, dependencies=_auth_deps)
 from app.routers import sales as sales_router
 app.include_router(sales_router.router, dependencies=_auth_deps)
 from app.routers import crm as crm_router

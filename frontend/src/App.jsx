@@ -13,6 +13,8 @@ import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
 import Companies from './pages/Companies';
 import Sales from './pages/Sales';
+import Automations from './pages/Automations';
+import CrmReports from './pages/CrmReports';
 import ContactGroups from './redesign/ContactGroups';
 import Templates from './pages/Templates';
 import Notifications from './pages/Notifications';
@@ -69,6 +71,8 @@ function AppRoutes() {
               <Route path="/campaigns/add" element={<AddCampaign />} />
               <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
               <Route path="/crm" element={<Navigate to="/leads" replace />} />
+              <Route path="/crm/automations" element={<Automations />} />
+              <Route path="/crm/reports" element={<CrmReports />} />
               <Route path="/crm/groups" element={<ContactGroups />} />
               <Route path="/leads" element={<ContactsView />} />
               <Route path="/contacts-tools" element={<Leads />} />

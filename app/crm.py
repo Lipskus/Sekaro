@@ -20,7 +20,8 @@ async def writable(db, lead_id):
 async def protect_delete(db, ids):
     await db.execute(select(Lead.id).where(Lead.id.in_(ids)).order_by(Lead.id).with_for_update())
     from app.sales_models import Opportunity, SalesActivity
-    for model in (Opportunity, SalesActivity):
+    from app.automation_models import ContactTag
+    for model in (Opportunity, SalesActivity, ContactTag):
         if (await db.execute(select(model.id).where(model.lead_id.in_(ids)).limit(1))).first():
             raise HTTPException(409, 'Contact has sales history; archive instead')
     if (await db.execute(select(CrmProfile.lead_id).where(or_(
