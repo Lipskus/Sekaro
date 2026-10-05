@@ -44,6 +44,7 @@ from app.schemas import (
     LeadCampaignInfo,
     MarkReplied,
     ContactListCreate,
+    ContactListMembers,
     ContactListResponse,
     SuppressionCreate,
     SuppressionResponse,
@@ -1208,6 +1209,13 @@ async def create_contact_list(
     db: AsyncSession = Depends(get_db),
 ):
     name = data.name.strip()
+    if not name:
+        raise HTTPException(422, "Contact list name cannot be blank")
+    ids = set(data.lead_ids)
+    if ids:
+        found = set((await db.scalars(select(Lead.id).where(Lead.id.in_(ids)).order_by(Lead.id).with_for_update())).all())
+        if found != ids:
+            raise HTTPException(404, "Contact not found")
     existing = await db.execute(
         select(ContactList).where(func.lower(ContactList.name) == name.lower())
     )
@@ -1215,14 +1223,43 @@ async def create_contact_list(
         raise HTTPException(409, "A contact list with this name already exists")
     row = ContactList(name=name)
     db.add(row)
+    await db.flush()
+    db.add_all([ContactListMember(list_id=row.id, lead_id=i) for i in sorted(ids)])
     await db.commit()
     await db.refresh(row)
     return ContactListResponse(
         id=row.id,
         name=row.name,
         created_at=row.created_at,
-        member_count=0,
+        member_count=len(ids),
     )
+
+
+@router.post("/lists/{list_id}/members")
+async def add_contact_list_members(list_id: int, data: ContactListMembers, db: AsyncSession = Depends(get_db)):
+    ids = set(data.lead_ids)
+    # Lock contacts before the list: consistent with contact merge/import order.
+    found = set((await db.scalars(select(Lead.id).where(Lead.id.in_(ids)).order_by(Lead.id).with_for_update())).all())
+    if found != ids:
+        raise HTTPException(404, "Contact not found")
+    row = await db.scalar(select(ContactList).where(ContactList.id == list_id).with_for_update())
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    existing = set((await db.scalars(select(ContactListMember.lead_id).where(ContactListMember.list_id == list_id))).all())
+    added = ids - existing
+    db.add_all([ContactListMember(list_id=list_id, lead_id=i) for i in sorted(added)])
+    await db.commit()
+    return {"added": len(added), "already_members": len(ids & existing)}
+
+
+@router.post("/lists/{list_id}/members/remove")
+async def remove_contact_list_members(list_id: int, data: ContactListMembers, db: AsyncSession = Depends(get_db)):
+    row = await db.scalar(select(ContactList).where(ContactList.id == list_id).with_for_update())
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    result = await db.execute(delete(ContactListMember).where(ContactListMember.list_id == list_id, ContactListMember.lead_id.in_(data.lead_ids)))
+    await db.commit()
+    return {"removed": result.rowcount}
 
 
 @router.delete("/lists/{list_id}")

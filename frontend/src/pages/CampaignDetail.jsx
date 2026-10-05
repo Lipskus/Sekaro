@@ -1,3 +1,4 @@
+import {CampaignGroupPicker} from '../redesign/ContactGroups';
 import {useCampaignLanguage} from '../context/campaignLanguage';
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from 'react';
@@ -755,6 +756,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       {/* Import / Export toolbar */}
       <div className="sk-recipient-toolbar">
         <Button size="sm" onClick={()=>setShowAdd(true)}>{ct("Dodaj kontakty")}</Button>
+        <CampaignGroupPicker campaignId={campaignId} onAdded={refresh}/>
         <input type="search" aria-label={ct("Szukaj odbiorców")} placeholder={ct("Szukaj po e-mailu, imieniu, firmie…")} value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
         <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>{ct("Filtry")}</Button>
         {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>{ct("Kolumny")}</Button>}

@@ -77,8 +77,13 @@ class LeadResponse(BaseModel):
         from_attributes = True
 
 
+class ContactListMembers(BaseModel):
+    lead_ids: list[int] = Field(..., min_length=1, max_length=5000)
+
+
 class ContactListCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
+    lead_ids: list[int] = Field(default_factory=list, max_length=5000)
 
 
 class ContactListResponse(BaseModel):

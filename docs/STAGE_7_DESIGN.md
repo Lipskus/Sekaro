@@ -1,5 +1,7 @@
 # Etap 7 — projekt automatyzacji i raportów CRM
 
+**Status: wstrzymany. Najpierw wspólna nawigacja CRM i grupy istniejących kontaktów. Ten pakiet nie implementuje automatyzacji ani raportów etapu 7.**
+
 Baza: etap 6 `3a98261`, podstawowy odbiór demo w `qa/2026-10-05-stage6-sales.md`. Zakres odpowiada etapowi 7 planu wydań i Phase 3 roadmapy PR37. Ten dokument opisuje projekt, nie wdrożoną funkcję.
 
 ## Zachowania wspólne dla obu trybów wykonania

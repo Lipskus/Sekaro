@@ -3,13 +3,14 @@ import {beforeEach,afterEach,it,expect,vi} from 'vitest';
 import {render,screen,fireEvent,cleanup,waitFor,act,within} from '@testing-library/react';
 import {MemoryRouter} from 'react-router-dom';
 import Sales from './Sales';
+import CrmNavigation from '../redesign/CrmNavigation';
 import {api} from '../api';
 const {confirm}=vi.hoisted(()=>({confirm:vi.fn()}));
 vi.mock('../api',()=>({api:{get:vi.fn(),put:vi.fn(),post:vi.fn()}}));
 vi.mock('../context/ConfirmContext',()=>({useConfirm:()=>confirm}));
 const pipeline={id:1,name:'Sprzedaż B2B',revision:3,stages:[{key:'new',name:'Nowa'},{key:'offer',name:'Oferta'}]};
 const opportunity={id:7,title:'Kontrakt portowy',pipeline_id:1,stage:'new',value:'100.00',currency:'PLN',probability:20,outcome:'open',revision:2,lead_id:9,company_id:4};
-const mount=(url='/sales')=>render(<MemoryRouter initialEntries={[url]}><Sales/></MemoryRouter>);
+const mount=(url='/sales')=>render(<MemoryRouter initialEntries={[url]}><CrmNavigation/><Sales/></MemoryRouter>);
 beforeEach(()=>{vi.clearAllMocks();localStorage.clear();confirm.mockResolvedValue(true);api.get.mockImplementation(p=>Promise.resolve(p.endsWith('/pipelines')?[pipeline]:p==='/crm/companies'?[{id:4,name:'Port'}]:p.startsWith('/leads?')?[]:p.includes('/history/')?[]:p.includes('/opportunities?')?{items:[opportunity],total:1}:{items:[],total:0}));});
 afterEach(cleanup);
 it('preserves stable stage keys when renaming and reordering a pipeline',async()=>{
@@ -31,7 +32,7 @@ it('creates a follow-up with contact, company and opportunity links',async()=>{
  fireEvent.click(screen.getByRole('button',{name:'Zapisz'}));await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/crm/sales/activities',expect.objectContaining({title:'Zadzwonić',lead_id:9,company_id:4,opportunity_id:7,due_at:new Date('2026-10-09T14:30').toISOString()})));
 });
 it('filters the calendar month on the server and preserves contact context',async()=>{
- mount('/sales?lead_id=9');fireEvent.click(screen.getByRole('tab',{name:'Kalendarz CRM'}));
+ mount('/sales?lead_id=9');fireEvent.click(screen.getByRole('link',{name:'Kalendarz'}));
  const month=await screen.findByLabelText('Miesiąc');fireEvent.change(month,{target:{value:'2026-11'}});
  await waitFor(()=>expect(api.get).toHaveBeenCalledWith(expect.stringContaining('date_from='+encodeURIComponent(new Date(2026,10,1).toISOString()))));
  const requests=api.get.mock.calls.map(x=>x[0]).filter(x=>x.includes('date_from='));expect(requests.at(-1)).toContain('lead_id=9');expect(requests.at(-1)).toContain('date_to='+encodeURIComponent(new Date(2026,11,1).toISOString()));

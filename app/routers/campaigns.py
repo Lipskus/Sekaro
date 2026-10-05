@@ -21,6 +21,8 @@ from zoneinfo import ZoneInfo
 from app.database import get_db
 from app.models import (
     Campaign,
+    ContactList,
+    ContactListMember,
     Sequence,
     SequenceVariant,
     CampaignLead,
@@ -2219,6 +2221,26 @@ async def remove_lead_from_campaign(
     return {"ok": True}
 
 
+@router.post("/{campaign_id}/contact-groups/{list_id}")
+async def add_contact_group_to_campaign(
+    campaign_id: int, list_id: int, skip_duplicates: bool = True,
+    verify_emails: bool = False, db: AsyncSession = Depends(get_db),
+):
+    if await db.get(ContactList, list_id) is None:
+        raise HTTPException(404, "Contact list not found")
+    # Preserve existing identities and hold their locks through enrollment.
+    members = (await db.scalars(select(Lead).where(Lead.id.in_(
+        select(ContactListMember.lead_id).where(ContactListMember.list_id == list_id)
+    )).order_by(Lead.id).with_for_update())).all()
+    if not members:
+        raise HTTPException(422, "Contact list is empty")
+    return await bulk_add_leads_to_campaign(
+        campaign_id, [CampaignLeadAdd(email=m.email) for m in members],
+        skip_duplicates=skip_duplicates, verify_emails=verify_emails,
+        confirm_only=False, db=db,
+    )
+
+
 @router.post("/{campaign_id}/leads")
 async def bulk_add_leads_to_campaign(
     campaign_id: int,
@@ -2353,7 +2375,7 @@ async def bulk_add_leads_to_campaign(
                 existing_any = await db.execute(
                     select(CampaignLead).where(CampaignLead.lead_id == lead.id)
                 )
-                if existing_any.scalar_one_or_none():
+                if existing_any.first():
                     duplicate_leads.append(email)
                     results.append({"email": email, "status": "already_enrolled"})
                     already_enrolled += 1
