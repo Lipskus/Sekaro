@@ -48,6 +48,7 @@ const translations = {
     },
     nav: {
       companies: 'Firmy',
+      sales: 'Sprzedaż',
       dashboard: 'Dashboard',
       analytics: 'Analityka',
       campaigns: 'Kampanie',
@@ -112,6 +113,7 @@ const translations = {
     },
     nav: {
       companies: 'Companies',
+      sales: 'Sales',
       dashboard: 'Dashboard',
       analytics: 'Analytics',
       campaigns: 'Campaigns',
@@ -176,6 +178,7 @@ const translations = {
     },
     nav: {
       companies: 'Firmen',
+      sales: 'Vertrieb',
       dashboard: 'Übersicht',
       analytics: 'Analysen',
       campaigns: 'Kampagnen',
@@ -240,6 +243,7 @@ const translations = {
     },
     nav: {
       companies: 'Компании',
+      sales: 'Продажи',
       dashboard: 'Панель',
       analytics: 'Аналитика',
       campaigns: 'Кампании',

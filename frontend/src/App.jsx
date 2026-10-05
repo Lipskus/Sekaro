@@ -12,6 +12,7 @@ import SystemHealth from './pages/SystemHealth';
 import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
 import Companies from './pages/Companies';
+import Sales from './pages/Sales';
 import Templates from './pages/Templates';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
@@ -69,6 +70,7 @@ function AppRoutes() {
               <Route path="/leads" element={<ContactsView />} />
               <Route path="/contacts-tools" element={<Leads />} />
               <Route path="/leads/:id" element={<LeadDetail />} />
+              <Route path="/sales" element={<Sales />} />
               <Route path="/companies" element={<Companies />} />
               <Route path="/companies/:id" element={<Companies />} />
               <Route path="/templates" element={<Templates />} />

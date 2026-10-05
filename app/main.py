@@ -237,6 +237,8 @@ app.include_router(analytics_router.router, dependencies=_auth_deps)
 app.include_router(diagnostics_router.router, dependencies=_auth_deps)
 app.include_router(templates_router.router, dependencies=_auth_deps)
 app.include_router(contact_fields_router.router, dependencies=_auth_deps)
+from app.routers import sales as sales_router
+app.include_router(sales_router.router, dependencies=_auth_deps)
 from app.routers import crm as crm_router
 app.include_router(crm_router.router, dependencies=_auth_deps)
 from app.routers import ui as ui_router

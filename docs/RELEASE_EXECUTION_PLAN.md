@@ -72,7 +72,7 @@ Ta tabela pokazuje aktualny stan wykonania. Powyższe wpisy „Postęp” są hi
 | 3 — analityka outreach | **Wdrożony 04.10.2026.** Raporty kampanii, skrzynek i kraju oraz Domeny potwierdzone na demo. Pobranie CSV pozostaje niepotwierdzone przez narzędzie przeglądarki; użytkownik polecił kontynuację po zgłoszeniu tego ograniczenia. Raport: `docs/qa/2026-10-04-stage3-analytics.md`. |
 | 4 — stabilna baza | **Odebrany w zakresie demo 04.10.2026.** Operator potwierdził PG15→17, zgodność odtworzonych danych i test izolacji kontenerów. Odczyt panelu i 60 kontaktów potwierdzony. Publiczna domena/TLS pozostają konfiguracją produkcyjną; numer 1.0 niezatwierdzony. |
 | 5 — rdzeń CRM | **Odbiór funkcjonalny demo 05.10.2026.** Potwierdzono zapis firmy, dwie osoby, relacje, adresy, notatki i scalenie z zachowaniem ID/historii. Dark/Light desktop sprawdzone. Poprawiono etykietę potwierdzenia scalenia; wymaga aktualizacji. Ograniczenia QA: `docs/qa/2026-10-04-stage5-crm.md`. Następny etap: 6. |
-| 6 — sprzedaż | Nierozpoczęty. |
+| 6 — sprzedaż | **Pakiet przygotowany 05.10.2026.** Szanse/pipeline, zadania, spotkania i kalendarz CRM, historia i ochrona rewizji. Testy lokalne zaliczone; czeka na wdrożenie i odbiór tego samego demo. Zakres i ograniczenia: `docs/STAGE_6_SALES.md`. |
 | 7 — automatyzacje i raporty | Nierozpoczęty. |
 | 8 — użytkownicy | Nierozpoczęty. |
 | 9 — adaptery i Gmail | Nierozpoczęty. |

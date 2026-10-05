@@ -8,7 +8,7 @@ import {useAppMode} from '../context/AppModeContext';
 import {useLanguage} from '../context/LanguageContext';
 import {Icon,Avatar,Badge} from './ui';
 import Logo from './Logo';
-const nav=[['/','home','dashboard'],['/campaigns','campaign','campaigns'],['/inboxes','mail','inboxes'],['/leads','contacts','leads'],['/companies','contacts','companies'],['/templates','template','templates'],['/unibox','chat','unibox'],['/analytics','chart','analytics'],['/schedule','calendar','schedule'],['/domains','globe','domains'],['/settings','settings','settings']];
+const nav=[['/','home','dashboard'],['/campaigns','campaign','campaigns'],['/inboxes','mail','inboxes'],['/leads','contacts','leads'],['/companies','contacts','companies'],['/sales','stack','sales'],['/templates','template','templates'],['/unibox','chat','unibox'],['/analytics','chart','analytics'],['/schedule','calendar','schedule'],['/domains','globe','domains'],['/settings','settings','settings']];
 export default function Shell({children}){
  const {user,logout}=useAuth();const {overallStatus,rawData,loading:healthLoading,fetchError:healthError}=useSystemHealth();const {count}=useNotifications();const {isProduction,isDemo}=useAppMode();const {language,setLanguage,languages,t}=useLanguage();
  const [menu,setMenu]=useState(false),[profile,setProfile]=useState(false),[q,setQ]=useState(''),[results,setResults]=useState([]),[searchBusy,setSearchBusy]=useState(false),[searchError,setSearchError]=useState(''),[showSearch,setShowSearch]=useState(false);
