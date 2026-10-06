@@ -238,6 +238,8 @@ app.include_router(test_mode.router, dependencies=_auth_deps)
 app.include_router(schedule_router.router, dependencies=_auth_deps)
 app.include_router(settings_router.router, dependencies=_auth_deps)
 app.include_router(backup_router.router, dependencies=_auth_deps)
+from app.routers import backup_remote as backup_remote_router
+app.include_router(backup_remote_router.router, dependencies=_auth_deps)
 app.include_router(unibox_router.router, dependencies=_auth_deps)
 app.include_router(smtp_router.router, dependencies=_auth_deps)
 app.include_router(tracking_router.router)

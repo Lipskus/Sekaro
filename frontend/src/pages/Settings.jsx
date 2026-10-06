@@ -1,3 +1,4 @@
+import RemoteBackups from '../components/RemoteBackups';
 import AccessManagement from './AccessManagement';
 import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
@@ -1038,7 +1039,9 @@ export default function Settings() {
                     if (r.webhook_ok) parts.push(ct('Webhook wysłany'));
                     if (r.webhook_error) parts.push(ct('Błąd webhooka: {error}',{error:r.webhook_error}));
                     if (r.local_skipped) parts.push(r.local_skipped);
-                    notify({ type: 'success', message: parts.join(' · ') || ct("Kopia zakończona") });
+                    if (r.remote_error) parts.push(r.remote_error);
+                    if (r.destination_error) parts.push(r.destination_error);
+                    notify({ type: r.ok === false ? 'error' : 'success', message: parts.join(' · ') || ct("Kopia zakończona") });
                   } catch (e) {
                     notify({ type: 'error', message: e.message });
                   } finally {
@@ -1050,6 +1053,7 @@ export default function Settings() {
               </Button>
             </div>
 
+            <RemoteBackups onRestoreFile={file => {setRestoreFile(file); setRestorePreview(null);}} />
             <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
               <p className="text-sm font-medium mb-2">{ct("Przywróć z pliku")}</p>
               <p className="text-xs text-amber-700 dark:text-amber-400 mb-2"> {ct("Przywracanie zastępuje całą bazę danych. Po wybraniu pliku pokażemy zawartość kopii przed podaniem hasła, jeśli plik jest zaszyfrowany.")} </p>

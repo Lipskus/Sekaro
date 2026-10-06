@@ -135,3 +135,7 @@ Na prośbę użytkownika do tego samego ostatniego pakietu dodajemy:
 - Sprawdzić stany ładowania, pustej listy, błędu, sukcesu i wyłączenia oraz obsługę klawiatury i widoczny fokus. Nie potwierdzać odbioru wyłącznie na podstawie buildu lub testów komponentów: potrzebny jest przegląd działającego UI w przeglądarce z checklistą i dowodami dla znalezionych/poprawionych błędów.
 
 To rozszerzenie etapu 11, bez dodatkowej wersji ani drugiego demo. Testy nie mogą uruchamiać prawdziwych wysyłek lub transferów do zewnętrznych usług bez odpowiedniej konfiguracji i autoryzacji. Powyższe punkty są zaplanowane, nie oznaczają już wykonanej korekty favicon ani zakończonego QA.
+
+### Etap 11 — kod do odbioru, 06.10.2026
+
+Przygotowano instalator, opcjonalny cel S3/SFTP/FTPS, historię i odtworzenie przez istniejący podgląd, ClamAV dla restore, favicon Sekaro, README i dokumentację. Wyniki oraz jawnie otwarte bramki: `docs/STAGE_11_RELEASE.md`. Etap nie jest zamknięty: potrzebne są rzeczywiste próby Docker/dostawców/restore i pełne UI QA; przeglądarka w tej sesji nie pozwoliła wykonać odbioru wizualnego. Bez merge do main i wdrożenia przez agenta.

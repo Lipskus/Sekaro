@@ -24,6 +24,8 @@ const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
 function fixture(p,flow){
+ if(p==='/api/settings/backup/remote')return {revision:0,config:{kind:'s3',enabled:false,prefix:'sekaro',retention:14},secrets:{},encryption_available:true,demo:true};
+ if(p==='/api/settings/backup/remote/history')return {items:[]};
  if(flow.startsWith('contact-tools-')&&p==='/api/leads')return [{...lead,email_verification_status:'invalid',campaigns:[]}];
  if(flow==='settings-ai-expanded'){
   if(p==='/api/settings/ai')return {features:[{id:'reply_classifier',label:'Reply Interest Classifier',description:Object.keys(operationsCopy.en).find(k=>k.startsWith('Classifies lead replies')),enabled:false,provider:'openai',model:'qa-model',api_key_set:false}]};

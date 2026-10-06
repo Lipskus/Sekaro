@@ -13,6 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import AppSetting
+from app.security import encrypt, decrypt, is_encrypted
 from app.settings_manager import settings
 
 log = logging.getLogger("quickly.app_settings")
@@ -231,6 +232,10 @@ async def get_backup_config(db: AsyncSession) -> dict:
     """Return persisted backup schedule and destination flags."""
     from app.backup_pg import normalize_user_backup_path
 
+    stored_password = await get_setting(db, BACKUP_ENCRYPT_PASSWORD_KEY) or ""
+    password = decrypt(stored_password)
+    if is_encrypted(stored_password) and password == stored_password:
+        raise ValueError("Backup password cannot be decrypted; restore the original SEKARO_ENCRYPTION_KEY")
     cron = (await get_setting(db, BACKUP_CRON_EXPRESSION_KEY) or "").strip()
     local_rel = normalize_user_backup_path(await get_setting(db, BACKUP_LOCAL_RELATIVE_PATH_KEY))
     return {
@@ -242,7 +247,7 @@ async def get_backup_config(db: AsyncSession) -> dict:
         "webhook_url": (await get_setting(db, BACKUP_WEBHOOK_URL_KEY) or "").strip(),
         "webhook_auth_header": (await get_setting(db, BACKUP_WEBHOOK_AUTH_HEADER_KEY) or "").strip(),
         "encrypt_backups": _is_truthy_setting(await get_setting(db, BACKUP_ENCRYPT_ENABLED_KEY)),
-        "backup_encryption_password": (await get_setting(db, BACKUP_ENCRYPT_PASSWORD_KEY) or "").strip(),
+        "backup_encryption_password": password.strip(),
         "backup_encryption_hint": (await get_setting(db, BACKUP_ENCRYPT_HINT_KEY) or "").strip(),
     }
 
@@ -272,6 +277,6 @@ async def save_backup_config(
     await put_setting(db, BACKUP_WEBHOOK_URL_KEY, webhook_url.strip())
     await put_setting(db, BACKUP_WEBHOOK_AUTH_HEADER_KEY, webhook_auth_header.strip())
     await put_setting(db, BACKUP_ENCRYPT_ENABLED_KEY, "true" if encrypt_backups else "false")
-    await put_setting(db, BACKUP_ENCRYPT_PASSWORD_KEY, backup_encryption_password.strip())
+    await put_setting(db, BACKUP_ENCRYPT_PASSWORD_KEY, encrypt(backup_encryption_password.strip()))
     await put_setting(db, BACKUP_ENCRYPT_HINT_KEY, backup_encryption_hint.strip())
     await db.flush()

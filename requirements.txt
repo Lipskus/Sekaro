@@ -33,3 +33,7 @@ cryptography>=42.0
 slowapi>=0.1.9
 dnspython>=2.8
 mcp>=1.2,<2  # v1 API (FastMCP); v2 renamed it to MCPServer
+
+# Optional remote backup transports
+boto3>=1.35,<2
+paramiko>=3.5,<6

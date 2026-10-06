@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import logging
 
-from app.backup_package import pack_backup
+from app.backup_package import pack_backup, BackupPackageError
 
 log = logging.getLogger("quickly.backup_delivery")
 
@@ -15,9 +15,7 @@ def wrap_pg_dump_for_backup_config(manifest: dict, dump: bytes, cfg: dict) -> by
     pwd = (cfg.get("backup_encryption_password") or "").strip()
     encrypted = want and bool(pwd)
     if want and not pwd:
-        log.warning(
-            "Backup encryption is enabled but no password is configured; writing unencrypted .qbk"
-        )
+        raise BackupPackageError("Backup encryption requires a configured password")
     return pack_backup(
         manifest,
         dump,

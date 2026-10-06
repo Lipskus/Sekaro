@@ -1,171 +1,84 @@
-# Sekaro
+<p align="center"><img src="static/sekaro-favicon-v1.svg" width="80" alt="Sekaro"></p>
+<h1 align="center">Sekaro</h1>
+<p align="center"><strong>Kontakty. Sprzedaż. Korespondencja. Pod Twoją kontrolą.</strong></p>
+<p align="center">Self-hosted CRM & outreach · FastAPI · React · PostgreSQL</p>
+<p align="center"><a href="docs/INSTALLATION.md">Instalacja</a> · <a href="docs/BACKUPS.md">Backup i odtwarzanie</a> · <a href="docs/STAGE_11_RELEASE.md">Stan wydania</a> · <a href="docs/RELEASE_EXECUTION_PLAN.md">Plan prac</a></p>
 
-**Sekaro** is a self-hosted outreach and email correspondence platform focused on ordinary **SMTP + IMAP mailboxes**, controlled campaign scheduling, a unified inbox, contact history, reporting, and safe suppression handling.
+Sekaro łączy bazę kontaktów, proces sprzedaży i pocztę w jednej aplikacji na Twoim serwerze. Kontakt zachowuje historię od pierwszej wiadomości po szansę sprzedaży, zadanie i spotkanie. SMTP/IMAP działa niezależnie od Google i Microsoft; ich adaptery OAuth są opcjonalne.
 
-Sekaro is being developed as a provider-agnostic tool. Google Workspace and Microsoft 365 OAuth are not required to log in to the application or to use the core mailbox workflow.
+> **Linia rozwojowa — pakiet 11 do odbioru.** Kod zawiera instalator i zdalne backupy, ale pełny odbiór wizualny oraz próby instalacji i transferów na rzeczywistych usługach pozostają bramką wydania. Nie oznaczamy tego jeszcze jako stabilne 1.0. Szczegóły: [stan i ograniczenia](docs/STAGE_11_RELEASE.md).
 
-> Current development line: **0.5.x**. The project is usable for development and early testing, but the feature set is still being reshaped around the Sekaro roadmap.
+## Co mieści się w Sekaro
 
-## Goals
+| Obszar | Możliwości |
+|---|---|
+| Kontakty i firmy | Import CSV/XLSX, pola własne, wiele adresów, relacje, grupy, archiwum, scalanie i trwała historia operacji |
+| Sprzedaż | Pipeline, szanse, zadania, spotkania i kalendarz CRM; szczegóły wydarzenia przed osobną edycją |
+| Kampanie | Sekwencje, personalizacja, podgląd, limity skrzynek, harmonogram, preflight i jawne uruchamianie kampanii |
+| Korespondencja | Wspólna skrzynka, SMTP/IMAP, opcjonalne Gmail API i Microsoft Graph |
+| Tożsamość nadawcy | Opcjonalna stopka i osobisty certyfikat S/MIME per skrzynka — bez obowiązku dla pozostałych użytkowników |
+| Kontrola | Role, zespoły i uprawnienia API, audyt, suppression, zatrzymanie po odpowiedzi i wypisaniu |
+| Utrzymanie | Instalator, diagnostyka, lokalne kopie, opcjonalne S3/SFTP/FTPS, szyfrowanie i historia transferów |
+| Interfejs | Polski, English, Deutsch, Русский; jasny i ciemny motyw |
 
-Sekaro is intended for workflows where contacts come from spreadsheets or external datasets and outreach should remain fully under the operator's control:
+**S/MIME podpisuje wiadomość, ale nie gwarantuje dostarczenia do inboxa.** SPF, DKIM, DMARC, reputacja i zgody odbiorców nadal wymagają osobnej konfiguracji. [Poczta i certyfikaty →](docs/STAGE_10_MAIL.md)
 
-- CSV/XLSX contact imports with custom fields
-- plain-text and HTML messages
-- SMTP sending
-- IMAP reply synchronization
-- configurable sending limits and timing
-- multi-step sequences and follow-ups
-- stop-on-reply / bounce / unsubscribe
-- unified inbox and threaded correspondence
-- global deduplication and suppression
-- campaign and geographic analytics
-- SPF, DKIM, DMARC and domain-health diagnostics
-- self-hosted deployment with private administration access
+## Podgląd interfejsu
 
-See [ROADMAP.md](ROADMAP.md) for the version plan.
+![Sekaro — kampanie w ciemnym motywie](docs/qa/evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-dark-fixture-de.png)
 
-For existing installations upgrading to the SMTP/IMAP core, see [docs/UPGRADE_0.2.md](docs/UPGRADE_0.2.md).
+*Rzeczywisty zrzut interfejsu z izolowanego QA, 30.09.2026, język DE i dane testowe. Pokazuje wcześniejszy widok kampanii; nie jest dowodem odbioru pakietu 11.*
 
-## Current 0.5 foundation
+## Start na własnym serwerze
 
-The current Sekaro fork includes:
-
-- local administrator registration using **email + password**
-- login using email or username
-- bcrypt password hashing and JWT sessions
-- PostgreSQL storage
-- SMTP/IMAP mailbox flow as the primary mailbox type
-- encrypted SMTP/IMAP passwords at rest when `SEKARO_ENCRYPTION_KEY` is set
-- optional per-inbox Reply-To address
-- IMAP over implicit TLS or STARTTLS only
-- CSV/XLSX contact imports with interactive field mapping
-- arbitrary spreadsheet columns stored as custom fields
-- named contact lists
-- global case-insensitive import deduplication
-- global suppression / do-not-contact enforcement
-- reusable plain-text and HTML message templates
-- immutable template version history
-- universal user-defined contact variables using `{{key}}`
-- per-contact message preview and missing-variable diagnostics
-- SMTP test sends from the template editor
-- optional rolling hourly mailbox sending limits
-- campaign pre-flight checks before start
-- campaigns are created paused and require explicit start
-- durable queue-slot send claims that block duplicate automatic sends after uncertain delivery
-- existing campaign, queue, contacts, analytics and inbox foundations inherited from the upstream project
-- Polish, English, German and Russian translation infrastructure
-- Polish as the default UI language
-- Docker-based deployment
-- local-only application binding by default
-
-Some legacy provider-specific code from upstream still exists internally while the refactor is in progress, but Google/Microsoft app-login and mailbox OAuth routes are no longer part of the active 0.1 application flow.
-
-## Production-style Docker deployment
-
-Requirements:
-
-- Linux host
-- Docker Engine
-- Docker Compose v2
-- approximately 1–2 GB RAM for a small installation
-- PostgreSQL storage on SSD
-
-Clone the repository:
+Wymagania: Git, Python 3.10+, działający Docker Engine z Compose v2, dostęp do repozytorium i rejestrów obrazów. Skrypt nie instaluje Dockera ani nie zmienia reguł zapory.
 
 ```bash
 git clone https://github.com/Lipskus/Sekaro.git
 cd Sekaro
+# Wybierz zatwierdzony commit wydania — nie zakładaj, że main zawiera pakiet 11.
+git switch --detach <commit-wydania>
+python3 scripts/sekaro-install.py check
+python3 scripts/sekaro-install.py install
 ```
 
-Create the environment file:
+Aplikacja nasłuchuje na `127.0.0.1:5050`. Otwórz ją przez zaufany tunel lub reverse proxy HTTPS i utwórz pierwszego administratora. Instalator generuje sekrety tylko raz; przechowuj `.env` w bezpiecznej kopii poza serwerem. **Nie usuwaj konfiguracji istniejącej instalacji, aby wymusić instalację od nowa.**
+
+[Pełna instrukcja instalacji, aktualizacji i diagnostyki →](docs/INSTALLATION.md)
+
+## Aktualizacja istniejącego demo lub produkcji
 
 ```bash
-cp .env.example .env
+cd /opt/sekaro
+# Najpierw pobierz i wybierz dokładny commit uzgodnionego wydania.
+python3 scripts/sekaro-install.py update
+python3 scripts/sekaro-install.py status
 ```
 
-Generate secrets:
+Aktualizator rozpoznaje `.sekaro-demo/env`, zachowuje override PostgreSQL 17, tworzy lokalny dump przed zmianą aplikacji, buduje obraz z etykietą commitu i weryfikuje uruchomioną rewizję. Nie podnosi automatycznie głównej wersji istniejącego PostgreSQL. Samo `sekaro-demo.sh up` nadal **nie buduje** obrazu.
 
-```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(64))"
-python3 -c "import secrets; print(secrets.token_urlsafe(48))"
-openssl rand -hex 32
-```
+## Kopie, które można odzyskać
 
-Put the generated values into `.env`:
+W **Ustawienia → Backup / przywracanie** skonfiguruj szyfrowanie i harmonogram. Opcjonalnie dodaj jeden cel: S3 (także kompatybilny endpoint HTTPS), SFTP z przypiętym kluczem hosta albo FTPS z TLS. Zwykły FTP nie jest obsługiwany.
 
-```env
-BASE_URL=https://sekaro.example.com
-CORS_ORIGINS=https://sekaro.example.com
+Zdalna kopia jest szyfrowana przed wysłaniem. Po transferze aplikacja odczytuje plik ponownie i porównuje SHA-256; dopiero potem uruchamia retencję. Nieudane transfery pozostawiają lokalny plik. Pobranie kopii do formularza nie przywraca bazy — nadal wymagany jest podgląd i oddzielne potwierdzenie.
 
-QUICKLY_SECRET_KEY=<generated JWT secret>
-SEKARO_ENCRYPTION_KEY=<generated mailbox encryption secret>
-POSTGRES_PASSWORD=<generated database password>
+[Konfiguracja, ograniczenia, klucze i procedura odtwarzania →](docs/BACKUPS.md)
 
-SEKARO_PORT=5050
-```
+## Dokumentacja
 
-Start Sekaro:
+- [Instalacja i aktualizacja](docs/INSTALLATION.md)
+- [Backup, S3, SFTP, FTPS i odtwarzanie](docs/BACKUPS.md)
+- [Uprawnienia i użytkownicy](docs/STAGE_8_ACCESS.md)
+- [Gmail API](docs/STAGE_9_GMAIL.md)
+- [Microsoft 365, stopki i S/MIME](docs/STAGE_10_MAIL.md)
+- [Zakres testów i otwarte bramki pakietu 11](docs/STAGE_11_RELEASE.md)
+- [Uzgodniony plan wykonania](docs/RELEASE_EXECUTION_PLAN.md)
 
-```bash
-mkdir -p backups
-docker compose -f docker-compose.sekaro.yml up -d --build
-```
+Panel administracyjny powinien pozostać prywatny. Oddzielna usługa wypisywania odbiorców ma własny profil Compose i ograniczoną rolę bazy; nie wystawiaj całego panelu tylko po to, aby działały linki rezygnacji.
 
-The application is intentionally published only on:
+## Rozwój i pochodzenie
 
-```text
-127.0.0.1:5050
-```
+Sekaro powstało jako fork projektu **Quickly**. Zachowuje historię i licencję upstream, rozwijając CRM, niezależne adaptery poczty i obsługę własnej infrastruktury. Historyczne nazwy `QUICKLY_*` i format `.qbk` pozostają tam, gdzie wymagają tego zgodność konfiguracji i odtwarzanie wcześniejszych kopii.
 
-Use a reverse proxy, VPN, or a Cloudflare Tunnel/Zero Trust setup to provide HTTPS access. Do **not** expose the administrative port directly to the Internet.
-
-On the first visit, Sekaro asks you to create the first local administrator account. Public registration closes after the first account is created.
-
-## Architecture
-
-The current deployment contains:
-
-```text
-sekaro-app
-    |
-    +--- FastAPI backend
-    +--- React frontend
-    +--- scheduler
-    +--- SMTP/IMAP integration
-    |
-sekaro-db
-    |
-    +--- PostgreSQL
-```
-
-A separate minimal public unsubscribe service is planned before the stable release so the administration panel can remain private while recipients can always opt out.
-
-## Updating a source-built installation
-
-```bash
-git pull --ff-only
-docker compose -f docker-compose.sekaro.yml build --pull app
-docker compose -f docker-compose.sekaro.yml up -d
-```
-
-Always keep a current database backup before upgrading production data.
-
-## Languages
-
-Sekaro's UI infrastructure currently supports:
-
-- Polish
-- English
-- German
-- Russian
-
-Translation coverage will expand as screens are refactored. Polish is currently the default language.
-
-## Project origin
-
-Sekaro started as a fork of **Quickly**, an MIT-licensed self-hosted cold-email project by its upstream contributors. The fork retains the MIT license and relevant upstream history while its architecture and product direction are being refactored for Sekaro's SMTP/IMAP-first use case.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+Licencja **MIT** — [LICENSE](LICENSE).
