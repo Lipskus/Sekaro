@@ -43,3 +43,10 @@ tasks.md
 .sekaro-demo/
 
 .sekaro-install/
+
+# Generated frontend/test output and local recovery files
+frontend/dist/
+.pytest_cache/
+*.qbk
+*.dump
+*.partial

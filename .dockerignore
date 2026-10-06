@@ -14,3 +14,4 @@ venv
 *.dump
 *.log
 docs/qa/evidence-*
+.sekaro-install

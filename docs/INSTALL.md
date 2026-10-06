@@ -1,4 +1,4 @@
-> **Sekaro — aktualna ścieżka prywatnego wdrożenia:** zobacz [operacje i granicę publicznej rezygnacji](STAGE_4_OPERATIONS.md). Poniższy poradnik Quickly opisuje historyczne warianty wdrożenia; nie jest zgodą na publiczne wystawienie panelu Sekaro.
+> **Sekaro — aktualna ścieżka prywatnego wdrożenia:** zobacz [instalację i aktualizację](INSTALLATION.md), [backup i odtwarzanie](BACKUPS.md) oraz [granicę publicznej rezygnacji](STAGE_4_OPERATIONS.md). Poniższy poradnik Quickly opisuje historyczne warianty wdrożenia; nie jest zgodą na publiczne wystawienie panelu Sekaro.
 
 # Quickly — Installation Guide
 

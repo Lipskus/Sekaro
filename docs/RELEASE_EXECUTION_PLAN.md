@@ -139,3 +139,7 @@ To rozszerzenie etapu 11, bez dodatkowej wersji ani drugiego demo. Testy nie mog
 ### Etap 11 — kod do odbioru, 06.10.2026
 
 Przygotowano instalator, opcjonalny cel S3/SFTP/FTPS, historię i odtworzenie przez istniejący podgląd, ClamAV dla restore, favicon Sekaro, README i dokumentację. Wyniki oraz jawnie otwarte bramki: `docs/STAGE_11_RELEASE.md`. Etap nie jest zamknięty: potrzebne są rzeczywiste próby Docker/dostawców/restore i pełne UI QA; przeglądarka w tej sesji nie pozwoliła wykonać odbioru wizualnego. Bez merge do main i wdrożenia przez agenta.
+
+### Zgoda na scalenie i porządki — 06.10.2026
+
+Operator polecił sprawdzenie i scalenie zbiorczego pakietu do main przed aktualizacją serwera oraz porządki w repozytorium. PR #38 obejmuje tę integrację. Usunięto śledzone wyniki kompilacji n8n (odtwarzane przez build/prepack) i nieużywane logo Quickly; uzupełniono ignorowanie plików generowanych i odsyłacze instalacji. Dowody QA, stare migracje i kompatybilne konfiguracje pozostają zachowane. Zgoda na merge nie zamyka otwartych bramek odbioru i nie oznacza wdrożenia przez agenta.
