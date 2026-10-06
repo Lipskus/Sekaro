@@ -1,3 +1,4 @@
+import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useConfirm } from '../context/ConfirmContext';
 import { useNavigate } from 'react-router-dom';
@@ -75,30 +76,30 @@ const EVENT_CATEGORIES = {
   'system': ['daily_limit', 'rate_limit', 'token_expired', 'feature.error'],
 };
 
-function timeAgo(iso) {
+function timeAgo(iso, language, ct) {
   const date = iso && parseApiDate(iso);
-  if (!date || !Number.isFinite(+date)) return 'Brak daty';
-  const diff = Math.max(0, Date.now() - date.getTime());
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'przed chwilą';
-  if (mins < 60) return `${mins} min temu`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs} godz. temu`;
-  const days = Math.floor(hrs / 24);
-  return `${days} d temu`;
+  if (!date || !Number.isFinite(+date)) return ct('Brak daty');
+  const minutes = Math.floor(Math.max(0, Date.now() - date.getTime()) / 60000);
+  if (minutes < 1) return ct('przed chwilą');
+  const formatter = new Intl.RelativeTimeFormat(language, {numeric:'always'});
+  if (minutes < 60) return formatter.format(-minutes, 'minute');
+  const hours = Math.floor(minutes / 60);
+  return hours < 24 ? formatter.format(-hours, 'hour') : formatter.format(-Math.floor(hours/24), 'day');
 }
 
 function NotificationItem({ n, onDelete, onSelect, selected, busy }) {
+  const {ct,language}=useOperationsLanguage();
   return <div className={`sk-notification-row ${selected ? 'is-selected' : ''} ${!n.read_at ? 'is-unread' : ''}`}>
     <button type="button" className="sk-notification-select" onClick={() => onSelect(n)} aria-pressed={selected}>
       <span className={`sk-notification-event-icon tone-${eventTone(n.event_type)}`}>{EVENT_ICONS[n.event_type] || <RiMailOpenLine size={20} />}</span>
-      <span className="sk-notification-copy"><strong>{n.title}</strong><span>{n.message}</span><small>{timeAgo(n.created_at)}{!n.read_at && <b>Nowe</b>}</small></span>
+      <span className="sk-notification-copy"><strong>{n.title}</strong><span>{n.message}</span><small>{timeAgo(n.created_at,language,ct)}{!n.read_at && <b>{ct("Nowe")}</b>}</small></span>
     </button>
-    <button type="button" className="sk-notification-delete" onClick={() => onDelete(n.id)} disabled={busy} aria-label="Usuń powiadomienie" title="Usuń powiadomienie"><RiDeleteBinLine size={16} /></button>
+    <button type="button" className="sk-notification-delete" onClick={() => onDelete(n.id)} disabled={busy} aria-label={ct("Usuń powiadomienie")} title={ct("Usuń powiadomienie")}><RiDeleteBinLine size={16} /></button>
   </div>;
 }
 
 export default function Notifications() {
+  const {ct,language}=useOperationsLanguage();
   const navigate = useNavigate();
   const { refresh: refreshBadge } = useNotifications();
   const notify = useNotify();
@@ -193,12 +194,12 @@ export default function Notifications() {
       e.preventDefault(); e.stopPropagation();
       if (savingLock.current || leaveLock.current) return;
       leaveLock.current = true;
-      try { if (await confirm('Odrzucić niezapisane preferencje powiadomień?')) navigate(url.pathname + url.search + url.hash); }
+      try { if (await confirm(ct('Odrzucić niezapisane preferencje powiadomień?'))) navigate(url.pathname + url.search + url.hash); }
       finally { leaveLock.current = false; }
     };
     window.addEventListener('beforeunload', unload); document.addEventListener('click', leave, true);
     return () => { window.removeEventListener('beforeunload', unload); document.removeEventListener('click', leave, true); };
-  }, [dirty, configSaving, confirm, navigate]);
+  }, [dirty, configSaving, confirm, navigate, ct]);
 
   // Mutations refetch from offset zero: deleting/reading changes unread pagination.
   const mutate = async (operation, message, updateSelection) => {
@@ -212,7 +213,7 @@ export default function Notifications() {
       refreshBadge();
       await fetchNotifications(true);
     } catch (e) {
-      if (gen === fetchGenRef.current) notify({ type: 'error', message });
+      if (gen === fetchGenRef.current) notify({ type: 'error', message:ct(message) });
     } finally { mutationLock.current = false; setMutating(false); }
   };
   const markRead = id => mutate(() => api.patch(`/notifications/${id}/read`), 'Nie udało się oznaczyć powiadomienia jako przeczytane.', () => setSelected(n => n?.id === id ? {...n, read_at: new Date().toISOString()} : n));
@@ -235,10 +236,10 @@ export default function Notifications() {
       const res = await api.put('/notifications/config', notifConfig);
       setNotifConfig(res);
       setSavedConfig(res);
-      notify({ message: 'Preferencje powiadomień zapisane.', type: 'success' });
+      notify({ message: ct("Preferencje powiadomień zapisane."), type: 'success' });
     } catch (e) {
       setSaveError(e);
-      notify({ message: 'Nie udało się zapisać preferencji.', type: 'error' });
+      notify({ message: ct("Nie udało się zapisać preferencji."), type: 'error' });
     } finally {
       savingLock.current = false;
       setConfigSaving(false);
@@ -279,7 +280,7 @@ export default function Notifications() {
     if (savingLock.current || leaveLock.current) return;
     if (dirty) {
       leaveLock.current = true;
-      try { if (!await confirm('Odrzucić niezapisane preferencje powiadomień?')) return; }
+      try { if (!await confirm(ct('Odrzucić niezapisane preferencje powiadomień?'))) return; }
       finally { leaveLock.current = false; }
     }
     if (n.lead_id) navigate(`/leads/${n.lead_id}`);
@@ -292,23 +293,21 @@ export default function Notifications() {
   return (
     <PageFrame
       className="sk-notifications-page"
-      title={activeTab === 'preferences' ? 'Preferencje powiadomień' : 'Powiadomienia'}
-      description="Śledź odpowiedzi, zdarzenia kampanii i alerty systemowe."
+      title={activeTab === 'preferences' ? ct("Preferencje powiadomień") : ct("Powiadomienia")}
+      description={ct("Śledź odpowiedzi, zdarzenia kampanii i alerty systemowe.")}
       actions={activeTab !== 'preferences' && unread > 0 ? (
         <Button size="sm" variant="outline" onClick={markAllRead} disabled={mutating || loading}>
-          <RiCheckDoubleLine className="mr-1" size={16} />
-          Oznacz wszystkie jako przeczytane
-        </Button>
+          <RiCheckDoubleLine className="mr-1" size={16} /> {ct("Oznacz wszystkie jako przeczytane")} </Button>
       ) : null}
     >
       <SectionTabs
         value={activeTab}
         onChange={id => { if (mutationLock.current) return; setSearchQuery(''); setFilterCategory(null); setActiveTab(id); }}
-        ariaLabel="Sekcje powiadomień"
+        ariaLabel={ct("Sekcje powiadomień")}
         items={[
-          { id: 'all', label: `Wszystkie (${total})`, icon: 'bell' },
-          { id: 'unread', label: `Nieprzeczytane (${unread})`, icon: 'mail' },
-          { id: 'preferences', label: 'Preferencje', icon: 'settings' },
+          { id: 'all', label: ct('Wszystkie ({count})',{count:total}), icon: 'bell' },
+          { id: 'unread', label: ct('Nieprzeczytane ({count})',{count:unread}), icon: 'mail' },
+          { id: 'preferences', label: ct('Preferencje'), icon: 'settings' },
         ]}
       />
 
@@ -321,10 +320,10 @@ export default function Notifications() {
                 <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                 <input
                   type="search"
-                  aria-label="Szukaj we wczytanych powiadomieniach"
+                  aria-label={ct("Szukaj we wczytanych powiadomieniach")}
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  placeholder="Szukaj we wczytanych powiadomieniach…"
+                  placeholder={ct("Szukaj we wczytanych powiadomieniach…")}
                   className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none placeholder:text-gray-400 dark:placeholder:text-gray-500"
                 />
               </div>
@@ -337,22 +336,22 @@ export default function Notifications() {
                     aria-pressed={filterCategory === cat.key}
                     className={filterCategory === cat.key ? 'is-active' : ''}
                   >
-                    {cat.label}
+                    {ct(cat.label)}
                   </button>
                 ))}
               </div>
             </div>
 
-            {items.length < matchingTotal && <p className="sk-muted sk-small">Wyszukiwanie i kategorie obejmują wczytane powiadomienia. Wczytaj więcej, aby rozszerzyć wyniki.</p>}
-            <ErrorNotice error={fetchError} onRetry={() => fetchNotifications(true)} />
+            {items.length < matchingTotal && <p className="sk-muted sk-small">{ct("Wyszukiwanie i kategorie obejmują wczytane powiadomienia. Wczytaj więcej, aby rozszerzyć wyniki.")}</p>}
+            <ErrorNotice error={ct(fetchError)} onRetry={() => fetchNotifications(true)} />
 
             {/* Loading state — first load */}
             {loading && items.length === 0 && (
               <StatePanel
                 tone="info"
                 icon="refresh"
-                title="Ładowanie powiadomień"
-                description="Pobieramy najnowsze zdarzenia z Sekaro."
+                title={ct("Ładowanie powiadomień")}
+                description={ct("Pobieramy najnowsze zdarzenia z Sekaro.")}
               />
             )}
 
@@ -361,8 +360,8 @@ export default function Notifications() {
               <StatePanel
                 tone="success"
                 icon="mail"
-                title={isFiltered ? 'Brak pasujących powiadomień' : activeTab === 'unread' ? 'Wszystko przeczytane' : 'Brak powiadomień'}
-                description={isFiltered ? 'Zmień wyszukiwanie lub filtr.' : 'Nowe zdarzenia pojawią się tutaj automatycznie.'}
+                title={isFiltered ? ct("Brak pasujących powiadomień") : activeTab === 'unread' ? ct("Wszystko przeczytane") : ct("Brak powiadomień")}
+                description={isFiltered ? ct("Zmień wyszukiwanie lub filtr.") : ct("Nowe zdarzenia pojawią się tutaj automatycznie.")}
               />
             )}
 
@@ -371,8 +370,8 @@ export default function Notifications() {
               <>
                 <p className="sk-notification-count">
                   {isFiltered
-                    ? `Wyświetlono ${filteredItems.length} z ${items.length} wczytanych`
-                    : `Wyświetlono ${items.length} z ${matchingTotal} powiadomień`}
+                    ? ct('Wyświetlono {shown} z {loaded} wczytanych',{shown:filteredItems.length,loaded:items.length})
+                    : ct('Wyświetlono {shown} z {total} powiadomień',{shown:items.length,total:matchingTotal})}
                 </p>
                 <div className="sk-notification-workspace">
                 <div className="sk-notification-list">
@@ -387,14 +386,14 @@ export default function Notifications() {
                     />
                   ))}
                 </div>
-                <aside className="sk-notification-detail" aria-label="Szczegóły powiadomienia">
+                <aside className="sk-notification-detail" aria-label={ct("Szczegóły powiadomienia")}>
                   {selected ? <>
-                    <button type="button" className="sk-notification-detail-close" aria-label="Zamknij szczegóły powiadomienia" onClick={() => setSelected(null)}>×</button><span className={`sk-badge tone-${eventTone(selected.event_type)}`}>{EVENT_LABELS[selected.event_type] || selected.event_type}</span>
+                    <button type="button" className="sk-notification-detail-close" aria-label={ct("Zamknij szczegóły powiadomienia")} onClick={() => setSelected(null)}>×</button><span className={`sk-badge tone-${eventTone(selected.event_type)}`}>{ct(EVENT_LABELS[selected.event_type] || selected.event_type)}</span>
                     <h2>{selected.title}</h2>
-                    <time dateTime={selected.created_at}>{dateTime(selected.created_at)}</time>
+                    <time dateTime={selected.created_at}>{dateTime(selected.created_at,{},language)}</time>
                     <p>{selected.message}</p>
-                    <div className="sk-notification-detail-actions">{!selected.read_at && <Button disabled={mutating || loading} onClick={() => markRead(selected.id)}>Oznacz jako przeczytane</Button>}<Button onClick={() => openRelated(selected)}>Otwórz powiązany widok</Button></div>
-                  </> : <StatePanel icon="bell" title="Wybierz powiadomienie" description="Pełna treść i powiązane działania pojawią się tutaj." />}
+                    <div className="sk-notification-detail-actions">{!selected.read_at && <Button disabled={mutating || loading} onClick={() => markRead(selected.id)}>{ct("Oznacz jako przeczytane")}</Button>}<Button onClick={() => openRelated(selected)}>{ct("Otwórz powiązany widok")}</Button></div>
+                  </> : <StatePanel icon="bell" title={ct("Wybierz powiadomienie")} description={ct("Pełna treść i powiązane działania pojawią się tutaj.")} />}
                 </aside>
                 </div>
               </>
@@ -403,28 +402,24 @@ export default function Notifications() {
             {/* Wczytaj więcej — only on All tab */}
             {items.length < matchingTotal && !loading && !fetchError && (
               <div className="sk-notification-load-more">
-                <Button size="sm" variant="outline" onClick={loadMore} disabled={mutating}>
-                  Wczytaj więcej
-                </Button>
+                <Button size="sm" variant="outline" onClick={loadMore} disabled={mutating}> {ct("Wczytaj więcej")} </Button>
               </div>
             )}
 
             {/* Loading more indicator */}
             {loading && items.length > 0 && (
               <div className="sk-notification-loading-more">
-                <div className="inline-block h-4 w-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mr-2 align-middle" />
-                Wczytywanie…
-              </div>
+                <div className="inline-block h-4 w-4 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mr-2 align-middle" /> {ct("Wczytywanie…")} </div>
             )}
           </>
         )}
 
         {activeTab === 'preferences' && <ErrorNotice error={configError} onRetry={loadConfig} />}
-        {activeTab === 'preferences' && configLoading && <StatePanel icon="refresh" title="Ładowanie preferencji" />}
+        {activeTab === 'preferences' && configLoading && <StatePanel icon="refresh" title={ct("Ładowanie preferencji")} />}
         {activeTab === 'preferences' && !configLoading && !configError && (
           <form onSubmit={saveConfig}><fieldset disabled={configSaving} className="sk-notification-preferences">
             <section className="sk-notification-pref-card">
-              <h2>Kanały powiadomień</h2><p className="sk-muted sk-small">W aplikacji powiadomienia są zawsze aktywne. E-mail to dodatkowy kanał dostarczania.</p>
+              <h2>{ct("Kanały powiadomień")}</h2><p className="sk-muted sk-small">{ct("W aplikacji powiadomienia są zawsze aktywne. E-mail to dodatkowy kanał dostarczania.")}</p>
               <div className="space-y-4">
                 <label className="flex items-center gap-2 cursor-pointer">
                   <input
@@ -433,23 +428,23 @@ export default function Notifications() {
                     onChange={e => setNotifConfig(prev => ({ ...prev, enabled: e.target.checked }))}
                     className="rounded"
                   />
-                  <span className="text-sm">Wysyłaj powiadomienia e-mail</span>
+                  <span className="text-sm">{ct("Wysyłaj powiadomienia e-mail")}</span>
                 </label>
                 {notifConfig.enabled && (
                   <>
                     <Input
-                      label="Adres powiadomień (opcjonalny)"
-                      aria-label="Adres powiadomień (opcjonalny)"
+                      label={ct("Adres powiadomień (opcjonalny)")}
+                      aria-label={ct("Adres powiadomień (opcjonalny)")}
                       type="email"
                       value={notifConfig.notification_email}
                       onChange={e => setNotifConfig(prev => ({ ...prev, notification_email: e.target.value }))}
-                      placeholder="Pozostaw puste, aby użyć adresu konta"
+                      placeholder={ct("Pozostaw puste, aby użyć adresu konta")}
                       size="sm"
                       className="max-w-md dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600"
                     />
                     <Input
-                      label="Limit powiadomień na godzinę"
-                      aria-label="Limit powiadomień na godzinę"
+                      label={ct("Limit powiadomień na godzinę")}
+                      aria-label={ct("Limit powiadomień na godzinę")}
                       type="number"
                       min={1}
                       max={100}
@@ -466,10 +461,8 @@ export default function Notifications() {
             </section>
 
             <section className="sk-notification-pref-card">
-              <h2>Typy zdarzeń</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                Wybierz zdarzenia generujące powiadomienia. Powiadomienia w aplikacji są zawsze tworzone; e-mail jest wysyłany tylko po włączeniu kanału powyżej.
-              </p>
+              <h2>{ct("Typy zdarzeń")}</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3"> {ct("Wybierz zdarzenia generujące powiadomienia. Powiadomienia w aplikacji są zawsze tworzone; e-mail jest wysyłany tylko po włączeniu kanału powyżej.")} </p>
               <div className="sk-notification-event-options">
                 {eventTypes.map(evt => (
                   <label key={evt} className="flex items-center gap-2 cursor-pointer py-1">
@@ -479,24 +472,24 @@ export default function Notifications() {
                       onChange={() => toggleEvent(evt)}
                       className="rounded"
                     />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">{EVENT_LABELS[evt] || evt}</span>
+                    <span className="text-sm text-gray-700 dark:text-gray-300">{ct(EVENT_LABELS[evt] || evt)}</span>
                   </label>
                 ))}
                 {eventTypes.length === 0 && (
-                  <p className="text-sm text-gray-400">Brak dostępnych typów zdarzeń.</p>
+                  <p className="text-sm text-gray-400">{ct("Brak dostępnych typów zdarzeń.")}</p>
                 )}
               </div>
               {notifConfig.events.length === 0 && (
-                <p className="text-xs text-amber-600 mt-2">Brak filtra — wszystkie zdarzenia są dozwolone.</p>
+                <p className="text-xs text-amber-600 mt-2">{ct("Brak filtra — wszystkie zdarzenia są dozwolone.")}</p>
               )}
             </section>
 
             <div className="sk-notification-savebar">
               <ErrorNotice error={saveError} />
-              <span role="status">{configSaving ? 'Zapisywanie…' : dirty ? 'Niezapisane zmiany' : 'Brak niezapisanych zmian'}</span>
-              <Button type="button" variant="outline" disabled={configSaving || !dirty} onClick={async () => { if (await confirm('Odrzucić niezapisane preferencje powiadomień?')) { setNotifConfig(savedConfig); setSaveError(null); } }}>Odrzuć zmiany</Button>
+              <span role="status">{configSaving ? ct("Zapisywanie…") : dirty ? ct("Niezapisane zmiany") : ct("Brak niezapisanych zmian")}</span>
+              <Button type="button" variant="outline" disabled={configSaving || !dirty} onClick={async () => { if (await confirm(ct('Odrzucić niezapisane preferencje powiadomień?'))) { setNotifConfig(savedConfig); setSaveError(null); } }}>{ct("Odrzuć zmiany")}</Button>
               <Button type="submit" disabled={configSaving || !dirty}>
-                {configSaving ? 'Zapisywanie…' : 'Zapisz preferencje'}
+                {configSaving ? ct("Zapisywanie…") : ct("Zapisz preferencje")}
               </Button>
             </div>
           </fieldset></form>

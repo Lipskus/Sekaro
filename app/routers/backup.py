@@ -267,7 +267,7 @@ async def run_backup_now(
 
     result = await deliver_backup_payload(wrapped, cfg)
     log.info("Manual backup completed: %s", result)
-    return {"ok": True, **result}
+    return {"ok": not (result.get("webhook_error") or result.get("local_skipped") or result.get("remote_error") or result.get("destination_error")), **result}
 
 
 @router.post("/download")
@@ -375,6 +375,11 @@ async def restore_preview(
         manifest, dump = unpack_backup(raw, password=pw)
     except BackupPackageError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
+    from app.backup_antivirus import scan_restore_payload
+    try:
+        await scan_restore_payload(dump)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from e
     try:
         await validate_dump_bytes_async(dump)
     except BackupToolError as e:

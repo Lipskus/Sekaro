@@ -32,3 +32,15 @@ it('ignores an old range response and hides a chart when the selected range fail
  fireEvent.change(screen.getByRole('combobox',{name:'Zakres wykresu'}),{target:{value:'14'}});
  await waitFor(()=>expect(screen.getByText('Wykres niedostępny')).toBeTruthy());expect(screen.queryByTestId('chart')).toBeNull();
 });
+
+it.each(['de','ru'])('preserves the dashboard range and unknown DNS state in %s',async language=>{
+ const {LanguageProvider,useLanguage}=await import('../context/LanguageContext');const {operationsText:t}=await import('../context/operationsLanguage');
+ function Switch(){const {setLanguage}=useLanguage();return <button onClick={()=>setLanguage(language)}>language</button>;}
+ localStorage.clear();api.get.mockImplementation(async p=>p==='/inboxes'?[{email:'sender@example.test',max_emails_per_day:100}]:p==='/campaigns'?[{id:1,name:'Nazwa klienta',stats:{}}]:p.startsWith('/ui/unibox?')?{items:[]}:[]);
+ render(<LanguageProvider><MemoryRouter><Switch/><Dashboard/></MemoryRouter></LanguageProvider>);
+ await screen.findByTestId('chart');fireEvent.change(screen.getByRole('combobox',{name:'Zakres wykresu'}),{target:{value:'14'}});await waitFor(()=>expect(screen.getByTestId('chart').textContent).toBe('14:'));
+ api.get.mockClear();fireEvent.click(screen.getByRole('button',{name:'language'}));
+ expect(screen.getByRole('combobox',{name:t(language,'Zakres wykresu')}).value).toBe('14');expect(api.get).not.toHaveBeenCalled();
+ expect(screen.getByText(t(language,'Brak pomiaru DNS'))).toBeTruthy();expect(screen.getByText(t(language,'Nie sprawdzono'))).toBeTruthy();expect(screen.getByText('Nazwa klienta')).toBeTruthy();expect(screen.getByText('example.test')).toBeTruthy();
+ localStorage.clear();
+});

@@ -47,3 +47,28 @@ it('protects field definitions from accidental replacement and locks pending sav
  const close=vi.fn();render(<FieldManager fields={fields} onClose={close} onRefresh={vi.fn()}/>);fireEvent.change(screen.getByLabelText('Nazwa pola'),{target:{value:'Nowe pole'}});fireEvent.click(screen.getByRole('button',{name:'Zamknij własne pola'}));await waitFor(()=>expect(confirm).toHaveBeenCalled());expect(close).not.toHaveBeenCalled();expect(screen.getByDisplayValue('Nowe pole')).toBeTruthy();
  const d=deferred();api.post.mockReturnValue(d.promise);fireEvent.click(screen.getByRole('button',{name:'Utwórz pole'}));fireEvent.click(screen.getByRole('button',{name:'Zapisywanie…'}));expect(api.post).toHaveBeenCalledTimes(1);expect(screen.getByLabelText('Nazwa pola').closest('fieldset').disabled).toBe(true);expect(screen.getByRole('button',{name:'Zamknij własne pola'}).disabled).toBe(true);await act(async()=>d.reject(Error('Nie zapisano pola')));await screen.findByText('Nie zapisano pola');expect(screen.getByDisplayValue('Nowe pole')).toBeTruthy();
 });
+
+it('restores from the archive with confirmation and never enrolls or resumes sending',async()=>{
+ const archived={...lead,archived_at:'2026-10-04T10:00:00',suppressed:true};
+ api.get.mockImplementation(p=>Promise.resolve(p==='/contact-fields'?fields:p.startsWith('/leads?scope=archived')?[archived]:[]));
+ confirm.mockResolvedValue(true);api.post.mockResolvedValue({ok:true,updated:1});
+ render(<MemoryRouter><Contacts/></MemoryRouter>);
+ fireEvent.change(screen.getByRole('combobox',{name:'Zakres kontaktów'}),{target:{value:'archived'}});
+ await screen.findByRole('link',{name:'ala@example.test'});
+ fireEvent.click(screen.getByRole('checkbox',{name:'Zaznacz ala@example.test'}));
+ expect(screen.getByRole('button',{name:'Dodaj do kampanii'}).disabled).toBe(true);
+ fireEvent.click(screen.getByRole('button',{name:'Przywróć'}));
+ await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/leads/archive',{lead_ids:[1],archived:false}));
+ expect(api.post).toHaveBeenCalledTimes(1);
+ expect(confirm.mock.calls[0][0]).toContain('Wysyłka pozostanie wstrzymana');
+});
+
+it('shows operation authors separately from messages and preserves independent blocks',async()=>{
+ api.get.mockImplementation(p=>Promise.resolve(p==='/contact-fields'?fields:p==='/leads/1'?{...lead,archived_at:'2026-10-04T10:00:00',suppressed:true,operations:[{kind:'operation',action:'archive',at:'2026-10-04T10:00:00',actor_name:'Operator QA'}]}:[]));
+ await mount();expect(screen.getAllByText('Globalna blokada wysyłki').length).toBeGreaterThan(0);
+ fireEvent.click(screen.getByRole('tab',{name:'Aktywność'}));
+ expect(screen.getByText('Kontakt zarchiwizowany')).toBeTruthy();expect(screen.getByText('Autor: Operator QA')).toBeTruthy();
+ fireEvent.click(screen.getByRole('tab',{name:'Wiadomości'}));
+ expect(screen.queryByText('Kontakt zarchiwizowany')).toBeNull();
+ expect(screen.getByText('Pierwsza wiadomość')).toBeTruthy();
+});

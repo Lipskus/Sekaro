@@ -81,6 +81,9 @@ async def _run_migrations(conn) -> None:
         return
 
     pg_alters = [
+        "ALTER TABLE campaign_lead ADD COLUMN IF NOT EXISTS archive_sending_paused BOOLEAN NOT NULL DEFAULT FALSE",
+        "ALTER TABLE lead ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP NULL",
+        "CREATE INDEX IF NOT EXISTS ix_lead_archived_at ON lead (archived_at)",
         "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_mode VARCHAR(16) NOT NULL DEFAULT 'keep'",
         "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS retention_days INTEGER NOT NULL DEFAULT 30",
         "ALTER TABLE smtp_sync_state ADD COLUMN IF NOT EXISTS archive_last_uid INTEGER NOT NULL DEFAULT 0",
@@ -393,12 +396,16 @@ async def _run_migrations(conn) -> None:
 
 
 async def init_db():
-    from app import models  # noqa: F401 - so Base.metadata has all tables
+    from app import models, mail_identity, backup_remote  # noqa: F401 - register mailbox identity for CLI startup too
     from app.settings_manager import initialize_settings
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         await _run_migrations(conn)
+        from app.crm_migration import migrate_crm
+        await migrate_crm(conn)
+        from app.mail_credentials_migration import migrate_mail_credentials
+        await migrate_mail_credentials(conn)
 
     # Load settings from database into memory
     async with AsyncSessionLocal() as session:

@@ -43,14 +43,17 @@ html[data-theme=dark] {
 }
 .sk-page-header {
   display:flex;
+  flex-wrap:wrap;
   align-items:flex-start;
   justify-content:space-between;
   gap:var(--sk-space-6);
   margin-bottom:var(--sk-space-5);
 }
-.sk-page-header-copy {min-width:0}
+/* Keep long translated titles readable before moving actions to the next row. */
+.sk-page-header-copy {flex:1;min-width:min(100%,20rem)}
 .sk-page-header h1 {
   margin:0;
+  overflow-wrap:anywhere;
   font-size:var(--sk-font-page);
   line-height:1.15;
   letter-spacing:-.65px;
@@ -68,8 +71,10 @@ html[data-theme=dark] {
   justify-content:flex-end;
   gap:var(--sk-space-3);
   flex-wrap:wrap;
-  flex-shrink:0;
+  flex-shrink:1;
+  max-width:100%;
 }
+.sk-page-header-actions > * {max-width:100%}
 
 /* Tabs */
 .sk-section-tabs {
@@ -2233,6 +2238,7 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-setup-steps [aria-current=step]{border-color:var(--sk-accent);background:var(--sk-green-soft);color:var(--sk-green-text)}
 .sk-setup-number{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;width:30px;height:30px;border-radius:50%;background:var(--sk-surface-alt);border:1px solid var(--sk-line);font-weight:650}
 .sk-setup-steps [aria-current=step]>.sk-setup-number{background:var(--sk-accent);color:var(--sk-accent-contrast,#06251d);border-color:transparent}
+.sk-setup-steps li>a>span:last-child,.sk-setup-steps li>span>span:last-child{min-width:0;overflow-wrap:anywhere}
 .sk-setup-steps strong,.sk-setup-checklist strong{display:block;font-size:12px}
 .sk-setup-steps small,.sk-setup-checklist small{display:block;font-size:10px;color:var(--sk-muted);margin-top:4px}
 .sk-setup-checklist{list-style:none;margin:0;padding:16px;display:grid;gap:16px}
@@ -2261,3 +2267,15 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-setup-entry{display:flex;justify-content:flex-end;margin-bottom:12px}
 .sk-preflight-workspace .sk-panel-heading{flex-wrap:wrap;gap:12px}
 .sk-preflight-workspace .sk-panel-heading h2{min-width:0}
+
+/* Recovery toolbar must wrap translated labels within tablet content width. */
+.sk-contact-tools-page .sk-page-header-actions{flex-wrap:wrap;min-width:0;max-width:100%}
+.sk-contact-tools-page .sk-page-header-actions>*{max-width:100%}
+@media(max-width:1100px){
+  .sk-contact-tools-page .sk-page-header{flex-direction:column;align-items:stretch}
+  .sk-contact-tools-page .sk-page-header-actions{justify-content:flex-start}
+}
+/* The shared dialog keeps legacy import/suppression tables on theme tokens. */
+.sk-contact-tools-page .sk-modal table tbody tr:nth-child(even){background:var(--sk-surface-alt)!important}
+.sk-contact-tools-page .sk-modal table :is(th,td){border-color:var(--sk-line)}
+.sk-contact-tools-dialog-table{min-width:600px}

@@ -20,4 +20,4 @@ export function campaignDailyRows(rows,start,end){
  for(let date=dateValue(start);date<=dateValue(end);date+=86400000){const key=new Date(date).toISOString().slice(0,10);result.push(byDate.get(key)||{date:key,...empty()});}
  return result;
 }
-export function analyticsCsv(rows){return '\uFEFF'+[['Dzień','Wysłane','Otwarcia','Unikalne IP otwarć (dziennie)','Odpowiedzi','Kliknięcia','Unikalne IP kliknięć (dziennie)'],...rows.map(row=>[row.date,...Object.keys(fields).map(key=>row[key])])].map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(',')).join('\r\n')+'\r\n';}
+export function analyticsCsv(rows, translate = value => value){return '\uFEFF'+[['Dzień','Wysłane','Otwarcia','Unikalne IP otwarć (dziennie)','Odpowiedzi','Kliknięcia','Unikalne IP kliknięć (dziennie)'].map(translate),...rows.map(row=>[row.date,...Object.keys(fields).map(key=>row[key])])].map(row=>row.map(value=>'"'+String(value).replace(/"/g,'""')+'"').join(',')).join('\r\n')+'\r\n';}

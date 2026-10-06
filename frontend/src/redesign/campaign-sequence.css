@@ -25,3 +25,7 @@
 
 .sk-sequence-variants-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .sk-sequence-variants-heading>div{flex:1 1 230px;min-width:0}.sk-sequence-variants-heading>button{flex-shrink:0;white-space:nowrap}
+
+.sk-personalized-heading{flex-wrap:wrap}
+.sk-personalized-heading>div{flex-wrap:wrap;min-width:0}
+.sk-personalized-heading button{height:auto;min-height:32px;white-space:normal;overflow-wrap:anywhere;text-align:center}

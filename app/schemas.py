@@ -57,6 +57,10 @@ class LeadRecoverRequest(BaseModel):
 
 
 class LeadResponse(BaseModel):
+    archived_at: Optional[datetime] = None
+    lead_status: str = "active"
+    suppressed: bool = False
+    operations: List[Dict[str, Any]] = Field(default_factory=list)
     id: int
     email: str
     name: str
@@ -73,8 +77,13 @@ class LeadResponse(BaseModel):
         from_attributes = True
 
 
+class ContactListMembers(BaseModel):
+    lead_ids: list[int] = Field(..., min_length=1, max_length=5000)
+
+
 class ContactListCreate(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
+    lead_ids: list[int] = Field(default_factory=list, max_length=5000)
 
 
 class ContactListResponse(BaseModel):
@@ -105,6 +114,11 @@ class SuppressionResponse(BaseModel):
 
 class LeadBulkDeleteRequest(BaseModel):
     lead_ids: List[int]
+
+
+class LeadArchiveRequest(BaseModel):
+    lead_ids: List[int] = Field(min_length=1, max_length=1000)
+    archived: bool
 
 
 class LeadBulkStatusRequest(BaseModel):

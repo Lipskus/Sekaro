@@ -1,0 +1,2690 @@
+[
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 833,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1281,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1232,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 986,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1006,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 1031,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 306.828125,
+        "bottom": 593.15625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 989,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 836,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1308,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1220,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 962,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1004,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 1040,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 306.828125,
+        "bottom": 593.15625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 996,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 833,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1281,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1232,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 986,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1006,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 1031,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 306.828125,
+        "bottom": 593.15625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 989,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 836,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1308,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1220,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 962,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1004,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 1040,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 306.828125,
+        "bottom": 593.15625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 996,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 275.0625,
+        "bottom": 624.921875,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 795,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1264,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1215,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 969,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 989,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 993,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 368.828125,
+        "bottom": 655.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 951,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 801,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1291,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1203,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 945,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 987,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 1005,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 368.828125,
+        "bottom": 655.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 961,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 795,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1264,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1215,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 969,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 989,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 993,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 368.828125,
+        "bottom": 655.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 951,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 801,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1291,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1203,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 945,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 987,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 1005,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 368.828125,
+        "bottom": 655.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 961,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 337.0625,
+        "bottom": 686.921875,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 788,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1257,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1208,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 962,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 982,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 986,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 275.25,
+        "bottom": 568.75,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 944,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 794,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1284,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1196,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 938,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 980,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 998,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 264.15625,
+        "bottom": 579.84375,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 954,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte"
+    ],
+    "bodyLength": 788,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Eigene Felder",
+      "Kontaktstatus",
+      "Zusammenfassung",
+      "Letzte Aktivität",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1257,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Verlauf",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 1208,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Kampagnen des Kontakts",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 962,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Nachrichten",
+      "Zusammenfassung",
+      "Zugehörige Kampagnen",
+      "Kontaktvariablen"
+    ],
+    "bodyLength": 982,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Globale Sperrliste"
+    ],
+    "bodyLength": 986,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 275.25,
+        "bottom": 568.75,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakte",
+      "Kontakt hinzufügen"
+    ],
+    "bodyLength": 944,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-list",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты"
+    ],
+    "bodyLength": 794,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-list-leads-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-summary",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "QA — Aleksandra Żółkiewska",
+      "Пользовательские поля",
+      "Статус контакта",
+      "Сводка",
+      "Последняя активность",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1284,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-summary-leads-1-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-activity",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Хронология",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 1196,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-activity-leads-1-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-campaigns",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Кампании контакта",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 938,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-campaigns-leads-1-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-messages",
+    "route": "/leads/1",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — Aleksandra Żółkiewska",
+      "Сообщения",
+      "Сводка",
+      "Связанные кампании",
+      "Переменные контакта"
+    ],
+    "bodyLength": 980,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-messages-leads-1-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-suppression",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Глобальный список исключений"
+    ],
+    "bodyLength": 998,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 264.15625,
+        "bottom": 579.84375,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-suppression-leads-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-create",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Контакты",
+      "Добавить контакт"
+    ],
+    "bodyLength": 954,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 217.453125,
+        "bottom": 626.546875,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-create-leads-390-light-fixture-ru.png"
+  }
+]

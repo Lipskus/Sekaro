@@ -1,0 +1,1574 @@
+[
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1579,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1393,
+    "dialogs": [
+      {
+        "left": 1120,
+        "right": 1600,
+        "top": 0,
+        "bottom": 900,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1971,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1743,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1543,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1366,
+    "dialogs": [
+      {
+        "left": 1120,
+        "right": 1600,
+        "top": 0,
+        "bottom": 900,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1921,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1627,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1579,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1393,
+    "dialogs": [
+      {
+        "left": 1120,
+        "right": 1600,
+        "top": 0,
+        "bottom": 900,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1971,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1743,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1543,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1366,
+    "dialogs": [
+      {
+        "left": 1120,
+        "right": 1600,
+        "top": 0,
+        "bottom": 900,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1921,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1627,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1536,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1350,
+    "dialogs": [
+      {
+        "left": 288,
+        "right": 768,
+        "top": 0,
+        "bottom": 1024,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1928,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1696,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1502,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1325,
+    "dialogs": [
+      {
+        "left": 288,
+        "right": 768,
+        "top": 0,
+        "bottom": 1024,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1880,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1583,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1536,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1350,
+    "dialogs": [
+      {
+        "left": 288,
+        "right": 768,
+        "top": 0,
+        "bottom": 1024,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1928,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-768-light-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1696,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-768-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1502,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1325,
+    "dialogs": [
+      {
+        "left": 288,
+        "right": 768,
+        "top": 0,
+        "bottom": 1024,
+        "width": 480,
+        "scrollWidth": 479,
+        "clientWidth": 479,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1880,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1583,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1343,
+    "dialogs": [
+      {
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844,
+        "width": 390,
+        "scrollWidth": 389,
+        "clientWidth": 389,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1903,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1689,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1495,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1318,
+    "dialogs": [
+      {
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844,
+        "width": 390,
+        "scrollWidth": 389,
+        "clientWidth": 389,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1855,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1576,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kontakte zur Kampagne hinzufügen"
+    ],
+    "bodyLength": 1343,
+    "dialogs": [
+      {
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844,
+        "width": 390,
+        "scrollWidth": 389,
+        "clientWidth": 389,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Kampagnenanalyse"
+    ],
+    "bodyLength": 1903,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-390-light-fixture-de.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Analysen",
+      "Versandaktivität",
+      "Ereignisse im Zeitraum",
+      "Kampagnenergebnisse"
+    ],
+    "bodyLength": 1689,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-390-light-fixture-de.png"
+  },
+  {
+    "flow": "campaign-recipients",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa"
+    ],
+    "bodyLength": 1495,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipients-campaigns-1-leads-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-recipient-add",
+    "route": "/campaigns/1#leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Добавить контакты в кампанию"
+    ],
+    "bodyLength": 1318,
+    "dialogs": [
+      {
+        "left": 0,
+        "right": 390,
+        "top": 0,
+        "bottom": 844,
+        "width": 390,
+        "scrollWidth": 389,
+        "clientWidth": 389,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-recipient-add-campaigns-1-leads-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "campaign-analytics",
+    "route": "/campaigns/1#analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "QA — kampania testowa",
+      "QA — kampania testowa",
+      "Аналитика кампании"
+    ],
+    "bodyLength": 1855,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "campaign-analytics-campaigns-1-analytics-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "global-analytics",
+    "route": "/analytics",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Аналитика",
+      "Активность отправки",
+      "События за период",
+      "Результаты кампаний"
+    ],
+    "bodyLength": 1576,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "global-analytics-analytics-390-light-fixture-ru.png"
+  }
+]

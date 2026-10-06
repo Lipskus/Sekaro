@@ -1,0 +1,2762 @@
+[
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1392,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1587,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1546,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1527,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1392,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1587,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1546,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1510,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1375,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1570,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1510,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1375,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1570,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1529,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1503,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1368,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1563,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1522,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1503,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1368,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1563,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-recovery",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1522,
+    "dialogs": [],
+    "backgroundLocked": false,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-recovery-contacts-tools-tab-bounced-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2272,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1742,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2031,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1602,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2356,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1825,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2395,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1797,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2272,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1742,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2031,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1564,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 230,
+        "bottom": 669.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2356,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1790,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 230,
+        "bottom": 669.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2395,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 45,
+        "bottom": 855,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1797,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 254,
+        "bottom": 645.984375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2255,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 77.828125,
+        "bottom": 946.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1725,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 316,
+        "bottom": 707.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2014,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 85.828125,
+        "bottom": 938.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1585,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 316,
+        "bottom": 707.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2339,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 77.828125,
+        "bottom": 946.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1808,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 316,
+        "bottom": 707.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2378,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 59.828125,
+        "bottom": 964.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1740,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 292,
+        "bottom": 731.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2255,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 77.828125,
+        "bottom": 946.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1689,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 292,
+        "bottom": 731.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2014,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 85.828125,
+        "bottom": 938.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1585,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 316,
+        "bottom": 707.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2339,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 77.828125,
+        "bottom": 946.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1773,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 292,
+        "bottom": 731.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2378,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 59.828125,
+        "bottom": 964.15625,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1780,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 316,
+        "bottom": 707.984375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2248,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1682,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 175.578125,
+        "bottom": 668.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2007,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1578,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 199.578125,
+        "bottom": 644.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2332,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1766,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 175.578125,
+        "bottom": 668.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2371,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1773,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 199.578125,
+        "bottom": 644.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Import kontaktów"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2248,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Narzędzia kontaktów",
+      "Lista wykluczeń"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1718,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 199.578125,
+        "bottom": 644.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Import contacts"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2007,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Contact tools",
+      "Suppression list"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1540,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 175.578125,
+        "bottom": 668.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Kontakte importieren"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2332,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontaktwerkzeuge",
+      "Sperrliste"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1801,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 199.578125,
+        "bottom": 644.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-tools-import",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Импорт контактов"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 2371,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-tools-import-contacts-tools-tab-bounced-390-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-tools-suppression",
+    "route": "/contacts-tools?tab=bounced",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "overflowCandidates": [],
+    "sidebarContentOverflow": false,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Инструменты контактов",
+      "Список исключений"
+    ],
+    "contactToolsTitleCramped": false,
+    "bodyLength": 1773,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 199.578125,
+        "bottom": 644.40625,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "personalizedButtonOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat"
+    ],
+    "screenshot": "contact-tools-suppression-contacts-tools-tab-bounced-390-light-fixture-ru.png"
+  }
+]

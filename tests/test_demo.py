@@ -193,3 +193,19 @@ if args[:2] == ["network", "inspect"]:
         assert sum("config" in call for call in calls[:removed_at]) == 2
         assert "sekaro-demo" in calls[started_at]
         assert "127.0.0.1:5050" in result.stdout
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("demo", [False, True])
+async def test_status_distinguishes_demo_from_production_runtime(monkeypatch, demo):
+    from starlette.requests import Request
+    from app.main import api_status
+
+    # Demo uses the production build but must not identify itself as live data.
+    monkeypatch.setenv("QUICKLY_MODE", "production")
+    app = FastAPI()
+    if demo:
+        app.state.is_demo = True
+    result = await api_status(Request({"type": "http", "app": app}), user=object())
+    assert result["app_mode"] == "production"
+    assert result["demo"] is demo

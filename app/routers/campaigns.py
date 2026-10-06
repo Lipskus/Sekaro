@@ -12,7 +12,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, UploadFi
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, or_
 from sqlalchemy.orm import selectinload
 from datetime import date
 from typing import List
@@ -21,6 +21,8 @@ from zoneinfo import ZoneInfo
 from app.database import get_db
 from app.models import (
     Campaign,
+    ContactList,
+    ContactListMember,
     Sequence,
     SequenceVariant,
     CampaignLead,
@@ -124,7 +126,7 @@ async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
             account = smtp_by_inbox.get(inbox.id)
             if account is None or not (account.smtp_host or "").strip():
                 add("error", "smtp_missing", f"Skrzynka {inbox.email} nie ma kompletnej konfiguracji SMTP.", inbox_id=inbox.id)
-            elif not bool(account.last_test_ok):
+            elif not account.last_tested_at or not bool(account.last_test_ok):
                 add("warning", "smtp_not_verified", f"Ostatni test SMTP skrzynki {inbox.email} nie zakończył się powodzeniem.", inbox_id=inbox.id)
             if int(inbox.max_emails_per_day or 0) <= 0:
                 add("error", "daily_limit_invalid", f"Skrzynka {inbox.email} ma niepoprawny limit dzienny.", inbox_id=inbox.id)
@@ -373,7 +375,10 @@ async def list_campaigns(db: AsyncSession = Depends(get_db)):
             )
             .where(
                 LeadReply.campaign_id.in_(campaign_ids),
-                CampaignLead.interest_status.notin_(["out_of_office", "auto_reply"]),
+                or_(
+                    CampaignLead.interest_status.is_(None),
+                    CampaignLead.interest_status.notin_(["out_of_office", "auto_reply"]),
+                ),
             )
             .group_by(LeadReply.campaign_id)
         )
@@ -582,7 +587,10 @@ async def get_campaign(campaign_id: int, db: AsyncSession = Depends(get_db)):
         )
         .where(
             LeadReply.campaign_id == campaign_id,
-            CampaignLead.interest_status.notin_(["out_of_office", "auto_reply"]),
+            or_(
+                CampaignLead.interest_status.is_(None),
+                CampaignLead.interest_status.notin_(["out_of_office", "auto_reply"]),
+            ),
         )
     )
     stats["replies"] = res.scalar() or 0
@@ -1371,7 +1379,7 @@ async def list_campaign_leads(campaign_id: int, db: AsyncSession = Depends(get_d
             "opened": lead.id in opened_set,
             "clicked": lead.id in clicked_set,
             "replied": lead.id in replied_set,
-            "sending_paused": cl.sending_paused,
+            "sending_paused": cl.sending_paused or cl.archive_sending_paused,
             "email_verification_status": lead.email_verification_status,
             "provider": lead.provider,
             "from_inbox_email": inbox_by_lead.get((lead.id, campaign_id)),
@@ -1424,7 +1432,12 @@ async def patch_campaign_lead(
             cl.interest_status = norm
 
     if payload.sending_paused is not None:
+        lead = (await db.execute(select(Lead).where(Lead.id == lead_id).with_for_update())).scalar_one()
+        if not payload.sending_paused and lead.archived_at is not None:
+            raise HTTPException(409, "Restore the archived contact before resuming sends")
         cl.sending_paused = payload.sending_paused
+        if not payload.sending_paused:
+            cl.archive_sending_paused = False
 
     await db.flush()
     # Full global recalculation: schedule must mirror what the send job will deliver.
@@ -1436,7 +1449,7 @@ async def patch_campaign_lead(
         "ok": True,
         "status": cl.enrollment_status,
         "interest": cl.interest_status,
-        "sending_paused": cl.sending_paused,
+        "sending_paused": cl.sending_paused or cl.archive_sending_paused,
     }
 
 
@@ -1845,6 +1858,12 @@ async def preview_email(
         except Exception:
             pass  # non-fatal; show untracked version
 
+    from app.mail_identity import load_identity, append_footer
+    preview_inbox = await db.scalar(select(Inbox).join(CampaignInbox, Inbox.id == CampaignInbox.inbox_id)
+        .where(CampaignInbox.campaign_id == campaign_id).order_by(CampaignInbox.position, CampaignInbox.inbox_id).limit(1))
+    if preview_inbox:
+        rendered_body = append_footer(rendered_body, preview_is_html, await load_identity(db, preview_inbox.id))
+
     return {
         "subject": rendered_subject,
         "body": rendered_body,
@@ -1852,6 +1871,7 @@ async def preview_email(
         "sequence_position": seq.position,
         "variant_label": variant_label,
         "tracking_note": tracking_urls_note,
+        "signature_inbox": preview_inbox.email if preview_inbox else None,
     }
 
 
@@ -1933,7 +1953,7 @@ async def send_test_email(
     if getattr(inbox, "provider", "") == "gmail":
         from app.models import GmailAccount
         ga_result = await db.execute(
-            select(GmailAccount).where(GmailAccount.email == inbox.email)
+            select(GmailAccount).where(GmailAccount.inbox_id == inbox.id)
         )
         gmail_account = ga_result.scalar_one_or_none()
 
@@ -1950,9 +1970,18 @@ async def send_test_email(
 
     from app.sender import send_email
 
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, data.to_email, inbox.id)
+
+    from app.mail_identity import load_identity
+    identity = await load_identity(db, inbox.id)
+    from app.models import Office365Account
+    office_account = await db.scalar(select(Office365Account).where(Office365Account.inbox_id == inbox.id)) if inbox.provider == "office365" else None
     result = await asyncio.get_event_loop().run_in_executor(
         None,
         lambda: send_email(
+            mail_identity=identity,
+            office365_account=office_account,
             to_email=data.to_email,
             subject=f"[TEST] {rendered_subject}",
             body=rendered_body,
@@ -2050,17 +2079,17 @@ async def step_analytics(campaign_id: int, db: AsyncSession = Depends(get_db)):
         .where(
             CampaignLead.campaign_id == campaign_id,
             CampaignLead.interest_status == "interested",
+            CampaignLead.id.in_(select(func.max(CampaignLead.id)).where(
+                CampaignLead.campaign_id == campaign_id).group_by(CampaignLead.lead_id)),
         )
     )
     interested_lead_ids = {r[0] for r in interested_result.all()}
 
-    # Replied lead IDs for this campaign
-    replied_result = await db.execute(
-        select(LeadReply.lead_id)
-        .where(LeadReply.campaign_id == campaign_id)
-        .distinct()
-    )
-    replied_lead_ids = {r[0] for r in replied_result.all()}
+    # Attribute once per sent message; a later reply must not credit every step.
+    from app.analytics_metrics import attributed_replies
+    replies = attributed_replies().where(LeadReply.campaign_id == campaign_id).subquery()
+    replied_result = await db.execute(select(replies.c.email_log_id).distinct())
+    replied_message_ids = {r[0] for r in replied_result.all() if r[0] is not None}
 
     # Build per-step metrics
     analytics = []
@@ -2097,7 +2126,7 @@ async def step_analytics(campaign_id: int, db: AsyncSession = Depends(get_db)):
                 bucket["opens"] += 1
             if el.clicked:
                 bucket["clicks"] += 1
-            if el.lead_id in replied_lead_ids:
+            if el.id in replied_message_ids:
                 bucket["replies"] += 1
             if el.lead_id in interested_lead_ids:
                 bucket["opportunities"] += 1
@@ -2205,6 +2234,26 @@ async def remove_lead_from_campaign(
     return {"ok": True}
 
 
+@router.post("/{campaign_id}/contact-groups/{list_id}")
+async def add_contact_group_to_campaign(
+    campaign_id: int, list_id: int, skip_duplicates: bool = True,
+    verify_emails: bool = False, db: AsyncSession = Depends(get_db),
+):
+    if await db.get(ContactList, list_id) is None:
+        raise HTTPException(404, "Contact list not found")
+    # Preserve existing identities and hold their locks through enrollment.
+    members = (await db.scalars(select(Lead).where(Lead.id.in_(
+        select(ContactListMember.lead_id).where(ContactListMember.list_id == list_id)
+    )).order_by(Lead.id).with_for_update())).all()
+    if not members:
+        raise HTTPException(422, "Contact list is empty")
+    return await bulk_add_leads_to_campaign(
+        campaign_id, [CampaignLeadAdd(email=m.email) for m in members],
+        skip_duplicates=skip_duplicates, verify_emails=verify_emails,
+        confirm_only=False, db=db,
+    )
+
+
 @router.post("/{campaign_id}/leads")
 async def bulk_add_leads_to_campaign(
     campaign_id: int,
@@ -2306,8 +2355,12 @@ async def bulk_add_leads_to_campaign(
 
         try:
             # Find or create lead by email
-            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email).with_for_update())
             lead = lead_result.scalar_one_or_none()
+            if lead and lead.archived_at is not None:
+                results.append({"email": email, "status": "archived", "detail": "Restore the contact before enrolling"})
+                errors += 1
+                continue
             if not lead:
                 lead = Lead(
                     email=email,
@@ -2335,7 +2388,7 @@ async def bulk_add_leads_to_campaign(
                 existing_any = await db.execute(
                     select(CampaignLead).where(CampaignLead.lead_id == lead.id)
                 )
-                if existing_any.scalar_one_or_none():
+                if existing_any.first():
                     duplicate_leads.append(email)
                     results.append({"email": email, "status": "already_enrolled"})
                     already_enrolled += 1
@@ -3047,8 +3100,12 @@ async def import_campaign_leads(
             return None
 
         try:
-            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email))
+            lead_result = await db.execute(select(Lead).where(func.lower(Lead.email) == email).with_for_update())
             lead = lead_result.scalar_one_or_none()
+            if lead and lead.archived_at is not None:
+                results_list.append({"email": email, "status": "archived", "detail": "Restore the contact before enrolling"})
+                errors += 1
+                continue
             if not lead:
                 lead = Lead(email=email, name=name, custom_data=custom_data)
                 db.add(lead)

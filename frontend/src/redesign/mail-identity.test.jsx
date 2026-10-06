@@ -1,0 +1,18 @@
+import {render,screen,fireEvent,cleanup,waitFor} from '@testing-library/react';
+import {beforeEach,afterEach,it,expect,vi} from 'vitest';
+import MailIdentity from './MailIdentity';
+import Office365Connection from './Office365Connection';
+const state=vi.hoisted(()=>({user:{role:'admin'},get:vi.fn(),put:vi.fn(),post:vi.fn()}));
+vi.mock('../context/AuthContext',()=>({useOptionalAuth:()=>({user:state.user})}));
+vi.mock('../context/operationsLanguage',()=>({useOperationsLanguage:()=>({ct:s=>s})}));
+vi.mock('../api',()=>({api:{get:state.get,put:state.put,post:state.post}}));
+vi.mock('react-quill',()=>({default:({value,onChange})=><textarea aria-label="HTML" value={value} onChange={e=>onChange(e.target.value)}/>}));
+vi.mock('./SafeEmail',()=>({default:()=>null}));
+const defaults={revision:0,footer_enabled:false,footer_text:'',footer_html:'',smime_enabled:false,has_certificate:false,encryption_ready:true};
+beforeEach(()=>{vi.clearAllMocks();state.user={role:'admin'};state.get.mockResolvedValue(defaults);});afterEach(cleanup);
+it('keeps footer and S/MIME independent and does not submit without save',async()=>{render(<MailIdentity inboxId={1}/>);fireEvent.click(await screen.findByLabelText('Automatycznie dodawaj stopkę'));fireEvent.change(screen.getByLabelText('Stopka tekstowa'),{target:{value:'Adam'}});expect(screen.getByLabelText('Podpisuj wiadomości certyfikatem S/MIME').checked).toBe(false);expect(state.put).not.toHaveBeenCalled();state.put.mockResolvedValue({...defaults,revision:1,footer_enabled:true,footer_text:'Adam'});fireEvent.click(screen.getByRole('button',{name:'Zapisz podpisy'}));await waitFor(()=>expect(state.put).toHaveBeenCalledWith('/inboxes/1/identity',expect.objectContaining({footer_enabled:true,footer_text:'Adam',smime_enabled:false})));});
+it('blocks certificate import without encryption',async()=>{state.get.mockResolvedValue({...defaults,encryption_ready:false});render(<MailIdentity inboxId={1}/>);expect((await screen.findByLabelText('Certyfikat P12 / PFX')).disabled).toBe(true);expect(screen.getByLabelText('Podpisuj wiadomości certyfikatem S/MIME').disabled).toBe(true);});
+it('does not fetch certificate settings for members',()=>{state.user={role:'user'};render(<MailIdentity inboxId={1}/>);expect(state.get).not.toHaveBeenCalled();});
+it('preserves footer draft on a conflict',async()=>{state.put.mockRejectedValue(new Error('Settings changed'));render(<MailIdentity inboxId={1}/>);fireEvent.change(await screen.findByLabelText('Stopka tekstowa'),{target:{value:'Draft'}});fireEvent.click(screen.getByRole('button',{name:'Zapisz podpisy'}));await screen.findByText('Settings changed');expect(screen.getByLabelText('Stopka tekstowa').value).toBe('Draft');});
+it('blocks Microsoft connection in demo',async()=>{state.get.mockResolvedValue({configured:true,demo:true,accounts:[]});render(<Office365Connection/>);expect((await screen.findByRole('button',{name:'Połącz Microsoft 365'})).disabled).toBe(true);});
+it('does not fetch Microsoft config for members',()=>{state.user={role:'user'};render(<Office365Connection/>);expect(state.get).not.toHaveBeenCalled();});

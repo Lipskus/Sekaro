@@ -1,10 +1,16 @@
+import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useEffect, useMemo, useState } from 'react';
 import './calendar.css';
 import { Button, Badge, Icon, Panel, Switch, Empty } from './ui';
 import { addDaysToDateKey, formatDateKey, formatTimeKey, parseApiDate } from '../utils/datetime';
 
 const itemTime = item => +parseApiDate(item.type === 'sent' ? item.sent_at : item.scheduled_at);
-const messageCount = count => `${count} ${count === 1 ? 'wiadomość' : 'wiadomości'}`;
+export function calendarMessageCount(count,language='pl') {
+  const category=new Intl.PluralRules(language).select(count);
+  const words={pl:{one:'wiadomość',other:'wiadomości'},en:{one:'message',other:'messages'},de:{one:'Nachricht',other:'Nachrichten'},ru:{one:'сообщение',few:'сообщения',other:'сообщений'}};
+  const forms=words[language]||words.en;
+  return `${count.toLocaleString(language)} ${forms[category]||forms.other}`;
+}
 
 export function calendarDays(anchor, mode = 'week') {
   const date = new Date(`${anchor}T12:00:00Z`);
@@ -30,11 +36,14 @@ export function groupCalendarItems(items, zone) {
   return [...groups.values()].map(group => ({...group, items: group.items.sort((a, b) => itemTime(a) - itemTime(b))}));
 }
 
-function dayLabel(day, options) {
-  return new Date(`${day}T12:00:00Z`).toLocaleDateString('pl-PL', { timeZone: 'UTC', ...options });
+function dayLabel(day, options, language='pl') {
+  return new Date(`${day}T12:00:00Z`).toLocaleDateString(language, { timeZone: 'UTC', ...options });
 }
 
 export default function ScheduleCalendar({ items, filters, onRangeChange, onPreview, onOpenQueue, busy }) {
+  const {ct,language}=useOperationsLanguage();
+  const displayDay=(day,options)=>dayLabel(day,options,language);
+  const messageCount=count=>calendarMessageCount(count,language);
   const [zone, setZone] = useState(() => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC');
   const today = formatDateKey(new Date(), zone);
   const [anchor, setAnchor] = useState(today);
@@ -65,52 +74,52 @@ export default function ScheduleCalendar({ items, filters, onRangeChange, onPrev
   const event = group => <button type="button" key={group.key} className={`sk-calendar-event ${group.type === 'sent' ? 'is-sent' : ''}`}
     onClick={() => setSelectedGroup(group.key)} aria-pressed={selectedGroup === group.key}
     aria-label={`${group.name}, ${group.day}, ${group.hour}:00, ${messageCount(group.items.length)}`}>
-    <strong>{group.name || 'Kampania'}</strong><span>{messageCount(group.items.length)}</span>
+    <strong>{group.name || ct("Kampania")}</strong><span>{messageCount(group.items.length)}</span>
   </button>;
 
   return <div className="sk-calendar-workspace" aria-busy={busy}>
     <Panel className="sk-calendar-panel">
       <div className="sk-calendar-controls">
         <div className="sk-calendar-navigation">
-          <Button icon="prev" aria-label="Poprzedni okres" onClick={() => move(-1)} disabled={busy} />
-          <Button onClick={() => { setAnchor(today); setSelectedGroup(null); }}>Dzisiaj</Button>
-          <Button icon="next" aria-label="Następny okres" onClick={() => move(1)} disabled={busy} />
-          <h2>{mode === 'month' ? dayLabel(anchor, { month: 'long', year: 'numeric' }) : `${dayLabel(days[0], { day: 'numeric', month: 'short' })} – ${dayLabel(days[6], { day: 'numeric', month: 'short', year: 'numeric' })}`}</h2>
+          <Button icon="prev" aria-label={ct("Poprzedni okres")} onClick={() => move(-1)} disabled={busy} />
+          <Button onClick={() => { setAnchor(today); setSelectedGroup(null); }}>{ct("Dzisiaj")}</Button>
+          <Button icon="next" aria-label={ct("Następny okres")} onClick={() => move(1)} disabled={busy} />
+          <h2>{mode === 'month' ? displayDay(anchor, { month: 'long', year: 'numeric' }) : `${displayDay(days[0], { day: 'numeric', month: 'short' })} – ${displayDay(days[6], { day: 'numeric', month: 'short', year: 'numeric' })}`}</h2>
         </div>
-        <div className="sk-calendar-view" role="group" aria-label="Zakres kalendarza">
-          <button type="button" aria-pressed={mode === 'week'} onClick={() => setMode('week')}>Tydzień</button>
-          <button type="button" aria-pressed={mode === 'month'} onClick={() => setMode('month')}>Miesiąc</button>
+        <div className="sk-calendar-view" role="group" aria-label={ct("Zakres kalendarza")}>
+          <button type="button" aria-pressed={mode === 'week'} onClick={() => setMode('week')}>{ct("Tydzień")}</button>
+          <button type="button" aria-pressed={mode === 'month'} onClick={() => setMode('month')}>{ct("Miesiąc")}</button>
         </div>
       </div>
-      <div className="sk-calendar-scroll" tabIndex={0} role="region" aria-label="Kalendarz wysyłki">
-        {mode === 'week' ? <table className="sk-calendar-grid"><thead><tr><th scope="col">Godzina</th>{visibleDays.map(day => <th scope="col" key={day} data-today={day === today}><span>{dayLabel(day, { weekday: 'short', day: 'numeric' })}</span><small>{dayLabel(day, { month: 'short' })}</small></th>)}</tr></thead>
+      <div className="sk-calendar-scroll" tabIndex={0} role="region" aria-label={ct("Kalendarz wysyłki")}>
+        {mode === 'week' ? <table className="sk-calendar-grid"><thead><tr><th scope="col">{ct("Godzina")}</th>{visibleDays.map(day => <th scope="col" key={day} data-today={day === today}><span>{displayDay(day, { weekday: 'short', day: 'numeric' })}</span><small>{displayDay(day, { month: 'short' })}</small></th>)}</tr></thead>
           <tbody>{hours.map(hour => <tr key={hour}><th scope="row">{String(hour).padStart(2, '0')}:00</th>{visibleDays.map(day => <td key={day} data-today={day === today}>{displayedGroups.filter(g => g.day === day && g.hour === hour).map(event)}</td>)}</tr>)}</tbody>
         </table> : <div className="sk-calendar-month" style={{ '--calendar-columns': hideWeekend ? 5 : 7 }}>
-          {visibleDays.slice(0, hideWeekend ? 5 : 7).map(day => <div className="sk-calendar-weekday" key={day}>{dayLabel(day, { weekday: 'short' })}</div>)}
-          {visibleDays.map(day => <section key={day} className="sk-calendar-month-day" data-today={day === today} data-outside={day.slice(0, 7) !== anchor.slice(0, 7)} aria-label={dayLabel(day, { day: 'numeric', month: 'long' })}>
+          {visibleDays.slice(0, hideWeekend ? 5 : 7).map(day => <div className="sk-calendar-weekday" key={day}>{displayDay(day, { weekday: 'short' })}</div>)}
+          {visibleDays.map(day => <section key={day} className="sk-calendar-month-day" data-today={day === today} data-outside={day.slice(0, 7) !== anchor.slice(0, 7)} aria-label={displayDay(day, { day: 'numeric', month: 'long' })}>
             <strong>{Number(day.slice(-2))}</strong>{displayedGroups.filter(g => g.day === day).map(event)}
           </section>)}
         </div>}
       </div>
-      {!busy && !displayedGroups.length && <p className="sk-calendar-empty-note" role="status">Brak wiadomości w wyświetlanym okresie dla wybranych filtrów.</p>}
-      <div className="sk-calendar-legend"><Badge tone="green">Zaplanowane</Badge><Badge tone="blue">Wysłane</Badge><span>Godziny w strefie {zone}. Bloki obejmują 2 godziny.</span></div>
+      {!busy && !displayedGroups.length && <p className="sk-calendar-empty-note" role="status">{ct("Brak wiadomości w wyświetlanym okresie dla wybranych filtrów.")}</p>}
+      <div className="sk-calendar-legend"><Badge tone="green">{ct("Zaplanowane")}</Badge><Badge tone="blue">{ct("Wysłane")}</Badge><span>{ct("Godziny w strefie")} {zone}{ct(". Bloki obejmują 2 godziny.")}</span></div>
     </Panel>
     <aside className="sk-calendar-sidebar">
-      <Panel title="Filtry kolejki" icon="filter"><div className="sk-calendar-filter-fields">{filters}
-        <label>Strefa czasowa<select value={zone} onChange={e => setZone(e.target.value)}>{zones.map(tz => <option key={tz}>{tz}</option>)}</select></label>
-        <Switch label="Ukryj weekend" checked={hideWeekend} onChange={setHideWeekend} />
+      <Panel title={ct("Filtry kolejki")} icon="filter"><div className="sk-calendar-filter-fields">{filters}
+        <label>{ct("Strefa czasowa")}<select value={zone} onChange={e => setZone(e.target.value)}>{zones.map(tz => <option key={tz}>{tz}</option>)}</select></label>
+        <Switch label={ct("Ukryj weekend")} checked={hideWeekend} onChange={setHideWeekend} />
       </div></Panel>
-      <Panel title={chosen ? chosen.name : 'Dzisiaj'} icon={chosen ? 'mail' : 'calendar'} action={chosen && <Button icon="close" aria-label="Zamknij listę bloku" onClick={() => setSelectedGroup(null)} />}>
+      <Panel title={chosen ? chosen.name : ct("Dzisiaj")} icon={chosen ? 'mail' : 'calendar'} action={chosen && <Button icon="close" aria-label={ct("Zamknij listę bloku")} onClick={() => setSelectedGroup(null)} />}>
         <div className="sk-calendar-agenda"><div className="sk-calendar-agenda-items">
-          <p className="sk-muted">{chosen ? dayLabel(chosen.day, { day: 'numeric', month: 'long' }) : dayLabel(today, { day: 'numeric', month: 'long' })} · {messageCount((chosen?.items || todayItems).length)}</p>
+          <p className="sk-muted">{chosen ? displayDay(chosen.day, { day: 'numeric', month: 'long' }) : displayDay(today, { day: 'numeric', month: 'long' })} · {messageCount((chosen?.items || todayItems).length)}</p>
           {(chosen?.items || todayItems).length ? (chosen?.items || todayItems).map(item => <button type="button" key={`${item.type}-${item.slot_id ?? item.log_id}`} onClick={() => onPreview(item)} disabled={busy}>
             <strong>{formatTimeKey(item.sent_at || item.scheduled_at, zone)} · {item.campaign_name}</strong>
-            <span>{item.lead_email}</span><small>{item.subject || '(bez tematu)'}</small>
-          </button>) : <Empty icon="calendar">Brak wiadomości.</Empty>}
-          </div><Button onClick={onOpenQueue}>Otwórz pełną kolejkę</Button>
+            <span>{item.lead_email}</span><small>{item.subject || ct("(bez tematu)")}</small>
+          </button>) : <Empty icon="calendar">{ct("Brak wiadomości.")}</Empty>}
+          </div><Button onClick={onOpenQueue}>{ct("Otwórz pełną kolejkę")}</Button>
         </div>
       </Panel>
-      <p className="sk-calendar-hint"><Icon name="info" size={17} /> Kolejka respektuje limity i okna wysyłki każdej kampanii.</p>
+      <p className="sk-calendar-hint"><Icon name="info" size={17} /> {ct("Kolejka respektuje limity i okna wysyłki każdej kampanii.")}</p>
     </aside>
   </div>;
 }

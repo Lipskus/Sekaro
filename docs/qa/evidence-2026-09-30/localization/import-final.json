@@ -1,0 +1,938 @@
+[
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1519,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1449,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1601,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 66.40625,
+        "bottom": 833.59375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1693,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 66.40625,
+        "bottom": 833.59375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1519,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1449,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 75.09375,
+        "bottom": 824.890625,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1601,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 66.40625,
+        "bottom": 833.59375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 1600,
+    "height": 900,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 1600,
+    "documentWidth": 1600,
+    "bodyWidth": 1600,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1693,
+    "dialogs": [
+      {
+        "left": 350,
+        "right": 1250,
+        "top": 66.40625,
+        "bottom": 833.59375,
+        "width": 900,
+        "scrollWidth": 898,
+        "clientWidth": 898,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-1600-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1479,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1409,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1561,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1653,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 119.703125,
+        "bottom": 904.28125,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1479,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1409,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1561,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 128.40625,
+        "bottom": 895.59375,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 768,
+    "height": 1024,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 768,
+    "documentWidth": 768,
+    "bodyWidth": 768,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1653,
+    "dialogs": [
+      {
+        "left": 20,
+        "right": 748,
+        "top": 119.703125,
+        "bottom": 904.28125,
+        "width": 728,
+        "scrollWidth": 726,
+        "clientWidth": 726,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-768-light-fixture-ru.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1472,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-dark-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1402,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-dark-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1554,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-dark-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "dark",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1646,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-dark-fixture-ru.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "pl",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import kontaktów"
+    ],
+    "bodyLength": 1472,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-light-fixture.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "en",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Import contacts"
+    ],
+    "bodyLength": 1402,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-light-fixture-en.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "de",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Kontakte importieren"
+    ],
+    "bodyLength": 1554,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-light-fixture-de.png"
+  },
+  {
+    "flow": "contact-import",
+    "route": "/leads",
+    "width": 390,
+    "height": 844,
+    "theme": "light",
+    "language": "ru",
+    "state": "fixture",
+    "viewport": 390,
+    "documentWidth": 390,
+    "bodyWidth": 390,
+    "font": "Figtree, ui-sans-serif, system-ui, sans-serif",
+    "figtreeLoaded": true,
+    "headings": [
+      "Kontakty",
+      "Импорт контактов"
+    ],
+    "bodyLength": 1646,
+    "dialogs": [
+      {
+        "left": 8,
+        "right": 382,
+        "top": 10,
+        "bottom": 834,
+        "width": 374,
+        "scrollWidth": 372,
+        "clientWidth": 372,
+        "focusInside": true
+      }
+    ],
+    "backgroundLocked": true,
+    "previewOverflow": false,
+    "errors": [],
+    "mutations": [
+      "/api/settings/known-ips/heartbeat",
+      "/api/leads/import/preview"
+    ],
+    "screenshot": "contact-import-leads-390-light-fixture-ru.png"
+  }
+]

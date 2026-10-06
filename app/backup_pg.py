@@ -8,6 +8,7 @@ import asyncio
 import logging
 import os
 import subprocess
+from sqlalchemy.engine import make_url
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -54,20 +55,37 @@ def sync_connection_uri(database_url: str) -> str:
     return u
 
 
+def pg_connection_env(database_url: str) -> dict:
+    """libpq parameters in the child environment, never in process argv/errors."""
+    url = make_url(sync_connection_uri(database_url))
+    env = {k: v for k, v in os.environ.items() if not k.startswith("PG")}
+    env.update(PGHOST=url.host or "localhost", PGPORT=str(url.port or 5432),
+               PGUSER=url.username or "", PGPASSWORD=url.password or "", PGDATABASE=url.database or "",
+               PGCONNECT_TIMEOUT="15")
+    for key in ("sslmode", "sslrootcert", "sslcert", "sslkey"):
+        if key in url.query:
+            env["PG" + key.upper()] = url.query[key]
+    return env
+
+
+def _pg_run(args, *, timeout, env=None):
+    try:
+        result = subprocess.run(args, capture_output=True, timeout=timeout, env=env)
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise BackupToolError("PostgreSQL backup tool unavailable or timed out") from exc
+    if result.returncode != 0:
+        # stderr can contain restored SQL, user data or connection information.
+        log.error("%s failed (exit=%s)", args[0], result.returncode)
+        raise BackupToolError(f"{args[0]} failed (exit={result.returncode}); database operation was not successful")
+    return result
+
+
 def pg_dump_custom(database_url: str) -> bytes:
     """Run pg_dump -Fc --no-owner; return custom-format bytes."""
     if not is_postgresql_url(database_url):
         raise BackupUnsupportedError("Backups require a PostgreSQL DATABASE_URL")
-    uri = sync_connection_uri(database_url)
-    proc = subprocess.run(
-        ["pg_dump", "-Fc", "--no-owner", "-d", uri],
-        capture_output=True,
-        timeout=3600,
-    )
-    if proc.returncode != 0:
-        err = (proc.stderr or b"").decode(errors="replace").strip() or "pg_dump failed"
-        log.error("pg_dump failed (rc=%s): %s", proc.returncode, err)
-        raise BackupToolError(err)
+    proc = _pg_run(["pg_dump", "-Fc", "--no-owner", "--no-acl"],
+                   env=pg_connection_env(database_url), timeout=3600)
     return proc.stdout
 
 
@@ -75,27 +93,9 @@ def pg_restore_replace(database_url: str, dump_path: str | Path) -> None:
     """Destructively restore custom-format dump (--clean --if-exists)."""
     if not is_postgresql_url(database_url):
         raise BackupUnsupportedError("Restore requires a PostgreSQL DATABASE_URL")
-    uri = sync_connection_uri(database_url)
-    path = str(dump_path)
-    proc = subprocess.run(
-        [
-            "pg_restore",
-            "--clean",
-            "--if-exists",
-            "--no-owner",
-            "-d",
-            uri,
-            path,
-        ],
-        capture_output=True,
-        timeout=7200,
-    )
-    stderr = (proc.stderr or b"").decode(errors="replace").strip()
-    if proc.returncode > 1:
-        log.error("pg_restore failed (rc=%s): %s", proc.returncode, stderr)
-        raise BackupToolError(stderr or "pg_restore failed")
-    if proc.returncode == 1 and stderr:
-        log.warning("pg_restore completed with warnings: %s", stderr)
+    _pg_run(["pg_restore", "--clean", "--if-exists", "--no-owner", "--no-acl",
+             "--single-transaction", "--exit-on-error", "-d", pg_connection_env(database_url)["PGDATABASE"],
+             str(dump_path)], env=pg_connection_env(database_url), timeout=7200)
 
 
 def local_disk_backups_enabled() -> bool:
@@ -148,9 +148,11 @@ def write_local_backup(data: bytes, *, user_relative_path: str | None) -> Path |
         return None
     root = resolve_backup_directory(user_relative_path)
     root.mkdir(parents=True, exist_ok=True)
-    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
     path = root / f"{BACKUP_FILENAME_PREFIX}{ts}{BACKUP_FILENAME_SUFFIX}"
-    path.write_bytes(data)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(data)
     prune_local_backups(root)
     return path
 
@@ -193,14 +195,7 @@ async def restore_from_path_to_thread(database_url: str, path: str | Path) -> No
 def validate_custom_format_dump_file(path: str | Path) -> None:
     """Ensure *path* is readable by pg_restore (custom format)."""
     path = str(path)
-    proc = subprocess.run(
-        ["pg_restore", "-l", path],
-        capture_output=True,
-        timeout=300,
-    )
-    if proc.returncode != 0:
-        err = (proc.stderr or b"").decode(errors="replace").strip() or "Invalid PostgreSQL dump"
-        raise BackupToolError(err)
+    _pg_run(["pg_restore", "-l", path], timeout=300)
 
 
 async def validate_dump_bytes_async(dump: bytes) -> None:

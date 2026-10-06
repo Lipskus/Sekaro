@@ -599,6 +599,14 @@ async def delete_inbox(inbox_id: int, db: AsyncSession = Depends(get_db)):
     inbox = result.scalar_one_or_none()
     if not inbox:
         raise HTTPException(404, "Inbox not found")
+    # Reject before touching assignments or history. The legacy reassign query
+    # parameter is not an implemented transfer operation.
+    assigned = await db.scalar(select(exists().where(CampaignInbox.inbox_id == inbox_id)))
+    if assigned:
+        raise HTTPException(400, "Inbox is assigned to one or more campaigns")
+    queued = await db.scalar(select(exists().where(QueueSlot.inbox_id == inbox_id)))
+    if queued:
+        raise HTTPException(400, "Inbox has pending queue slots")
     # Remove campaign assignments referencing this inbox
     await db.execute(
         CampaignInbox.__table__.delete().where(CampaignInbox.inbox_id == inbox_id)

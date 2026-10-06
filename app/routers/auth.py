@@ -384,6 +384,9 @@ async def refresh_token(request: Request, response: Response, db: AsyncSession =
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User not found or disabled")
 
+    from app.access import check_token_epoch
+    await check_token_epoch(db, user, payload)
+
     # Issue new tokens (refresh token rotation)
     new_access = create_access_token(user.id, user.role)
     new_refresh = create_refresh_token(user.id, user.role)
@@ -426,10 +429,13 @@ async def logout(response: Response):
 # ---------------------------------------------------------------------------
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_me(user=Depends(get_current_user)):
-    """Get the currently authenticated user."""
-    return user
+@router.get("/me")
+async def get_me(user=Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Get current identity and fresh effective permissions."""
+    from app.access import permissions_for
+    result = UserResponse.model_validate(user).model_dump()
+    result["permissions"] = sorted(await permissions_for(db, user))
+    return result
 
 
 @router.put("/change-password")
@@ -457,23 +463,9 @@ async def create_user(
     admin=Depends(require_admin),
     db: AsyncSession = Depends(get_db),
 ):
-    """Admin creates a new user."""
-    existing = await db.execute(
-        select(User).where((User.username == data.username) | (User.email == data.email))
-    )
-    if existing.scalar_one_or_none():
-        raise HTTPException(status_code=409, detail="Username or email already taken")
-
-    user = User(
-        username=data.username,
-        email=data.email,
-        password_hash=hash_password(data.password),
-        role="user",
-        is_active=True,
-    )
-    db.add(user)
-    await db.flush()
-    return user
+    from app.routers.access import create_user as create_managed, NewUser
+    result = await create_managed(NewUser(**data.model_dump()), db, admin)
+    return await db.get(User, result['id'])
 
 
 @router.get("/users", response_model=list[UserResponse])

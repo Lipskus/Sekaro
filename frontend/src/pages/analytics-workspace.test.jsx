@@ -31,9 +31,9 @@ it('blocks oversized custom ranges and export without issuing a daily query',asy
 });
 it('shows no ratio when replies occur without sends and never clips ratios over 100 percent',async()=>{
  const base=api.get.getMockImplementation();api.get.mockImplementation(p=>p.startsWith('/analytics/daily?')?Promise.resolve([row(1,{sent:0,total_replies:3})]):base(p));
- mount();await screen.findByRole('region',{name:'Wyniki kampanii — tabela'});expect(metric('Wskaźnik odpowiedzi')).toBe('—');
+ mount();await screen.findByRole('region',{name:'Wyniki kampanii — tabela'});expect(metric('Odpowiedzi / wysyłki w okresie')).toBe('—');
  api.get.mockImplementation(p=>p.startsWith('/analytics/daily?')?Promise.resolve([row(1,{sent:1,total_replies:3})]):base(p));
- fireEvent.click(screen.getByRole('button',{name:'Ostatnie 30 dni'}));await waitFor(()=>expect(metric('Wskaźnik odpowiedzi')).toBe('300%'));
+ fireEvent.click(screen.getByRole('button',{name:'Ostatnie 30 dni'}));await waitFor(()=>expect(metric('Odpowiedzi / wysyłki w okresie')).toBe('300%'));
 });
 it('filters metrics and campaign rows and ignores an obsolete response',async()=>{
  const old=deferred(),base=api.get.getMockImplementation();api.get.mockImplementation(p=>p.startsWith('/analytics/daily?')?(p.includes('campaign_id=2')?Promise.resolve([row(2,{sent:7}),row(1,{sent:90})]):old.promise):base(p));

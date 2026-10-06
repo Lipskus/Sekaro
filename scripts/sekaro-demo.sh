@@ -21,6 +21,9 @@ with os.fdopen(fd, 'w') as f:
 PY
 fi
 compose=(docker compose --env-file "$demo_dir/env" -p sekaro-demo -f docker-compose.demo.yml)
+if [[ -f "$demo_dir/pg17.compose.json" ]]; then
+  compose+=(-f "$demo_dir/pg17.compose.json")
+fi
 production=(docker compose -p sekaro -f docker-compose.sekaro.yml)
 require_single_instance() {
   if [[ -n "$(docker ps -q --filter label=com.docker.compose.project=sekaro)" ]]; then
@@ -30,7 +33,11 @@ require_single_instance() {
 }
 preflight() {
   docker image inspect sekaro:local >/dev/null
-  docker image inspect postgres:15-alpine >/dev/null
+  if [[ -f "$demo_dir/pg17.compose.json" ]]; then
+    docker image inspect postgres:17-alpine >/dev/null
+  else
+    docker image inspect postgres:15-alpine >/dev/null
+  fi
   "${compose[@]}" config --quiet
 }
 start_demo() {

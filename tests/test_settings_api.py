@@ -86,12 +86,20 @@ async def test_add_opens_setting_endpoint(session):
     log_id = log.id  # save before expiring
     await session.commit()
 
+    from app.auth import get_current_user
+    async def current_user():
+        return object()
     with TestClient(app) as client:
-        resp = client.post("/api/settings/add-opens")
-        assert resp.status_code == 200
-        data = resp.json()
-        assert data["added"] == 1
-        assert data["total"] == 1
+        assert client.post("/api/settings/add-opens").status_code == 401
+        app.dependency_overrides[get_current_user] = current_user
+        try:
+            resp = client.post("/api/settings/add-opens")
+            assert resp.status_code == 200
+            data = resp.json()
+            assert data["added"] == 1
+            assert data["total"] == 1
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
 
     # expire the session cache so we read fresh data committed by the endpoint
     session.expire_all()

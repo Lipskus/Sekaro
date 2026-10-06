@@ -6,6 +6,7 @@ export const systemSettingsGroups = [
     { id: 'known-ips', label: 'Znane adresy IP', icon: 'globe', description: 'Wyklucz własne otwarcia i kliknięcia ze statystyk.', keywords: 'tracking statystyki adresy' },
   ]},
   { label: 'Dane', items: [
+    { id: 'users', label: 'Użytkownicy i uprawnienia', icon: 'shield', description: 'Konta, role, zespoły i historia dostępu.', keywords: 'role uprawnienia użytkownicy zespoły audyt', admin: true },
     { id: 'backup-restore', label: 'Kopia i przywracanie', icon: 'history', description: 'Zabezpiecz dane oraz konfigurację swojej instalacji.', keywords: 'backup baza szyfrowanie hasło harmonogram pobierz przywróć', admin: true },
   ]},
   { label: 'Funkcje', items: [
@@ -23,11 +24,11 @@ export const systemSettingsGroups = [
   ]},
 ];
 export const normalizeSettingsSearch = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ł/g, 'l').replace(/Ł/g, 'L').toLocaleLowerCase('pl').trim();
-export function settingsGroupsFor({ isProduction = true, isAdmin = false, search = '' } = {}) {
+export function settingsGroupsFor({ isProduction = true, isAdmin = false, search = '', translate = value => value } = {}) {
   const query = normalizeSettingsSearch(search);
   return systemSettingsGroups.map(group => ({ ...group, items: group.items.filter(item =>
     (!item.admin || isAdmin) && (!item.development || !isProduction) &&
-    (!query || normalizeSettingsSearch(item.label + ' ' + item.keywords).includes(query))
+    (!query || normalizeSettingsSearch(item.label + ' ' + translate(item.label) + ' ' + translate(item.description) + ' ' + item.keywords).includes(query))
   ) })).filter(group => group.items.length);
 }
 export function resolveSettingsSection(hash, items) {

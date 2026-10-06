@@ -137,7 +137,7 @@ describe('diagnostic results',()=>{
  });
  it('excludes informational entries from problem counts and filters actual checks',()=>{
   mocks.health={checks:[{id:'a',label:'Sprawny moduł',status:'ok',issues:[{level:'info',text:'Informacja'}],meta:{}},{id:'b',label:'Błędny moduł',status:'error',issues:[{level:'error',text:'Awaria'}],meta:{}}],rawData:{},loading:false,lastChecked:null,fetchError:null,refresh:vi.fn(),muted:new Set(),toggleMute:vi.fn(),overallStatus:'error'};
-  mount(SystemHealth);expect(screen.getByText(/1 problem —/)).toBeTruthy();
+  mount(SystemHealth);expect(screen.getByText(/Problemy: 1 —/)).toBeTruthy();
   fireEvent.change(screen.getByRole('combobox',{name:'Wyniki kontroli'}),{target:{value:'attention'}});
   expect(screen.queryByText('Sprawny moduł')).toBeNull();expect(screen.getByText('Błędny moduł')).toBeTruthy();
  });

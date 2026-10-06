@@ -1,3 +1,4 @@
+import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { api } from '../api';
 import { useNotify } from '../context/NotificationContext';
@@ -15,6 +16,7 @@ const STATUS_ICON = {
 };
 
 export default function EmailVerificationSettings({ initialExpanded = false }) {
+  const {ct}=useOperationsLanguage();
   const notify = useNotify();
 
   // ── core settings ──────────────────────────────────────────────────────────
@@ -105,7 +107,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
         setTestResult(null);
       }
       setCredsChanged(false);
-      notify({ type: 'success', message: 'Ustawienia weryfikacji zapisane' });
+      notify({ type: 'success', message: ct("Ustawienia weryfikacji zapisane") });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -134,7 +136,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
   const probeUrl = async () => {
     if (!customUrl || !customUrl.includes('{email}')) {
-      return notify({ type: 'error', message: 'URL must contain {email}' });
+      return notify({ type: 'error', message: ct("URL must contain {email}") });
     }
     setProbing(true);
     setProbeResult(null);
@@ -159,7 +161,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
   const runTest = async () => {
     if (!customUrl || !customUrl.includes('{email}')) {
-      return notify({ type: 'error', message: 'URL must contain {email}' });
+      return notify({ type: 'error', message: ct("URL must contain {email}") });
     }
     setCustomTesting(true);
     setCustomTestResults(null);
@@ -180,7 +182,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
       setCustomTestResults(res.results || []);
       setConnectionTested(true);
       setCredsChanged(false);
-      notify({ type: 'success', message: `Tested ${res.results?.length ?? 0} emails` });
+      notify({ type: 'success', message: ct('Przetestowano adresy: {count}',{count:res.results?.length??0}) });
     } catch (e) {
       notify({ type: 'error', message: e.message });
     } finally {
@@ -189,24 +191,23 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
   };
 
   // ── render ─────────────────────────────────────────────────────────────────
-  if (loading) return <StatePanel icon="refresh" title="Wczytywanie weryfikacji e-mail"/>;
+  if (loading) return <StatePanel icon="refresh" title={ct("Wczytywanie weryfikacji e-mail")}/>;
   if (loadError) return <ErrorNotice error={loadError} onRetry={load}/>;
   return (
     <Card className="mb-4">
 
       {/* ── header row ── */}
       <div
-        className="flex items-center justify-between cursor-pointer select-none"
-        onClick={() => setExpanded(v => !v)}
+        className="flex items-center justify-between select-none"
       >
-        <div className="flex items-center gap-3 min-w-0">
+        <button type="button" className="flex items-center gap-3 min-w-0 text-left" aria-expanded={expanded} aria-label={ct("Weryfikacja e-mail")} onClick={() => setExpanded(v => !v)}>
           <span className={`text-gray-400 transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</span>
-          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">Weryfikacja e-mail</h3>
+          <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{ct("Weryfikacja e-mail")}</h3>
           {enabled
-            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">Włączone</span>
-            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">Wyłączone</span>
+            ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">{ct("Włączone")}</span>
+            : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">{ct("Wyłączone")}</span>
           }
-        </div>
+        </button>
         <label className="flex items-center gap-1.5 cursor-pointer shrink-0 ml-4" onClick={e => e.stopPropagation()}>
           <input
             type="checkbox"
@@ -215,7 +216,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
             onChange={async e => {
               const next = e.target.checked;
               if (next && (!connectionTested || credsChanged)) {
-                notify({ type: 'error', message: 'Run "Test Connection" successfully before enabling email verification.' });
+                notify({ type: 'error', message: ct("Run \"Test Connection\" successfully before enabling email verification.") });
                 return;
               }
               setEnabled(next);
@@ -228,13 +229,11 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                   custom_method: customMethod,
                   ...(apiKey ? { api_key: apiKey } : {}),
                 });
-                notify({ type: 'success', message: `Email verification ${next ? 'enabled' : 'disabled'}` });
+                notify({ type: 'success', message: ct(next?'Weryfikacja e-mail włączona':'Weryfikacja e-mail wyłączona') });
               } catch (err) { notify({ type: 'error', message: err.message }); }
             }}
           />
-          <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
-            Włącz
-          </span>
+          <span className="text-xs font-medium text-gray-600 whitespace-nowrap"> {ct("Włącz")} </span>
         </label>
       </div>
 
@@ -243,16 +242,12 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
         <div className="min-h-0 overflow-hidden">
           <div className="mt-4 space-y-5 border-t pt-4">
 
-            <p className="text-sm text-gray-500">
-              Sprawdzaj adresy kontaktów przed wysyłką. Nieprawidłowe adresy są pomijane, aby nie zużywać limitu wysyłki.
-            </p>
+            <p className="text-sm text-gray-500"> {ct("Sprawdzaj adresy kontaktów przed wysyłką. Nieprawidłowe adresy są pomijane, aby nie zużywać limitu wysyłki.")} </p>
 
             {/* ── Provider selector ── */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Usługa weryfikacji
-              </label>
-              <select
+              <label htmlFor="EmailVerificationSettings-field-1" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"> {ct("Usługa weryfikacji")} </label>
+              <select id="EmailVerificationSettings-field-1"
                 className="border rounded-lg px-3 py-2 text-sm w-full max-w-xs dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
                 value={provider}
                 onChange={e => {
@@ -266,7 +261,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
               >
                 {(providers.length > 0 ? providers : ['mailtester_ninja']).map(p => (
                   <option key={p} value={p}>
-                    {p === 'custom'           ? 'Własne API'
+                    {p === 'custom'           ? ct("Własne API")
                       : p === 'mailtester_ninja' ? 'Mailtester Ninja'
                       : p.replace(/_/g, ' ')}
                   </option>
@@ -277,11 +272,11 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
             {/* ── API key (built-in providers) ── */}
             {provider !== 'custom' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Klucz API</label>
-                <input
+                <label htmlFor="EmailVerificationSettings-field-2" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{ct("Klucz API")}</label>
+                <input id="EmailVerificationSettings-field-2"
                   type="password"
                   className="border rounded-lg px-3 py-2 text-sm w-full max-w-md dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  placeholder={apiKeyMasked || 'Wpisz klucz API'}
+                  placeholder={apiKeyMasked || ct("Wpisz klucz API")}
                   value={apiKey}
                   onChange={e => {
                     setApiKey(e.target.value);
@@ -293,7 +288,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                   }}
                 />
                 {apiKeyMasked && !apiKey && (
-                  <p className="text-xs text-gray-400 mt-1">Zapisany klucz: {apiKeyMasked}</p>
+                  <p className="text-xs text-gray-400 mt-1">{ct("Zapisany klucz:")} {apiKeyMasked}</p>
                 )}
               </div>
             )}
@@ -306,11 +301,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
                 {/* ── Step 1: URL ── */}
                 <div>
-                  <StepLabel n={1} title="Enter your API's web address" />
-                  <p className="text-xs text-gray-500 mb-2">
-                    Include <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">{'{email}'}</code> where
-                    the email should go. The system will replace it automatically for each address checked.
-                  </p>
+                  <StepLabel n={1} title={ct("Enter your API's web address")} />
+                  <p className="text-xs text-gray-500 mb-2"> {ct("Include")} <code className="bg-gray-200 dark:bg-gray-700 px-1 rounded font-mono">{'{email}'}</code> {ct("where the email should go. The system will replace it automatically for each address checked.")} </p>
                   <div className="flex gap-2 flex-wrap">
                     <input
                       type="text"
@@ -336,10 +328,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
                 {/* ── Step 2: Probe ── */}
                 <div>
-                  <StepLabel n={2} title="Preview the response" />
-                  <p className="text-xs text-gray-500 mb-2">
-                    Send one request to see what your API actually returns. Use any email address you like.
-                  </p>
+                  <StepLabel n={2} title={ct("Preview the response")} />
+                  <p className="text-xs text-gray-500 mb-2"> {ct("Send one request to see what your API actually returns. Use any email address you like.")} </p>
                   <div className="flex gap-2 flex-wrap items-center">
                     <input
                       type="email"
@@ -349,14 +339,13 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                       onChange={e => setProbeEmail(e.target.value)}
                     />
                     <Button size="sm" variant="outline" onClick={probeUrl} disabled={probing || !customUrl}>
-                      {probing ? 'Loading…' : 'Preview response'}
+                      {probing ? ct("Loading…") : ct("Preview response")}
                     </Button>
                   </div>
 
                   {probeResult && (
                     <div className="mt-3 rounded-lg bg-gray-100 dark:bg-gray-900 border text-xs font-mono p-3 overflow-x-auto max-h-48">
-                      <p className="text-gray-500 mb-1 font-sans font-medium not-italic">
-                        Response for <strong>{probeResult.email}</strong>:
+                      <p className="text-gray-500 mb-1 font-sans font-medium not-italic"> {ct("Response for")} <strong>{probeResult.email}</strong>:
                       </p>
                       <pre className="whitespace-pre-wrap break-all text-gray-700 dark:text-gray-300">
                         {JSON.stringify(probeResult.response, null, 2)}
@@ -367,10 +356,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
                 {/* ── Step 3: Field ── */}
                 <div>
-                  <StepLabel n={3} title="Which field shows the result?" />
-                  <p className="text-xs text-gray-500 mb-2">
-                    Look at the response above and type the name of the field that tells you if the email is good
-                    or bad. If it's inside a nested object, use a dot — e.g.{' '}
+                  <StepLabel n={3} title={ct("Which field shows the result?")} />
+                  <p className="text-xs text-gray-500 mb-2"> {ct("Look at the response above and type the name of the field that tells you if the email is good or bad. If it's inside a nested object, use a dot — e.g.")}{' '}
                     <code className="bg-gray-200 dark:bg-gray-700 px-0.5 rounded font-mono">data.status</code>.
                   </p>
                   <input
@@ -384,17 +371,13 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
                 {/* ── Step 4: Good / Bad values ── */}
                 <div>
-                  <StepLabel n={4} title="What do the values mean?" />
-                  <p className="text-xs text-gray-500 mb-3">
-                    Type the exact values your API uses and separate them with a comma.
-                    Anything not listed is treated as unknown — the email is still sent.
-                  </p>
+                  <StepLabel n={4} title={ct("What do the values mean?")} />
+                  <p className="text-xs text-gray-500 mb-3"> {ct("Type the exact values your API uses and separate them with a comma. Anything not listed is treated as unknown — the email is still sent.")} </p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="flex items-center gap-1.5 text-sm font-medium text-green-700 dark:text-green-400 mb-1">
-                        <span>✓</span> Good — email is valid, send it
-                      </label>
-                      <input
+                      <label htmlFor="EmailVerificationSettings-field-3" className="flex items-center gap-1.5 text-sm font-medium text-green-700 dark:text-green-400 mb-1">
+                        <span>✓</span> {ct("Good — email is valid, send it")} </label>
+                      <input id="EmailVerificationSettings-field-3"
                         type="text"
                         className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-green-300"
                         placeholder="valid, ok, deliverable"
@@ -403,10 +386,9 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                       />
                     </div>
                     <div>
-                      <label className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 mb-1">
-                        <span>✗</span> Bad — skip this email
-                      </label>
-                      <input
+                      <label htmlFor="EmailVerificationSettings-field-4" className="flex items-center gap-1.5 text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                        <span>✗</span> {ct("Bad — skip this email")} </label>
+                      <input id="EmailVerificationSettings-field-4"
                         type="text"
                         className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-red-300"
                         placeholder="invalid, blocked, risky"
@@ -419,11 +401,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
 
                 {/* ── Step 5: Run test ── */}
                 <div>
-                  <StepLabel n={5} title="Run a test before saving" />
-                  <p className="text-xs text-gray-500 mb-2">
-                    We'll automatically test a sample of your inboxes and leads. You can also add your own
-                    addresses below (up to {MAX_TEST_EMAILS}), one per line or separated by commas.
-                  </p>
+                  <StepLabel n={5} title={ct("Run a test before saving")} />
+                  <p className="text-xs text-gray-500 mb-2"> {ct("We'll automatically test a sample of your inboxes and leads. You can also add your own addresses below (up to")} {MAX_TEST_EMAILS}{ct("), one per line or separated by commas.")} </p>
                   <textarea
                     className="border rounded-lg px-3 py-2 text-sm w-full dark:bg-gray-800 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-teal-300 resize-none font-mono"
                     rows={3}
@@ -434,12 +413,12 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                   {(() => {
                     const n = extraEmails.split(/[\n,]+/).map(s => s.trim()).filter(Boolean).length;
                     return n > MAX_TEST_EMAILS
-                      ? <p className="text-xs text-amber-600 mt-1">Only the first {MAX_TEST_EMAILS} will be tested.</p>
+                      ? <p className="text-xs text-amber-600 mt-1">{ct("Only the first")} {MAX_TEST_EMAILS} {ct("will be tested.")}</p>
                       : null;
                   })()}
                   <div className="mt-2">
                     <Button size="sm" variant="outline" onClick={runTest} disabled={customTesting || !customUrl}>
-                      {customTesting ? 'Testing…' : 'Run test'}
+                      {customTesting ? ct("Testing…") : ct("Run test")}
                     </Button>
                   </div>
                 </div>
@@ -447,16 +426,14 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                 {/* ── Test results ── */}
                 {customTestResults !== null && (
                   <div>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Results — check the "Decision" column matches what you'd expect:
-                    </p>
+                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"> {ct("Results — check the \"Decision\" column matches what you'd expect:")} </p>
                     <div className="overflow-x-auto rounded-lg border">
                       <table className="w-full text-xs">
                         <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">Email address</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">API returned</th>
-                            <th className="px-3 py-2 text-left font-medium text-gray-500">Decision</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">{ct("Email address")}</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">{ct("API returned")}</th>
+                            <th className="px-3 py-2 text-left font-medium text-gray-500">{ct("Decision")}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y">
@@ -471,7 +448,7 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                                     : <span className="text-gray-400 italic">—</span>}
                                 </td>
                                 <td className={`px-3 py-2 ${s.cls}`}>
-                                  {s.icon} {s.label}
+                                  {s.icon} {ct(s.label)}
                                 </td>
                               </tr>
                             );
@@ -480,14 +457,9 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                       </table>
                     </div>
                     {customTestResults.some(r => r.status === 'unknown') && (
-                      <p className="text-xs text-amber-600 mt-2">
-                        ⚠ Some emails came back as unknown — the value your API returned isn't in your Good or Bad
-                        list. Add it above, or leave it to allow those emails through.
-                      </p>
+                      <p className="text-xs text-amber-600 mt-2"> {ct("⚠ Some emails came back as unknown — the value your API returned isn't in your Good or Bad list. Add it above, or leave it to allow those emails through.")} </p>
                     )}
-                    <p className="text-xs text-gray-400 mt-1">
-                      Happy with the results? Click Save below.
-                    </p>
+                    <p className="text-xs text-gray-400 mt-1"> {ct("Happy with the results? Click Save below.")} </p>
                   </div>
                 )}
 
@@ -506,11 +478,11 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                 customMethod !== savedStateRef.current.customMethod ||
                 !!apiKey
               ) && (
-                <p className="text-xs text-amber-600 font-medium">⚠ Unsaved changes — click Save to apply</p>
+                <p className="text-xs text-amber-600 font-medium">{ct("⚠ Unsaved changes — click Save to apply")}</p>
               )}
               <div className="flex items-center gap-3 flex-wrap">
                 <Button size="sm" onClick={save} disabled={saving}>
-                  {saving ? 'Zapisywanie…' : 'Zapisz'}
+                  {saving ? ct("Zapisywanie…") : ct("Zapisz")}
                 </Button>
                 {provider !== 'custom' && (
                   <Button
@@ -522,11 +494,11 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                     onClick={testApiKey}
                     disabled={testing}
                   >
-                    {testing ? 'Testowanie…' : (connectionTested && !credsChanged) ? '✓ Połączenie sprawdzone' : 'Testuj połączenie'}
+                    {testing ? ct("Testowanie…") : (connectionTested && !credsChanged) ? ct("✓ Połączenie sprawdzone") : ct("Testuj połączenie")}
                   </Button>
                 )}
                 {(!connectionTested || credsChanged) && (
-                  <span className="text-xs text-amber-600">Przetestuj połączenie przed włączeniem</span>
+                  <span className="text-xs text-amber-600">{ct("Przetestuj połączenie przed włączeniem")}</span>
                 )}
               </div>
             </div>
@@ -537,8 +509,8 @@ export default function EmailVerificationSettings({ initialExpanded = false }) {
                 : 'bg-red-50 text-red-700 border border-red-200'}`}
               >
                 {testResult.ok
-                  ? <>Połączenie działa — status: <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
-                  : <>Test nie powiódł się: {testResult.error}</>
+                  ? <>{ct("Połączenie działa — status:")} <strong>{testResult.status || 'ok'}</strong>{testResult.message ? ` (${testResult.message})` : ''}</>
+                  : <>{ct("Test nie powiódł się:")} {testResult.error}</>
                 }
               </div>
             )}

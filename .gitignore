@@ -41,3 +41,12 @@ tasks.md
 .commandcode/
 # Local demo credentials; never commit or share them.
 .sekaro-demo/
+
+.sekaro-install/
+
+# Generated frontend/test output and local recovery files
+frontend/dist/
+.pytest_cache/
+*.qbk
+*.dump
+*.partial

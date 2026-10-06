@@ -1,3 +1,4 @@
+from app.mail_identity import load_identity
 """Background job: send due emails from the queue."""
 # // BEACON SYNC: This file handles tracking logic that Beacon mirrors.
 # // Any changes to tracking behavior, event types, metadata collected, or URL structure
@@ -20,6 +21,7 @@ except ImportError:
     ZoneInfo = None  # type: ignore[assignment,misc]
 
 from app.settings_manager import settings
+from app.public_links import get_unsubscribe_base
 from app.database import AsyncSessionLocal
 from app.models import (
     QueueSlot,
@@ -710,7 +712,7 @@ async def run_send_job():
                     session.add(unsub_row)
                     await session.flush()  # get the token persisted
 
-                unsub_url = f"{inbox_tracking_base}/u/{unsub_row.token}"
+                unsub_url = f"{get_unsubscribe_base(inbox_tracking_base)}/u/{unsub_row.token}"
 
                 # Build lead data dict with built-in unsubscribe_link variable
                 lead_data = get_lead_data(lead)
@@ -813,6 +815,11 @@ async def run_send_job():
                 # Unsubscribe header
                 list_unsub_url = unsub_url if getattr(campaign, 'add_unsubscribe_header', True) else None
 
+                from app.outbound_safety import outbound_block_reason
+                if await outbound_block_reason(session, lead.email, inbox.id, campaign_lead_id=cl.id):
+                    await session.delete(email_log_entry)
+                    continue
+
                 # ── phase 3: send ────────────────────────────────────────────
                 if simulate_send:
                     fake_thread_id = prev_thread_id or f"test-thread-{email_log_entry.id}"
@@ -823,6 +830,7 @@ async def run_send_job():
                     )
                 else:
                     result = send_email(
+                    mail_identity=await load_identity(session, inbox.id),
                         to_email=lead.email,
                         subject=subject,
                         body=send_body,
@@ -1513,7 +1521,7 @@ async def send_slot_job(slot_id: int) -> None:
             session.add(unsub_row)
             await session.flush()
 
-        unsub_url = f"{inbox_tracking_base}/u/{unsub_row.token}"
+        unsub_url = f"{get_unsubscribe_base(inbox_tracking_base)}/u/{unsub_row.token}"
         lead_data = get_lead_data(lead)
         lead_data["unsubscribe_link"] = unsub_url
 
@@ -1602,6 +1610,12 @@ async def send_slot_job(slot_id: int) -> None:
 
         list_unsub_url = unsub_url if getattr(campaign, "add_unsubscribe_header", True) else None
 
+        from app.outbound_safety import outbound_block_reason
+        if await outbound_block_reason(session, lead.email, inbox.id, campaign_lead_id=cl.id):
+            await session.delete(email_log_entry)
+            await session.commit()
+            return
+
         # ── Durable send claim ───────────────────────────────────────────
         attempt_token = await _claim_send_attempt(slot_id)
         if not attempt_token:
@@ -1623,6 +1637,7 @@ async def send_slot_job(slot_id: int) -> None:
                 )
             else:
                 result = send_email(
+                    mail_identity=await load_identity(session, inbox.id),
                     to_email=lead.email,
                     subject=subject,
                     body=send_body,

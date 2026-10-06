@@ -38,3 +38,28 @@ it('blocks policy editing while a refresh can replace the displayed settings',as
  fireEvent.click(await screen.findByRole('button',{name:'Odśwież status'}));expect(screen.getByRole('combobox').disabled).toBe(true);
  resolve({...data,mode:'days',days:14});await waitFor(()=>expect(screen.getByRole('combobox').disabled).toBe(false));expect(screen.getByRole('spinbutton').value).toBe('14');
 });
+
+it.each(['en','de','ru'].flatMap(language=>['keep','immediate','days'].map(mode=>[language,mode])))('preserves and saves the exact %s retention draft for %s',async(language,mode)=>{
+ const {LanguageProvider,useLanguage}=await import('../context/LanguageContext');
+ const {operationsText:t}=await import('../context/operationsLanguage');
+ function Switch(){const {setLanguage}=useLanguage();return <button onClick={()=>setLanguage(language)}>language</button>;}
+ localStorage.clear();api.get.mockResolvedValue({...data,mode:mode==='keep'?'days':'keep'});api.put.mockImplementation(async(p,body)=>body);
+ render(<LanguageProvider><Switch/><MailboxArchive inboxId={1}/></LanguageProvider>);
+ fireEvent.change(await screen.findByRole('combobox'),{target:{value:mode}});
+ if(mode==='days')fireEvent.change(screen.getByRole('spinbutton'),{target:{value:'14'}});
+ api.get.mockClear();fireEvent.click(screen.getByRole('button',{name:'language'}));
+ expect(screen.getByRole('combobox',{name:t(language,'Oryginały na serwerze')}).value).toBe(mode);
+ expect(api.get).not.toHaveBeenCalled();expect(api.put).not.toHaveBeenCalled();
+ if(mode!=='keep'){
+  expect(screen.getByRole('button',{name:t(language,'Zapisz przechowywanie')}).disabled).toBe(true);
+  fireEvent.click(screen.getByRole('checkbox',{name:t(language,'Potwierdzam usuwanie oryginałów z serwera')}));
+ }
+ fireEvent.click(screen.getByRole('button',{name:t(language,'Zapisz przechowywanie')}));
+ await waitFor(()=>expect(api.put).toHaveBeenCalledWith('/smtp/inboxes/1/retention',{mode,days:mode==='days'?14:30,confirm_delete:mode!=='keep'}));
+ expect(screen.getByText('Załącznik')).toBeTruthy();localStorage.clear();
+});
+it.each(['0','3651','1.5'])('rejects invalid retention interval %s without an API write',async days=>{
+ render(<MailboxArchive inboxId={1}/>);fireEvent.change(await screen.findByRole('combobox'),{target:{value:'days'}});
+ fireEvent.change(screen.getByRole('spinbutton'),{target:{value:days}});fireEvent.click(screen.getByRole('checkbox'));
+ const save=screen.getByRole('button',{name:'Zapisz przechowywanie'});expect(save.disabled).toBe(true);fireEvent.click(save);expect(api.put).not.toHaveBeenCalled();
+});

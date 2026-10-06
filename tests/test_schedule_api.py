@@ -2,9 +2,27 @@ import pytest
 
 from fastapi.testclient import TestClient
 from app.main import app
+from app.auth import get_current_user
 
 
-def test_schedule_api_basic_endpoints():
+@pytest.fixture
+def authenticated_schedule(engine):
+    async def current_user():
+        return object()
+    app.dependency_overrides[get_current_user] = current_user
+    try:
+        yield
+    finally:
+        app.dependency_overrides.pop(get_current_user, None)
+
+
+@pytest.mark.parametrize("path", ["stats", "sent", "scheduled"])
+def test_schedule_requires_authentication(path, engine):
+    with TestClient(app) as client:
+        assert client.get(f"/api/schedule/{path}").status_code == 401
+
+
+def test_schedule_api_basic_endpoints(authenticated_schedule):
     # No manual initialization required; the shared engine fixture
     # ensures the schema is in place and is wired into the FastAPI app.
     """Verify that the schedule-related APIs exist and return the expected
@@ -52,7 +70,7 @@ def test_schedule_api_basic_endpoints():
 
 
 @pytest.mark.asyncio
-async def test_schedule_sent_includes_opens_clicks(session):
+async def test_schedule_sent_includes_opens_clicks(session, authenticated_schedule):
     """When logs have associated opens/clicks we should return them without
     triggering lazy-loading errors.
 

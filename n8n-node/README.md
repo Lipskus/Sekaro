@@ -23,6 +23,8 @@ npm install
 npm run build
 ```
 
+Generated `dist/` files are not stored in Git. Run the build after cloning; `npm pack` also runs it through `prepack`.
+
 Output is emitted to `dist/`. The `n8n` block in `package.json` points n8n at the compiled credential and node files.
 
 ---

@@ -1,0 +1,16 @@
+# Optional overlay for production Compose. Never exposes ClamAV publicly.
+services:
+  app:
+    environment:
+      SEKARO_CLAMAV_HOST: clamav
+      SEKARO_CLAMAV_PORT: "3310"
+  clamav:
+    image: clamav/clamav:stable
+    restart: unless-stopped
+    volumes:
+      - sekaro_clamav:/var/lib/clamav
+    networks:
+      - sekaro-internal
+    mem_limit: 3g
+volumes:
+  sekaro_clamav:

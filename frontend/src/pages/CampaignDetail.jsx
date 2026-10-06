@@ -1,4 +1,6 @@
-import { useParams } from 'react-router-dom';
+import {CampaignGroupPicker} from '../redesign/ContactGroups';
+import {useCampaignLanguage} from '../context/campaignLanguage';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useCallback, useRef, useMemo, Fragment } from 'react';
 import { useNotify } from '../context/NotificationContext';
 import { useLoading } from '../context/LoadingContext';
@@ -392,9 +394,10 @@ const STATUS_LABELS = {
 };
 
 function StatusBadge({ label }) {
+  const {ct}=useCampaignLanguage();
   return (
     <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium ${BADGE_STYLES[label] || 'bg-gray-100 text-gray-600'}`}>
-      {STATUS_LABELS[label] || label}
+      {ct(STATUS_LABELS[label] || label)}
     </span>
   );
 }
@@ -417,6 +420,7 @@ function deriveStatuses(lead) {
 
 // ─── Leads Tab ────────────────────────────────────────────────────────────────
 export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
+  const {ct,language}=useCampaignLanguage();
   const notify  = useNotify();
   const confirm = useConfirm();
   const [showAdd, setShowAdd] = useState(false);
@@ -500,7 +504,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       // Nothing queued – ask the user if they want to re-verify existing ones
       if (res.queued === 0 && res.needs_reverify && !forceReverify) {
         const confirmed = await confirm(
-          `Wszystkie kontakty (${res.total_verified}) są już zweryfikowane.\nZweryfikować je ponownie?`
+          ct('Wszystkie kontakty ({count}) są już zweryfikowane. Zweryfikować je ponownie?',{count:res.total_verified})
         );
         setVerifying(false);
         if (confirmed) verifyAllLeads(true);
@@ -508,12 +512,12 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       }
 
       if (res.queued === 0) {
-        notify({ type: 'info', message: 'Brak kontaktów do weryfikacji.' });
+        notify({ type: 'info', message: ct("Brak kontaktów do weryfikacji.") });
         setVerifying(false);
         return;
       }
 
-      notify({ type: 'success', message: `Weryfikacja kontaktów: ${res.queued}…` });
+      notify({ type: 'success', message: ct('Weryfikacja kontaktów: {count}…',{count:res.queued}) });
 
       // Poll verification-status every 5 s and show a toast per change
       let prevStatuses = { ...(verificationSummary?.statuses || {}) };
@@ -531,7 +535,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               const isWarn = status === 'invalid' || status === 'risky';
               notify({
                 type: isWarn ? 'warning' : 'success',
-                message: `Zweryfikowano ${delta} kontaktów → ${STATUS_LABELS[status] || status}`,
+                message: ct('Zweryfikowano {count} kontaktów → {status}',{count:delta,status:ct(STATUS_LABELS[status]||status)}),
               });
             }
           });
@@ -571,7 +575,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
     const newCustom = { ...(lead.custom_data || {}), [editCell.field]: editValue };
     try {
       await api.patch(`/leads/${leadId}`, { custom_data: newCustom });
-      notify({ type: 'success', message: 'Zapisano.' });
+      notify({ type: 'success', message: ct("Zapisano.") });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -580,11 +584,11 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   };
 
   const removeLead = async (lid, email) => {
-    const ok = await confirm(`Usunąć ${email} z tej kampanii?`);
+    const ok = await confirm({message:ct('Usunąć {email} z tej kampanii?',{email}),danger:true});
     if (!ok) return;
     try {
       await api.del(`/campaigns/${campaignId}/leads/${lid}`);
-      notify({ type: 'success', message: 'Kontakt usunięty z kampanii.' });
+      notify({ type: 'success', message: ct("Kontakt usunięty z kampanii.") });
       refresh();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -611,7 +615,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       setSingle({ email: '', name: '', custom: '' });
       setShowAdd(false);
       setLastDuplicates(res?.duplicate_leads || []);
-      notify({ type: 'success', message: `Dodano kontaktów: ${res?.added ?? 1}` });
+      notify({ type: 'success', message: ct('Dodano kontaktów: {count}',{count:res?.added??1}) });
       refresh();
     } catch (e) {
       setMsg({ type: 'error', text: e.message });
@@ -703,12 +707,12 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       if (confirmPayload) {
         res = await api.post(`/campaigns/${campaignId}/leads?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, confirmPayload);
         setBulk('');
-        const dupMsg = res.duplicate_leads?.length ? ` (pominięto duplikaty: ${res.duplicate_leads.length})` : '';
-        notify({ type: 'success', message: `Dodano kontaktów: ${res.added ?? confirmPayload.length}${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? ct(' (pominięto duplikaty: {count})',{count:res.duplicate_leads.length}) : '';
+        notify({ type: 'success', message: ct('Dodano kontaktów: {count}',{count:res.added??confirmPayload.length})+dupMsg });
       } else if (importFile) {
         res = await api.upload(`/campaigns/${campaignId}/leads/import?skip_duplicates=${skipDuplicates}&verify_emails=${verifyEmails}`, importFile);
-        const dupMsg = res.duplicate_leads?.length ? `, pominięto duplikaty: ${res.duplicate_leads.length}` : '';
-        notify({ type: 'success', message: `Import: dodano ${res.added}, już przypisanych ${res.already_enrolled}, błędów ${res.errors}${dupMsg}` });
+        const dupMsg = res.duplicate_leads?.length ? ct(', pominięto duplikaty: {count}',{count:res.duplicate_leads.length}) : '';
+        notify({ type: 'success', message: ct('Import: dodano {added}, już przypisanych {enrolled}, błędów {errors}{duplicates}',{added:res.added,enrolled:res.already_enrolled,errors:res.errors,duplicates:dupMsg}) });
       }
       setShowLeadsConfirm(false);
       setConfirmPreview(null);
@@ -744,20 +748,20 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
   return (
     <div className="sk-campaign-recipients">
       <div className="sk-metrics four">
-        <Metric icon="contacts" title="Kontakty w kampanii" value={leads.length} detail="Wszyscy przypisani odbiorcy"/>
-        <Metric icon="chat" title="Odpowiedzi" value={leads.filter(l=>l.replied).length} detail="Kontakty, które odpowiedziały" tone="blue"/>
-        <Metric icon="warning" title="Treści do uzupełnienia" value={leads.filter(l=>l.status==='needs_custom_email').length} detail="Wymagają nowej wiadomości" tone="amber"/>
-        <Metric icon="shield" title="Odbite lub wypisane" value={leads.filter(l=>['bounced','unsubscribed'].includes(l.status)).length} detail="Status kontaktu w kampanii" tone="red"/>
+        <Metric icon="contacts" title={ct("Kontakty w kampanii")} value={leads.length} detail={ct("Wszyscy przypisani odbiorcy")}/>
+        <Metric icon="chat" title={ct("Odpowiedzi")} value={leads.filter(l=>l.replied).length} detail={ct("Kontakty, które odpowiedziały")} tone="blue"/>
+        <Metric icon="warning" title={ct("Treści do uzupełnienia")} value={leads.filter(l=>l.status==='needs_custom_email').length} detail={ct("Wymagają nowej wiadomości")} tone="amber"/>
+        <Metric icon="shield" title={ct("Odbite lub wypisane")} value={leads.filter(l=>['bounced','unsubscribed'].includes(l.status)).length} detail={ct("Status kontaktu w kampanii")} tone="red"/>
       </div>
       {/* Import / Export toolbar */}
       <div className="sk-recipient-toolbar">
-        <Button size="sm" onClick={()=>setShowAdd(true)}>Dodaj kontakty</Button>
-        <input type="search" aria-label="Szukaj odbiorców" placeholder="Szukaj po e-mailu, imieniu, firmie…" value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
-        <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>Filtry</Button>
-        {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>Kolumny</Button>}
+        <Button size="sm" onClick={()=>setShowAdd(true)}>{ct("Dodaj kontakty")}</Button>
+        <CampaignGroupPicker campaignId={campaignId} onAdded={refresh}/>
+        <input type="search" aria-label={ct("Szukaj odbiorców")} placeholder={ct("Szukaj po e-mailu, imieniu, firmie…")} value={query} onChange={e=>{setQuery(e.target.value);setPage(1);}}/>
+        <Button size="sm" variant="outline" aria-expanded={showFilters} onClick={()=>setShowFilters(v=>!v)}>{ct("Filtry")}</Button>
+        {customFields.length>0&&<Button size="sm" variant="outline" aria-expanded={showColumns} onClick={()=>setShowColumns(v=>!v)}>{ct("Kolumny")}</Button>}
         <Button size="sm" variant="outline" onClick={handleExport} disabled={!filteredLeads.length}>
-          <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" /></svg>
-          Eksport{hasActiveFilter ? ' (filtrowany)' : ''} CSV
+          <svg className="w-4 h-4 mr-1.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V3" /></svg> {ct("Eksport")}{hasActiveFilter ? ct(" (filtrowany)") : ''} CSV
         </Button>
         <FileUploadArea
           ref={fileInputRef}
@@ -769,46 +773,45 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
           <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M16 8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          {importing ? 'Importowanie…' : 'Import CSV'}
+          {importing ? ct("Importowanie…") : ct("Import CSV")}
         </FileUploadArea>
         {emailVerifEnabled && (
           <Button size="sm" variant="outline" onClick={()=>verifyAllLeads()} disabled={verifying}>
-            {verifying ? 'Weryfikowanie…' : 'Zweryfikuj wszystkie e-maile'}
+            {verifying ? ct("Weryfikowanie…") : ct("Zweryfikuj wszystkie e-maile")}
           </Button>
         )}
         <span className="text-xs text-gray-400 ml-1">
-          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} kontaktów
-        </span>
+          {filteredLeads.length}{hasActiveFilter ? `/${leads.length}` : ''} {ct("kontaktów")} </span>
         {hasActiveFilter && (
           <button
             className="text-xs text-teal-600 hover:underline ml-1"
             onClick={clearFilters}
-          >Wyczyść filtry</button>
+          >{ct("Wyczyść filtry")}</button>
         )}
       </div>
 
       {/* Duplicate leads notice */}
       {lastDuplicates.length > 0 && (
         <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm font-medium text-yellow-800 mb-1">Pominięte duplikaty ({lastDuplicates.length}) — już przypisane do kampanii:</p>
+          <p className="text-sm font-medium text-yellow-800 mb-1">{ct("Pominięte duplikaty (")}{lastDuplicates.length}{ct(") — już przypisane do kampanii:")}</p>
           <div className="flex flex-wrap gap-1 mt-1">
             {lastDuplicates.map(email => (
               <span key={email} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{email}</span>
             ))}
           </div>
-          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>Ukryj</button>
+          <button className="text-xs text-yellow-600 underline mt-1" onClick={() => setLastDuplicates([])}>{ct("Ukryj")}</button>
         </div>
       )}
 
       {/* Add contacts stays out of the table flow; drafts survive closing the drawer. */}
-      {showAdd && <Modal title="Dodaj kontakty do kampanii" drawer busy={adding} onClose={()=>setShowAdd(false)}>
+      {showAdd && <Modal title={ct("Dodaj kontakty do kampanii")} drawer busy={adding} onClose={()=>setShowAdd(false)}>
       <div className="sk-recipient-add">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-gray-800">Dodaj kontakty</h3>
+          <h3 className="font-semibold text-gray-800">{ct("Dodaj kontakty")}</h3>
           <button
             className="text-gray-400 hover:text-teal-600 transition-colors"
             onClick={() => setShowFormatInfo(v => !v)}
-            title="Obsługiwane formaty danych"
+            title={ct("Obsługiwane formaty danych")}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
           </button>
@@ -816,21 +819,21 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
         {showFormatInfo && (
           <div className="mb-4 p-3 bg-teal-50 border border-teal-200 rounded-lg text-sm text-teal-800 space-y-2">
-            <p className="font-semibold">Obsługiwane formaty wklejania zbiorczego:</p>
+            <p className="font-semibold">{ct("Obsługiwane formaty wklejania zbiorczego:")}</p>
             <ul className="list-disc pl-5 space-y-1 text-xs">
-              <li><strong>Tylko adresy e-mail</strong> — jeden w wierszu lub rozdzielone przecinkami<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
-              <li><strong>Rozdzielone tabulatorami (Excel / Arkusze)</strong> — pierwszy wiersz to nagłówki<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
-              <li><strong>Rozdzielone przecinkami z nagłówkami</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
+              <li><strong>{ct("Tylko adresy e-mail")}</strong> {ct("— jeden w wierszu lub rozdzielone przecinkami")}<br/><code className="bg-teal-100 px-1 rounded">john@a.com, jane@b.com</code></li>
+              <li><strong>{ct("Rozdzielone tabulatorami (Excel / Arkusze)")}</strong> {ct("— pierwszy wiersz to nagłówki")}<br/><code className="bg-teal-100 px-1 rounded">email&nbsp;&nbsp;&nbsp;name&nbsp;&nbsp;&nbsp;company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com&nbsp;&nbsp;&nbsp;John&nbsp;&nbsp;&nbsp;Acme</code></li>
+              <li><strong>{ct("Rozdzielone przecinkami z nagłówkami")}</strong><br/><code className="bg-teal-100 px-1 rounded">email,name,company</code><br/><code className="bg-teal-100 px-1 rounded">john@a.com,John,Acme</code></li>
             </ul>
-            <p className="text-xs text-teal-600 mt-1">Kolumny poza <em>email</em> i <em>name</em> są zapisywane jako pola niestandardowe.</p>
-            <p className="font-semibold mt-2">Import pliku CSV:</p>
-            <p className="text-xs">Wgraj plik <code className="bg-teal-100 px-1 rounded">.csv</code> lub <code className="bg-teal-100 px-1 rounded">.tsv</code> z kolumną nagłówkową <em>email</em>. Dodatkowe kolumny staną się polami niestandardowymi.</p>
+            <p className="text-xs text-teal-600 mt-1">{ct("Kolumny poza")} <em>email</em> {ct('i')} <em>name</em> {ct("są zapisywane jako pola niestandardowe.")}</p>
+            <p className="font-semibold mt-2">{ct("Import pliku CSV:")}</p>
+            <p className="text-xs">{ct("Wgraj plik")} <code className="bg-teal-100 px-1 rounded">.csv</code> {ct("lub")} <code className="bg-teal-100 px-1 rounded">.tsv</code> {ct("z kolumną nagłówkową")} <em>email</em>{ct(". Dodatkowe kolumny staną się polami niestandardowymi.")}</p>
           </div>
         )}
 
         <div className="flex gap-2 mb-3">
-          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>Pojedynczo</Button>
-          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>Wklej zbiorczo</Button>
+          <Button size="sm" variant={mode==='single'?'default':'outline'} onClick={()=>setMode('single')}>{ct("Pojedynczo")}</Button>
+          <Button size="sm" variant={mode==='bulk'?'default':'outline'}   onClick={()=>setMode('bulk')}>{ct("Wklej zbiorczo")}</Button>
         </div>
         <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-2">
           <input
@@ -838,9 +841,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
             checked={skipDuplicates}
             onChange={e => { setSkipDuplicates(e.target.checked); setLastDuplicates([]); }}
             className="rounded"
-          />
-          Pomijaj duplikaty (sprawdza wszystkie kampanie)
-        </label>
+          /> {ct("Pomijaj duplikaty (sprawdza wszystkie kampanie)")} </label>
         {emailVerifEnabled && (
           <label className="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer select-none mb-4">
             <input
@@ -848,88 +849,86 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
               checked={verifyEmails}
               onChange={e => setVerifyEmails(e.target.checked)}
               className="rounded"
-            />
-            Weryfikuj e-maile po dodaniu
-          </label>
+            /> {ct("Weryfikuj e-maile po dodaniu")} </label>
         )}
-        {msg && <div className={`mb-2 text-sm ${msg.type==='error'?'text-red-600':'text-green-600'}`}>{msg.text}</div>}
+        {msg && <div className={`mb-2 text-sm ${msg.type==='error'?'text-red-600':'text-green-600'}`}>{ct(msg.text)}</div>}
         {mode === 'single' && (
           <form onSubmit={addSingle} className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">E-mail *</label>
+                <label className="block text-sm text-gray-600 mb-1">{ct("E-mail *")}</label>
                 <input
-                  type="email" aria-label="E-mail kontaktu" required
+                  type="email" aria-label={ct("E-mail kontaktu")} required
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={single.email}
                   onChange={e => setSingle(s=>({...s, email: e.target.value}))}
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">Nazwa / imię</label>
+                <label className="block text-sm text-gray-600 mb-1">{ct("Nazwa / imię")}</label>
                 <input
                   className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
-                  aria-label="Nazwa lub imię kontaktu" value={single.name}
+                  aria-label={ct("Nazwa lub imię kontaktu")} value={single.name}
                   onChange={e => setSingle(s=>({...s, name: e.target.value}))}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Dane niestandardowe (JSON)</label>
+              <label className="block text-sm text-gray-600 mb-1">{ct("Dane niestandardowe (JSON)")}</label>
               <textarea
                 rows={2}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder='{"company": "Acme", "title": "CEO"}'
-                aria-label="Dane niestandardowe JSON" value={single.custom}
+                aria-label={ct("Dane niestandardowe JSON")} value={single.custom}
                 onChange={e => setSingle(s=>({...s, custom: e.target.value}))}
               />
             </div>
-            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Dodawanie…' : 'Dodaj kontakt'}</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? ct("Dodawanie…") : ct("Dodaj kontakt")}</Button>
           </form>
         )}
         {mode === 'bulk' && (
           <form onSubmit={addBulk} className="space-y-3">
             <div>
-              <label className="block text-sm text-gray-600 mb-1">Wklej kontakty — adresy e-mail, wiersze CSV lub dane skopiowane z Excela (zobacz ⓘ powyżej)</label>
+              <label className="block text-sm text-gray-600 mb-1">{ct("Wklej kontakty — adresy e-mail, wiersze CSV lub dane skopiowane z Excela (zobacz ⓘ powyżej)")}</label>
               <textarea
                 rows={6}
                 className="w-full border rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-teal-300"
                 placeholder={"email,name,company\njohn@acme.com,John Doe,Acme Inc\njane@co.io,Jane Smith,Co"}
-                aria-label="Kontakty do dodania zbiorczo" value={bulk}
+                aria-label={ct("Kontakty do dodania zbiorczo")} value={bulk}
                 onChange={e => setBulk(e.target.value)}
               />
             </div>
-            <Button size="sm" variant="default" disabled={adding}>{adding ? 'Sprawdzanie…' : 'Dodaj kontakty'}</Button>
+            <Button size="sm" variant="default" disabled={adding}>{adding ? ct("Sprawdzanie…") : ct("Dodaj kontakty")}</Button>
           </form>
         )}
       </div>
 
       </Modal>}
 
-      {showFilters && <div className="sk-recipient-filters" role="group" aria-label="Filtry odbiorców">
-        {recipientFilters.map(([key,label,options])=><label key={key}>{label}<select value={filters[key]} onChange={e=>setFilter(key,e.target.value)}>{options.map(([v,text])=><option key={v} value={v}>{text}</option>)}</select></label>)}
+      {showFilters && <div className="sk-recipient-filters" role="group" aria-label={ct("Filtry odbiorców")}>
+        {recipientFilters.map(([key,label,options])=><label key={key}>{ct(label)}<select value={filters[key]} onChange={e=>setFilter(key,e.target.value)}>{options.map(([v,text])=><option key={v} value={v}>{ct(text)}</option>)}</select></label>)}
       </div>}
-      {showColumns && <fieldset className="sk-recipient-columns"><legend>Widoczne pola niestandardowe</legend>{customFields.map(f=><label key={f}><input type="checkbox" checked={!hiddenFields.includes(f)} onChange={e=>setHiddenFields(old=>e.target.checked?old.filter(x=>x!==f):[...old,f])}/>{f}</label>)}</fieldset>}
+      {showColumns && <fieldset className="sk-recipient-columns"><legend>{ct("Widoczne pola niestandardowe")}</legend>{customFields.map(f=><label key={f}><input type="checkbox" checked={!hiddenFields.includes(f)} onChange={e=>setHiddenFields(old=>e.target.checked?old.filter(x=>x!==f):[...old,f])}/>{f}</label>)}</fieldset>}
 
       {/* Leads table */}
       {filteredLeads.length === 0 ? (
         <div className="bg-gray-50 rounded-lg border border-dashed border-gray-300 p-8 text-center text-gray-400">
           {leads.length === 0
-            ? 'Brak kontaktów w kampanii. Użyj przycisku „Dodaj kontakty” lub zaimportuj plik CSV.'
-            : 'Brak kontaktów pasujących do bieżącego filtra.'}
+            ? ct("Brak kontaktów w kampanii. Użyj przycisku „Dodaj kontakty” lub zaimportuj plik CSV.")
+            : ct("Brak kontaktów pasujących do bieżącego filtra.")}
         </div>
       ) : (
         <div className="w-full max-w-full min-w-0 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
           <table className="sk-table sk-recipient-table">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">E-mail</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Nazwa / imię</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Status</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600">Etap</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Skrzynka</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Dodano</th>
-                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">Wysyłka</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("E-mail")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Nazwa / imię")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Status")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600">{ct("Etap")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Skrzynka")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Dodano")}</th>
+                <th className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap">{ct("Wysyłka")}</th>
                 {visibleFields.map(f => (
                   <th key={f} className="px-4 py-3 text-left font-semibold text-gray-600 whitespace-nowrap capitalize">{f}</th>
                 ))}
@@ -944,7 +943,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     <button
                       className="font-mono text-teal-600 hover:underline text-left"
                       onClick={() => onViewQueue?.(l.email)}
-                      title="Pokaż kolejkę dla tego kontaktu"
+                      title={ct("Pokaż kolejkę dla tego kontaktu")}
                     >
                       {l.email}
                     </button>
@@ -962,7 +961,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   {/* inbox that last sent or will send next */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
                     {l.from_inbox_email ? (
-                      <span className="font-mono text-xs text-gray-700" title="Ostatnia skrzynka nadawcza albo następna zaplanowana, jeśli jeszcze nic nie wysłano">
+                      <span className="font-mono text-xs text-gray-700" title={ct("Ostatnia skrzynka nadawcza albo następna zaplanowana, jeśli jeszcze nic nie wysłano")}>
                         {l.from_inbox_email}
                       </span>
                     ) : (
@@ -971,7 +970,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   </td>
                   {/* enrolled date */}
                   <td className="px-4 py-2.5 text-gray-500 whitespace-nowrap">
-                    {new Date(l.enrolled_at).toLocaleDateString()}
+                    {new Date(l.enrolled_at).toLocaleDateString(language)}
                   </td>
                   {/* Sending toggle + interest status dropdown */}
                   <td className="px-4 py-2.5 whitespace-nowrap">
@@ -987,34 +986,34 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               sending_paused: !l.sending_paused,
                             });
-                            notify({ type: 'success', message: l.sending_paused ? 'Wysyłka wznowiona' : 'Wysyłka wstrzymana' });
+                            notify({ type: 'success', message: l.sending_paused ? ct("Wysyłka wznowiona") : ct("Wysyłka wstrzymana") });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
-                        title={l.sending_paused ? 'Kliknij, aby wznowić wysyłkę' : 'Kliknij, aby wstrzymać wysyłkę'}
+                        title={l.sending_paused ? ct("Kliknij, aby wznowić wysyłkę") : ct("Kliknij, aby wstrzymać wysyłkę")}
                       >
-                        {l.sending_paused ? 'Wstrzymana' : 'Aktywna'}
+                        {l.sending_paused ? ct("Wstrzymana") : ct("Aktywna")}
                       </button>
                       <select
                         className={`text-[10px] font-medium rounded px-1.5 py-0.5 border cursor-pointer focus:outline-none focus:ring-1 focus:ring-teal-300 ${BADGE_STYLES[l.interest || l.interest_status] || 'bg-gray-50 text-gray-500 border-gray-200'}`}
                         value={l.interest || l.interest_status || ''}
-                        title="Intencja odpowiedzi w tej kampanii — kliknij, aby zmienić lub usunąć"
+                        title={ct("Intencja odpowiedzi w tej kampanii — kliknij, aby zmienić lub usunąć")}
                         onChange={async (e) => {
                           const newStatus = e.target.value;
                           try {
                             await api.patch(`/campaigns/${campaignId}/leads/${l.lead_id}`, {
                               interest: newStatus,
                             });
-                            notify({ type: 'success', message: newStatus ? `Ustawiono: ${STATUS_LABELS[newStatus] || newStatus.replace(/_/g, ' ')}` : 'Wyczyszczono' });
+                            notify({ type: 'success', message: newStatus ? ct('Ustawiono: {status}',{status:ct(STATUS_LABELS[newStatus]||newStatus.replace(/_/g,' '))}) : ct("Wyczyszczono") });
                             refresh();
                           } catch (err) { notify({ type: 'error', message: err.message }); }
                         }}
                       >
-                        <option value="">— brak oceny —</option>
-                        <option value="interested">Zainteresowany</option>
-                        <option value="not_interested">Niezainteresowany</option>
-                        <option value="out_of_office">Poza biurem</option>
-                        <option value="auto_reply">Automatyczna odpowiedź</option>
+                        <option value="">{ct("— brak oceny —")}</option>
+                        <option value="interested">{ct("Zainteresowany")}</option>
+                        <option value="not_interested">{ct("Niezainteresowany")}</option>
+                        <option value="out_of_office">{ct("Poza biurem")}</option>
+                        <option value="auto_reply">{ct("Automatyczna odpowiedź")}</option>
                       </select>
                     </div>
                   </td>
@@ -1040,11 +1039,11 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                           <button
                             className="w-full text-left px-2 py-1 rounded-md border border-transparent hover:border-teal-200 hover:bg-teal-50 transition-colors group"
                             onClick={() => startEdit(l.lead_id, f, val)}
-                            title="Kliknij, aby edytować"
+                            title={ct("Kliknij, aby edytować")}
                           >
                             {val != null
                               ? <span className="text-gray-800">{String(val)}</span>
-                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">puste</span>
+                              : <span className="text-gray-300 italic group-hover:text-teal-300 text-xs">{ct("puste")}</span>
                             }
                           </button>
                         )}
@@ -1056,9 +1055,7 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                     <button
                       className="text-red-400 hover:text-red-600 text-xs font-medium transition-colors"
                       onClick={() => removeLead(l.lead_id, l.email)}
-                    >
-                      Usuń z kampanii
-                    </button>
+                    > {ct("Usuń z kampanii")} </button>
                   </td>
                 </tr>
               ))}
@@ -1068,24 +1065,24 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
       )}
 
       <div className="sk-recipient-pagination">
-        <span role="status">{filteredLeads.length ? (currentPage-1)*pageSize+1 : 0}–{Math.min(currentPage*pageSize,filteredLeads.length)} z {filteredLeads.length} kontaktów</span>
-        <label>Wierszy na stronę <select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[10,25,50,100].map(n=><option key={n}>{n}</option>)}</select></label>
-        <Button size="sm" variant="outline" disabled={currentPage<=1} onClick={()=>setPage(currentPage-1)}>Poprzednia</Button>
-        <span>Strona {currentPage} z {pageCount}</span>
-        <Button size="sm" variant="outline" disabled={currentPage>=pageCount} onClick={()=>setPage(currentPage+1)}>Następna</Button>
+        <span role="status">{filteredLeads.length ? (currentPage-1)*pageSize+1 : 0}–{Math.min(currentPage*pageSize,filteredLeads.length)} {ct("z")} {filteredLeads.length} {ct("kontaktów")}</span>
+        <label>{ct("Wierszy na stronę")} <select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1);}}>{[10,25,50,100].map(n=><option key={n}>{n}</option>)}</select></label>
+        <Button size="sm" variant="outline" disabled={currentPage<=1} onClick={()=>setPage(currentPage-1)}>{ct("Poprzednia")}</Button>
+        <span>{ct("Strona")} {currentPage} {ct("z")} {pageCount}</span>
+        <Button size="sm" variant="outline" disabled={currentPage>=pageCount} onClick={()=>setPage(currentPage+1)}>{ct("Następna")}</Button>
       </div>
 
       {/* Confirm leads modal */}
       {showLeadsConfirm && confirmPreview && (
-        <Modal title="Sprawdź kontakty przed dodaniem" small busy={confirmAddLoading} onClose={()=>setShowLeadsConfirm(false)}>
+        <Modal title={ct("Sprawdź kontakty przed dodaniem")} small busy={confirmAddLoading} onClose={()=>setShowLeadsConfirm(false)}>
             <div className="mb-4 text-center">
               <div className="text-3xl font-bold text-teal-600">{confirmPreview.total_valid}</div>
-              <div className="text-sm text-gray-500">poprawnych kontaktów</div>
+              <div className="text-sm text-gray-500">{ct("poprawnych kontaktów")}</div>
             </div>
 
             {confirmPreview.providers && Object.keys(confirmPreview.providers).length > 0 && (
               <div className="mb-4">
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Dostawcy poczty</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">{ct("Dostawcy poczty")}</h3>
                 <div className="space-y-1">
                   {Object.entries(confirmPreview.providers).map(([provider, count]) => (
                     <div key={provider} className="flex justify-between text-sm py-1 px-2 rounded odd:bg-gray-50">
@@ -1099,10 +1096,10 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
 
             {confirmPreview.total_flagged > 0 && (
               <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-sm font-semibold text-yellow-800 mb-1">Problemy: {confirmPreview.total_flagged} — te wpisy zostaną pominięte</p>
+                <p className="text-sm font-semibold text-yellow-800 mb-1">{ct("Problemy:")} {confirmPreview.total_flagged} {ct("— te wpisy zostaną pominięte")}</p>
                 {confirmPreview.flagged?.invalid_format?.length > 0 && (
                   <div className="mt-1">
-                    <span className="text-xs text-yellow-700 font-medium">Niepoprawny format:</span>
+                    <span className="text-xs text-yellow-700 font-medium">{ct("Niepoprawny format:")}</span>
                     <div className="flex flex-wrap gap-1 mt-0.5">
                       {confirmPreview.flagged.invalid_format.map((em, i) => (
                         <span key={i} className="font-mono text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">{em}</span>
@@ -1111,15 +1108,15 @@ export function LeadsTab({ leads, campaignId, refresh, onViewQueue }) {
                   </div>
                 )}
                 {confirmPreview.flagged?.duplicates_in_batch > 0 && (
-                  <p className="text-xs text-yellow-700 mt-1">Duplikaty w tej partii: {confirmPreview.flagged.duplicates_in_batch}</p>
+                  <p className="text-xs text-yellow-700 mt-1">{ct("Duplikaty w tej partii:")} {confirmPreview.flagged.duplicates_in_batch}</p>
                 )}
               </div>
             )}
 
             <div className="flex justify-end gap-2 mt-6 pt-3 border-t border-gray-100">
-              <Button variant="outline" size="sm" disabled={confirmAddLoading} onClick={() => setShowLeadsConfirm(false)}>Anuluj</Button>
+              <Button variant="outline" size="sm" disabled={confirmAddLoading} onClick={() => setShowLeadsConfirm(false)}>{ct("Anuluj")}</Button>
               <Button variant="default" size="sm" onClick={handleConfirmAdd} disabled={confirmAddLoading}>
-                {confirmAddLoading ? 'Dodawanie…' : `Potwierdź i dodaj (${confirmPreview.total_valid})`}
+                {confirmAddLoading ? ct("Dodawanie…") : ct('Potwierdź i dodaj ({count})',{count:confirmPreview.total_valid})}
               </Button>
             </div>
         </Modal>
@@ -1140,6 +1137,7 @@ const SERIES_LIST = [
 ];
 
 export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = [], onRefresh }) {
+  const {ct,language}=useCampaignLanguage();
   const notify = useNotify();
   const today = new Date();
   const localIso = (dt) => `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
@@ -1200,7 +1198,7 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
   const totals = Object.fromEntries(SERIES_LIST.map(s => [s.key, chartData.reduce((sum, row) => sum + row[s.key], 0)]));
   const ready = !daily.loading && !daily.error && !rangeError;
   const hasEvents = chartData.some(row => SERIES_LIST.some(s => row[s.key] > 0));
-  const number = value => value.toLocaleString('pl-PL');
+  const number = value => value.toLocaleString(language);
   const metrics = [
     { key: 'sent', title: 'Wysłane', icon: 'send', tone: 'blue' },
     { key: 'totalReplies', title: 'Odpowiedzi', icon: 'reply', tone: 'green' },
@@ -1215,37 +1213,37 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
     try {
       await api.patch(`/campaigns/${campaignId}/sequences/${seqId}/variants/${variantId}`, { enabled });
       setStepRetry(n => n + 1); onRefresh?.();
-      notify({ type: 'success', message: enabled ? 'Wariant włączony' : 'Wariant wyłączony' });
+      notify({ type: 'success', message: enabled ? ct("Wariant włączony") : ct("Wariant wyłączony") });
     } catch (e) { notify({ type: 'error', message: e.message }); }
     finally { variantBusyRef.current = false; setVariantBusy(false); }
   };
   const exportDaily = () => {
-    const url = URL.createObjectURL(new Blob([analyticsCsv(chartData)], {type:'text/csv;charset=utf-8'}));
+    const url = URL.createObjectURL(new Blob([analyticsCsv(chartData, ct)], {type:'text/csv;charset=utf-8'}));
     const link = document.createElement('a'); link.href = url; link.download = `kampania-${campaignId}-${startDate}-${endDate}.csv`; link.click(); URL.revokeObjectURL(url);
   };
   return (
     <div className="sk-campaign-analytics">
       <div className="sk-ca-toolbar">
-        <div><h2>Analityka kampanii</h2><p>{startDate} — {endDate} · zdarzenia według daty wystąpienia</p></div>
-        <Button variant="outline" onClick={exportDaily} disabled={!ready || !hasEvents}>Eksport CSV</Button>
+        <div><h2>{ct("Analityka kampanii")}</h2><p>{startDate} — {endDate} {ct("· zdarzenia według daty wystąpienia")}</p></div>
+        <Button variant="outline" onClick={exportDaily} disabled={!ready || !hasEvents}>{ct("Eksport CSV")}</Button>
       </div>
-      <div className="sk-ca-presets" aria-label="Zakres analityki">
-        {presets.map(p => <button key={p.label} aria-pressed={activePreset === p.label} onClick={() => { setActivePreset(p.label); setStartDate(p.start); setEndDate(p.end); }}>{p.label}</button>)}
-        <button aria-pressed={activePreset === 'custom'} onClick={() => setActivePreset('custom')}>Własny zakres</button>
+      <div className="sk-ca-presets" aria-label={ct("Zakres analityki")}>
+        {presets.map(p => <button key={p.label} aria-pressed={activePreset === p.label} onClick={() => { setActivePreset(p.label); setStartDate(p.start); setEndDate(p.end); }}>{ct(p.label)}</button>)}
+        <button aria-pressed={activePreset === 'custom'} onClick={() => setActivePreset('custom')}>{ct("Własny zakres")}</button>
       </div>
       {activePreset === 'custom' && <div className="sk-ca-dates">
-        <label>Od<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></label>
-        <label>Do<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></label>
+        <label>{ct("Od")}<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></label>
+        <label>{ct("Do")}<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></label>
       </div>}
-      <ErrorNotice error={rangeError || daily.error} onRetry={rangeError ? undefined : () => setDailyRetry(n => n + 1)} />
-      {daily.loading && <p role="status">Wczytywanie wyników dziennych…</p>}
+      <ErrorNotice error={ct(rangeError || daily.error)} onRetry={rangeError ? undefined : () => setDailyRetry(n => n + 1)} />
+      {daily.loading && <p role="status">{ct("Wczytywanie wyników dziennych…")}</p>}
       <div className="sk-ca-metrics">
-        {metrics.map(m => <Metric key={m.key} icon={m.icon} title={m.title} value={ready ? number(totals[m.key]) : '—'} tone={m.tone} detail="w wybranym zakresie" />)}
+        {metrics.map(m => <Metric key={m.key} icon={m.icon} title={ct(m.title)} value={ready ? number(totals[m.key]) : '—'} tone={m.tone} detail={ct("w wybranym zakresie")} />)}
       </div>
-      {ready && !hasEvents && <p className="sk-ca-empty">Brak zdarzeń w wybranym zakresie. Wybierz inny okres, aby sprawdzić wcześniejsze wyniki.</p>}
+      {ready && !hasEvents && <p className="sk-ca-empty">{ct("Brak zdarzeń w wybranym zakresie. Wybierz inny okres, aby sprawdzić wcześniejsze wyniki.")}</p>}
       {ready && hasEvents && <div className="sk-ca-grid">
         <section className="sk-ca-panel">
-          <h3>Aktywność wysyłki</h3><p>Liczba zdarzeń w kolejnych dniach.</p>
+          <h3>{ct("Aktywność wysyłki")}</h3><p>{ct("Liczba zdarzeń w kolejnych dniach.")}</p>
           <div className="sk-ca-chart">
             <ResponsiveContainer width="100%" height="100%">
               <ReAreaChart data={chartData} margin={{top:12,right:12,left:-20,bottom:0}}>
@@ -1253,33 +1251,33 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
                 <YAxis allowDecimals={false} tick={{fontSize:11,fill:'var(--sk-muted)'}}/>
                 <CartesianGrid stroke="var(--sk-line)" strokeDasharray="3 3"/>
                 <Tooltip contentStyle={{background:'var(--sk-surface)',border:'1px solid var(--sk-line)',borderRadius:8,color:'var(--sk-text)'}}/>
-                {SERIES_LIST.map(s => <Area key={s.key} name={s.name} dataKey={s.key} type="linear" stroke={s.stroke} strokeWidth={2.5} fill={s.fill} hide={!!hide[s.key]}/>) }
+                {SERIES_LIST.map(s => <Area key={s.key} name={ct(s.name)} dataKey={s.key} type="linear" stroke={s.stroke} strokeWidth={2.5} fill={s.fill} hide={!!hide[s.key]}/>) }
               </ReAreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="sk-ca-legend">{SERIES_LIST.map(s => <button key={s.key} aria-pressed={!hide[s.key]} onClick={() => setHide(p => ({...p,[s.key]:!p[s.key]}))}><i style={{background:s.stroke}}/>{s.name}</button>)}</div>
+          <div className="sk-ca-legend">{SERIES_LIST.map(s => <button key={s.key} aria-pressed={!hide[s.key]} onClick={() => setHide(p => ({...p,[s.key]:!p[s.key]}))}><i style={{background:s.stroke}}/>{ct(s.name)}</button>)}</div>
         </section>
         <section className="sk-ca-panel">
-          <h3>Podsumowanie aktywności</h3><p>Zdarzenia z wybranego okresu.</p>
-          <dl className="sk-ca-summary">{metrics.map(m => <div key={m.key}><dt>{m.title}</dt><dd>{number(totals[m.key])}</dd></div>)}</dl>
-          <p className="sk-ca-explanation">Otwarcia i kliknięcia obejmują powtórzenia. Odpowiedzi mogą dotyczyć wiadomości wysłanych wcześniej. Te liczby nie są lejkiem konwersji.</p>
-          <p className="sk-ca-explanation">Unikalne otwarcia i kliknięcia na wykresie oznaczają unikalne adresy IP w danym dniu, nie liczbę odbiorców.</p>
+          <h3>{ct("Podsumowanie aktywności")}</h3><p>{ct("Zdarzenia z wybranego okresu.")}</p>
+          <dl className="sk-ca-summary">{metrics.map(m => <div key={m.key}><dt>{ct(m.title)}</dt><dd>{number(totals[m.key])}</dd></div>)}</dl>
+          <p className="sk-ca-explanation">{ct("Otwarcia i kliknięcia obejmują powtórzenia. Odpowiedzi mogą dotyczyć wiadomości wysłanych wcześniej. Te liczby nie są lejkiem konwersji.")}</p>
+          <p className="sk-ca-explanation">{ct("Unikalne otwarcia i kliknięcia na wykresie oznaczają unikalne adresy IP w danym dniu, nie liczbę odbiorców.")}</p>
         </section>
         <section className="sk-ca-panel">
-          <h3>Wyniki według dnia</h3><p>Wybrany zakres · od najnowszych.</p>
-          <div className="sk-ca-table-scroll"><table><thead><tr><th>Dzień</th><th>Wysłane</th><th>Odpowiedzi</th><th>Otwarcia</th><th>Kliknięcia</th></tr></thead><tbody>
+          <h3>{ct("Wyniki według dnia")}</h3><p>{ct("Wybrany zakres · od najnowszych.")}</p>
+          <div className="sk-ca-table-scroll"><table><thead><tr><th>{ct("Dzień")}</th><th>{ct("Wysłane")}</th><th>{ct("Odpowiedzi")}</th><th>{ct("Otwarcia")}</th><th>{ct("Kliknięcia")}</th></tr></thead><tbody>
             {[...chartData].reverse().map(row => <tr key={row.date}><th scope="row">{row.date}</th>{['sent','totalReplies','totalOpens','totalClicks'].map(k => <td key={k}>{number(row[k])}</td>)}</tr>)}
           </tbody></table></div>
         </section>
         <section className="sk-ca-panel">
-          <h3>Najlepsze warianty</h3><p>Cały okres kampanii · według wskaźnika odpowiedzi.</p>
-          {steps.loading ? <p role="status">Wczytywanie wariantów…</p> : steps.error ? <p>Ranking niedostępny. Ponów pobranie analityki kroków poniżej.</p> : ranked.length === 0 ? <p className="sk-ca-empty">Brak wysłanych wariantów.</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>Temat / wariant</th><th>Wysłane</th><th>Odpowiedzi</th><th>Wskaźnik</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || 'Bez tematu'}</span><small>{v.variant_id == null ? 'Domyślny' : v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString('pl-PL',{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
+          <h3>{ct("Najlepsze warianty")}</h3><p>{ct("Cały okres kampanii · według wskaźnika odpowiedzi.")}</p>
+          {steps.loading ? <p role="status">{ct("Wczytywanie wariantów…")}</p> : steps.error ? <p>{ct("Ranking niedostępny. Ponów pobranie analityki kroków poniżej.")}</p> : ranked.length === 0 ? <p className="sk-ca-empty">{ct("Brak wysłanych wariantów.")}</p> : <div className="sk-ca-table-scroll"><table><thead><tr><th>{ct("Temat / wariant")}</th><th>{ct("Wysłane")}</th><th>{ct("Odpowiedzi")}</th><th>{ct("Wskaźnik")}</th></tr></thead><tbody>{ranked.map(v => <tr key={`${v.sequenceId}-${v.variant_id ?? 'default'}`}><th scope="row"><span>{v.subject || ct("Bez tematu")}</span><small>{v.variant_id == null ? ct("Domyślny") : v.variant_label}</small></th><td>{v.sent}</td><td>{v.replies}</td><td>{(v.rate*100).toLocaleString(language,{maximumFractionDigits:1})}%</td></tr>)}</tbody></table></div>}
         </section>
       </div>}
       <section className="sk-ca-panel sk-ca-details">
-        <div className="sk-ca-presets" aria-label="Szczegółowa analityka">{[{key:'steps',label:'Analityka kroków'},{key:'sent',label:'Wysłane wiadomości'}].map(sub => <button key={sub.key} aria-pressed={analyticsSub===sub.key} onClick={() => setAnalyticsSub(sub.key)}>{sub.label}</button>)}</div>
-        <p>Cały okres kampanii — filtr dat powyżej dotyczy wyników dziennych.</p>
-        {analyticsSub === 'steps' ? <><ErrorNotice error={steps.error} onRetry={() => setStepRetry(n => n + 1)}/>{!steps.error && <StepAnalyticsPanel stepStats={steps.rows} loading={steps.loading} campaignId={campaignId} sequences={sequences} onToggleVariant={toggleVariant} variantBusy={variantBusy}/>}</> : <SentEmailsPanel sentData={sentData} filter={sentFilter} onFilterChange={setSentFilter}/>}
+        <div className="sk-ca-presets" aria-label={ct("Szczegółowa analityka")}>{[{key:'steps',label:'Analityka kroków'},{key:'sent',label:'Wysłane wiadomości'}].map(sub => <button key={sub.key} aria-pressed={analyticsSub===sub.key} onClick={() => setAnalyticsSub(sub.key)}>{ct(sub.label)}</button>)}</div>
+        <p>{ct("Cały okres kampanii — filtr dat powyżej dotyczy wyników dziennych.")}</p>
+        {analyticsSub === 'steps' ? <><ErrorNotice error={ct(steps.error)} onRetry={() => setStepRetry(n => n + 1)}/>{!steps.error && <StepAnalyticsPanel stepStats={steps.rows} loading={steps.loading} campaignId={campaignId} sequences={sequences} onToggleVariant={toggleVariant} variantBusy={variantBusy}/>}</> : <SentEmailsPanel sentData={sentData} filter={sentFilter} onFilterChange={setSentFilter}/>}
       </section>
     </div>
   );
@@ -1287,27 +1285,29 @@ export function CampaignAnalyticsTab({ campaignId, sentData = [], sequences = []
 
 // ─── Step Analytics Panel ─────────────────────────────────────────────────────
 function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggleVariant, variantBusy }) {
+  const {ct}=useCampaignLanguage();
   const [expandedSteps, setExpandedSteps] = useState({});
 
   const toggleStep = (idx) => setExpandedSteps(p => ({ ...p, [idx]: !p[idx] }));
 
   const pct = (n, total) => total > 0 ? `${Math.round(n / total * 100)}%` : '—';
 
-  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">Wczytywanie analityki kroków…</div>;
-  if (!stepStats.length) return <div className="py-8 text-center text-gray-400 text-sm">Brak danych. Wyślij wiadomości, aby zobaczyć analitykę kroków.</div>;
+  if (loading) return <div className="py-8 text-center text-gray-400 text-sm">{ct("Wczytywanie analityki kroków…")}</div>;
+  if (!stepStats.length) return <div className="py-8 text-center text-gray-400 text-sm">{ct("Brak danych. Wyślij wiadomości, aby zobaczyć analitykę kroków.")}</div>;
 
   return (
     <div className="overflow-x-auto">
+      <p className="sk-analytics-note">{ct("Odpowiedzi przypisujemy do ostatniej poprzedzającej wiadomości. Szanse oznaczają wysyłki do kontaktów obecnie zainteresowanych, nie historyczne konwersje.")}</p>
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
             <th className="px-3 py-2 text-left w-8"></th>
-            <th className="px-3 py-2 text-left">Krok</th>
-            <th className="px-3 py-2 text-right">Wysłane</th>
-            <th className="px-3 py-2 text-right">Otwarcia</th>
-            <th className="px-3 py-2 text-right">Kliknięcia</th>
-            <th className="px-3 py-2 text-right">Odpowiedzi</th>
-            <th className="px-3 py-2 text-right">Szanse</th>
+            <th className="px-3 py-2 text-left">{ct("Krok")}</th>
+            <th className="px-3 py-2 text-right">{ct("Wysłane")}</th>
+            <th className="px-3 py-2 text-right">{ct("Otwarcia")}</th>
+            <th className="px-3 py-2 text-right">{ct("Kliknięcia")}</th>
+            <th className="px-3 py-2 text-right">{ct("Odpowiedzi")}</th>
+            <th className="px-3 py-2 text-right">{ct("Szanse")}</th>
           </tr>
         </thead>
         <tbody>
@@ -1324,16 +1324,15 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                 >
                   <td className="px-3 py-2.5 text-gray-400 text-center">
                     {hasVariants && (
-                      <button aria-label={`Warianty kroku ${step.sequence_index + 1}`} aria-expanded={!!expanded} onClick={e => { e.stopPropagation(); toggleStep(step.sequence_index); }} className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</button>
+                      <button aria-label={ct('Warianty kroku {step}',{step:step.sequence_index+1})} aria-expanded={!!expanded} onClick={e => { e.stopPropagation(); toggleStep(step.sequence_index); }} className={`inline-block transition-transform text-xs ${expanded ? 'rotate-90' : ''}`}>▶</button>
                     )}
                   </td>
                   <td className="px-3 py-2.5">
                     <div className="max-w-[280px] min-w-0">
-                      <div className="font-medium text-gray-800 truncate">Krok {step.sequence_index + 1}</div>
+                      <div className="font-medium text-gray-800 truncate">{ct("Krok")} {step.sequence_index + 1}</div>
                       {step.subject && <div className="text-xs text-gray-400 truncate">{step.subject}</div>}
                       {hasVariants && (
-                        <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-600 rounded-full px-1.5 py-0.5 mt-0.5">
-                          A/B · warianty: {step.variants.length - 1}
+                        <span className="inline-flex items-center gap-1 text-[10px] bg-purple-100 text-purple-600 rounded-full px-1.5 py-0.5 mt-0.5"> {ct("A/B · warianty:")} {step.variants.length - 1}
                         </span>
                       )}
                     </div>
@@ -1360,7 +1359,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                     <td className="px-3 py-2 pl-8">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-purple-700">
-                          {variant.variant_id == null ? 'Domyślny' : variant.variant_label}
+                          {variant.variant_id == null ? ct("Domyślny") : variant.variant_label}
                         </span>
                         {variant.variant_id != null && (
                           <button
@@ -1375,7 +1374,7 @@ function StepAnalyticsPanel({ stepStats, loading, campaignId, sequences, onToggl
                                 : 'bg-gray-200 text-gray-500 hover:bg-gray-300'
                             }`}
                           >
-                            {variant.enabled ? 'Włączony' : 'Wyłączony'}
+                            {variant.enabled ? ct("Włączony") : ct("Wyłączony")}
                           </button>
                         )}
                       </div>
@@ -1417,6 +1416,7 @@ const SENT_FILTER_OPTIONS = [
 ];
 
 function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
+  const {ct,language}=useCampaignLanguage();
   const filtered = useMemo(() => {
     switch (filter) {
       case 'opened':      return sentData.filter(e => e.opened);
@@ -1433,14 +1433,14 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
   const fmt = (isoStr) => {
     if (!isoStr) return '';
     const d = new Date(isoStr);
-    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleString(language, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   };
 
   return (
     <div className="space-y-3">
       {/* Filter bar */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <span className="text-xs font-medium text-gray-500 mr-1">Filtr:</span>
+        <span className="text-xs font-medium text-gray-500 mr-1">{ct("Filtr:")}</span>
         {SENT_FILTER_OPTIONS.map(opt => (
           <button
             key={opt.value}
@@ -1451,29 +1451,29 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
                 : 'bg-white text-gray-600 border-gray-300 hover:border-teal-300 hover:bg-teal-50'
             }`}
           >
-            {opt.label}
+            {ct(opt.label)}
           </button>
         ))}
-        <span className="text-xs text-gray-400 ml-2">{filtered.length} wiadomości</span>
+        <span className="text-xs text-gray-400 ml-2">{filtered.length} {ct("wiadomości")}</span>
       </div>
 
       {filtered.length === 0 ? (
-        <div className="py-8 text-center text-gray-400 text-sm">Brak wiadomości pasujących do filtra.</div>
+        <div className="py-8 text-center text-gray-400 text-sm">{ct("Brak wiadomości pasujących do filtra.")}</div>
       ) : (
         <div className="overflow-x-auto max-h-[480px] overflow-y-auto">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white z-10">
               <tr className="border-b border-gray-200 bg-gray-50 text-gray-600 text-xs font-semibold uppercase tracking-wide">
-                <th className="px-3 py-2.5 text-left">Wysłane</th>
-                <th className="px-3 py-2.5 text-left">Od</th>
-                <th className="px-3 py-2.5 text-left">Kontakt</th>
-                <th className="px-3 py-2.5 text-left">Krok</th>
-                <th className="px-3 py-2.5 text-left">Temat</th>
-                <th className="px-3 py-2.5 text-center">Otwarte</th>
-                <th className="px-3 py-2.5 text-center">Kliknięte</th>
-                <th className="px-3 py-2.5 text-center">Odpowiedź</th>
-                <th className="px-3 py-2.5 text-left">Wariant</th>
-                <th className="px-3 py-2.5 text-left">Status</th>
+                <th className="px-3 py-2.5 text-left">{ct("Wysłane")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Od")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Kontakt")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Krok")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Temat")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Otwarte")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Kliknięte")}</th>
+                <th className="px-3 py-2.5 text-center">{ct("Odpowiedź")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Wariant")}</th>
+                <th className="px-3 py-2.5 text-left">{ct("Status")}</th>
               </tr>
             </thead>
             <tbody>
@@ -1482,7 +1482,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
                   <td className="px-3 py-2 whitespace-nowrap text-gray-500 text-xs">{fmt(e.sent_at)}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-700 max-w-[200px] truncate" title={e.inbox_email || ''}>{e.inbox_email || '—'}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-800 max-w-[180px] truncate">{e.lead_email}</td>
-                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">Krok {(e.sequence_index ?? 0) + 1}</td>
+                  <td className="px-3 py-2 text-xs text-gray-600 whitespace-nowrap">{ct("Krok")} {(e.sequence_index ?? 0) + 1}</td>
                   <td className="px-3 py-2 text-xs text-gray-700 max-w-[200px] truncate">{e.subject || '—'}</td>
                   <td className="px-3 py-2 text-center">
                     {e.opened
@@ -1526,6 +1526,7 @@ function SentEmailsPanel({ sentData = [], filter, onFilterChange }) {
 
 // ─── Settings Tab ─────────────────────────────────────────────────────────────
 function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
+  const {ct}=useCampaignLanguage();
   const confirm = useConfirm();
   const notify  = useNotify();
   const [form, setForm] = useState({
@@ -1724,6 +1725,7 @@ function SettingsTab({ campaign, inboxes, onSave, campaignId }) {
 
         {preflight && (
           <div className="space-y-3">
+            <p>{ct("Gotowość nie obejmuje pomiaru DNS.")} <Link to="/domains">{ct("Sprawdź domeny przed wysyłką")}</Link></p>
             <div className={`rounded-lg px-3 py-2 text-sm ${
               preflight.ready
                 ? 'border border-green-200 bg-green-50 text-green-800'
@@ -1979,6 +1981,7 @@ const QUILL_FORMATS = [
 ];
 
 function VariablesGuide() {
+ const {ct}=useCampaignLanguage();
   const [copiedVar, setCopiedVar] = useState(null);
   const [fields, setFields] = useState([]);
   const notify = useNotify();
@@ -1992,7 +1995,7 @@ function VariablesGuide() {
   const copyVar = (v) => {
     navigator.clipboard?.writeText(v);
     setCopiedVar(v);
-    notify({ type: 'success', message: `Skopiowano ${v}`, duration: 1500 });
+    notify({ type: 'success', message: ct('Skopiowano {variable}',{variable:v}), duration: 1500 });
     setTimeout(() => setCopiedVar(null), 1500);
   };
 
@@ -2003,29 +2006,28 @@ function VariablesGuide() {
 
   return (
     <div className="mt-1 text-xs text-gray-500 flex flex-wrap items-center gap-1">
-      <span>Zmienne:</span>
+      <span>{ct("Zmienne:")}</span>
       {vars.map(v => (
         <span key={v} className="relative inline-flex items-center">
           <code
             className="px-1 bg-gray-100 rounded cursor-pointer hover:bg-teal-100 transition-colors select-none"
-            title="Kliknij, aby skopiować"
+            title={ct("Kliknij, aby skopiować")}
             onClick={() => copyVar(v)}
           >
             {v}
           </code>
           {copiedVar === v && (
-            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-1.5 py-0.5 whitespace-nowrap pointer-events-none z-10">
-              Skopiowano
-            </span>
+            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-1.5 py-0.5 whitespace-nowrap pointer-events-none z-10"> {ct("Skopiowano")} </span>
           )}
         </span>
       ))}
-      <a href="/templates" className="ml-1 text-teal-600 hover:underline">zarządzaj polami</a>
+      <a href="/templates" className="ml-1 text-teal-600 hover:underline">{ct("zarządzaj polami")}</a>
     </div>
   );
 }
 
 function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewText, onPreviewTextChange, isFirstSequence, campaign, required }) {
+ const {ct}=useCampaignLanguage();
   const notify = useNotify();
 
   const forcePlainAll   = campaign?.send_all_as_text;
@@ -2037,11 +2039,11 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
   const effectiveHtml   = (isHtml || trackingUpgrade) && !isOverridden;
 
   const overrideMsg = forcePlainAll
-    ? 'Kampania wysyła wszystkie wiadomości jako czysty tekst — HTML zostanie zignorowany, a tracking będzie dla nich wyłączony.'
+    ? ct("Kampania wysyła wszystkie wiadomości jako czysty tekst — HTML zostanie zignorowany, a tracking będzie dla nich wyłączony.")
     : forcePlainFirst
-    ? 'Kampania wysyła pierwszy e-mail jako czysty tekst — HTML zostanie zignorowany w tym kroku, a tracking będzie wyłączony.'
+    ? ct("Kampania wysyła pierwszy e-mail jako czysty tekst — HTML zostanie zignorowany w tym kroku, a tracking będzie wyłączony.")
     : trackingUpgrade
-    ? 'Śledzenie otwarć/kliknięć jest włączone — wiadomość zostanie wysłana jako HTML, aby można było dodać elementy trackingu.'
+    ? ct("Śledzenie otwarć/kliknięć jest włączone — wiadomość zostanie wysłana jako HTML, aby można było dodać elementy trackingu.")
     : null;
 
   return (
@@ -2049,7 +2051,7 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
       <div className="flex flex-wrap items-center gap-3 mb-1">
         <label className="flex items-center gap-1.5 cursor-pointer select-none">
           <input type="checkbox" checked={isHtml} onChange={e=>onIsHtmlChange(e.target.checked)} />
-          <span className="text-sm font-medium">Wyślij jako HTML</span>
+          <span className="text-sm font-medium">{ct("Wyślij jako HTML")}</span>
         </label>
         {isOverridden && isHtml && (
           <span className="text-xs font-medium text-amber-600 bg-amber-50 border border-amber-200 rounded px-2 py-0.5">
@@ -2077,14 +2079,12 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
           value={value}
           onChange={e => onChange(e.target.value)}
           rows={5}
-          placeholder="Treść wiadomości…"
+          placeholder={ct("Treść wiadomości…")}
         />
       )}
       {effectiveHtml && (
         <div className="mt-2">
-          <label className="block text-xs font-medium text-gray-500 mb-1">
-            Tekst podglądu
-            <span className="ml-1 font-normal text-gray-400">— wyświetlany jako fragment wiadomości i w powiadomieniach</span>
+          <label className="block text-xs font-medium text-gray-500 mb-1"> {ct("Tekst podglądu")} <span className="ml-1 font-normal text-gray-400">{ct("— wyświetlany jako fragment wiadomości i w powiadomieniach")}</span>
           </label>
           <input
             type="text"
@@ -2092,7 +2092,7 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
             value={previewText || ''}
             onChange={e => onPreviewTextChange(e.target.value)}
             className="w-full border rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 placeholder-gray-400"
-            placeholder="Opcjonalnie — pozostaw puste, aby użyć początku treści wiadomości"
+            placeholder={ct("Opcjonalnie — pozostaw puste, aby użyć początku treści wiadomości")}
           />
         </div>
       )}
@@ -2103,19 +2103,14 @@ function SequenceBodyEditor({ value, onChange, isHtml, onIsHtmlChange, previewTe
 
 // ─── Preview Modal ────────────────────────────────────────────────────────────
 function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, editingOverride = null }) {
+ const {ct}=useCampaignLanguage();
   const [leadId,    setLeadId]    = useState(leads[0]?.lead_id ?? '');
   const [preview,   setPreview]   = useState(null);
   const [loading,   setLoading]   = useState(false);
   const [err,       setErr]       = useState(null);
   const [testEmail, setTestEmail] = useState('');
   const [testState, setTestState] = useState(null); // null | 'sending' | 'success' | {error}
-  const backdropDown = useRef(false);
-
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const {isDemo} = useAppMode();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -2142,7 +2137,7 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   useEffect(() => { load(); }, [load]);
 
   const sendTest = async () => {
-    if (!testEmail.trim()) return;
+    if (isDemo || testState === 'sending' || !testEmail.trim()) return;
     setTestState('sending');
     try {
       await api.post(`/campaigns/${campaignId}/send-test`, {
@@ -2159,33 +2154,19 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
-      onMouseDown={e => { backdropDown.current = e.target === e.currentTarget; }}
-      onClick={() => { if (backdropDown.current) onClose(); }}
-    >
-      <div
-        className="sk-campaign-modal-surface rounded-xl shadow-lg w-full max-w-2xl max-h-[90vh] flex flex-col mx-auto"
-                onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="font-semibold text-gray-800">
-            Podgląd — krok #{(sequence.position ?? 0) + 1}
-            {variant && <span className="ml-2 text-xs font-normal text-purple-600 bg-purple-50 border border-purple-200 rounded px-2 py-0.5">{variant.label || 'Wariant'}</span>}
-          </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
-        </div>
-
+    <Modal title={<>{ct("Podgląd — krok #")}{(sequence.position ?? 0) + 1}{variant && <span> · {variant.label || ct("Wariant")}</span>}</>}
+      onClose={onClose} busy={testState === 'sending'}>
+        {preview?.signature_inbox&&<p className="sk-muted">{ct("Stopka")}: {preview.signature_inbox}</p>}
         {/* Lead picker */}
         <div className="px-6 py-3 border-b bg-gray-50 flex flex-wrap items-center gap-3">
-          <label className="text-sm font-medium text-gray-600">Podgląd dla:</label>
+          <label className="text-sm font-medium text-gray-600">{ct("Podgląd dla:")}</label>
           <select
             className="border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+            aria-label={ct("Podgląd dla kontaktu")}
             value={leadId}
             onChange={e => setLeadId(e.target.value)}
           >
-            <option value="">Bez kontaktu — pokaż zmienne</option>
+            <option value="">{ct("Bez kontaktu — pokaż zmienne")}</option>
             {leads.map(l => (
               <option key={l.lead_id} value={l.lead_id}>
                 {l.email}{l.name ? ` — ${l.name}` : ''}
@@ -2202,28 +2183,28 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {loading && (
-            <div className="flex items-center justify-center py-12 text-gray-400">Wczytywanie podglądu…</div>
+            <div className="flex items-center justify-center py-12 text-gray-400">{ct("Wczytywanie podglądu…")}</div>
           )}
           {err && <div className="text-red-600 text-sm">{err}</div>}
           {preview && !loading && (
             <div className="space-y-4">
               {/* Temat */}
               <div className="bg-gray-50 rounded-lg px-4 py-3">
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Temat</span>
-                <p className="font-medium text-gray-800">
-                  {preview.subject || <em className="text-gray-400 font-normal">Odpowiedź w wątku</em>}
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">{ct("Temat")}</span>
+                <p className="sk-preview-message font-medium text-gray-800">
+                  {preview.subject || <em className="text-gray-400 font-normal">{ct("Odpowiedź w wątku")}</em>}
                 </p>
               </div>
               {/* Body */}
               <div>
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Treść</span>
+                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">{ct("Treść")}</span>
                 {preview.is_html ? (
                   <div
-                    className="border rounded-lg p-5 bg-white prose prose-sm max-w-none"
+                    className="sk-preview-message border rounded-lg p-5 bg-white prose prose-sm max-w-none"
                     dangerouslySetInnerHTML={{ __html: preview.body }}
                   />
                 ) : (
-                  <pre className="border rounded-lg p-5 bg-gray-50 text-sm whitespace-pre-wrap font-sans text-gray-800">
+                  <pre className="sk-preview-message border rounded-lg p-5 bg-gray-50 text-sm whitespace-pre-wrap font-sans text-gray-800">
                     {preview.body}
                   </pre>
                 )}
@@ -2235,41 +2216,44 @@ function PreviewModal({ sequence, campaignId, leads, onClose, variant = null, ed
         {/* Footer: test email + close */}
         <div className="px-6 py-3 border-t space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Wyślij test do:</span>
+            <span className="text-sm font-medium text-gray-600 whitespace-nowrap">{ct("Wyślij test do:")}</span>
             <input
               type="email"
+              aria-label={ct("Adres odbiorcy testu")}
+              disabled={isDemo || testState === 'sending'}
               value={testEmail}
               onChange={e => setTestEmail(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && sendTest()}
-              placeholder="you@example.com"
+              placeholder={ct("you@example.com")}
               className="flex-1 min-w-0 border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
             />
             <Button
               size="sm"
               variant="default"
               onClick={sendTest}
-              disabled={testState === 'sending' || !testEmail.trim()}
+              disabled={isDemo || testState === 'sending' || !testEmail.trim()}
             >
-              {testState === 'sending' ? 'Wysyłanie…' : 'Wyślij test'}
+              {testState === 'sending' ? ct("Wysyłanie…") : ct("Wyślij test")}
             </Button>
             {testState === 'success' && (
-              <span className="text-xs text-green-600 font-medium">✓ Wysłano!</span>
+              <span className="text-xs text-green-600 font-medium">{ct("✓ Wysłano!")}</span>
             )}
             {testState?.error && (
               <span className="text-xs text-red-600">{testState.error}</span>
             )}
           </div>
           <div className="flex justify-end">
-            <Button variant="outline" size="sm" onClick={onClose}>Zamknij</Button>
+            {isDemo && <p role="status">{ct("Wysyłka testowa jest wyłączona w DEMO.")}</p>}
+            <Button variant="outline" size="sm" disabled={testState === 'sending'} onClick={onClose}>{ct("Zamknij")}</Button>
           </div>
         </div>
-      </div>
-    </div>
+    </Modal>
   );
 }
 
 // ─── Sequences Tab ────────────────────────────────────────────────────────────
 function PersonalizedSequenceSection({ sequence, sequences, personalizedSequences, leads, campaignId, campaign, onWriteCustom, onRefresh }) {
+ const {ct}=useCampaignLanguage();
   const [filter, setFilter] = useState('needs_writing');
   const [searchQuery, setSearchQuery] = useState('');
   const [bulkState, setBulkState] = useState({ busy: false, text: 'Użyj treści zastępczej dla pozostałych' });
@@ -2341,14 +2325,14 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
   const applyFallbackToRemaining = async () => {
     if (!remainingLeads.length) return;
     if ((sequence.position ?? 0) === 0 && !sequence?.fallback_subject?.trim()) {
-      notify({ type: 'error', message: 'Temat zastępczy jest wymagany dla pierwszego e-maila.' });
+      notify({ type: 'error', message: ct("Temat zastępczy jest wymagany dla pierwszego e-maila.") });
       return;
     }
     if (!sequence?.fallback_body?.trim()) {
-      notify({ type: 'error', message: 'Treść zastępcza jest wymagana przed zastosowaniem jej do pozostałych kontaktów.' });
+      notify({ type: 'error', message: ct("Treść zastępcza jest wymagana przed zastosowaniem jej do pozostałych kontaktów.") });
       return;
     }
-    if (!await confirm(`Użyć treści zastępczej dla pozostałych kontaktów (${remainingLeads.length})?`)) return;
+    if (!await confirm(ct('Użyć treści zastępczej dla pozostałych kontaktów ({count})?',{count:remainingLeads.length}))) return;
     setBulkState({ busy: true, text: 'Stosowanie…' });
     try {
       await Promise.all(
@@ -2357,7 +2341,7 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
           { subject: null, body: null, is_html: sequence?.is_html ?? false },
         ))
       );
-      notify({ type: 'success', message: 'Treść zastępcza zastosowana do pozostałych kontaktów' });
+      notify({ type: 'success', message: ct("Treść zastępcza zastosowana do pozostałych kontaktów") });
       onRefresh?.();
     } catch (e) {
       notify({ type: 'error', message: e.message });
@@ -2368,9 +2352,9 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
 
   if (leadsForCurrentStep.length === 0) {
     return (
-      <div className="mt-6 pt-6 border-t border-gray-200">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Indywidualne wiadomości dla kontaktów</span>
-        <p className="text-xs text-gray-400 italic">Brak przypisanych kontaktów.</p>
+      <div className="sk-personalized-sequence mt-6 pt-6 border-t border-gray-200">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">{ct("Indywidualne wiadomości dla kontaktów")}</span>
+        <p className="text-xs text-gray-400 italic">{ct("Brak przypisanych kontaktów.")}</p>
       </div>
     );
   }
@@ -2387,42 +2371,40 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
     const perLead = lead.personalized || [];
     const entry = perLead.find(p => p.sequence_id === sid);
     const stepNum = (personalizedSequences.find(s => s.id === sid)?.position ?? 0) + 1;
-    if (entry?.already_sent) return `Krok ${stepNum}: Gotowe (wysłane)`;
-    if (entry?.written) return `Krok ${stepNum}: Gotowe`;
-    return `Krok ${stepNum}: Wymaga przygotowania`;
+    if (entry?.already_sent) return ct('Krok {step}: Gotowe (wysłane)',{step:stepNum});
+    if (entry?.written) return ct('Krok {step}: Gotowe',{step:stepNum});
+    return ct('Krok {step}: Wymaga przygotowania',{step:stepNum});
   };
 
   const FILTERS = [
-    { key: 'needs_writing', label: 'Do przygotowania' },
-    { key: 'written', label: 'Gotowe' },
-    { key: 'all', label: 'Wszystkie' },
+    { key: 'needs_writing', label: ct("Do przygotowania") },
+    { key: 'written', label: ct("Gotowe") },
+    { key: 'all', label: ct("Wszystkie") },
   ];
 
   const campaignMode = campaign?.custom_sequence_mode || 'wait_for_all';
 
   return (
-    <div className="mt-6 pt-6 border-t border-gray-200">
+    <div className="sk-personalized-sequence mt-6 pt-6 border-t border-gray-200">
       {campaignMode === 'asap' && (
         <div className="mb-3 p-2 bg-teal-50 border border-teal-200 rounded-lg text-xs text-teal-700">
-          <strong>Tryb „Wysyłaj od razu” jest włączony.</strong> Każda indywidualna wiadomość może zostać zaplanowana i wysłana po jej przygotowaniu.
-        </div>
+          <strong>{ct("Tryb „Wysyłaj od razu” jest włączony.")}</strong> {ct("Każda indywidualna wiadomość może zostać zaplanowana i wysłana po jej przygotowaniu.")} </div>
       )}
       {campaignMode !== 'asap' && (
         <div className="mb-3 p-2 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-          <strong>Tryb „Czekaj na wszystkie” jest włączony.</strong> Wysyłka nie rozpocznie się, dopóki wszystkie indywidualne wiadomości nie będą przygotowane.
-        </div>
+          <strong>{ct("Tryb „Czekaj na wszystkie” jest włączony.")}</strong> {ct("Wysyłka nie rozpocznie się, dopóki wszystkie indywidualne wiadomości nie będą przygotowane.")} </div>
       )}
-      <div className="flex items-center justify-between mb-3 gap-2">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Indywidualne wiadomości dla kontaktów</span>
+      <div className="sk-personalized-heading flex items-center justify-between mb-3 gap-2">
+        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{ct("Indywidualne wiadomości dla kontaktów")}</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-400">{writtenCount} z {leadsForCurrentStep.length} gotowych</span>
+          <span className="text-xs text-gray-400">{writtenCount} {ct("z")} {leadsForCurrentStep.length} {ct("gotowych")}</span>
           <Button
             size="sm"
             variant="outline"
             onClick={applyFallbackToRemaining}
             disabled={bulkState.busy || remainingLeads.length === 0}
           >
-            {bulkState.busy ? 'Stosowanie…' : bulkState.text}
+            {bulkState.busy ? ct("Stosowanie…") : ct(bulkState.text)}
           </Button>
         </div>
       </div>
@@ -2447,14 +2429,14 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
         className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 mb-3"
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
-        placeholder="Szukaj po e-mailu lub nazwie…"
+        placeholder={ct("Szukaj po e-mailu lub nazwie…")}
       />
 
       <div className="max-h-[280px] overflow-y-auto border border-gray-200 rounded-lg">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-gray-50">
             <tr className="border-b border-gray-200 text-xs text-gray-500">
-              <th className="px-3 py-2 text-left">Kontakt</th>
+              <th className="px-3 py-2 text-left">{ct("Kontakt")}</th>
               {personalizedSequences.length > 1 && (
                 <th className="px-3 py-2 text-center">
                   <div className="flex items-center justify-center gap-1.5">
@@ -2464,13 +2446,13 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
                   </div>
                 </th>
               )}
-              <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2 text-right">Akcja</th>
+              <th className="px-3 py-2 text-left">{ct("Status")}</th>
+              <th className="px-3 py-2 text-right">{ct("Akcja")}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
-              <tr><td colSpan={personalizedSequences.length > 1 ? 4 : 3} className="px-3 py-8 text-center text-gray-400 text-sm">Brak kontaktów pasujących do filtra.</td></tr>
+              <tr><td colSpan={personalizedSequences.length > 1 ? 4 : 3} className="px-3 py-8 text-center text-gray-400 text-sm">{ct("Brak kontaktów pasujących do filtra.")}</td></tr>
             ) : (
               filtered.map(l => {
                 const ps = (l.personalized || []).find(p => p.sequence_id === sequence.id);
@@ -2499,24 +2481,24 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
                     )}
                     <td className="px-3 py-2">
                       {alreadySent ? (
-                        <span className="text-green-600 text-xs font-medium">✓ Gotowe</span>
+                        <span className="text-green-600 text-xs font-medium">{ct("✓ Gotowe")}</span>
                       ) : isTerminal ? (
                         <span className="text-gray-400 text-xs font-medium">{terminalLabel}</span>
                       ) : isWritten ? (
-                        <span className="text-green-600 text-xs font-medium">✓ Gotowe</span>
+                        <span className="text-green-600 text-xs font-medium">{ct("✓ Gotowe")}</span>
                       ) : (
-                        <span className="text-purple-600 text-xs font-medium">Do przygotowania</span>
+                        <span className="text-purple-600 text-xs font-medium">{ct("Do przygotowania")}</span>
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
       {(alreadySent || isTerminal) ? (
-        <span className="text-xs text-gray-400 italic">{alreadySent ? 'Wysłano' : terminalLabel}</span>
+        <span className="text-xs text-gray-400 italic">{alreadySent ? ct("Wysłano") : terminalLabel}</span>
                       ) : (
                         <button
                           onClick={() => onWriteCustom(l, sequence)}
                           className="px-2.5 py-1 text-xs font-medium rounded-lg border border-gray-300 transition-colors hover:bg-purple-50 hover:border-purple-300"
                         >
-                          {isWritten ? 'Edytuj' : 'Napisz'}
+                          {isWritten ? ct("Edytuj") : ct("Napisz")}
                         </button>
                       )}
                     </td>
@@ -2532,6 +2514,7 @@ function PersonalizedSequenceSection({ sequence, sequences, personalizedSequence
 }
 
 function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
+ const {ct}=useCampaignLanguage();
   const { lead, sequence } = target || {};
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -2573,7 +2556,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
       hasError = true;
     }
     if (!body.trim() && !sequence?.fallback_body?.trim()) {
-      setBodyError('Treść jest wymagana, jeśli nie ustawiono treści zastępczej');
+      setBodyError(ct("Treść jest wymagana, jeśli nie ustawiono treści zastępczej"));
       hasError = true;
     }
     if (hasError) return;
@@ -2584,7 +2567,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
         body: body || null,
         is_html: isHtml,
       });
-      notify({ type: 'success', message: 'Indywidualna wiadomość zapisana' });
+      notify({ type: 'success', message: ct("Indywidualna wiadomość zapisana") });
       onSaved?.();
       onClose();
     } catch (e) {
@@ -2609,10 +2592,10 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
       >
         <div className="px-6 py-4 border-b flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-gray-800">Indywidualna wiadomość</h2>
+            <h2 className="font-semibold text-gray-800">{ct("Indywidualna wiadomość")}</h2>
             <p className="text-xs text-gray-400">
               {lead.email}{lead.name ? ` — ${lead.name}` : ''}
-              {' · '}Krok {(sequence.position ?? 0) + 1}
+              {' · '}{ct("Krok")} {(sequence.position ?? 0) + 1}
             </p>
           </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">×</button>
@@ -2621,19 +2604,17 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           {hasFallback && (
             <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700 space-y-1">
-              {sequence.fallback_subject && <p><span className="font-semibold">Temat zastępczy:</span> {sequence.fallback_subject}</p>}
-              {sequence.fallback_body && <p><span className="font-semibold">Treść zastępcza:</span> {sequence.fallback_body}</p>}
-              <p className="text-purple-500 mt-1">Wyświetlane jako podpowiedź podczas tworzenia indywidualnej wiadomości i używane automatycznie, jeśli pole pozostanie puste.</p>
+              {sequence.fallback_subject && <p><span className="font-semibold">{ct("Temat zastępczy:")}</span> {sequence.fallback_subject}</p>}
+              {sequence.fallback_body && <p><span className="font-semibold">{ct("Treść zastępcza:")}</span> {sequence.fallback_body}</p>}
+              <p className="text-purple-500 mt-1">{ct("Wyświetlane jako podpowiedź podczas tworzenia indywidualnej wiadomości i używane automatycznie, jeśli pole pozostanie puste.")}</p>
             </div>
           )}
           {!hasFallback && (
-            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-              Przygotuj indywidualną wiadomość dla tego kontaktu.
-            </div>
+            <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700"> {ct("Przygotuj indywidualną wiadomość dla tego kontaktu.")} </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Temat</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Temat")}</label>
             <input
               className={`w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 ${subjectError ? 'border-red-400 focus:ring-red-300' : 'focus:ring-teal-300'}`}
               value={subject}
@@ -2642,17 +2623,17 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
                 sequence?.fallback_subject
                   ? sequence.fallback_subject
                   : (sequence.position ?? 0) === 0
-                    ? "Temat jest wymagany dla pierwszego e-maila"
-                    : "Pozostaw puste, aby odpowiedzieć w tym samym wątku"
+                    ? ct("Temat jest wymagany dla pierwszego e-maila")
+                    : ct("Pozostaw puste, aby odpowiedzieć w tym samym wątku")
               }
             />
-            {subjectError && <p className="text-xs text-red-500 mt-1">{subjectError}</p>}
+            {subjectError && <p className="text-xs text-red-500 mt-1">{ct(subjectError)}</p>}
           </div>
 
           <div>
             <label className="flex items-center gap-1.5 cursor-pointer select-none mb-2">
               <input type="checkbox" checked={isHtml} onChange={e => setIsHtml(e.target.checked)} />
-              <span className="text-sm font-medium">Wyślij jako HTML</span>
+              <span className="text-sm font-medium">{ct("Wyślij jako HTML")}</span>
             </label>
             {isHtml ? (
               <div className={`border rounded overflow-hidden ${bodyError ? 'border-red-400' : ''}`}>
@@ -2668,19 +2649,19 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
                 value={body}
                 onChange={e => { setBody(e.target.value); setBodyError(''); }}
                 rows={8}
-                placeholder={sequence?.fallback_body ? sequence.fallback_body : "Wpisz treść indywidualnej wiadomości"}
+                placeholder={sequence?.fallback_body ? sequence.fallback_body : ct("Wpisz treść indywidualnej wiadomości")}
               />
             )}
-            {bodyError && <p className="text-xs text-red-500 mt-1">{bodyError}</p>}
+            {bodyError && <p className="text-xs text-red-500 mt-1">{ct(bodyError)}</p>}
           </div>
 
           <VariablesGuide />
         </div>
 
         <div className="px-6 py-3 border-t flex justify-end gap-2">
-          <Button size="sm" variant="outline" onClick={onClose}>Anuluj</Button>
+          <Button size="sm" variant="outline" onClick={onClose}>{ct("Anuluj")}</Button>
           <Button size="sm" variant="default" onClick={save} disabled={saving}>
-            {saving ? 'Zapisywanie…' : 'Zapisz'}
+            {saving ? ct("Zapisywanie…") : ct("Zapisz")}
           </Button>
         </div>
       </div>
@@ -2689,6 +2670,7 @@ function CustomEmailEditorModal({ target, campaignId, onClose, onSaved }) {
 }
 
 export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }) {
+ const {ct}=useCampaignLanguage();
   const notify      = useNotify();
   const confirm     = useConfirm();
   const loadingCtrl = useLoading();
@@ -2780,7 +2762,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
     try {
       const { _previous_type, ...payload } = editing || {};
       await api.patch(`/campaigns/${campaignId}/sequences/${editing.id}`, payload);
-      notify({ type: 'success', message: 'Krok sekwencji zaktualizowany' });
+      notify({ type: 'success', message: ct("Krok sekwencji zaktualizowany") });
       setEditing(null);
       setEditDirty(false);
       refresh();
@@ -2792,10 +2774,10 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
   };
 
   const deleteSeq = async seq => {
-    if (!await confirm(`Usunąć krok sekwencji #${seq.position+1}?`)) return;
+    if (!await confirm({message:ct('Usunąć krok sekwencji #{step}?',{step:seq.position+1}),danger:true})) return;
     try {
       await api.del(`/campaigns/${campaignId}/sequences/${seq.id}`);
-      notify({ type: 'success', message: 'Krok sekwencji usunięty' });
+      notify({ type: 'success', message: ct("Krok sekwencji usunięty") });
       if (editing?.id === seq.id) { setEditing(null); setEditDirty(false); }
       setShowVariantForm(false);
       setEditingVariant(null);
@@ -2826,7 +2808,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
   };
 
   const deleteVariant = async (v) => {
-    if (!await confirm(`Usunąć wariant „${v.label || 'Wariant'}”?`)) return;
+    if (!await confirm({message:ct('Usunąć wariant „{name}”?',{name:v.label||ct('Wariant')}),danger:true})) return;
     try {
       await api.del(`/campaigns/${campaignId}/sequences/${selectedSeq.id}/variants/${v.id}`);
       refresh();
@@ -2868,14 +2850,14 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
   return (
     <div className="sk-sequence-workspace">
       {/* ── Left: Step timeline ── */}
-      <section className="sk-sequence-timeline" aria-label="Oś sekwencji">
+      <section className="sk-sequence-timeline" aria-label={ct("Oś sekwencji")}>
         <header className="sk-sequence-timeline-heading">
-          <div><h3>Sekwencja wiadomości</h3><p>{sequences.length} {sequences.length === 1 ? 'krok' : 'kroków'} · Ostatni krok: dzień {getCumulativeDay(sequences.length-1)}</p></div>
-          <Button size="sm" onClick={addStep}>Dodaj krok</Button>
+          <div><h3>{ct("Sekwencja wiadomości")}</h3><p>{sequences.length} {sequences.length === 1 ? ct('krok') : ct("kroków")} {ct("· Ostatni krok: dzień")} {getCumulativeDay(sequences.length-1)}</p></div>
+          <Button size="sm" onClick={addStep}>{ct("Dodaj krok")}</Button>
         </header>
         <div className="sk-sequence-timeline-steps">
           {sequences.length === 0 && (
-            <p className="text-xs text-gray-400 text-center py-4">Brak kroków. Dodaj pierwszy, aby rozpocząć.</p>
+            <p className="text-xs text-gray-400 text-center py-4">{ct("Brak kroków. Dodaj pierwszy, aby rozpocząć.")}</p>
           )}
           <div className="relative">
             {sequences.map((s, idx) => {
@@ -2893,7 +2875,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                     <button
                       type="button"
                       onClick={() => selectStep(idx)}
-                      aria-label={`Pokaż krok ${idx+1}`}
+                      aria-label={ct('Pokaż krok {step}',{step:idx+1})}
                       aria-current={isActive ? 'step' : undefined}
                       className={`sk-sequence-step-choice flex-1 min-w-0 text-left rounded-lg px-3 py-2.5 transition-all border cursor-pointer ${
                         isActive ? 'bg-teal-50 border-teal-300 shadow-sm' : 'bg-white border-gray-200 hover:border-teal-200 hover:bg-teal-50/30'
@@ -2902,17 +2884,17 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                       <div className="flex items-center gap-1 min-w-0">
                         <span className={`text-sm font-medium truncate min-w-0 flex-1 ${isActive ? 'text-teal-700' : 'text-gray-800'}`}>
                           {s.sequence_type === 'personalized'
-                            ? (s.fallback_subject || <em className="text-purple-400 font-normal text-xs">Indywidualna dla kontaktu</em>)
-                            : (s.subject || <em className="text-gray-400 font-normal text-xs">Odpowiedź w wątku</em>)
+                            ? (s.fallback_subject || <em className="text-purple-400 font-normal text-xs">{ct("Indywidualna dla kontaktu")}</em>)
+                            : (s.subject || <em className="text-gray-400 font-normal text-xs">{ct("Odpowiedź w wątku")}</em>)
                           }
                         </span>
-                        {s.is_html && <span className="text-[9px] bg-blue-100 text-blue-600 rounded px-1 py-0.5 font-medium shrink-0">HTML</span>}
-                        {s.sequence_type === 'personalized' && <span className="text-[9px] bg-purple-100 text-purple-600 rounded px-1 py-0.5 font-medium shrink-0">Spersonalizowana</span>}
+                        {s.is_html && <span className="text-[9px] bg-blue-100 text-blue-600 rounded px-1 py-0.5 font-medium shrink-0">{ct("HTML")}</span>}
+                        {s.sequence_type === 'personalized' && <span className="text-[9px] bg-purple-100 text-purple-600 rounded px-1 py-0.5 font-medium shrink-0">{ct("Spersonalizowana")}</span>}
                       </div>
-                      <p className="sk-sequence-excerpt">{sequenceExcerpt(s)}</p>
-                      <div className="sk-sequence-step-meta"><Icon name="mail" size={15}/><span>Dzień {cumulDay}{idx === 0 ? ' (start)' : ''}</span><span>{(s.variants||[]).length ? `${s.variants.length} wariantów A/B` : 'Treść domyślna'}</span></div>
+                      <p className="sk-sequence-excerpt">{sequenceExcerpt(s, ct)}</p>
+                      <div className="sk-sequence-step-meta"><Icon name="mail" size={15}/><span>{ct("Dzień")} {cumulDay}{idx === 0 ? ct(' (start)') : ''}</span><span>{(s.variants||[]).length ? ct('{count} wariantów A/B',{count:s.variants.length}) : ct("Treść domyślna")}</span></div>
                     </button>
-                    <button type="button" className="sk-sequence-step-edit" aria-label={`Edytuj krok ${idx+1}`} onClick={()=>openEdit(s)}><Icon name="edit" size={18}/></button>
+                    <button type="button" className="sk-sequence-step-edit" aria-label={ct('Edytuj krok {step}',{step:idx+1})} onClick={()=>openEdit(s)}><Icon name="edit" size={18}/></button>
                   </div>
                   {/* Connector between kroks — rendered as its own row so it never affects card width */}
                   {idx < sequences.length - 1 && (
@@ -2920,8 +2902,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                       <div className="sk-sequence-delay flex flex-col items-start">
                         <div className="w-0.5 h-4 bg-gray-300" />
                         <div className="text-[10px] font-medium text-gray-400 bg-gray-100 border border-gray-200 rounded-full px-2 py-0.5 my-0.5 whitespace-nowrap">
-                          {sequences[idx + 1]?.wait_days_after_previous || 0} dni przerwy
-                        </div>
+                          {sequences[idx + 1]?.wait_days_after_previous || 0} {ct("dni przerwy")} </div>
                         <div className="w-0.5 h-4 bg-gray-300" />
                       </div>
                     </div>
@@ -2936,40 +2917,38 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
       </section>
 
       {/* ── Right: Editor / Detail Panel ── */}
-      <section className="sk-sequence-editor" aria-label="Szczegóły i edycja kroku">
+      <section className="sk-sequence-editor" aria-label={ct("Szczegóły i edycja kroku")}>
         {editing && (
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-800">Edytuj krok #{editing.position + 1}</h3>
-                <p className="text-xs text-gray-400">Zmień treść wiadomości i czas wysyłki</p>
+                <h3 className="font-semibold text-gray-800">{ct("Edytuj krok #")}{editing.position + 1}</h3>
+                <p className="text-xs text-gray-400">{ct("Zmień treść wiadomości i czas wysyłki")}</p>
               </div>
               <div className="flex gap-2">
                 {(editing.sequence_type || 'standard') !== 'personalized' && (
-                  <Button size="sm" variant="outline" onClick={() => { setPreviewSeq(editing); setPreviewVariant(null); setPreviewOverride(editing); }}>Podgląd</Button>
+                  <Button size="sm" variant="outline" onClick={() => { setPreviewSeq(editing); setPreviewVariant(null); setPreviewOverride(editing); }}>{ct("Podgląd")}</Button>
                 )}
-                <Button size="sm" variant="destructive" onClick={() => deleteSeq(editing)}>Usuń</Button>
+                <Button size="sm" variant="destructive" onClick={() => deleteSeq(editing)}>{ct("Usuń")}</Button>
               </div>
             </div>
             <form onSubmit={saveEdit} className="flex-1 overflow-y-auto p-6 space-y-5">
               {(editing.sequence_type || 'standard') === 'personalized' ? (
                 <>
-                  <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-                    To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.
-                    {campaign?.custom_sequence_mode === 'asap' && (
-                      <span className="block mt-1 font-medium text-purple-800">Kampania działa w trybie „Wysyłaj od razu” — każda wiadomość może zostać wysłana po jej przygotowaniu.</span>
+                  <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700"> {ct("To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.")} {campaign?.custom_sequence_mode === 'asap' && (
+                      <span className="block mt-1 font-medium text-purple-800">{ct("Kampania działa w trybie „Wysyłaj od razu” — każda wiadomość może zostać wysłana po jej przygotowaniu.")}</span>
                     )}
                     {(!campaign?.custom_sequence_mode || campaign?.custom_sequence_mode === 'wait_for_all') && (
-                      <span className="block mt-1">Kampania działa w trybie „Czekaj na wszystkie” — wysyłka nie ruszy, dopóki wszystkie wiadomości nie będą przygotowane.</span>
+                      <span className="block mt-1">{ct("Kampania działa w trybie „Czekaj na wszystkie” — wysyłka nie ruszy, dopóki wszystkie wiadomości nie będą przygotowane.")}</span>
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Temat zastępczy</label>
-                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" value={editing.fallback_subject || ''} onChange={e => updateEditing({ fallback_subject: e.target.value })} placeholder={(editing.position ?? 0) === 0 ? "Pozostaw puste — pierwszy e-mail wymaga indywidualnego tematu" : "Pozostaw puste — indywidualny temat będzie odpowiedzią w wątku"} />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Temat zastępczy")}</label>
+                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" value={editing.fallback_subject || ''} onChange={e => updateEditing({ fallback_subject: e.target.value })} placeholder={(editing.position ?? 0) === 0 ? ct("Pozostaw puste — pierwszy e-mail wymaga indywidualnego tematu") : ct("Pozostaw puste — indywidualny temat będzie odpowiedzią w wątku")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść zastępcza</label>
-                    <textarea className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" value={editing.fallback_body || ''} onChange={e => updateEditing({ fallback_body: e.target.value })} placeholder="Wpisz treść zastępczą używaną podczas przygotowywania indywidualnej wiadomości" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Treść zastępcza")}</label>
+                    <textarea className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" value={editing.fallback_body || ''} onChange={e => updateEditing({ fallback_body: e.target.value })} placeholder={ct("Wpisz treść zastępczą używaną podczas przygotowywania indywidualnej wiadomości")} />
                     <VariablesGuide />
                   </div>
                 </>
@@ -2977,7 +2956,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                 <>
                   {messageTemplates.length > 0 && (
                     <div className="rounded-lg border border-teal-100 bg-teal-50/40 p-3">
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Wczytaj z szablonu</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{ct("Wczytaj z szablonu")}</label>
                       <select
                         defaultValue=""
                         onChange={e => {
@@ -2986,25 +2965,25 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                         }}
                         className="w-full rounded-lg border-gray-300 bg-white text-sm"
                       >
-                        <option value="">Wybierz szablon…</option>
+                        <option value="">{ct("Wybierz szablon…")}</option>
                         {messageTemplates.map(t => (
-                          <option key={t.id} value={t.id}>{t.name} · v{t.latest_version?.version || 1}</option>
+                          <option key={t.id} value={t.id}>{t.name} {ct("· v")}{t.latest_version?.version || 1}</option>
                         ))}
                       </select>
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Temat</label>
-                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label="Temat wiadomości" value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Temat")}</label>
+                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label={ct("Temat wiadomości")} value={editing.subject || ''} onChange={e => updateEditing({ subject: e.target.value })} placeholder={ct("Pozostaw puste, aby odpowiedzieć w tym samym wątku")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść wiadomości *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Treść wiadomości *")}</label>
                     <SequenceBodyEditor value={editing.body} onChange={val => updateEditing({ body: val })} isHtml={editing.is_html ?? false} onIsHtmlChange={v => updateEditing({ is_html: v })} previewText={editing.preview_text ?? ''} onPreviewTextChange={v => updateEditing({ preview_text: v })} isFirstSequence={editing.position === 0} campaign={campaign} required />
                   </div>
                 </>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Typ sekwencji</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Typ sekwencji")}</label>
                 <select
                   className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={editing.sequence_type || 'standard'}
@@ -3027,27 +3006,25 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                     setEditDirty(true);
                   }}
                 >
-                  <option value="standard">Standardowa — ta sama treść dla wszystkich kontaktów</option>
-                  <option value="personalized">Spersonalizowana — indywidualna treść dla kontaktu</option>
+                  <option value="standard">{ct("Standardowa — ta sama treść dla wszystkich kontaktów")}</option>
+                  <option value="personalized">{ct("Spersonalizowana — indywidualna treść dla kontaktu")}</option>
                 </select>
                 {(editing.sequence_type || 'standard') === 'personalized' && (
-                  <p className="text-xs text-purple-600 mt-1">
-                    Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.
-                    {campaign?.custom_sequence_mode === 'asap' ? (
-                      <span className="block mt-0.5 font-medium">Tryb „Wysyłaj od razu” jest włączony — wiadomość może zostać wysłana zaraz po przygotowaniu.</span>
+                  <p className="text-xs text-purple-600 mt-1"> {ct("Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.")} {campaign?.custom_sequence_mode === 'asap' ? (
+                      <span className="block mt-0.5 font-medium">{ct("Tryb „Wysyłaj od razu” jest włączony — wiadomość może zostać wysłana zaraz po przygotowaniu.")}</span>
                     ) : (
-                      <span className="block mt-0.5">Tryb „Czekaj na wszystkie” jest włączony — nic nie zostanie wysłane, dopóki wszystkie wiadomości nie będą przygotowane.</span>
+                      <span className="block mt-0.5">{ct("Tryb „Czekaj na wszystkie” jest włączony — nic nie zostanie wysłane, dopóki wszystkie wiadomości nie będą przygotowane.")}</span>
                     )}
                   </p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dni przerwy po poprzednim kroku</label>
-                <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label="Dni przerwy po poprzednim kroku" value={editing.wait_days_after_previous} onChange={e => updateEditing({ wait_days_after_previous: +e.target.value })} />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Dni przerwy po poprzednim kroku")}</label>
+                <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" aria-label={ct("Dni przerwy po poprzednim kroku")} value={editing.wait_days_after_previous} onChange={e => updateEditing({ wait_days_after_previous: +e.target.value })} />
               </div>
               <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="default">Zapisz zmiany</Button>
-                <Button type="button" size="sm" variant="outline" onClick={tryCloseEdit}>Anuluj</Button>
+                <Button size="sm" variant="default">{ct("Zapisz zmiany")}</Button>
+                <Button type="button" size="sm" variant="outline" onClick={tryCloseEdit}>{ct("Anuluj")}</Button>
               </div>
             </form>
           </div>
@@ -3057,29 +3034,29 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
               <div>
-                <h3 className="font-semibold text-gray-800" >Krok {selectedSeq.position + 1}{selectedSeq.sequence_type === 'personalized'
-                  ? (selectedSeq.fallback_subject ? ` — ${selectedSeq.fallback_subject}` : ' — Indywidualna dla kontaktu')
-                  : (selectedSeq.subject ? ` — ${selectedSeq.subject}` : ' — Odpowiedź w wątku')
+                <h3 className="font-semibold text-gray-800" >{ct("Krok")} {selectedSeq.position + 1}{selectedSeq.sequence_type === 'personalized'
+                  ? (selectedSeq.fallback_subject ? ` — ${selectedSeq.fallback_subject}` : ct(" — Indywidualna dla kontaktu"))
+                  : (selectedSeq.subject ? ` — ${selectedSeq.subject}` : ct(" — Odpowiedź w wątku"))
                 }</h3>
-                <p className="text-xs text-gray-400">{selectedSeq.wait_days_after_previous} dni przerwy{selectedSeq.is_html ? ' · HTML' : ' · czysty tekst'}{' · Dzień ' + getCumulativeDay(selectedIdx)}</p>
+                <p className="text-xs text-gray-400">{selectedSeq.wait_days_after_previous} {ct("dni przerwy")}{selectedSeq.is_html ? ' · HTML' : ct(' · czysty tekst')}{ct(' · Dzień ') + getCumulativeDay(selectedIdx)}</p>
               </div>
               <div className="flex gap-2">
                 {(selectedSeq.sequence_type || 'standard') !== 'personalized' && (
-                  <Button size="sm" variant="outline" onClick={() => { setPreviewSeq(selectedSeq); setPreviewOverride(null); }}>Podgląd</Button>
+                  <Button size="sm" variant="outline" onClick={() => { setPreviewSeq(selectedSeq); setPreviewOverride(null); }}>{ct("Podgląd")}</Button>
                 )}
-                <Button size="sm" variant="default" onClick={() => openEdit(selectedSeq)}>Edytuj</Button>
-                <Button size="sm" variant="destructive" onClick={() => deleteSeq(selectedSeq)}>Usuń</Button>
+                <Button size="sm" variant="default" onClick={() => openEdit(selectedSeq)}>{ct("Edytuj")}</Button>
+                <Button size="sm" variant="destructive" onClick={() => deleteSeq(selectedSeq)}>{ct("Usuń")}</Button>
               </div>
             </div>
             <div className="flex-1 overflow-y-auto p-6">
               {(selectedSeq.sequence_type || 'standard') !== 'personalized' && (
                 <>
                   <div className="mb-5">
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">Temat</span>
-                    <p className="text-gray-800 font-medium">{selectedSeq.subject || <em className="text-gray-400 font-normal">Odpowiedź w tym samym wątku</em>}</p>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-1">{ct("Temat")}</span>
+                    <p className="text-gray-800 font-medium">{selectedSeq.subject || <em className="text-gray-400 font-normal">{ct("Odpowiedź w tym samym wątku")}</em>}</p>
                   </div>
                   <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">Treść</span>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide block mb-2">{ct("Treść")}</span>
                     {selectedSeq.is_html ? (
                       <div className="border rounded-lg p-5 bg-white prose prose-sm max-w-none min-h-[200px]" dangerouslySetInnerHTML={{ __html: selectedSeq.body }} />
                     ) : (
@@ -3108,22 +3085,20 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
               <div className="mt-6 pt-6 border-t border-gray-200">
                 <div className="sk-sequence-variants-heading">
                   <div>
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Warianty A/B</span>
-                    <p className="text-xs text-gray-400 mt-0.5">Dodaj alternatywną treść — podczas wysyłki jeden wariant zostanie wybrany losowo</p>
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{ct("Warianty A/B")}</span>
+                    <p className="text-xs text-gray-400 mt-0.5">{ct("Dodaj alternatywną treść — podczas wysyłki jeden wariant zostanie wybrany losowo")}</p>
                   </div>
                   {!showVariantForm && (
                     <button
                       onClick={() => { setEditingVariant(null); setVariantForm({ label: '', subject: '', body: '', is_html: false, preview_text: '' }); setShowVariantForm(true); }}
                       className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
                     >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg>
-                      Dodaj wariant
-                    </button>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4"/></svg> {ct("Dodaj wariant")} </button>
                   )}
                 </div>
 
                 {(selectedSeq.variants || []).length === 0 && !showVariantForm && (
-                  <p className="text-xs text-gray-400 italic py-2">Brak wariantów — zawsze zostanie użyta domyślna treść powyżej.</p>
+                  <p className="text-xs text-gray-400 italic py-2">{ct("Brak wariantów — zawsze zostanie użyta domyślna treść powyżej.")}</p>
                 )}
                 {(selectedSeq.variants || []).length > 0 && (
                   <div className="space-y-2 mb-3">
@@ -3131,21 +3106,21 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                       <div key={v.id} className={`flex items-center gap-3 p-3 rounded-lg border ${v.enabled ? 'border-purple-200 bg-purple-50/50' : 'border-gray-200 bg-gray-50 opacity-60'}`}>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm text-gray-800">{v.label || 'Wariant'}</span>
+                            <span className="font-medium text-sm text-gray-800">{v.label || ct("Wariant")}</span>
                             <button
                               onClick={() => toggleVariantEnabled(v)}
                               className={`text-[10px] px-2 py-0.5 rounded-full font-medium transition-colors ${v.enabled ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-gray-200 text-gray-500 hover:bg-gray-300'}`}
                             >
-                              {v.enabled ? 'Włączony' : 'Wyłączony'}
+                              {v.enabled ? ct("Włączony") : ct("Wyłączony")}
                             </button>
                           </div>
-                          {v.subject && <p className="text-xs text-gray-500 mt-0.5 truncate">Temat: {v.subject}</p>}
+                          {v.subject && <p className="text-xs text-gray-500 mt-0.5 truncate">{ct("Temat:")} {v.subject}</p>}
                           {v.body && <p className="text-xs text-gray-400 mt-0.5 truncate">{v.body.replace(/<[^>]+>/g, '').slice(0, 80)}…</p>}
                         </div>
                         <div className="flex gap-1.5 shrink-0">
-                          <button onClick={() => { setPreviewSeq(selectedSeq); setPreviewVariant(v); setPreviewOverride(null); }} className="px-2.5 py-1 text-xs bg-white border border-teal-200 rounded hover:bg-teal-50 text-teal-700 transition-colors">Podgląd</button>
-                          <button onClick={() => openEditVariant(v)} className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 transition-colors">Edytuj</button>
-                          <button onClick={() => deleteVariant(v)} className="px-2.5 py-1 text-xs bg-white border border-red-200 rounded hover:bg-red-50 text-red-600 transition-colors">Usuń</button>
+                          <button onClick={() => { setPreviewSeq(selectedSeq); setPreviewVariant(v); setPreviewOverride(null); }} className="px-2.5 py-1 text-xs bg-white border border-teal-200 rounded hover:bg-teal-50 text-teal-700 transition-colors">{ct("Podgląd")}</button>
+                          <button onClick={() => openEditVariant(v)} className="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-100 text-gray-600 transition-colors">{ct("Edytuj")}</button>
+                          <button onClick={() => deleteVariant(v)} className="px-2.5 py-1 text-xs bg-white border border-red-200 rounded hover:bg-red-50 text-red-600 transition-colors">{ct("Usuń")}</button>
                         </div>
                       </div>
                     ))}
@@ -3154,24 +3129,24 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
 
                 {showVariantForm && (
                   <div className="border border-purple-200 bg-purple-50/30 rounded-lg p-4 space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-700">{editingVariant ? 'Edytuj wariant' : 'Nowy wariant'}</h4>
+                    <h4 className="text-sm font-semibold text-gray-700">{editingVariant ? ct("Edytuj wariant") : ct("Nowy wariant")}</h4>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Etykieta <span className="text-gray-400">(np. „Wariant A”)</span></label>
-                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Wariant A" value={variantForm.label} onChange={e => setVariantForm(f => ({ ...f, label: e.target.value }))} />
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{ct("Etykieta")} <span className="text-gray-400">{ct("(np. „Wariant A”)")}</span></label>
+                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder={ct("Wariant A")} value={variantForm.label} onChange={e => setVariantForm(f => ({ ...f, label: e.target.value }))} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Temat <span className="text-gray-400">(puste = użyj tematu kroku)</span></label>
-                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder="Pozostaw puste, aby użyć tematu kroku" value={variantForm.subject} onChange={e => setVariantForm(f => ({ ...f, subject: e.target.value }))} />
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{ct("Temat")} <span className="text-gray-400">{ct("(puste = użyj tematu kroku)")}</span></label>
+                      <input className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" placeholder={ct("Pozostaw puste, aby użyć tematu kroku")} value={variantForm.subject} onChange={e => setVariantForm(f => ({ ...f, subject: e.target.value }))} />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Treść *</label>
-                      <textarea className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" placeholder="Treść wiadomości…" value={variantForm.body} onChange={e => setVariantForm(f => ({ ...f, body: e.target.value }))} />
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{ct("Treść *")}</label>
+                      <textarea className="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" placeholder={ct("Treść wiadomości…")} value={variantForm.body} onChange={e => setVariantForm(f => ({ ...f, body: e.target.value }))} />
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="default" onClick={editingVariant ? saveVariant : createVariant} type="button">
-                        {editingVariant ? 'Zapisz wariant' : 'Utwórz wariant'}
+                        {editingVariant ? ct("Zapisz wariant") : ct("Utwórz wariant")}
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => { setShowVariantForm(false); setEditingVariant(null); }} type="button">Anuluj</Button>
+                      <Button size="sm" variant="outline" onClick={() => { setShowVariantForm(false); setEditingVariant(null); }} type="button">{ct("Anuluj")}</Button>
                     </div>
                   </div>
                 )}
@@ -3184,23 +3159,21 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
         {!editing && showAddForm && (
           <div className="flex-1 flex flex-col overflow-y-auto">
             <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="font-semibold text-gray-800">Dodaj nowy krok</h3>
-              <p className="text-xs text-gray-400">To będzie krok #{sequences.length + 1} w sekwencji</p>
+              <h3 className="font-semibold text-gray-800">{ct("Dodaj nowy krok")}</h3>
+              <p className="text-xs text-gray-400">{ct("To będzie krok #")}{sequences.length + 1} {ct("w sekwencji")}</p>
             </div>
             <form onSubmit={submit} className="flex-1 overflow-y-auto p-6 space-y-5">
-              {msg && <div className={`rounded-lg px-3 py-2 text-sm ${msg.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>{msg.text}</div>}
+              {msg && <div className={`rounded-lg px-3 py-2 text-sm ${msg.type === 'error' ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>{ct(msg.text)}</div>}
               {(form.sequence_type || 'standard') === 'personalized' ? (
                 <>
-                  <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700">
-                    To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.
+                  <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg text-xs text-purple-700"> {ct("To krok spersonalizowany. Wpisz treść zastępczą, która będzie używana jako podpowiedź podczas tworzenia indywidualnej wiadomości dla kontaktu.")} </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Temat zastępczy")}</label>
+                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" value={form.fallback_subject} onChange={e => setForm(f => ({ ...f, fallback_subject: e.target.value }))} placeholder={pos === 0 ? ct("Pozostaw puste — pierwszy e-mail wymaga indywidualnego tematu") : ct("Pozostaw puste — indywidualny temat będzie odpowiedzią w wątku")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Temat zastępczy</label>
-                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" value={form.fallback_subject} onChange={e => setForm(f => ({ ...f, fallback_subject: e.target.value }))} placeholder={pos === 0 ? "Pozostaw puste — pierwszy e-mail wymaga indywidualnego tematu" : "Pozostaw puste — indywidualny temat będzie odpowiedzią w wątku"} />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść zastępcza</label>
-                    <textarea className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" value={form.fallback_body} onChange={e => setForm(f => ({ ...f, fallback_body: e.target.value }))} placeholder="Wpisz treść zastępczą używaną podczas przygotowywania indywidualnej wiadomości" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Treść zastępcza")}</label>
+                    <textarea className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 min-h-[120px] font-mono" value={form.fallback_body} onChange={e => setForm(f => ({ ...f, fallback_body: e.target.value }))} placeholder={ct("Wpisz treść zastępczą używaną podczas przygotowywania indywidualnej wiadomości")} />
                     <VariablesGuide />
                   </div>
                 </>
@@ -3208,7 +3181,7 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                 <>
                   {messageTemplates.length > 0 && (
                     <div className="rounded-lg border border-teal-100 bg-teal-50/40 p-3">
-                      <label className="block text-xs font-medium text-gray-600 mb-1">Wczytaj z szablonu</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">{ct("Wczytaj z szablonu")}</label>
                       <select
                         defaultValue=""
                         onChange={e => {
@@ -3217,25 +3190,25 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                         }}
                         className="w-full rounded-lg border-gray-300 bg-white text-sm"
                       >
-                        <option value="">Wybierz szablon…</option>
+                        <option value="">{ct("Wybierz szablon…")}</option>
                         {messageTemplates.map(t => (
-                          <option key={t.id} value={t.id}>{t.name} · v{t.latest_version?.version || 1}</option>
+                          <option key={t.id} value={t.id}>{t.name} {ct("· v")}{t.latest_version?.version || 1}</option>
                         ))}
                       </select>
                     </div>
                   )}
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Temat</label>
-                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder="Pozostaw puste, aby odpowiedzieć w tym samym wątku" />
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Temat")}</label>
+                    <input className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.subject} onChange={e => setForm(f => ({ ...f, subject: e.target.value }))} placeholder={ct("Pozostaw puste, aby odpowiedzieć w tym samym wątku")} />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Treść wiadomości *</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Treść wiadomości *")}</label>
                     <SequenceBodyEditor value={form.body} onChange={val => setForm(f => ({ ...f, body: val }))} isHtml={form.is_html} onIsHtmlChange={v => setForm(f => ({ ...f, is_html: v }))} previewText={form.preview_text ?? ''} onPreviewTextChange={v => setForm(f => ({ ...f, preview_text: v }))} isFirstSequence={pos === 0} campaign={campaign} required />
                   </div>
                 </>
               )}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Typ sekwencji</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Typ sekwencji")}</label>
                 <select
                   className="w-full border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                   value={form.sequence_type || 'standard'}
@@ -3256,36 +3229,36 @@ export function SequencesTab({ sequences, campaignId, campaign, leads, refresh }
                     });
                   }}
                 >
-                  <option value="standard">Standardowa — ta sama treść dla wszystkich kontaktów</option>
-                  <option value="personalized">Spersonalizowana — indywidualna treść dla kontaktu</option>
+                  <option value="standard">{ct("Standardowa — ta sama treść dla wszystkich kontaktów")}</option>
+                  <option value="personalized">{ct("Spersonalizowana — indywidualna treść dla kontaktu")}</option>
                 </select>
                 {(form.sequence_type || 'standard') === 'personalized' && (
-                  <p className="text-xs text-purple-600 mt-1">Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.</p>
+                  <p className="text-xs text-purple-600 mt-1">{ct("Dla każdego kontaktu trzeba przygotować indywidualną wiadomość w tym kroku przed rozpoczęciem wysyłki.")}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Dni przerwy po poprzednim kroku</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{ct("Dni przerwy po poprzednim kroku")}</label>
                 <input type="number" min={0} className="w-28 border rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" value={form.wait_days_after_previous} onChange={e => setForm(f => ({ ...f, wait_days_after_previous: +e.target.value }))} />
               </div>
-              <Button size="sm" variant="default">Dodaj krok</Button>
+              <Button size="sm" variant="default">{ct("Dodaj krok")}</Button>
             </form>
           </div>
         )}
 
         {!editing && !showAddForm && !selectedSeq && (
-          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">Wybierz krok albo dodaj nowy, aby rozpocząć.</div>
+          <div className="flex-1 flex items-center justify-center text-gray-400 text-sm">{ct("Wybierz krok albo dodaj nowy, aby rozpocząć.")}</div>
         )}
       </section>
 
       {showEditWarning && (
-        <Modal title="Odrzucić zmiany?" small onClose={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}} footer={<>
-          <Button size="sm" variant="outline" onClick={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}}>Kontynuuj edycję</Button>
+        <Modal title={ct("Odrzucić zmiany?")} small onClose={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}} footer={<>
+          <Button size="sm" variant="outline" onClick={()=>{setShowEditWarning(false);pendingPanelAction.current=null;}}>{ct("Kontynuuj edycję")}</Button>
           <Button size="sm" variant="destructive" onClick={()=>{
             const action=pendingPanelAction.current; pendingPanelAction.current=null;
             setShowEditWarning(false);setEditDirty(false);setShowVariantForm(false);setEditingVariant(null);
             action?.();
-          }}>Odrzuć</Button>
-        </>}><p>Masz niezapisane zmiany. Przejście do innego kroku lub zamknięcie edytora spowoduje ich utratę.</p></Modal>
+          }}>{ct("Odrzuć")}</Button>
+        </>}><p>{ct("Masz niezapisane zmiany. Przejście do innego kroku lub zamknięcie edytora spowoduje ich utratę.")}</p></Modal>
       )}
 
       {previewSeq && (

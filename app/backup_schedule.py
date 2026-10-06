@@ -53,6 +53,10 @@ async def deliver_backup_payload(data: bytes, cfg: dict) -> dict:
             log.exception("Backup webhook failed")
             out["webhook_error"] = str(e)
 
+    from app.backup_remote import deliver_remote
+    out.update(await deliver_remote(data, out["local_path"]))
+    if not out["local_path"] and not out["webhook_ok"] and out.get("remote_status") != "verified":
+        out["destination_error"] = "No backup destination completed successfully"
     return out
 
 

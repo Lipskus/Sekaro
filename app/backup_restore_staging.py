@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import secrets
+import re
 import time
 from pathlib import Path
 
@@ -59,8 +60,10 @@ def stage_decrypted_dump(dump_bytes: bytes, *, kind: str) -> tuple[str, int]:
 
 def consume_staged_dump(token: str, *, expected_kind: str) -> Path | None:
     """Load staged path if token valid and kind matches; delete meta; caller deletes dump file."""
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}", token):
+        return None
     mp = _meta_path(token)
-    if not mp.is_file():
+    if mp.is_symlink() or not mp.is_file():
         return None
     try:
         meta = json.loads(mp.read_text(encoding="utf-8"))
@@ -70,14 +73,14 @@ def consume_staged_dump(token: str, *, expected_kind: str) -> Path | None:
         return None
     created = float(meta.get("created", 0))
     if time.time() - created > TOKEN_TTL_SEC:
-        _cleanup_token(token, meta.get("path"))
+        _cleanup_token(token, str(_staging_root() / f"{token}.dump"))
         return None
     path_str = meta.get("path")
     if not path_str or not isinstance(path_str, str):
         mp.unlink(missing_ok=True)
         return None
     p = Path(path_str)
-    if not p.is_file():
+    if p != _staging_root() / f"{token}.dump" or p.is_symlink() or not p.is_file():
         mp.unlink(missing_ok=True)
         return None
     try:

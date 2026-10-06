@@ -31,9 +31,9 @@ vi.mock('../context/AppModeContext', () => ({ useAppMode: () => ({ isProduction:
 vi.mock('../context/LoadingContext', () => ({ useLoading: () => mocks.loading }));
 vi.mock('../context/NotificationsContext', () => ({ useNotifications: () => ({ refresh() {} }) }));
 vi.mock('../context/SystemHealthContext', () => ({ useSystemHealth: () => mocks.health }));
-vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }) }));
+vi.mock('../context/AuthContext', () => ({ useAuth: () => ({ user: mocks.user, logout: vi.fn() }), useOptionalAuth: () => ({user:mocks.user}) }));
 vi.mock('../context/DarkModeContext', () => ({ useDarkMode: () => ({ themePreference: 'light', setThemePreference: vi.fn() }) }));
-vi.mock('../context/LanguageContext', () => ({ useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
+vi.mock('../context/LanguageContext', async importOriginal => ({ ...await importOriginal(), useLanguage: () => ({ language: 'pl', setLanguage: vi.fn(), languages: [], t: key => ({
   'appearance.title':'Wygląd i język','appearance.description':'Dostosuj wygląd interfejsu do swoich preferencji.',
   'appearance.language':'Język interfejsu','appearance.savedLocally':'Zmiana języka jest zapisywana lokalnie dla tej przeglądarki.',
   'appearance.light':'Jasny','appearance.dark':'Ciemny','appearance.system':'System','appearance.systemFollows':'Motyw systemowy automatycznie podąża za ustawieniem systemu operacyjnego lub przeglądarki.',
@@ -406,9 +406,9 @@ it('calculates the analytics reply rate from the selected period, not lifetime t
   });
   const { container } = mount(Analytics);
   await screen.findByRole('link', { name: 'Okres QA' });
-  const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Wskaźnik odpowiedzi'));
+  const metric = [...container.querySelectorAll('.sk-metric')].find(e => e.textContent.includes('Odpowiedzi / wysyłki w okresie'));
   expect(metric.querySelector('.sk-metric-value').textContent).toBe('20%');
-  expect(screen.getByTitle('Brak danych o unikalnych kontaktach w wybranym okresie').textContent).toBe('—');
+  expect(screen.getByText('Skuteczność wybranych wysyłek')).toBeTruthy();
 });
 
 

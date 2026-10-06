@@ -38,6 +38,7 @@ from app.routers import smtp as smtp_router
 from app.routers import notifications as notifications_router
 from app.routers import system_health as system_health_router
 from app.routers import analytics as analytics_router
+from app.routers import diagnostics as diagnostics_router
 from app.routers import templates as templates_router
 from app.routers import contact_fields as contact_fields_router
 from app.jobs import run_send_job, run_slot_scan_job, last_send_job_run, last_send_job_sent_count
@@ -49,6 +50,9 @@ import app.scheduler as scheduler_mod
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
+    if __import__("os").getenv("SEKARO_MAINTENANCE") == "1":
+        yield
+        return
 
     unibox_interval_minutes = 5
 
@@ -95,6 +99,8 @@ async def lifespan(app: FastAPI):
             replace_existing=True,
             max_instances=1,
         )
+        from app.automation import run_crm_automation_job
+        schedule.add_job(run_crm_automation_job, 'interval', minutes=1, id='crm_automation', replace_existing=True, max_instances=1)
         schedule.start()
 
         from app.backup_schedule import register_scheduled_backup_from_db
@@ -137,6 +143,18 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Sekaro", lifespan=lifespan)
+
+@app.middleware("http")
+async def maintenance_boundary(request, call_next):
+    import os
+    from fastapi.responses import JSONResponse
+    if os.getenv("SEKARO_MAINTENANCE") == "1":
+        path = request.url.path
+        allowed = path.startswith(("/api/auth/", "/api/settings/backup/")) or (
+            request.method in {"GET", "HEAD"} and (path in {"/", "/login", "/settings"} or path.startswith("/assets/")))
+        if not allowed:
+            return JSONResponse({"detail": "Maintenance mode: mail, synchronization and ordinary API operations are stopped."}, status_code=503)
+    return await call_next(request)
 
 # ---------------------------------------------------------------------------
 # Security middleware (CSP, HSTS, X-Frame-Options, …)
@@ -193,6 +211,15 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ---------------------------------------------------------------------------
 from app.routers import auth as auth_router
 app.include_router(auth_router.router)
+from app.routers import access as access_router
+app.include_router(access_router.router)
+from app.routers import gmail_private
+app.include_router(gmail_private.router)
+from app.routers import mail_identity
+app.include_router(mail_identity.router)
+app.include_router(mail_identity.preview_router)
+from app.routers import office365_private
+app.include_router(office365_private.router)
 
 # ---------------------------------------------------------------------------
 # Protected routers – all require authentication
@@ -211,6 +238,8 @@ app.include_router(test_mode.router, dependencies=_auth_deps)
 app.include_router(schedule_router.router, dependencies=_auth_deps)
 app.include_router(settings_router.router, dependencies=_auth_deps)
 app.include_router(backup_router.router, dependencies=_auth_deps)
+from app.routers import backup_remote as backup_remote_router
+app.include_router(backup_remote_router.router, dependencies=_auth_deps)
 app.include_router(unibox_router.router, dependencies=_auth_deps)
 app.include_router(smtp_router.router, dependencies=_auth_deps)
 app.include_router(tracking_router.router)
@@ -218,8 +247,17 @@ app.include_router(beacon_ingest_router.router)
 app.include_router(notifications_router.router, dependencies=_auth_deps)
 app.include_router(system_health_router.router, dependencies=_auth_deps)
 app.include_router(analytics_router.router, dependencies=_auth_deps)
+app.include_router(diagnostics_router.router, dependencies=_auth_deps)
 app.include_router(templates_router.router, dependencies=_auth_deps)
 app.include_router(contact_fields_router.router, dependencies=_auth_deps)
+from app.routers import crm_reports as crm_reports_router
+app.include_router(crm_reports_router.router, dependencies=_auth_deps)
+from app.routers import automation as automation_router
+app.include_router(automation_router.router, dependencies=_auth_deps)
+from app.routers import sales as sales_router
+app.include_router(sales_router.router, dependencies=_auth_deps)
+from app.routers import crm as crm_router
+app.include_router(crm_router.router, dependencies=_auth_deps)
 from app.routers import ui as ui_router
 app.include_router(ui_router.router, dependencies=_auth_deps)
 
@@ -263,6 +301,7 @@ async def api_status(request: Request, user=Depends(_auth_dep)):
         "server_time": time_provider.now().isoformat() + "Z",
         "test_mode": settings.test_mode,
         "app_mode": os.environ.get("QUICKLY_MODE", "development").lower(),
+        "demo": getattr(request.app.state, "is_demo", False) is True,
     }
 
 

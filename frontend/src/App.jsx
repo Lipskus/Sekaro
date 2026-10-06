@@ -1,3 +1,4 @@
+import {PermissionPage} from './context/Permissions';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Layout from './components/Layout';
@@ -11,6 +12,11 @@ import DeliverabilityTips from './pages/DeliverabilityTips';
 import SystemHealth from './pages/SystemHealth';
 import Leads from './pages/Leads';
 import LeadDetail from './pages/LeadDetail';
+import Companies from './pages/Companies';
+import Sales from './pages/Sales';
+import Automations from './pages/Automations';
+import CrmReports from './pages/CrmReports';
+import ContactGroups from './redesign/ContactGroups';
 import Templates from './pages/Templates';
 import Notifications from './pages/Notifications';
 import Login from './pages/Login';
@@ -60,14 +66,21 @@ function AppRoutes() {
       <Route path="/*" element={
         <ProtectedRoute>
           <Layout>
-            <Routes>
+            <PermissionPage><Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaigns/add" element={<AddCampaign />} />
               <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
+              <Route path="/crm" element={<Navigate to="/leads" replace />} />
+              <Route path="/crm/automations" element={<Automations />} />
+              <Route path="/crm/reports" element={<CrmReports />} />
+              <Route path="/crm/groups" element={<ContactGroups />} />
               <Route path="/leads" element={<ContactsView />} />
               <Route path="/contacts-tools" element={<Leads />} />
               <Route path="/leads/:id" element={<LeadDetail />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/companies" element={<Companies />} />
+              <Route path="/companies/:id" element={<Companies />} />
               <Route path="/templates" element={<Templates />} />
               <Route path="/inboxes" element={<Inboxes />} />
               <Route path="/unibox" element={<InboxView />} />
@@ -79,7 +92,7 @@ function AppRoutes() {
               <Route path="/system-health" element={<SystemHealth />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="*" element={<Navigate to="/" />} />
-            </Routes>
+            </Routes></PermissionPage>
           </Layout>
         </ProtectedRoute>
       } />

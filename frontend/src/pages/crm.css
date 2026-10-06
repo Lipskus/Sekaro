@@ -1,0 +1,146 @@
+/* Shared spacing for CRM cards, independent of the contact page's padding. */
+.sk-crm-stack {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+fieldset.sk-crm-stack {border: 0; padding: 0; margin: 0}
+.sk-crm-stack > .sk-panel {padding: 20px; min-width: 0}
+.sk-crm-stack > .sk-panel > .sk-panel-heading {
+  padding: 0;
+  margin-bottom: 16px;
+  min-height: 0;
+  flex-wrap: wrap;
+}
+.sk-crm-stack label, .sk-crm-fields label {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  font-size: 13px;
+}
+.sk-crm-stack input:not([type=radio]), .sk-crm-stack textarea,
+.sk-crm-stack select, .sk-crm-fields input, .sk-crm-fields textarea {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.sk-crm-stack textarea, .sk-crm-fields textarea {
+  background: var(--sk-surface);
+  color: var(--sk-text);
+  border: 1px solid var(--sk-line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+.sk-crm-stack p {margin: 0 0 16px; line-height: 1.6; overflow-wrap: anywhere}
+.sk-crm-stack p:last-child {margin-bottom: 0}
+.sk-crm-stack > .sk-panel > label {margin: 12px 0}
+.sk-crm-stack form:not(.sk-crm-form) {display: grid; gap: 12px; min-width: 0}
+.sk-crm-stack form > .sk-btn, .sk-crm-fields > .sk-btn {justify-self: start}
+.sk-crm-stack > .sk-panel > .sk-btn {margin-top: 12px}
+.sk-crm-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+  margin-top: 16px;
+}
+.sk-crm-form > label {flex: 1 1 200px}
+.sk-crm-form > .sk-btn {flex: 0 0 auto; min-height: 40px}
+.sk-crm-fields {display: grid; gap: 16px; border: 0; padding: 0; margin: 0; min-width: 0}
+.sk-crm-list {list-style: none; padding: 0; margin: 0}
+.sk-crm-list > li {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--sk-line);
+  overflow-wrap: anywhere;
+}
+.sk-crm-list > li > div {min-width: 0}
+.sk-crm-list > li > .sk-btn {flex-shrink: 0}
+.sk-crm-list small {display: block; margin-top: 6px; color: var(--sk-muted); line-height: 1.5}
+.sk-crm-list a {text-decoration: underline; text-underline-offset: 3px}
+.sk-crm-list strong + span {display: inline-block; margin-left: 8px; color: var(--sk-muted)}
+.sk-crm-note {white-space: pre-wrap; overflow-wrap: anywhere}
+.sk-crm-compare {margin-top: 20px; overflow-wrap: anywhere}
+.sk-crm-compare fieldset {margin: 16px 0; padding: 12px; border: 1px solid var(--sk-line); border-radius: 8px; min-width: 0}
+.sk-crm-compare fieldset label {display: flex; align-items: start; gap: 8px; margin: 8px 0}
+.sk-crm-compare input[type=radio] {flex: none; margin-top: 4px}
+.sk-crm-empty {color: var(--sk-muted); font-size: 13px}
+@media(max-width:600px) {
+  .sk-crm-stack {gap: 16px}
+  .sk-crm-stack > .sk-panel {padding: 16px}
+  .sk-crm-stack > .sk-panel > .sk-panel-heading {padding: 0; margin-bottom: 14px}
+  .sk-crm-list > li {flex-direction: column; align-items: stretch; gap: 10px}
+  .sk-crm-list > li > .sk-btn {align-self: flex-start}
+  .sk-crm-form > label {flex-basis: 100%}
+  .sk-crm-form > .sk-btn {width: 100%}
+}
+
+/* Company workspace reuses the shared table, avatars, badges and theme tokens. */
+.sk-companies .sk-company-overview {display:flex;align-items:center;justify-content:space-between;gap:28px;border-top:3px solid var(--sk-primary);background:linear-gradient(115deg,var(--sk-surface-alt),var(--sk-surface))}
+.sk-company-identity {display:flex;align-items:center;gap:13px;min-width:0}
+.sk-company-identity > div {min-width:0;overflow-wrap:anywhere}
+.sk-company-identity a {font-weight:600;color:var(--sk-text)}
+.sk-company-identity small,.sk-company-contacts small {display:block;margin-top:4px;color:var(--sk-muted);font-size:12px}
+.sk-company-identity h2 {font-size:21px;line-height:1.3;margin:5px 0}
+.sk-company-eyebrow {color:var(--sk-muted);font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.sk-company-facts {display:flex;flex-wrap:wrap;gap:20px 30px;margin:0}
+.sk-company-facts > div {border-left:1px solid var(--sk-line);padding-left:24px}
+.sk-company-facts dt {font-size:12px;color:var(--sk-muted);margin-bottom:9px}
+.sk-company-facts dd {margin:0;font-size:14px;font-weight:600}
+.sk-company-columns {display:grid;grid-template-columns:minmax(0,1.65fr) minmax(280px,1fr);gap:20px;align-items:start}
+.sk-company-sidebar {align-content:start}
+.sk-company-editor .sk-crm-fields {grid-template-columns:1fr 1fr}
+.sk-company-editor .sk-crm-fields > label:nth-child(3),.sk-company-editor .sk-crm-fields > button {grid-column:1 / -1}
+.sk-company-editor .sk-crm-fields > button {margin-top:4px}
+.sk-companies .sk-crm-fields input,.sk-companies .sk-crm-fields textarea {background:var(--sk-bg)}
+.sk-company-contacts {list-style:none;padding:0;margin:0}
+.sk-company-contacts > li {display:flex;align-items:center;gap:12px;padding:16px 0;border-top:1px solid var(--sk-line)}
+.sk-company-contacts > li:first-child {border-top:0;padding-top:0}
+.sk-company-contacts > li > div {flex:1;min-width:0;overflow-wrap:anywhere}
+.sk-company-contacts a:not(.sk-company-open) {font-weight:600}
+.sk-company-role {display:inline-block;margin-top:8px;color:var(--sk-muted);font-size:12px}
+.sk-company-open {display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;flex-shrink:0;border:1px solid var(--sk-line);border-radius:7px;color:var(--sk-muted)}
+.sk-company-open:hover {background:var(--sk-green-soft);color:var(--sk-green-text)}
+.sk-company-card-footer {border-top:1px solid var(--sk-line);padding-top:16px}
+.sk-company-timeline {list-style:none;margin:0;padding:0}
+.sk-company-timeline li {position:relative;display:flex;gap:14px;padding:0 0 24px;overflow-wrap:anywhere}
+.sk-company-timeline li:last-child {padding-bottom:0}
+.sk-company-timeline li:not(:last-child)::before {content:'';position:absolute;top:10px;bottom:0;left:4px;border-left:1px solid var(--sk-line)}
+.sk-company-event-dot {height:9px;width:9px;flex-shrink:0;margin-top:6px;border-radius:50%;background:var(--sk-primary);box-shadow:0 0 0 4px var(--sk-green-soft);z-index:1}
+.sk-company-timeline strong {font-size:13px}
+.sk-company-timeline small {display:block;color:var(--sk-muted);font-size:11px;margin-top:5px}
+.sk-company-timeline p {font-size:12px;background:var(--sk-surface-alt);border:1px solid var(--sk-line);border-radius:7px;padding:10px;margin-top:10px;white-space:pre-wrap}
+.sk-companies .sk-company-directory {padding:0;overflow:hidden}
+.sk-company-filters {display:flex;align-items:end;gap:16px;padding:20px;background:var(--sk-surface)}
+.sk-company-filters > label {flex:0 1 170px}
+.sk-company-filters .sk-company-search {flex:1 1 280px;max-width:520px}
+.sk-company-search > span {position:relative;display:block}
+.sk-company-search svg {position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sk-muted);pointer-events:none}
+.sk-company-search input {padding-left:38px}
+.sk-company-filters input,.sk-company-filters select {height:40px}
+.sk-company-result-count {margin-left:auto;color:var(--sk-muted);font-size:12px;padding-bottom:12px;white-space:nowrap}
+.sk-company-directory .sk-table-wrap {margin:0;border-top:1px solid var(--sk-line)}
+.sk-company-directory .sk-table {min-width:660px}
+.sk-shell .sk-company-directory .sk-table td {padding:15px 20px}
+.sk-shell .sk-company-directory .sk-table th {padding:12px 20px}
+.sk-company-directory-footer {display:flex;align-items:center;gap:9px;border-top:1px solid var(--sk-line);padding:15px 20px;color:var(--sk-muted);font-size:12px;background:var(--sk-surface-alt)}
+.sk-company-directory-footer svg {flex-shrink:0}
+.sk-company-sr-only {position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
+@media(max-width:1100px) {
+ .sk-companies .sk-company-overview {align-items:start;flex-direction:column}
+ .sk-company-facts > div {padding-left:0;border:0}
+}
+@media(max-width:850px) {.sk-company-columns {grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px) {
+ .sk-company-editor .sk-crm-fields {grid-template-columns:minmax(0,1fr)}
+ .sk-company-filters {flex-wrap:wrap;padding:16px}
+ .sk-company-filters .sk-company-search {flex-basis:100%;max-width:none}
+ .sk-company-result-count {white-space:normal}
+ .sk-company-contacts > li {flex-wrap:wrap}
+ .sk-companies .sk-company-directory {padding:0}
+}

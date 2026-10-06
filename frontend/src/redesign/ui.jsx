@@ -1,3 +1,4 @@
+import {useUiLanguage} from '../context/LanguageContext';
 import React from 'react';
 import {parseApiDate} from '../utils/datetime';
 import { Link } from 'react-router-dom';
@@ -43,12 +44,13 @@ export function Avatar({name='',size='normal'}) {
 }
 export function Panel({title,icon,action,children,className=''}) {return <section className={`sk-panel ${className}`}>{title && <div className="sk-panel-heading"><h2>{icon&&<Icon name={icon}/>}<span>{title}</span></h2>{action}</div>}{children}</section>;}
 export function Metric({icon,title,value,detail,tone='green',badge}) {return <section className="sk-metric"><span className={`sk-metric-icon tone-${tone}`}><Icon name={icon} size={27}/></span><div className="sk-metric-title">{title}</div><div className="sk-metric-value">{value??'—'}{badge}</div><div className="sk-muted sk-metric-detail">{detail}</div></section>;}
-export function Empty({children='Brak danych.',icon='info'}) {return <div className="sk-empty"><Icon name={icon} size={26}/><span>{children}</span></div>;}
-export function ErrorNotice({error,onRetry}) {return error ? <div className="sk-notice tone-red" role="alert"><Icon name="warning"/><span>{errorText(error)}</span>{onRetry&&<Button onClick={onRetry}>Spróbuj ponownie</Button>}</div>:null;}
-export function errorText(err) {let message=typeof err==='string'?err:err?.message;try{const d=JSON.parse(message)?.detail;if(typeof d==='string')return d;if(Array.isArray(d))return d.map(x=>x.msg).join(' ');if(d?.errors)return d.errors.map(x=>x.message).join(' ');}catch{}return message||'Nie udało się wykonać operacji.';}
-export function dateTime(value,opts={}) {if(!value)return '—';const d=parseApiDate(value);return Number.isNaN(+d)?'—':d.toLocaleString('pl-PL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',...opts});}
+export function Empty({children,icon='info'}) {const {t}=useUiLanguage();return <div className="sk-empty"><Icon name={icon} size={26}/><span>{children??t('workspace.noData')}</span></div>;}
+export function ErrorNotice({error,onRetry}) {const {t}=useUiLanguage();return error ? <div className="sk-notice tone-red" role="alert"><Icon name="warning"/><span>{errorText(error,t('workspace.failed'))}</span>{onRetry&&<Button onClick={onRetry}>{t('workspace.retry')}</Button>}</div>:null;}
+export function errorText(err,fallback='Nie udało się wykonać operacji.') {let message=typeof err==='string'?err:err?.message;try{const d=JSON.parse(message)?.detail;if(typeof d==='string')return d;if(Array.isArray(d))return d.map(x=>x.msg).join(' ');if(d?.errors)return d.errors.map(x=>x.message).join(' ');}catch{}return message||fallback;}
+export function dateTime(value,opts={},locale='pl-PL') {if(!value)return '—';const d=parseApiDate(value);return Number.isNaN(+d)?'—':d.toLocaleString(locale,{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',...opts});}
 export const statusLabels={active:'Aktywny',contacted:'Wysłano',completed:'Zakończony',replied:'Odpowiedział',bounced:'Odbicie',unsubscribed:'Wypisany',paused:'Wstrzymany',new:'Nowy',invalid:'Niepoprawny',valid:'Poprawny',pending:'Oczekuje',interested:'Zainteresowany',not_interested:'Niezainteresowany',needs_custom_email:'Do przygotowania',wrong_person:'Inny odbiorca',out_of_office:'Poza biurem',auto_reply:'Automatyczna odpowiedź'};
-export function ContactStatus({lead}) {const cs=lead?.campaigns||[];const s=lead?.email_verification_status==='invalid'?'invalid':cs.some(c=>c.status==='unsubscribed')?'unsubscribed':cs.some(c=>c.replied||c.status==='replied')?'replied':cs[0]?.status || lead?.lead_status || 'new';return <Badge dot tone={['bounced','invalid','unsubscribed'].includes(s)?'red':s==='replied'?'blue':s==='active'?'green':'neutral'}>{statusLabels[s]||s}</Badge>;}
+export function contactStatusLabel(status,t) {const label=t('contacts.statuses.'+status);return label==='contacts.statuses.'+status?status:label;}
+export function ContactStatus({lead}) {const {t}=useUiLanguage();const cs=lead?.campaigns||[];const s=lead?.email_verification_status==='invalid'?'invalid':cs.some(c=>c.status==='unsubscribed')?'unsubscribed':cs.some(c=>c.replied||c.status==='replied')?'replied':cs[0]?.status || lead?.lead_status || 'new';return <span className="sk-contact-badges">{lead?.archived_at&&<Badge tone="neutral">{t('contacts.archived')}</Badge>}{lead?.suppressed&&<Badge tone="red">{t('contacts.suppressed')}</Badge>}<Badge dot tone={['bounced','invalid','unsubscribed'].includes(s)?'red':s==='replied'?'blue':s==='active'?'green':'neutral'}>{contactStatusLabel(s,t)}</Badge></span>;}
 
 
 export function PageFrame({title,description,actions,children,className=''}) {
@@ -61,8 +63,9 @@ export function PageFrame({title,description,actions,children,className=''}) {
  </div>;
 }
 
-export function SectionTabs({items=[],value,onChange,className='',ariaLabel='Sekcje'}) {
- return <div className={`sk-section-tabs ${className}`} role="tablist" aria-label={ariaLabel}>
+export function SectionTabs({items=[],value,onChange,className='',ariaLabel}) {
+ const {t}=useUiLanguage();
+ return <div className={`sk-section-tabs ${className}`} role="tablist" aria-label={ariaLabel??t('workspace.sections')}>
   {items.map(item=>{
    const data=typeof item==='string'?{id:item,label:item}:item;
    const active=data.id===value;
@@ -110,8 +113,9 @@ export function Switch({checked,onChange,label,description,disabled=false,classN
  </div>;
 }
 
-export function ComingSoon({children='Wkrótce'}) {
- return <span className="sk-coming-soon">{children}</span>;
+export function ComingSoon({children}) {
+ const {t}=useUiLanguage();
+ return <span className="sk-coming-soon">{children??t('workspace.soon')}</span>;
 }
 
 export function StatePanel({title,description,icon='info',tone='neutral',actions,children,className=''}) {

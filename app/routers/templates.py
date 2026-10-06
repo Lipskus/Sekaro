@@ -1,5 +1,6 @@
 """Reusable message templates, versions, preview and test-send API."""
 from __future__ import annotations
+from app.mail_identity import load_identity
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func, select
@@ -213,19 +214,22 @@ async def test_send_template(
     inbox = await db.get(Inbox, data.inbox_id)
     if inbox is None:
         raise HTTPException(404, "Inbox not found")
-    if (inbox.provider or "smtp") != "smtp":
-        raise HTTPException(400, "Sekaro 0.4 test send requires an SMTP inbox")
+    if (inbox.provider or "smtp") not in {"smtp","gmail","office365"}:
+        raise HTTPException(400, "Unsupported mailbox provider")
     if inbox.paused:
         raise HTTPException(400, "Inbox is paused")
 
-    account_result = await db.execute(
-        select(SmtpAccount).where(SmtpAccount.inbox_id == inbox.id)
-    )
+    from app.models import GmailAccount, Office365Account
+    model = {'smtp':SmtpAccount,'gmail':GmailAccount,'office365':Office365Account}[inbox.provider or 'smtp']
+    account_result = await db.execute(select(model).where(model.inbox_id == inbox.id))
     account = account_result.scalar_one_or_none()
     if account is None:
         raise HTTPException(400, "SMTP account is not configured")
 
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, str(data.to_email), inbox.id)
     result = send_email(
+        mail_identity=await load_identity(db, inbox.id),
         to_email=str(data.to_email),
         subject=rendered["subject"],
         body=rendered["body"],
@@ -233,8 +237,10 @@ async def test_send_template(
         from_name=inbox.display_name or "",
         reply_to_address=inbox.reply_to or None,
         is_html=bool(data.is_html),
-        provider="smtp",
-        smtp_account=account,
+        provider=inbox.provider or "smtp",
+        smtp_account=account if model is SmtpAccount else None,
+        gmail_account=account if model is GmailAccount else None,
+        office365_account=account if model is Office365Account else None,
     )
     if isinstance(result, SendFailure):
         raise HTTPException(502, f"Test send failed: {result.message}")

@@ -323,9 +323,10 @@ async def _resolve_scheduled_content(
     inbox: Inbox,
 ) -> dict:
     """Resolve content for a scheduled slot (reads variant_id from slot)."""
-    return await _resolve_content(
-        db, sequence, lead, campaign_lead, campaign, slot.variant_id
-    )
+    resolved = await _resolve_content(db, sequence, lead, campaign_lead, campaign, slot.variant_id)
+    from app.mail_identity import load_identity, append_footer
+    resolved['body'] = append_footer(resolved['body'], resolved['is_html'], await load_identity(db, inbox.id))
+    return resolved
 
 
 async def _resolve_sent_content(
@@ -504,6 +505,8 @@ async def global_scheduled(
         )
         .where(
             CampaignLead.sending_paused == False,  # noqa: E712
+            CampaignLead.archive_sending_paused.is_(False),
+            Lead.archived_at.is_(None),
             CampaignLead.enrollment_status.in_(["active", "contacted"]),
         )
         .order_by(QueueSlot.scheduled_date.asc(), QueueSlot.position_in_day)

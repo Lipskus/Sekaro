@@ -48,7 +48,7 @@ def allowed_request(method, path):
         return True
     if method == "POST" and re.fullmatch(r"/api/unibox/threads/[^/]+/mark-read", path):
         return True
-    return bool(re.fullmatch(r"/api/(?:leads|contact-fields|contact-lists|campaigns|inboxes|templates|notifications|ui/contacts)(?:/.*)?", path))
+    return bool(re.fullmatch(r"/api/(?:crm|leads|contact-fields|contact-lists|campaigns|inboxes|templates|notifications|ui/contacts)(?:/.*)?", path))
 
 
 class DemoMiddleware(BaseHTTPMiddleware):
@@ -87,6 +87,7 @@ def create_app():
     validate_demo_target(os.environ.get("DATABASE_URL", ""))
     block_mail_transports()
     from app.main import app
+    app.state.is_demo = True
     app.router.lifespan_context = demo_lifespan
     app.add_middleware(DemoMiddleware)
 

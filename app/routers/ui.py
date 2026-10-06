@@ -125,12 +125,6 @@ class ReplyRequest(UniboxSendRequest):
 @router.post("/reply")
 async def reply_from_inbox(data: ReplyRequest, db: AsyncSession=Depends(get_db)):
     """Explicit user reply, guarded again on the server before the SMTP service."""
-    from fastapi import HTTPException
-    if await is_suppressed(db,str(data.to_email)):
-        raise HTTPException(409,"Adres jest na liście wykluczeń. Wiadomość nie została wysłana.")
-    inbox=await db.get(Inbox,data.inbox_id)
-    if inbox is None:
-        raise HTTPException(404,"Nie znaleziono skrzynki.")
-    if inbox.paused:
-        raise HTTPException(409,"Skrzynka jest wstrzymana. Wiadomość nie została wysłana.")
+    from app.outbound_safety import require_outbound_allowed
+    await require_outbound_allowed(db, str(data.to_email), data.inbox_id)
     return await send_unibox_email(data,db)

@@ -1,5 +1,9 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
+import workspace from '../i18n/workspace.json';
+import contacts from '../i18n/contacts.json';
+import outreach from '../i18n/outreach.json';
+
 const LanguageContext = createContext(null);
 
 export const SUPPORTED_LANGUAGES = [
@@ -43,6 +47,8 @@ const translations = {
       privateLogin: 'Panel prywatny • Brak logowania przez Google i Microsoft',
     },
     nav: {
+      companies: 'Firmy',
+      sales: 'Sprzedaż',
       dashboard: 'Dashboard',
       analytics: 'Analityka',
       campaigns: 'Kampanie',
@@ -66,7 +72,7 @@ const translations = {
       mainNavigation: 'Nawigacja główna', search: 'Szukaj w Sekaro', searchPlaceholder: 'Szukaj kontaktów, kampanii, wiadomości…',
       notifications: 'Powiadomienia', openMenu: 'Otwórz menu', closeMenu: 'Zamknij menu', settings: 'Ustawienia', queue: 'Kolejka wysyłki',
       language: 'Język', logout: 'Wyloguj się', administrator: 'Administrator', user: 'Użytkownik', system: 'System', version: 'Wersja',
-      environment: 'Środowisko', production: 'Produkcja', test: 'Testowe', disk: 'Dysk', noData: 'Brak danych', free: 'wolne',
+      environment: 'Środowisko', demo: 'DEMO', production: 'Produkcja', test: 'Testowe', disk: 'Dysk', noData: 'Brak danych', free: 'wolne',
       allGood: 'Wszystko działa', needsAttention: 'Wymaga uwagi', problem: 'Wykryto problem', unknown: 'Stan nieznany', checking: 'Sprawdzanie…',
       selfHostedMotto: 'Twoje dane. Twoje zasady.', searching: 'Wyszukiwanie…', noResults: 'Brak wyników.', searchFailed: 'Nie udało się wyszukać danych.',
       searchMessages: 'Szukaj w wiadomościach', campaign: 'Kampania', template: 'Szablon', diskUsage: 'Wykorzystanie dysku',
@@ -106,6 +112,8 @@ const translations = {
       privateLogin: 'Private dashboard • No Google or Microsoft sign-in',
     },
     nav: {
+      companies: 'Companies',
+      sales: 'Sales',
       dashboard: 'Dashboard',
       analytics: 'Analytics',
       campaigns: 'Campaigns',
@@ -129,7 +137,7 @@ const translations = {
       mainNavigation: 'Main navigation', search: 'Search Sekaro', searchPlaceholder: 'Search contacts, campaigns, messages…',
       notifications: 'Notifications', openMenu: 'Open menu', closeMenu: 'Close menu', settings: 'Settings', queue: 'Sending queue',
       language: 'Language', logout: 'Sign out', administrator: 'Administrator', user: 'User', system: 'System', version: 'Version',
-      environment: 'Environment', production: 'Production', test: 'Test', disk: 'Disk', noData: 'No data', free: 'free',
+      environment: 'Environment', demo: 'DEMO', production: 'Production', test: 'Test', disk: 'Disk', noData: 'No data', free: 'free',
       allGood: 'All systems operational', needsAttention: 'Needs attention', problem: 'Problem detected', unknown: 'Status unknown', checking: 'Checking…',
       selfHostedMotto: 'Your data. Your rules.', searching: 'Searching…', noResults: 'No results.', searchFailed: 'Search failed.',
       searchMessages: 'Search messages', campaign: 'Campaign', template: 'Template', diskUsage: 'Disk usage',
@@ -169,6 +177,8 @@ const translations = {
       privateLogin: 'Privater Bereich • Keine Anmeldung über Google oder Microsoft',
     },
     nav: {
+      companies: 'Firmen',
+      sales: 'Vertrieb',
       dashboard: 'Übersicht',
       analytics: 'Analysen',
       campaigns: 'Kampagnen',
@@ -192,7 +202,7 @@ const translations = {
       mainNavigation: 'Hauptnavigation', search: 'Sekaro durchsuchen', searchPlaceholder: 'Kontakte, Kampagnen und Nachrichten suchen…',
       notifications: 'Benachrichtigungen', openMenu: 'Menü öffnen', closeMenu: 'Menü schließen', settings: 'Einstellungen', queue: 'Sende-Warteschlange',
       language: 'Sprache', logout: 'Abmelden', administrator: 'Administrator', user: 'Benutzer', system: 'System', version: 'Version',
-      environment: 'Umgebung', production: 'Produktion', test: 'Test', disk: 'Speicher', noData: 'Keine Daten', free: 'frei',
+      environment: 'Umgebung', demo: 'DEMO', production: 'Produktion', test: 'Test', disk: 'Speicher', noData: 'Keine Daten', free: 'frei',
       allGood: 'Alles funktioniert', needsAttention: 'Aufmerksamkeit nötig', problem: 'Problem erkannt', unknown: 'Status unbekannt', checking: 'Prüfung…',
       selfHostedMotto: 'Deine Daten. Deine Regeln.', searching: 'Suche…', noResults: 'Keine Ergebnisse.', searchFailed: 'Suche fehlgeschlagen.',
       searchMessages: 'Nachrichten durchsuchen', campaign: 'Kampagne', template: 'Vorlage', diskUsage: 'Speichernutzung',
@@ -232,6 +242,8 @@ const translations = {
       privateLogin: 'Приватная панель • Без входа через Google и Microsoft',
     },
     nav: {
+      companies: 'Компании',
+      sales: 'Продажи',
       dashboard: 'Панель',
       analytics: 'Аналитика',
       campaigns: 'Кампании',
@@ -255,7 +267,7 @@ const translations = {
       mainNavigation: 'Основная навигация', search: 'Поиск в Sekaro', searchPlaceholder: 'Поиск контактов, кампаний и сообщений…',
       notifications: 'Уведомления', openMenu: 'Открыть меню', closeMenu: 'Закрыть меню', settings: 'Настройки', queue: 'Очередь отправки',
       language: 'Язык', logout: 'Выйти', administrator: 'Администратор', user: 'Пользователь', system: 'Система', version: 'Версия',
-      environment: 'Среда', production: 'Продакшен', test: 'Тестовая', disk: 'Диск', noData: 'Нет данных', free: 'свободно',
+      environment: 'Среда', demo: 'DEMO', production: 'Продакшен', test: 'Тестовая', disk: 'Диск', noData: 'Нет данных', free: 'свободно',
       allGood: 'Всё работает', needsAttention: 'Требует внимания', problem: 'Обнаружена проблема', unknown: 'Статус неизвестен', checking: 'Проверка…',
       selfHostedMotto: 'Ваши данные. Ваши правила.', searching: 'Поиск…', noResults: 'Нет результатов.', searchFailed: 'Ошибка поиска.',
       searchMessages: 'Искать в сообщениях', campaign: 'Кампания', template: 'Шаблон', diskUsage: 'Использование диска',
@@ -263,6 +275,24 @@ const translations = {
     appearance: { loginSettings: 'Настройки входа', language: 'Язык', theme: 'Тема', light: 'Светлая тема', dark: 'Тёмная тема', system: 'Системная тема', title: 'Внешний вид и язык', description: 'Настройте интерфейс по своим предпочтениям.', savedLocally: 'Язык сохраняется локально для этого браузера.', systemFollows: 'Системная тема автоматически следует настройкам операционной системы или браузера.', cancel: 'Отмена', save: 'Сохранить изменения', saving: 'Сохранение…', saved: 'Настройки сохранены.', unsaved: 'Есть несохранённые общие настройки.', unchanged: 'Нет несохранённых изменений.' },
   },
 };
+
+// Values are interpolated as plain React text, never as HTML or template code.
+export function translate(language, key, params = {}) {
+  const namespace = key.split('.')[0];
+  const modules = {workspace, contacts, outreach};
+  const dictionaries = modules[namespace] ?? translations;
+  const lookup = modules[namespace] ? key.slice(namespace.length + 1) : key;
+  const message = getNested(dictionaries[language], lookup) ?? getNested(dictionaries.en, lookup) ?? key;
+  return typeof message === 'string' ? message.replace(/\{(\w+)\}/g, (token, name) =>
+    Object.prototype.hasOwnProperty.call(params, name) ? String(params[name]) : token) : message;
+}
+
+// Shared UI primitives can also render standalone (e.g. component previews).
+// In the application they always consume the existing LanguageProvider.
+const defaultUiLanguage = {language: 'pl', t: (key, params) => translate('pl', key, params)};
+export function useUiLanguage() {
+  return useContext(LanguageContext) ?? defaultUiLanguage;
+}
 
 function getNested(obj, path) {
   return path.split('.').reduce((acc, key) => acc?.[key], obj);
@@ -299,7 +329,7 @@ export function LanguageProvider({ children }) {
     language,
     setLanguage,
     languages: SUPPORTED_LANGUAGES,
-    t: (key) => getNested(translations[language], key) ?? getNested(translations.en, key) ?? key,
+    t: (key, params) => translate(language, key, params),
   }), [language]);
 
   return (

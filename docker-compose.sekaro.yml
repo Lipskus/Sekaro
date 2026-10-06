@@ -17,6 +17,7 @@ services:
       retries: 10
     networks:
       - sekaro-internal
+      - unsubscribe-db
 
   app:
     build:
@@ -33,6 +34,14 @@ services:
       DATABASE_URL: postgresql+asyncpg://sekaro:${POSTGRES_PASSWORD}@db:5432/sekaro
       QUICKLY_LOCAL_DISK_BACKUPS: "1"
       QUICKLY_MODE: production
+      SEKARO_UNSUBSCRIBE_BASE_URL: ${SEKARO_UNSUBSCRIBE_BASE_URL:-}
+      SEKARO_UNSUBSCRIBE_PASSWORD: ${SEKARO_UNSUBSCRIBE_PASSWORD:-}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/auth/setup-status', timeout=5)"]
+      interval: 5s
+      timeout: 6s
+      retries: 30
+      start_period: 20s
     ports:
       - "127.0.0.1:${SEKARO_PORT:-5050}:8000"
     volumes:
@@ -40,7 +49,29 @@ services:
     networks:
       - sekaro-internal
 
+  unsubscribe:
+    profiles: [public-unsubscribe]
+    build:
+      context: .
+      dockerfile: Dockerfile.unsubscribe
+    image: sekaro-unsubscribe:local
+    restart: unless-stopped
+    environment:
+      UNSUBSCRIBE_DATABASE_URL: postgresql://sekaro_unsubscribe:${SEKARO_UNSUBSCRIBE_PASSWORD:-}@db:5432/sekaro
+    ports:
+      - "127.0.0.1:${SEKARO_UNSUBSCRIBE_PORT:-5051}:8000"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp:size=8m,mode=1777]
+    networks: [unsubscribe-db]
+    depends_on:
+      db:
+        condition: service_healthy
+
 networks:
+  unsubscribe-db:
+    internal: true
   sekaro-internal:
     name: sekaro-internal
 

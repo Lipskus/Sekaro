@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import {useOperationsLanguage} from './operationsLanguage';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { api } from '../api';
 import { useAuth } from './AuthContext';
 
@@ -7,13 +8,13 @@ const SystemHealthContext = createContext(null);
 const MUTE_KEY = 'sekaro_health_muted_v1';
 const AUTO_REFRESH_MS = 5 * 60 * 1000;
 
-function formatBytes(value) {
+function formatBytes(value,language='pl') {
   const bytes = Number(value);
   if (!Number.isFinite(bytes) || bytes < 0) return '—';
   const gb = bytes / (1024 ** 3);
-  if (gb >= 1) return `${gb.toLocaleString('pl-PL', { maximumFractionDigits: gb >= 100 ? 0 : 1 })} GB`;
+  if (gb >= 1) return `${gb.toLocaleString(language, { maximumFractionDigits: gb >= 100 ? 0 : 1 })} GB`;
   const mb = bytes / (1024 ** 2);
-  return `${mb.toLocaleString('pl-PL', { maximumFractionDigits: 0 })} MB`;
+  return `${mb.toLocaleString(language, { maximumFractionDigits: 0 })} MB`;
 }
 
 function loadMuted() {
@@ -32,7 +33,7 @@ async function fetchAllHealthData() {
   return api.get('/system-health');
 }
 
-function buildChecks(d) {
+export function buildChecks(d,ct=(s,p={})=>s.replace(/\{(\w+)\}/g,(m,k)=>p[k]??m),language='pl') {
   if (!d) return [];
 
   const {
@@ -54,22 +55,22 @@ function buildChecks(d) {
   const smtpAccountCount = Number(security?.smtp_account_count || 0);
   checks.push({
     id: 'mailbox_encryption',
-    label: 'Szyfrowanie haseł skrzynek',
+    label: ct("Szyfrowanie haseł skrzynek"),
     icon: 'verify',
     status: externalEncryptionKey ? 'ok' : 'warning',
     issues: externalEncryptionKey
       ? []
       : [{
           level: 'warning',
-          text: 'SEKARO_ENCRYPTION_KEY nie jest ustawiony w środowisku serwera.',
+          text: ct("SEKARO_ENCRYPTION_KEY nie jest ustawiony w środowisku serwera."),
           fix: smtpAccountCount > 0
-            ? 'Skrzynki już istnieją — nie zmieniaj klucza w ciemno. Przed rotacją wykonaj kopię i migrację sekretów.'
-            : 'Przed dodaniem pierwszej skrzynki ustaw losowy SEKARO_ENCRYPTION_KEY w pliku .env i zrestartuj aplikację.',
+            ? ct("Skrzynki już istnieją — nie zmieniaj klucza w ciemno. Przed rotacją wykonaj kopię i migrację sekretów.")
+            : ct("Przed dodaniem pierwszej skrzynki ustaw losowy SEKARO_ENCRYPTION_KEY w pliku .env i zrestartuj aplikację."),
         }],
     meta: { externalEncryptionKey, smtpAccountCount },
     detail: externalEncryptionKey
-      ? 'Klucz szyfrowania jest oddzielony od bazy danych'
-      : 'Tryb kompatybilności — klucz nie jest dostarczony z .env',
+      ? ct("Klucz szyfrowania jest oddzielony od bazy danych")
+      : ct("Tryb kompatybilności — klucz nie jest dostarczony z .env"),
   });
 
   /* ── SMTP / IMAP ─────────────────────────────────────────────── */
@@ -81,31 +82,31 @@ function buildChecks(d) {
     smtpStatus = 'error';
     smtpIssues.push({
       level: 'error',
-      text: 'Nie skonfigurowano jeszcze żadnej skrzynki SMTP/IMAP.',
-      fix: 'Dodaj skrzynkę, aby Sekaro mogło wysyłać wiadomości i synchronizować odpowiedzi.',
-      action: { label: 'Dodaj skrzynkę', to: '/inboxes' },
+      text: ct("Nie skonfigurowano jeszcze żadnej skrzynki SMTP/IMAP."),
+      fix: ct("Dodaj skrzynkę, aby Sekaro mogło wysyłać wiadomości i synchronizować odpowiedzi."),
+      action: { label: ct("Dodaj skrzynkę"), to: '/inboxes' },
     });
   }
 
   smtpAccounts.forEach(acc => {
-    const label = acc.inbox_display_name || acc.inbox_email || `Skrzynka #${acc.inbox_id}`;
+    const label = acc.inbox_display_name || acc.inbox_email || ct('Skrzynka #{id}',{id:acc.inbox_id});
     const inboxLink = `/inboxes?inbox=${acc.inbox_id}`;
 
     if (!acc.last_tested_at) {
       if (smtpStatus === 'ok') smtpStatus = 'warning';
       smtpIssues.push({
         level: 'warning',
-        text: `Połączenie skrzynki „${label}” nie zostało jeszcze przetestowane.`,
-        fix: 'Uruchom test połączenia SMTP/IMAP w ustawieniach skrzynki.',
-        action: { label: 'Otwórz skrzynkę', to: inboxLink },
+        text: ct('Połączenie skrzynki „{name}” nie zostało jeszcze przetestowane.',{name:label}),
+        fix: ct("Uruchom test połączenia SMTP/IMAP w ustawieniach skrzynki."),
+        action: { label: ct("Otwórz skrzynkę"), to: inboxLink },
       });
     } else if (!acc.last_test_ok) {
       smtpStatus = 'error';
       smtpIssues.push({
         level: 'error',
-        text: `Test połączenia skrzynki „${label}” zakończył się błędem.`,
-        fix: acc.last_test_error || 'Sprawdź host, port, login, hasło i ustawienia TLS/SSL.',
-        action: { label: 'Napraw', to: inboxLink },
+        text: ct('Test połączenia skrzynki „{name}” zakończył się błędem.',{name:label}),
+        fix: acc.last_test_error || ct("Sprawdź host, port, login, hasło i ustawienia TLS/SSL."),
+        action: { label: ct('Napraw'), to: inboxLink },
       });
     }
 
@@ -113,9 +114,9 @@ function buildChecks(d) {
       if (smtpStatus === 'ok') smtpStatus = 'warning';
       smtpIssues.push({
         level: 'warning',
-        text: `Skrzynka „${label}” nie ma skonfigurowanego IMAP.`,
-        fix: 'Bez IMAP Sekaro może wysyłać pocztę, ale nie będzie widziało odpowiedzi w Odebranych.',
-        action: { label: 'Skonfiguruj IMAP', to: inboxLink },
+        text: ct('Skrzynka „{name}” nie ma skonfigurowanego IMAP.',{name:label}),
+        fix: ct("Bez IMAP Sekaro może wysyłać pocztę, ale nie będzie widziało odpowiedzi w Odebranych."),
+        action: { label: ct("Skonfiguruj IMAP"), to: inboxLink },
       });
     }
   });
@@ -128,8 +129,8 @@ function buildChecks(d) {
     issues: smtpIssues,
     meta: { accounts: smtpAccounts },
     detail: smtpAccounts.length === 0
-      ? 'Brak skonfigurowanych skrzynek'
-      : `${smtpAccounts.length} skrzyn${smtpAccounts.length === 1 ? 'ka' : 'ki'} skonfigurowane`,
+      ? ct("Brak skonfigurowanych skrzynek")
+      : ct('Skonfigurowane skrzynki: {count}',{count:smtpAccounts.length}),
   });
 
   /* ── Inbox Status ─────────────────────────────────────────────── */
@@ -141,9 +142,9 @@ function buildChecks(d) {
       if (inboxStatLvl === 'ok') inboxStatLvl = 'warning';
       inboxIssues.push({
         level: 'warning',
-        text: `„${inbox.display_name || inbox.email}” jest wstrzymana.`,
-        fix: 'Wznów skrzynkę, gdy chcesz ponownie uruchomić wysyłkę.',
-        action: { label: 'Otwórz skrzynki', to: '/inboxes' },
+        text: ct('„{name}” jest wstrzymana.',{name:inbox.display_name||inbox.email}),
+        fix: ct("Wznów skrzynkę, gdy chcesz ponownie uruchomić wysyłkę."),
+        action: { label: ct("Otwórz skrzynki"), to: '/inboxes' },
       });
     }
   });
@@ -151,12 +152,12 @@ function buildChecks(d) {
   if (inboxList.length > 0) {
     checks.push({
       id: 'inbox_status',
-      label: 'Stan skrzynek',
+      label: ct("Stan skrzynek"),
       icon: 'inbox',
       status: inboxStatLvl,
       issues: inboxIssues,
       meta: { inboxList },
-      detail: `${inboxList.length} skrzynek — ${inboxList.filter(i => !i.paused).length} aktywnych`,
+      detail: ct('Skrzynki: {count} — aktywne: {active}',{count:inboxList.length,active:inboxList.filter(i=>!i.paused).length}),
     });
   }
 
@@ -172,23 +173,23 @@ function buildChecks(d) {
         const name = inbox.display_name || inbox.email;
         domainIssues.push({
           level: 'error',
-          text: `Domena śledząca „${inbox.tracking_domain}” dla „${name}” nie odpowiada poprawnie po HTTPS.`,
-          fix: 'Sprawdź rekord DNS oraz obsługę HTTPS dla domeny śledzącej.',
-          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
+          text: ct('Domena śledząca „{domain}” dla „{name}” nie odpowiada poprawnie po HTTPS.',{domain:inbox.tracking_domain,name}),
+          fix: ct("Sprawdź rekord DNS oraz obsługę HTTPS dla domeny śledzącej."),
+          action: { label: ct("Otwórz skrzynki"), to: '/inboxes' },
         });
       }
     });
 
     checks.push({
       id: 'tracking_domains',
-      label: 'Domeny śledzące',
+      label: ct("Domeny śledzące"),
       icon: 'domain',
       status: domainStatus,
       issues: domainIssues,
       meta: { inboxesWithDomains },
       detail: inboxesWithDomains.length === 1
-        ? `1 domena — ${inboxesWithDomains[0].tracking_domain}`
-        : `${inboxesWithDomains.length} domen`,
+        ? ct('Domeny: {count}',{count:1})+' — '+inboxesWithDomains[0].tracking_domain
+        : ct('Domeny: {count}',{count:inboxesWithDomains.length}),
     });
   }
 
@@ -204,9 +205,9 @@ function buildChecks(d) {
         beaconStatus = 'error';
         beaconIssues.push({
           level: 'error',
-          text: `Beacon „${inbox.beacon_base_url}” dla „${name}” nie odpowiada poprawnie.`,
-          fix: 'Sprawdź usługę Beacon i połączenie z Sekaro.',
-          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
+          text: ct('Beacon „{url}” dla „{name}” nie odpowiada poprawnie.',{url:inbox.beacon_base_url,name}),
+          fix: ct("Sprawdź usługę Beacon i połączenie z Sekaro."),
+          action: { label: ct("Otwórz skrzynki"), to: '/inboxes' },
         });
         return;
       }
@@ -214,9 +215,9 @@ function buildChecks(d) {
         if (beaconStatus === 'ok') beaconStatus = 'warning';
         beaconIssues.push({
           level: 'warning',
-          text: `Liczba rejestracji Beacon dla „${name}” nie zgadza się ze stanem Sekaro.`,
-          fix: 'Sekaro wykonało ponowną synchronizację. Jeśli ostrzeżenie pozostaje, sprawdź logi Beacon.',
-          action: { label: 'Otwórz skrzynki', to: '/inboxes' },
+          text: ct('Liczba rejestracji Beacon dla „{name}” nie zgadza się ze stanem Sekaro.',{name}),
+          fix: ct("Sekaro wykonało ponowną synchronizację. Jeśli ostrzeżenie pozostaje, sprawdź logi Beacon."),
+          action: { label: ct("Otwórz skrzynki"), to: '/inboxes' },
         });
       }
     });
@@ -229,8 +230,8 @@ function buildChecks(d) {
       issues: beaconIssues,
       meta: { inboxesWithBeacon, beaconReconciliation },
       detail: inboxesWithBeacon.length === 1
-        ? `1 host — ${inboxesWithBeacon[0].beacon_base_url}`
-        : `${inboxesWithBeacon.length} hostów Beacon`,
+        ? ct('Hosty Beacon: {count}',{count:1})+' — '+inboxesWithBeacon[0].beacon_base_url
+        : ct('Hosty Beacon: {count}',{count:inboxesWithBeacon.length}),
     });
   }
 
@@ -239,7 +240,7 @@ function buildChecks(d) {
   if (inboxList.length > 0 || smtpAccounts.length > 0) {
     checks.push({
       id: 'unibox_sync',
-      label: 'Synchronizacja poczty',
+      label: ct("Synchronizacja poczty"),
       icon: 'sync',
       status: 'ok',
       issues: [],
@@ -250,8 +251,8 @@ function buildChecks(d) {
         syncIntervalMinutes: unibox_sync?.sync_interval_minutes ?? 5,
       },
       detail: syncInProgress
-        ? 'Synchronizacja w toku'
-        : `Odpytywanie IMAP co około ${unibox_sync?.sync_interval_minutes ?? 5} min`,
+        ? ct("Synchronizacja w toku")
+        : ct('Odpytywanie IMAP co około {minutes} min',{minutes:unibox_sync?.sync_interval_minutes??5}),
     });
   }
 
@@ -265,39 +266,39 @@ function buildChecks(d) {
       if (aiStatus === 'ok') aiStatus = 'warning';
       aiIssues.push({
         level: 'warning',
-        text: `„${f.label}” jest włączone, ale nie ma skonfigurowanego klucza API.`,
-        fix: 'Uzupełnij konfigurację w Ustawienia → Funkcje.',
-        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+        text: ct('„{name}” jest włączone, ale nie ma skonfigurowanego klucza API.',{name:f.label}),
+        fix: ct("Uzupełnij konfigurację w Ustawienia → Funkcje."),
+        action: { label: ct("Otwórz ustawienia"), to: '/settings#features' },
       });
     } else if (f.last_error) {
       aiStatus = 'error';
       aiIssues.push({
         level: 'error',
-        text: `„${f.label}” zgłosiło błąd: ${f.last_error}`,
-        fix: 'Sprawdź klucz API, limity i konfigurację dostawcy.',
-        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+        text: ct('„{name}” zgłosiło błąd: {error}',{name:f.label,error:f.last_error}),
+        fix: ct("Sprawdź klucz API, limity i konfigurację dostawcy."),
+        action: { label: ct("Otwórz ustawienia"), to: '/settings#features' },
       });
     } else if (!f.connection_tested) {
       if (aiStatus === 'ok') aiStatus = 'warning';
       aiIssues.push({
         level: 'warning',
-        text: `Połączenie dla „${f.label}” nie zostało przetestowane.`,
-        fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
-        action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+        text: ct('Połączenie dla „{name}” nie zostało przetestowane.',{name:f.label}),
+        fix: ct("Uruchom test połączenia w Ustawienia → Funkcje."),
+        action: { label: ct("Otwórz ustawienia"), to: '/settings#features' },
       });
     }
   });
 
   checks.push({
     id: 'ai_features',
-    label: 'Funkcje AI',
+    label: ct("Funkcje AI"),
     icon: 'ai',
     status: aiStatus,
     issues: aiIssues,
     meta: { enabledFeatures: enabledAiFeatures, allFeatures: rawAi },
     detail: enabledAiFeatures.length === 0
-      ? 'Funkcje AI są wyłączone'
-      : `${enabledAiFeatures.length} aktywnych funkcji`,
+      ? ct("Funkcje AI są wyłączone")
+      : ct('Aktywne funkcje: {count}',{count:enabledAiFeatures.length}),
   });
 
   /* ── Email verification ──────────────────────────────────────── */
@@ -308,32 +309,32 @@ function buildChecks(d) {
     evStatus = 'error';
     evIssues.push({
       level: 'error',
-      text: `Weryfikacja adresów zgłosiła błąd: ${evData.last_error}`,
-      fix: 'Sprawdź konfigurację dostawcy weryfikacji.',
-      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+      text: ct('Weryfikacja adresów zgłosiła błąd: {error}',{error:evData.last_error}),
+      fix: ct("Sprawdź konfigurację dostawcy weryfikacji."),
+      action: { label: ct("Otwórz ustawienia"), to: '/settings#features' },
     });
   } else if (evData?.enabled && !evData.connection_tested) {
     evStatus = 'warning';
     evIssues.push({
       level: 'warning',
-      text: 'Weryfikacja adresów jest włączona, ale połączenie nie zostało przetestowane.',
-      fix: 'Uruchom test połączenia w Ustawienia → Funkcje.',
-      action: { label: 'Otwórz ustawienia', to: '/settings#features' },
+      text: ct("Weryfikacja adresów jest włączona, ale połączenie nie zostało przetestowane."),
+      fix: ct("Uruchom test połączenia w Ustawienia → Funkcje."),
+      action: { label: ct("Otwórz ustawienia"), to: '/settings#features' },
     });
   }
 
   checks.push({
     id: 'email_verification',
-    label: 'Weryfikacja adresów',
+    label: ct("Weryfikacja adresów"),
     icon: 'verify',
     status: evStatus,
     issues: evIssues,
     meta: { emailVerification: evData },
     detail: !evData || !evData.enabled
-      ? 'Wyłączona'
+      ? ct("Wyłączona")
       : evData.connection_tested
-        ? `Aktywna — ${evData.provider}`
-        : 'Włączona, ale nieprzetestowana',
+        ? ct('Aktywna — {provider}',{provider:evData.provider})
+        : ct("Włączona, ale nieprzetestowana"),
   });
 
   /* ── Local storage ───────────────────────────────────────────── */
@@ -345,19 +346,19 @@ function buildChecks(d) {
       storageIssues.push({
         level: storageStatus,
         text: storageStatus === 'error'
-          ? 'Na dysku pozostało bardzo mało wolnego miejsca.'
-          : 'Kończy się wolne miejsce na dysku.',
-        fix: 'Usuń niepotrzebne pliki lub zwiększ przestrzeń dostępną dla danych Sekaro.',
+          ? ct("Na dysku pozostało bardzo mało wolnego miejsca.")
+          : ct("Kończy się wolne miejsce na dysku."),
+        fix: ct("Usuń niepotrzebne pliki lub zwiększ przestrzeń dostępną dla danych Sekaro."),
       });
     }
     checks.push({
       id: 'storage',
-      label: 'Miejsce na dane',
+      label: ct("Miejsce na dane"),
       icon: 'storage',
       status: storageStatus,
       issues: storageIssues,
       meta: { storage },
-      detail: `${formatBytes(storage.free_bytes)} wolne z ${formatBytes(storage.total_bytes)}`,
+      detail: ct('{free} wolne z {total}',{free:formatBytes(storage.free_bytes,language),total:formatBytes(storage.total_bytes,language)}),
     });
   }
 
@@ -368,20 +369,20 @@ function buildChecks(d) {
     flagsStatus = 'warning';
     flagsIssues.push({
       level: 'warning',
-      text: 'Tryb testowy jest aktywny — wiadomości nie są wysyłane do rzeczywistych odbiorców.',
-      fix: 'Wyłącz tryb testowy, gdy będziesz gotowy do realnej wysyłki.',
-      action: { label: 'Otwórz ustawienia', to: '/settings#dev' },
+      text: ct("Tryb testowy jest aktywny — wiadomości nie są wysyłane do rzeczywistych odbiorców."),
+      fix: ct("Wyłącz tryb testowy, gdy będziesz gotowy do realnej wysyłki."),
+      action: { label: ct("Otwórz ustawienia"), to: '/settings#dev' },
     });
   }
 
   checks.push({
     id: 'active_settings',
-    label: 'Tryb pracy',
+    label: ct("Tryb pracy"),
     icon: 'settings',
     status: flagsStatus,
     issues: flagsIssues,
     meta: { testMode: flags?.test_mode },
-    detail: flags?.test_mode ? 'Tryb testowy' : 'Normalna praca',
+    detail: flags?.test_mode ? ct("Tryb testowy") : ct("Normalna praca"),
   });
 
   return checks;
@@ -400,7 +401,8 @@ function computeOverall(checks) {
 
 export function SystemHealthProvider({ children }) {
   const [rawData, setRawData] = useState(null);
-  const [checks, setChecks] = useState([]);
+  const {ct,language}=useOperationsLanguage();
+  const checks=useMemo(()=>buildChecks(rawData,ct,language),[rawData,ct,language]);
   const [loading, setLoading] = useState(false);
   const [lastChecked, setLastChecked] = useState(null);
   const [fetchError, setFetchError] = useState(null);
@@ -416,7 +418,7 @@ export function SystemHealthProvider({ children }) {
     // Preserve an existing error until a successful retry replaces it.
     const promise = fetchAllHealthData().then(data => {
       if (request !== generation.current) return;
-      setRawData(data); setChecks(buildChecks(data));
+      setRawData(data);
       setLastChecked(new Date()); setFetchError(null);
     }).catch(e => {
       if (request === generation.current) setFetchError(e.message || 'Diagnostyka niedostępna');
@@ -428,8 +430,8 @@ export function SystemHealthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    setRawData(null); setChecks([]); setLastChecked(null); setFetchError(null); setLoading(false);
-    if (user) {
+    setRawData(null); setLastChecked(null); setFetchError(null); setLoading(false);
+    if (user?.role === 'admin') {
       refresh();
       refreshTimerRef.current = setInterval(refresh, AUTO_REFRESH_MS);
     }
@@ -437,7 +439,7 @@ export function SystemHealthProvider({ children }) {
       ++generation.current; pending.current = null;
       clearInterval(refreshTimerRef.current); refreshTimerRef.current = null;
     };
-  }, [refresh, user?.id]);
+  }, [refresh, user?.id, user?.role]);
 
   const toggleMute = useCallback((checkId) => {
     setMutedState(prev => {

@@ -1395,7 +1395,10 @@ async def recalculate_queue_after_sequence_change_for_leads(
     unique_ids = list(dict.fromkeys(campaign_lead_ids))
 
     cl_result = await session.execute(
-        select(CampaignLead).where(CampaignLead.id.in_(unique_ids))
+        select(CampaignLead).join(Lead, CampaignLead.lead_id == Lead.id).where(
+            CampaignLead.id.in_(unique_ids), Lead.archived_at.is_(None),
+            CampaignLead.archive_sending_paused.is_(False),
+        )
     )
     cl_by_id = {cl.id: cl for cl in cl_result.scalars().all()}
 
@@ -1475,7 +1478,10 @@ async def recalculate_queue_round_robin(
     unique_ids = list(dict.fromkeys(campaign_lead_ids))
 
     cl_result = await session.execute(
-        select(CampaignLead).where(CampaignLead.id.in_(unique_ids))
+        select(CampaignLead).join(Lead, CampaignLead.lead_id == Lead.id).where(
+            CampaignLead.id.in_(unique_ids), Lead.archived_at.is_(None),
+            CampaignLead.archive_sending_paused.is_(False),
+        )
     )
     cl_by_id = {cl.id: cl for cl in cl_result.scalars().all()}
     ordered_cls = [cl_by_id[cl_id] for cl_id in unique_ids if cl_id in cl_by_id]

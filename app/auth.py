@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import os
 import secrets
-from datetime import timedelta
+from datetime import timedelta, timezone
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ def _reinit_secret_key(key: str) -> None:
 def create_access_token(user_id: int, role: str) -> str:
     expire = utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     return jwt.encode(
-        {"sub": str(user_id), "role": role, "type": "access", "exp": expire},
+        {"sub": str(user_id), "role": role, "type": "access", "exp": expire, "iat": utcnow().replace(tzinfo=timezone.utc).timestamp()},
         SECRET_KEY,
         algorithm=ALGORITHM,
     )
@@ -102,7 +102,7 @@ def create_access_token(user_id: int, role: str) -> str:
 def create_refresh_token(user_id: int, role: str) -> str:
     expire = utcnow() + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
     return jwt.encode(
-        {"sub": str(user_id), "role": role, "type": "refresh", "exp": expire},
+        {"sub": str(user_id), "role": role, "type": "refresh", "exp": expire, "iat": utcnow().replace(tzinfo=timezone.utc).timestamp()},
         SECRET_KEY,
         algorithm=ALGORITHM,
     )
@@ -202,6 +202,8 @@ async def resolve_current_user(
     if not user or not user.is_active:
         raise HTTPException(status_code=401, detail="User not found or disabled")
 
+    from app.access import check_token_epoch
+    await check_token_epoch(db, user, payload)
     return user
 
 
@@ -221,7 +223,10 @@ async def get_current_user(
 
     Returns the User ORM object. Raises 401 if unauthenticated.
     """
-    return await resolve_current_user(request, db, credentials)
+    user = await resolve_current_user(request, db, credentials)
+    from app.access import authorize
+    await authorize(db, user, request)
+    return user
 
 
 async def require_admin_short_session(
@@ -313,6 +318,11 @@ async def try_resolve_user_for_mcp(
         return None
     user = await db.get(User, int(user_id))
     if user and user.is_active:
+        from app.access import check_token_epoch
+        try:
+            await check_token_epoch(db, user, payload)
+        except HTTPException:
+            return None
         return user
     return None
 
