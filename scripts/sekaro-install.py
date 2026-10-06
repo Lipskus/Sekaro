@@ -93,7 +93,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['check', 'install', 'update', 'status', 'backup'])
     parser.add_argument('--antivirus', action='store_true', help='Enable optional ClamAV restore scanning (production install/update only)')
+    parser.add_argument('--skip-previous-image-backup', action='store_true',
+                        help='Update only: explicitly proceed without preserving the old application image; database backup remains required')
     args = parser.parse_args()
+    if args.skip_previous_image_backup and args.action != 'update':
+        raise RuntimeError('--skip-previous-image-backup is supported only for update')
     os.umask(0o077)
     demo = (ROOT / '.sekaro-demo/env').exists()
     if args.antivirus and (demo or args.action not in {'install', 'update'}):
@@ -123,9 +127,18 @@ def main():
     # Capture the running image, not a potentially stale sekaro:local build.
     service = 'demo-app' if demo else 'app'
     container = output(cmd + ['ps', '-q', service])
-    if container:
+    if args.skip_previous_image_backup:
+        print('WARNING: previous application image backup skipped explicitly. '
+              'Any existing sekaro:previous tag may be stale; do not rely on it for rollback.')
+    elif container:
         old_image = output(['docker', 'inspect', container, '--format', '{{.Image}}'])
-        run(['docker', 'tag', old_image, 'sekaro:previous'])
+        try:
+            run(['docker', 'tag', old_image, 'sekaro:previous'])
+        except subprocess.CalledProcessError as exc:
+            raise RuntimeError('Could not preserve the running application image. '
+                               'No build or replacement was attempted. Review the Docker error; '
+                               'to explicitly update without this image backup, use '
+                               'update --skip-previous-image-backup. The database backup is still required.') from exc
     run(['docker', 'build', '--label', 'org.opencontainers.image.revision=' + revision, '-t', 'sekaro:local', '.'])
     if demo:
         run(['bash', 'scripts/sekaro-demo.sh', 'up'])
