@@ -1,4 +1,4 @@
-> **Sekaro — aktualna ścieżka prywatnego wdrożenia:** zobacz [instalację i aktualizację](INSTALLATION.md), [backup i odtwarzanie](BACKUPS.md) oraz [granicę publicznej rezygnacji](STAGE_4_OPERATIONS.md). Poniższy poradnik Quickly opisuje historyczne warianty wdrożenia; nie jest zgodą na publiczne wystawienie panelu Sekaro.
+> **Sekaro — current private deployment path:** see [installation and updates](INSTALLATION.md), [backup and recovery](BACKUPS.md) and the [public unsubscribe boundary](STAGE_4_OPERATIONS.md). The Quickly guide below describes historical deployment options; it does not authorize exposing the Sekaro administration panel publicly.
 
 # Quickly — Installation Guide
 
@@ -795,8 +795,8 @@ Click **Start Campaign**. The queue engine reserves send slots across your inbox
 
 **→ Explore more:**
 
-- [Set up webhooks](docs/WEBHOOKS.md) — react to opens, clicks, and replies in real time
-- [Explore the REST API](docs/API.md) — automate everything programmatically
+- [Set up webhooks](WEBHOOKS.md) — react to opens, clicks, and replies in real time
+- [Explore the REST API](API.md) — automate everything programmatically
 - [Configure AI reply classification](#optional-ai-reply-classification) — auto-classify incoming replies
 
 ---
@@ -972,7 +972,7 @@ docker compose up -d
 
 | Document                                       | What's inside                                                   |
 | ---------------------------------------------- | --------------------------------------------------------------- |
-| [API.md](docs/API.md)                         | Complete REST API reference (90+ endpoints)                     |
-| [WEBHOOKS.md](docs/WEBHOOKS.md)                | All 15 webhook event types, payload schemas, and authentication |
-| [OFFICE365_SETUP.md](docs/OFFICE365_SETUP.md) | Full Azure portal walkthrough for Office 365 setup              |
-| [CONTRIBUTORS.md](docs/CONTRIBUTORS.md)       | Dev environment setup and contribution guidelines               |
+| [API.md](API.md)                         | Complete REST API reference (90+ endpoints)                     |
+| [WEBHOOKS.md](WEBHOOKS.md)                | All 15 webhook event types, payload schemas, and authentication |
+| [OFFICE365_SETUP.md](STAGE_10_MAIL.md) | Full Azure portal walkthrough for Office 365 setup              |
+| [CONTRIBUTORS.md](CONTRIBUTORS.md)       | Dev environment setup and contribution guidelines               |

@@ -1,82 +1,85 @@
 <p align="center"><img src="static/sekaro-favicon-v1.svg" width="80" alt="Sekaro"></p>
 <h1 align="center">Sekaro</h1>
-<p align="center"><strong>Kontakty. Sprzedaż. Korespondencja. Pod Twoją kontrolą.</strong></p>
+<p align="center"><strong>Contacts. Sales. Conversations. Under your control.</strong></p>
 <p align="center">Self-hosted CRM & outreach · FastAPI · React · PostgreSQL</p>
-<p align="center"><a href="docs/INSTALLATION.md">Instalacja</a> · <a href="docs/BACKUPS.md">Backup i odtwarzanie</a> · <a href="docs/STAGE_11_RELEASE.md">Stan wydania</a> · <a href="docs/RELEASE_EXECUTION_PLAN.md">Plan prac</a></p>
+<p align="center"><a href="docs/INSTALLATION.md">Installation</a> · <a href="docs/BACKUPS.md">Backup & recovery</a> · <a href="docs/STAGE_11_RELEASE.md">Release status</a> · <a href="docs/README.md">Documentation</a></p>
 
-Sekaro łączy bazę kontaktów, proces sprzedaży i pocztę w jednej aplikacji na Twoim serwerze. Kontakt zachowuje historię od pierwszej wiadomości po szansę sprzedaży, zadanie i spotkanie. SMTP/IMAP działa niezależnie od Google i Microsoft; ich adaptery OAuth są opcjonalne.
+Sekaro brings contacts, sales workflows and email into one application on your own server. Keep a contact's history from the first message through opportunities, tasks and meetings. SMTP/IMAP works independently of Google and Microsoft; their OAuth adapters are optional.
 
-> **Linia rozwojowa — pakiet 11 do odbioru.** Kod zawiera instalator i zdalne backupy, ale pełny odbiór wizualny oraz próby instalacji i transferów na rzeczywistych usługach pozostają bramką wydania. Nie oznaczamy tego jeszcze jako stabilne 1.0. Szczegóły: [stan i ograniczenia](docs/STAGE_11_RELEASE.md).
+> **Development release — stage 11 awaiting acceptance.** The installer and remote backups are included in `main`. Full visual acceptance and installation/provider trials remain release gates. This is not yet a stable 1.0 release. See [release status and limitations](docs/STAGE_11_RELEASE.md).
 
-## Co mieści się w Sekaro
+## What you can do
 
-| Obszar | Możliwości |
+| Area | Capabilities |
 |---|---|
-| Kontakty i firmy | Import CSV/XLSX, pola własne, wiele adresów, relacje, grupy, archiwum, scalanie i trwała historia operacji |
-| Sprzedaż | Pipeline, szanse, zadania, spotkania i kalendarz CRM; szczegóły wydarzenia przed osobną edycją |
-| Kampanie | Sekwencje, personalizacja, podgląd, limity skrzynek, harmonogram, preflight i jawne uruchamianie kampanii |
-| Korespondencja | Wspólna skrzynka, SMTP/IMAP, opcjonalne Gmail API i Microsoft Graph |
-| Tożsamość nadawcy | Opcjonalna stopka i osobisty certyfikat S/MIME per skrzynka — bez obowiązku dla pozostałych użytkowników |
-| Kontrola | Role, zespoły i uprawnienia API, audyt, suppression, zatrzymanie po odpowiedzi i wypisaniu |
-| Utrzymanie | Instalator, diagnostyka, lokalne kopie, opcjonalne S3/SFTP/FTPS, szyfrowanie i historia transferów |
-| Interfejs | Polski, English, Deutsch, Русский; jasny i ciemny motyw |
+| Contacts & companies | CSV/XLSX import, custom fields, multiple addresses, relationships, groups, archiving, merging and durable operation history |
+| Sales | Pipeline, opportunities, tasks, meetings and a CRM calendar; view event details before choosing to edit |
+| Campaigns | Sequences, personalization, previews, mailbox limits, scheduling, preflight checks and explicit campaign activation |
+| Email | Unified inbox, SMTP/IMAP, optional Gmail API and Microsoft Graph |
+| Sender identity | Optional email footer and personal S/MIME certificate for each mailbox |
+| Access & safety | Roles, teams, API permissions, audit history, suppression and stopping after replies or unsubscribes |
+| Operations | Installer, diagnostics, local backups, optional S3/SFTP/FTPS, encryption and transfer history |
+| Interface | English, Polish, German and Russian; light and dark themes |
 
-**S/MIME podpisuje wiadomość, ale nie gwarantuje dostarczenia do inboxa.** SPF, DKIM, DMARC, reputacja i zgody odbiorców nadal wymagają osobnej konfiguracji. [Poczta i certyfikaty →](docs/STAGE_10_MAIL.md)
+**S/MIME signs messages; it does not guarantee inbox placement.** SPF, DKIM, DMARC, sender reputation and recipient consent remain separate requirements. [Email and certificates →](docs/STAGE_10_MAIL.md)
 
-## Podgląd interfejsu
+## Interface preview
 
-![Sekaro — kampanie w ciemnym motywie](docs/qa/evidence-2026-09-30/reference-review/campaign-list-campaigns-1600-dark-fixture-de.png)
+![Sekaro dashboard with English interface](docs/screenshots/dashboard-en.jpg)
 
-*Rzeczywisty zrzut interfejsu z izolowanego QA, 30.09.2026, język DE i dane testowe. Pokazuje wcześniejszy widok kampanii; nie jest dowodem odbioru pakietu 11.*
+![Sekaro CRM with English interface](docs/screenshots/crm-en.jpg)
 
-## Start na własnym serwerze
+*Real demo captures, 6 October 2026, with English selected. The deployment banner and existing sample records retain their original Polish text. These screenshots show the deployed demo, not proof of complete stage 11 acceptance. [Capture details](docs/screenshots/README.md).*
 
-Wymagania: Git, Python 3.10+, działający Docker Engine z Compose v2, dostęp do repozytorium i rejestrów obrazów. Skrypt nie instaluje Dockera ani nie zmienia reguł zapory.
+## Run on your own server
+
+Requirements: Git, Python 3.10+, Docker Engine with Compose v2, and access to the repository and image registries. The installer does not install Docker or change firewall rules.
 
 ```bash
 git clone https://github.com/Lipskus/Sekaro.git
 cd Sekaro
-# Wybierz zatwierdzony commit wydania — nie zakładaj, że main zawiera pakiet 11.
-git switch --detach <commit-wydania>
+# Replace the placeholder with the exact approved release commit.
+git switch --detach <release-commit>
 python3 scripts/sekaro-install.py check
 python3 scripts/sekaro-install.py install
 ```
 
-Aplikacja nasłuchuje na `127.0.0.1:5050`. Otwórz ją przez zaufany tunel lub reverse proxy HTTPS i utwórz pierwszego administratora. Instalator generuje sekrety tylko raz; przechowuj `.env` w bezpiecznej kopii poza serwerem. **Nie usuwaj konfiguracji istniejącej instalacji, aby wymusić instalację od nowa.**
+The application binds to `127.0.0.1:5050`. Access it through a trusted tunnel or HTTPS reverse proxy and create the first administrator. Secrets are generated only once; keep a secure off-server copy of `.env`. **Do not delete an existing installation's configuration to force a fresh install.**
 
-[Pełna instrukcja instalacji, aktualizacji i diagnostyki →](docs/INSTALLATION.md)
+[Installation, updates and troubleshooting →](docs/INSTALLATION.md)
 
-## Aktualizacja istniejącego demo lub produkcji
+## Update an existing demo or production installation
 
 ```bash
 cd /opt/sekaro
-# Najpierw pobierz i wybierz dokładny commit uzgodnionego wydania.
+# Fetch and select the exact approved release commit first.
 python3 scripts/sekaro-install.py update
 python3 scripts/sekaro-install.py status
 ```
 
-Aktualizator rozpoznaje `.sekaro-demo/env`, zachowuje override PostgreSQL 17, tworzy lokalny dump przed zmianą aplikacji, buduje obraz z etykietą commitu i weryfikuje uruchomioną rewizję. Nie podnosi automatycznie głównej wersji istniejącego PostgreSQL. Samo `sekaro-demo.sh up` nadal **nie buduje** obrazu.
+The updater detects `.sekaro-demo/env`, preserves the PostgreSQL 17 override, creates a local database dump before replacing the application, builds an image labelled with the commit and verifies the running revision. It does not automatically upgrade an existing PostgreSQL major version. Running `sekaro-demo.sh up` alone still **does not build** the image.
 
-## Kopie, które można odzyskać
+## Backups you can recover
 
-W **Ustawienia → Backup / przywracanie** skonfiguruj szyfrowanie i harmonogram. Opcjonalnie dodaj jeden cel: S3 (także kompatybilny endpoint HTTPS), SFTP z przypiętym kluczem hosta albo FTPS z TLS. Zwykły FTP nie jest obsługiwany.
+Configure encryption and scheduling in the backup settings. Optionally add one remote destination: S3 (including a compatible HTTPS endpoint), SFTP with a pinned host key, or explicit FTPS with TLS. Plain FTP is not supported.
 
-Zdalna kopia jest szyfrowana przed wysłaniem. Po transferze aplikacja odczytuje plik ponownie i porównuje SHA-256; dopiero potem uruchamia retencję. Nieudane transfery pozostawiają lokalny plik. Pobranie kopii do formularza nie przywraca bazy — nadal wymagany jest podgląd i oddzielne potwierdzenie.
+Remote backups are encrypted before upload. Sekaro downloads each uploaded file again and compares SHA-256 before applying retention. Failed transfers keep the local pending file. Loading a backup into the restore form only downloads it; preview and separate confirmation are still required.
 
-[Konfiguracja, ograniczenia, klucze i procedura odtwarzania →](docs/BACKUPS.md)
+[Configuration, limits, keys and recovery procedures →](docs/BACKUPS.md)
 
-## Dokumentacja
+## Documentation
 
-- [Instalacja i aktualizacja](docs/INSTALLATION.md)
-- [Backup, S3, SFTP, FTPS i odtwarzanie](docs/BACKUPS.md)
-- [Uprawnienia i użytkownicy](docs/STAGE_8_ACCESS.md)
+- [Documentation index](docs/README.md)
+- [Installation and updates](docs/INSTALLATION.md)
+- [Backup, S3, SFTP, FTPS and recovery](docs/BACKUPS.md)
+- [Users, roles and permissions](docs/STAGE_8_ACCESS.md)
 - [Gmail API](docs/STAGE_9_GMAIL.md)
-- [Microsoft 365, stopki i S/MIME](docs/STAGE_10_MAIL.md)
-- [Zakres testów i otwarte bramki pakietu 11](docs/STAGE_11_RELEASE.md)
-- [Uzgodniony plan wykonania](docs/RELEASE_EXECUTION_PLAN.md)
+- [Microsoft 365, footers and S/MIME](docs/STAGE_10_MAIL.md)
+- [Release validation and remaining gates](docs/STAGE_11_RELEASE.md)
+- [Agreed delivery plan](docs/RELEASE_EXECUTION_PLAN.md)
 
-Panel administracyjny powinien pozostać prywatny. Oddzielna usługa wypisywania odbiorców ma własny profil Compose i ograniczoną rolę bazy; nie wystawiaj całego panelu tylko po to, aby działały linki rezygnacji.
+Keep the administration panel private. The isolated unsubscribe service has its own Compose profile and restricted database role; do not expose the entire panel to make unsubscribe links work.
 
-## Licencja
+## License
 
-Sekaro jest udostępniane na licencji **MIT**. Warunki i wymagane oznaczenia praw autorskich znajdują się w [LICENSE](LICENSE), a informacje o wykorzystanym kodzie w [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Sekaro is available under the **MIT License**. Terms and required copyright notices are in [LICENSE](LICENSE); incorporated-code notices are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
