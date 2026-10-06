@@ -77,8 +77,6 @@ Zdalna kopia jest szyfrowana przed wysłaniem. Po transferze aplikacja odczytuje
 
 Panel administracyjny powinien pozostać prywatny. Oddzielna usługa wypisywania odbiorców ma własny profil Compose i ograniczoną rolę bazy; nie wystawiaj całego panelu tylko po to, aby działały linki rezygnacji.
 
-## Rozwój i pochodzenie
+## Licencja
 
-Sekaro powstało jako fork projektu **Quickly**. Zachowuje historię i licencję upstream, rozwijając CRM, niezależne adaptery poczty i obsługę własnej infrastruktury. Historyczne nazwy `QUICKLY_*` i format `.qbk` pozostają tam, gdzie wymagają tego zgodność konfiguracji i odtwarzanie wcześniejszych kopii.
-
-Licencja **MIT** — [LICENSE](LICENSE).
+Sekaro jest udostępniane na licencji **MIT**. Warunki i wymagane oznaczenia praw autorskich znajdują się w [LICENSE](LICENSE), a informacje o wykorzystanym kodzie w [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
