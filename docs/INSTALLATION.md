@@ -86,3 +86,13 @@ When scanning is enabled, scanner unavailability, a detected threat or a size-li
 ## Rollback and recovery
 
 `sekaro:previous` preserves the previous image; it does not automatically roll back data. After a migration, returning to an older image may also require restoring the pre-update database. Test the procedure on an isolated database first, then perform production recovery during a maintenance window. See [BACKUPS.md](BACKUPS.md).
+
+### Missing previous application image
+
+A running container can reference an image Docker can no longer tag. In that case the updater stops before building or replacing the application, after creating its database dump. Inspect the Docker error first. If you accept proceeding without preserving that application image, run:
+
+```bash
+python3 scripts/sekaro-install.py update --skip-previous-image-backup
+```
+
+This explicit update-only option still requires a successful pre-update database backup and verifies the new running revision. It does not reconstruct the missing image. Any existing `sekaro:previous` tag may be stale and must not be assumed to match the pre-update container. Preserve the original deployment configuration and use a compatible image/database pair for recovery.

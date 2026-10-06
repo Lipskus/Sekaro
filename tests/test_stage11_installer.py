@@ -50,3 +50,63 @@ def test_successful_preupdate_dump_is_private(tmp_path,monkeypatch):
     installer.backup(['docker','compose'],False)
     saved=list((tmp_path/'backups/before-update').glob('*.dump'))
     assert len(saved)==1 and saved[0].stat().st_mode&0o777==0o600
+
+
+def update_harness(tmp_path, monkeypatch, *, skip=False, backup_fails=False):
+    monkeypatch.setattr(installer, 'ROOT', tmp_path)
+    (tmp_path / '.sekaro-demo').mkdir()
+    (tmp_path / '.sekaro-demo/env').write_text('')
+    monkeypatch.setattr(installer.sys, 'argv', ['installer', 'update'] + (['--skip-previous-image-backup'] if skip else []))
+    monkeypatch.setattr(installer.os, 'umask', lambda _: None)
+    monkeypatch.setattr(installer, 'check', lambda: 'approved-revision')
+    calls = []
+    def backup(cmd, demo):
+        calls.append('database-backup')
+        if backup_fails:
+            raise RuntimeError('database unavailable')
+    def output(cmd):
+        if cmd[-3:] == ['ps', '-q', 'demo-app']:
+            return 'running-container'
+        if cmd[-1] == '{{.Image}}':
+            return 'sha256:missing'
+        if 'org.opencontainers.image.revision' in cmd[-1]:
+            return 'approved-revision'
+        raise AssertionError(cmd)
+    def run(cmd, **kwargs):
+        calls.append(cmd)
+        if cmd[:2] == ['docker', 'tag']:
+            raise installer.subprocess.CalledProcessError(1, cmd)
+    monkeypatch.setattr(installer, 'backup', backup)
+    monkeypatch.setattr(installer, 'output', output)
+    monkeypatch.setattr(installer, 'run', run)
+    return calls
+
+
+def test_missing_previous_image_stops_before_build(tmp_path, monkeypatch):
+    calls = update_harness(tmp_path, monkeypatch)
+    with pytest.raises(RuntimeError, match='skip-previous-image-backup'):
+        installer.main()
+    assert calls == ['database-backup', ['docker', 'tag', 'sha256:missing', 'sekaro:previous']]
+
+
+def test_explicit_image_skip_keeps_database_backup_and_revision_check(tmp_path, monkeypatch, capsys):
+    calls = update_harness(tmp_path, monkeypatch, skip=True)
+    installer.main()
+    assert calls[0] == 'database-backup'
+    assert calls[1][:2] == ['docker', 'build']
+    assert calls[2] == ['bash', 'scripts/sekaro-demo.sh', 'up']
+    assert len(calls) == 3
+    assert 'may be stale' in capsys.readouterr().out
+
+
+def test_image_skip_cannot_bypass_failed_database_backup(tmp_path, monkeypatch):
+    calls = update_harness(tmp_path, monkeypatch, skip=True, backup_fails=True)
+    with pytest.raises(RuntimeError, match='database unavailable'):
+        installer.main()
+    assert calls == ['database-backup']
+
+
+def test_image_skip_is_update_only(monkeypatch):
+    monkeypatch.setattr(installer.sys, 'argv', ['installer', 'install', '--skip-previous-image-backup'])
+    with pytest.raises(RuntimeError, match='only for update'):
+        installer.main()
