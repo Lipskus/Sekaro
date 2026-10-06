@@ -105,6 +105,8 @@ it('preserves schedule filters and message preview when the language changes',as
  fireEvent.change(search,{target:{value:'client@example.test'}});
  fireEvent.change(screen.getByRole('combobox',{name:'Kampania',exact:true}),{target:{value:'2'}});
  fireEvent.change(screen.getByRole('combobox',{name:'Status wiadomości'}),{target:{value:'scheduled'}});
+ // Calendar mount can extend its fetched range; wait for the preview control to become interactive.
+ await waitFor(()=>expect(screen.getByRole('button',{name:/Kampania klienta client@example.test Temat klienta/}).disabled).toBe(false));
  api.get.mockClear();fireEvent.click(screen.getByRole('button',{name:'ru',exact:true}));
  expect(screen.getByRole('searchbox',{name:t('ru','Szukaj w kolejce')}).value).toBe('client@example.test');
  expect(screen.getByRole('combobox',{name:t('ru','Kampania'),exact:true}).value).toBe('2');
