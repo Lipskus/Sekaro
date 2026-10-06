@@ -1,43 +1,43 @@
-# Etap 8 — użytkownicy, role, zespoły i kalendarz
+# Stage 8 — users, roles, teams and calendar
 
-Jeden pakiet na gałęzi `work/stage-8-users-calendar-2026-10-05`. Bez merge do main i bez wdrożenia przez agenta.
+Implemented as one package on `work/stage-8-users-calendar-2026-10-05`, subsequently integrated into `main` through PR #38. The original acceptance findings below remain distinct from full production validation.
 
-## Zakres dostępu
+## Access scope
 
-Administrator zarządza kontami, rolami i zespołami w Ustawieniach → Użytkownicy i uprawnienia. Role mają uprawnienia odczytu/zmian dla CRM, kampanii/harmonogramu, poczty, raportów, szablonów i automatyzacji. Administrator ma pełny dostęp, w tym konfigurację, backup, użytkowników i MCP. Zwykłe role nie mogą nadać administracji.
+Administrators manage accounts, roles and teams in the users and permissions settings. Roles grant read/write access to CRM, campaigns/scheduling, email, reports, templates and automations. Administrators have full access, including configuration, backups, user management and MCP. Ordinary roles cannot grant administrator status.
 
-Uprawnienia są globalne w obrębie modułu jednej instalacji: **nie ma izolacji rekordów między zespołami ani mechanizmu multi-tenant**. Rola bezpośrednia i role zespołów sumują uprawnienia. Interfejs opisuje ten zakres przed zmianą. Usunięcie prawa z jednego źródła nie odbiera go, jeśli nadal nadaje je inne źródło.
+Permissions apply globally to a module within one installation: **there is no record isolation between teams or multi-tenant boundary**. A user's direct role and team roles contribute permissions cumulatively. The interface explains this scope before changes. Removing a permission from one source does not revoke it if another source still grants it.
 
-Kampanie wymagają także odczytu CRM i poczty (powiązane kontakty/skrzynki). Automatyzacje wymagają odczytu CRM, a ich modyfikacje i wykonania także zmian CRM. Odczyt obejmuje eksport danych danego modułu. Raporty obejmują dane raportowe całej instalacji. Uprawnienie zmian poczty obejmuje zarządzanie skrzynkami i wysyłkę; pozostają istniejące blokady demo/suppression/preflight. Definicje automatyzacji pozostają regułami instalacji, a nie prywatnymi regułami właściciela.
+Campaigns also require CRM and email read access for related contacts/mailboxes. Automations require CRM read access; changing or executing them also requires CRM write access. Read access includes exporting that module's data. Reports cover the whole installation. Email write access includes mailbox management and sending, subject to existing demo, suppression and preflight checks. Automation definitions are installation-wide rules, not private rules belonging to their author.
 
-Nowe konta bez roli i zespołu nie mają dostępu do modułów. Dotychczasowe konta admin pozostają administratorami. Dotychczasowe zwykłe konta bez nowego wpisu UserAccess zachowują dostęp do modułów biznesowych; ekran pokazuje „Dotychczasowy dostęp do modułów”. Konfiguracja, backup, klucze i MCP są administrator-only. Pierwszy jawny zapis uprawnień takiego konta zastępuje tryb zgodności rolą wybraną przez administratora.
+New accounts without a role or team have no module access. Existing administrator accounts retain their status. Existing ordinary accounts without a new `UserAccess` record retain access to business modules under the legacy-access mode shown in the UI. Configuration, backups, keys and MCP are administrator-only. The first explicit permissions save replaces that compatibility mode with the administrator's selected role.
 
-## Egzekwowanie i audyt
+## Enforcement and audit
 
-- Każde uwierzytelnione żądanie HTTP korzystające z get_current_user sprawdza bieżące role w bazie — JWT nie jest źródłem praw. Dotyczy ciasteczka, Bearer JWT i obu form klucza API. Nieznane chronione ścieżki wymagają administratora.
-- Centralna kontrola obejmuje istniejące API CRM, kalendarza, kontaktów/grup, kampanii, poczty, raportów, szablonów i alternatywne trasy `/api/ui`. Publiczne endpointy nie zostały rozszerzone.
-- MCP wymaga administratora, ponieważ jego transport nie przechodzi przez zależności FastAPI poszczególnych operacji.
-- Lista użytkowników i historia dostępu są wyłącznie administracyjne. Audyt zmian zawiera autora, czas, przed/po, ID i uprawnienia; nie zapisuje haseł ani kluczy.
-- Konta blokowane zamiast usuwane; zachowana historia autorstwa. Blokada unieważnia wszystkie klucze i ustawia granicę czasu ważności sesji. Ponowne włączenie wymaga nowego logowania. Osobna akcja unieważnia sesje/klucze aktywnego konta.
-- Aktualizacje wymagają rewizji. PostgreSQL serializuje zmiany dostępu blokadą transakcyjną, w tym kontrolę ostatniego administratora. Nie można odebrać sobie administracji ani wyłączyć własnego konta.
-- UI ogranicza nawigację/wyszukiwanie i chroni wejścia do modułów; strony z samym odczytem mają komunikat. Formularz sprzedaży i przycisk edycji kalendarza respektują crm.write. Pozostałe istniejące formularze mogą pozostać widoczne w trybie odczytu, ale zapisy są odrzucane przez API. Uprawnienia w UI odświeżają się wraz z `/auth/me`; API egzekwuje je przy kolejnym żądaniu niezależnie od stanu UI.
+- Each authenticated HTTP request using `get_current_user` checks current database permissions. JWT claims are not the authority for roles. This applies to cookies, Bearer JWT and both API-key forms. Unknown protected routes require an administrator.
+- Central checks cover CRM, calendar, contacts/groups, campaigns, email, reports, templates and alternative `/api/ui` routes. Public endpoints have not been expanded.
+- MCP requires administrator access because its transport does not pass through each operation's FastAPI dependencies.
+- User lists and access history are administrator-only. Audit records include actor, time, before/after values, IDs and permissions, without passwords or keys.
+- Accounts are disabled rather than deleted, preserving authorship. Disabling revokes all keys and sets a session-validity cutoff. Re-enabling requires a fresh login. A separate action revokes sessions/keys for an active account.
+- Updates require a revision. PostgreSQL serializes access changes with a transactional lock, including the last-administrator check. Users cannot remove their own administrator status or disable their own account.
+- The UI restricts navigation/search and module entry, and indicates read-only access. Sales forms and calendar editing respect `crm.write`. Other existing forms may remain visible in read-only mode, but the API rejects writes. UI permissions refresh through `/auth/me`; the API enforces changes on the next request regardless of UI state.
 
-## Kalendarz
+## Calendar
 
-Kliknięcie zadania/spotkania w kalendarzu otwiera szczegóły: opis, rodzaj/status, termin, miejsce, priorytet, przypomnienie, odroczenie i powiązania. Dopiero „Edytuj” otwiera istniejący formularz z rewizją. Zamknięcie podglądu nie zapisuje ani nie pyta o odrzucenie zmian. PL/EN/DE/RU i wspólne tokeny stylu.
+Clicking a task or meeting opens its details: description, type/status, time, location, priority, reminder, snooze and relationships. **Edit** opens the existing revision-aware form. Closing the detail preview does not save or ask to discard changes. The view uses shared style tokens and supports PL/EN/DE/RU.
 
-## Migracja
+## Migration
 
-Pięć nowych tabel: access_role, access_team, access_member, user_access, access_audit. Tworzone addytywnie przez istniejący create_all. Bez usuwania/zmiany istniejących kontaktów, użytkowników lub historii. Brak dodatkowego kontenera. Backup pełnej bazy obejmuje nowe tabele. Tokeny sprzed aktualizacji nadal działają, dopóki administrator nie unieważni sesji danego konta. Uprawnienia aktualnego konta administratora demo nie są zmieniane przez samo wdrożenie.
+Five additive tables are created through the existing `create_all`: `access_role`, `access_team`, `access_member`, `user_access` and `access_audit`. Existing contacts, users and history are not removed or rewritten. No additional container is required. Full database backups include the new tables. Pre-update tokens continue to work until the administrator revokes the account's sessions. Deployment alone does not change the current demo administrator's permissions.
 
-## Weryfikacja i odbiór
+## Validation and acceptance
 
-Pełny backend: 575 zaliczonych, 9 pominiętych. Po rozszerzeniu testów: 6/6 testów dostępu z prawdziwą walidacją JWT/API key (bez podmiany get_current_user): role, zespoły, odczyt, odmowa zapisu, cofnięcie roli, blokada i ponowne włączenie konta, revocation, stare rewizje, legacy, alternatywne ścieżki i eksport. Testy używają SQLite, nie potwierdzają współbieżności PostgreSQL.
+The stage 8 full backend run passed 575 tests, with 9 skipped. The expanded access suite passed 6/6 tests with actual JWT/API-key validation, without replacing `get_current_user`: roles, teams, read access, denied writes, role revocation, disabling/re-enabling, session revocation, stale revisions, legacy access, alternative routes and exports. SQLite tests do not establish PostgreSQL concurrency behavior.
 
-Odbiór demo po wspólnym wdrożeniu: administrator tworzy rolę odczytu CRM, konto i zespół; oddzielna sesja użytkownika sprawdza odczyt oraz odmowę zapisu; administrator zmienia/odbiera rolę i blokuje konto; historia oraz kalendarz szczegóły→edycja. Bez wysyłki i bez odbierania administracji kontu operatora. Dark/mobile i odbiór wizualny demo pozostają do wykonania po wdrożeniu.
+Demo acceptance requires creating a CRM read-only role, account and team; verifying allowed reads and denied writes in a separate session; changing/revoking the role and disabling the account; and reviewing history and calendar details → edit. Do not send messages or remove the operator's administrator access. Full dark/mobile visual acceptance remains separate.
 
-Frontend: pełny przebieg 257/261; cztery testy diagnostyki wymagały ustawienia roli admin w starych atrapach kont. Po poprawieniu tych atrap i dodaniu testu odmowy pobierania diagnostyki dla zwykłego użytkownika: końcowy przebieg dostępu/kalendarza/diagnostyki 15/15. Wcześniejszy przebieg przerwano po znalezieniu zależności efektu wyszukiwania Shell od całego obiektu użytkownika; zależność zastąpiono stabilnymi polami ID/rola/uprawnienia. Produkcyjny build poprawny, pozostaje znane ostrzeżenie o dużym bundlu.
+The initial frontend run passed 257/261; four diagnostic tests needed administrator roles in their old account fixtures. After fixing those fixtures and adding a denied diagnostic-download test for ordinary users, the final access/calendar/diagnostics subset passed 15/15. An earlier run exposed a Shell search effect depending on the whole user object; stable ID/role/permission fields replaced that dependency. The production build passed with the existing bundle-size warning.
 
-### Odczyt wdrożonego demo — 05.10.2026
+### Deployed demo observation — 5 October 2026
 
-Panel Ustawienia → Użytkownicy i uprawnienia jest dostępny w sesji administratora; poprawnie pokazuje istniejące konto demo oraz sekcje ról, zespołów i historii. Kalendarz: kliknięcie spotkania QA otwiera szczegóły bez pól formularza; „Edytuj” otwiera formularz, a „Anuluj” zamyka go bez zmian. W tej sesji nie tworzono kont ani nie zmieniano uprawnień na serwerze. Testy ograniczonego konta na żywym demo pozostają odrębne od zaliczonych testów API.
+The users and permissions panel was available to the administrator and displayed the existing demo account, roles, teams and history. Clicking the QA calendar meeting opened details without form fields; **Edit** opened the form and **Cancel** closed it without changes. No server accounts or permissions were changed during that observation. Live limited-account checks remain separate from the passing API tests.
