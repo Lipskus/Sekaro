@@ -7,4 +7,4 @@ shipped. Existing Sekaro production/demo volumes and configuration names remain
 unchanged. Do not delete data volumes when changing the source checkout.
 
 For provider configuration see [Gmail](GMAIL.md), [mail identities and Microsoft
-365](MAIL.md), and [public endpoint operations](PUBLIC_ENDPOINT_OPERATIONS_PL.md).
+365](MAIL.md), and [public endpoint operations](PUBLIC_ENDPOINT_OPERATIONS.md).

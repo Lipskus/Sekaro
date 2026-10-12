@@ -1,29 +1,29 @@
-# Kontakty i historia
+# Contacts and history
 
-Dokumentacja funkcji Sekaro 1.0.
+Feature documentation for Sekaro 1.0.
 
-## Schemat i zachowanie
+## Schema and behavior
 
-- `lead.archived_at`: nullable UTC timestamp, NULL oznacza kontakt poza archiwum.
-- `campaign_lead.archive_sending_paused`: trwała pauza po archiwizacji.
-  Nie jest kasowana przez wznowienie skrzynki; jej wyłączenie wymaga jawnego
-  wznowienia konkretnego enrollmentu (lub istniejącej operacji recovery).
+- `lead.archived_at`: nullable UTC timestamp; NULL means the contact is not archived.
+- `campaign_lead.archive_sending_paused`: persistent pause applied when archiving.
+  Resuming a mailbox does not clear it; resuming the specific enrollment explicitly
+  (or using the existing recovery operation) is required.
 - `contact_operation`: ID, lead_id (FK), action, occurred_at UTC, actor_id
-  (nullable FK użytkownika), actor_name (trwała migawka nazwy), details JSON.
-  Autor pochodzi wyłącznie z uwierzytelnionej sesji. Historia operacji nie
-  kopiuje EmailLog ani LeadReply. Początkowe zdarzenia: archive, restore, update.
-- Migracja addytywna PostgreSQL, idempotentna. Istniejące rekordy pozostają
-  niearchiwalne; ich ID, enrollmenty, korespondencja i suppression nie zmieniają się.
-- Archiwizacja zachowuje wszystkie powiązania, pauzuje istniejące enrollmenty,
-  usuwa przyszłe sloty bez rozpoczętej próby wysyłki. Trwałych SendAttempt nie
-  kasujemy. Archiwum jest wykluczone w schedulerze i ostatniej kontroli nadawcy.
-- Przywrócenie zmienia wyłącznie archived_at. Nie odpauzowuje kampanii kontaktu,
-  nie usuwa suppression, nie resetuje statusów/weryfikacji, nie przelicza kolejki.
-- Lista/eksport: zakres current (domyślny), archived, all. Profil zachowuje
-  oddzielne informacje o archiwum, suppression, weryfikacji i statusie kampanii.
-- Operacje seryjne są atomowe, blokują rekordy w kolejności ID; powtórzona
-  archiwizacja/przywrócenie nie tworzy zdarzenia bez zmiany stanu.
+  (nullable user FK), actor_name (persistent name snapshot), details JSON.
+  The actor comes exclusively from the authenticated session. Operation history
+  does not duplicate EmailLog or LeadReply. Initial events: archive, restore, update.
+- PostgreSQL migration is additive and idempotent. Existing records remain
+  unarchived; their IDs, enrollments, correspondence and suppression are unchanged.
+- Archiving preserves all relationships, pauses existing enrollments and removes
+  future slots for which no send attempt has started. Persistent SendAttempt records
+  are retained. Archived contacts are excluded by the scheduler and final sender check.
+- Restoration changes only archived_at. It does not resume the contact's campaigns,
+  remove suppression, reset status/verification or recalculate the queue.
+- Lists/exports support current (default), archived and all scopes. Profiles keep
+  archive, suppression, verification and campaign status information separate.
+- Bulk operations are atomic and lock records in ID order. Repeating archive/restore
+  does not create an event unless the state changes.
 
-Wysłanej już wiadomości nie można cofnąć archiwizacją. Ostatnia kontrola
-nadawcy blokuje rekord kontaktu do końca transakcji, aby uporządkować ją
-względem równoległej archiwizacji.
+Archiving cannot recall a message that has already been sent. The sender's final
+check locks the contact record until the transaction ends to coordinate with
+concurrent archiving.

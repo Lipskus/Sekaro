@@ -5,7 +5,7 @@
 - [Installation, updates and recovery](INSTALLATION.md)
 - [Release scope and validation limits](RELEASE_1.0.md)
 - [Backup, encryption and remote storage](BACKUPS.md)
-- [Public endpoint: pairing, isolation and recovery](PUBLIC_ENDPOINT_OPERATIONS_PL.md)
+- [Public endpoint: pairing, isolation and recovery](PUBLIC_ENDPOINT_OPERATIONS.md)
 - [Users, roles and permissions](ACCESS.md)
 - [Demo installation](DEMO.md)
 
@@ -19,7 +19,7 @@
 - [Operational diagnostics](OPERATIONS.md)
 - [Gmail API](GMAIL.md)
 - [Microsoft 365, mail identities and S/MIME](MAIL.md)
-- [Conversation Archive and Trash](CONVERSATION_FOLDERS_PL.md)
+- [Conversation Archive and Trash](CONVERSATION_FOLDERS.md)
 - [Object deletion and archival rules](OBJECT_LIFECYCLE.md)
 
 ## Development and integrations

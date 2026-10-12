@@ -1,26 +1,26 @@
-# Sprzedaż
+# Sales
 
-Dokumentacja funkcji Sekaro 1.0.
+Feature documentation for Sekaro 1.0.
 
-## Zakres
+## Scope
 
-- „Sprzedaż” w nawigacji: pipeline z kartami, lista szans, zadania/spotkania i kalendarz miesiąca. Odnośniki z firmy i profilu CRM zawężają dane do tej tożsamości.
-- Konfigurowalne pipeline: nazwa, kolejność i nazwy etapów, archiwizacja/przywrócenie. Klucze etapów pozostają stałe przy zmianach nazwy/kolejności. Etapu zajętego przez szansę (również zarchiwizowaną) nie można usunąć. Nowa instalacja nie tworzy fikcyjnego pipeline; operator definiuje pierwszy.
-- Szansa: nazwa, opis, kontakt/firma, etap, kwota i waluta, prawdopodobieństwo, planowane zamknięcie, wynik otwarta/wygrana/przegrana, powód wyniku, archiwizacja/przywrócenie. Przegrana wymaga powodu. Ponowne otwarcie czyści bieżącą datę zamknięcia, zachowując poprzedni wynik w historii.
-- Zadania i spotkania mają powiązania, terminy, priorytet, status, przypomnienie w panelu, odroczenie i miejsce/link. Można utworzyć kolejne działanie z zachowaniem powiązań oraz zakończyć zaznaczone. Zbiorcze zakończenie jest sekwencyjne: zatrzymuje się przy błędzie i podaje liczbę zapisanych rekordów; nie udaje jednej transakcji.
-- Kalendarz jest osobnym widokiem CRM, niezależnym od harmonogramu kampanii. Zapytanie obejmuje wybrany miesiąc i spotkania przecinające jego granice. Tydzień zaczyna się w poniedziałek; wąski ekran przewija kalendarz poziomo. Formularze używają strefy przeglądarki, API wymaga offsetu i przechowuje UTC. Koniec spotkania jest granicą wyłączną.
-- Filtry i jeden zapisany widok w lokalnej przeglądarce. Lista, tablica i kalendarz mają jawną paginację po 100 rekordów; liczniki kolumn dotyczą pobranej strony. Widok kalendarza informuje o tym ograniczeniu.
-- Przypomnienia są oznaczeniami w panelu, odświeżanymi co minutę przy otwartej liście/kalendarzu i zamkniętym edytorze. Brak wiadomości, zaproszeń, powiadomień systemowych lub działania przy zamkniętej aplikacji.
+- Sales navigation includes a pipeline board, opportunity list, tasks/meetings and monthly calendar. Links from company and CRM profiles filter data to that identity.
+- Configurable pipelines support names, stage order/names and archive/restore. Stage keys remain stable when renamed or reordered. A stage referenced by an opportunity, including an archived one, cannot be deleted. A fresh installation does not create a sample pipeline; the operator defines the first one.
+- Opportunities include name, description, contact/company, stage, amount/currency, probability, expected closing date, open/won/lost outcome, outcome reason and archive/restore. A lost outcome requires a reason. Reopening clears the current closing date while preserving the previous outcome in history.
+- Tasks and meetings have relationships, dates, priority, status, an in-app reminder, postponement and a location/link. Follow-up activities can preserve relationships, and selected activities can be completed in bulk. Bulk completion is sequential: it stops on an error and reports the number saved; it is not a single transaction.
+- The CRM calendar is separate from campaign scheduling. Queries include the selected month and meetings crossing its boundaries. Weeks start on Monday; narrow screens scroll the calendar horizontally. Forms use the browser timezone; the API requires an offset and stores UTC. A meeting's end is an exclusive boundary.
+- Filters and one saved view are stored in the local browser. Lists, boards and calendars use explicit pagination of 100 records; column counts describe the fetched page. The calendar displays this limitation.
+- Reminders are in-app indicators, refreshed every minute while the list/calendar is open and the editor is closed. They do not send messages, invitations or system notifications, and do not run when the application is closed.
 
-## Integralność i migracja
+## Integrity and migration
 
-Cztery nowe tabele: `crm_pipeline`, `crm_opportunity`, `crm_sales_activity`, `crm_sales_event`. Powstają przez istniejące `Base.metadata.create_all` przy starcie; nie przepisują kolumn ani ID dotychczasowych danych. Kolejny start jest idempotentny. Backup PostgreSQL obejmuje całą bazę i te tabele.
+Four tables are created through the existing `Base.metadata.create_all` at startup: `crm_pipeline`, `crm_opportunity`, `crm_sales_activity` and `crm_sales_event`. They do not rewrite existing columns or IDs. Subsequent starts are idempotent. Full PostgreSQL backups include these tables.
 
-Każdy zapis ma historię przed/po, autora sesji i czas. Aktualizacja wymaga bieżącej rewizji; konflikt zwraca 409 zamiast utraty cudzych zmian. Interfejs zachowuje szkic przy błędzie i blokuje powtórne wysłanie podczas zapisu. Historia pokazuje ostatnie 200 wpisów danego rekordu; starsze pozostają w bazie.
+Every write records before/after history, the session actor and timestamp. Updates require the current revision; conflicts return 409 rather than overwriting another user's changes. The interface preserves drafts on errors and blocks repeated submission during saving. History displays the latest 200 entries for a record; older entries remain in the database.
 
-Scalenie kontaktów nie przenosi ID zapisanych na szansach i działaniach. Filtr zachowanej osoby obejmuje członków grupy oraz działania jej szans. Nowych powiązań nie można tworzyć do zarchiwizowanego lub scalonego źródła. Twarde usunięcie kontaktu z danymi sprzedaży jest blokowane; pozostaje archiwizacja. Wynik szansy ani status działania nie zmieniają suppression, wstrzymania kampanii ani statusu CRM.
+Contact merges do not reassign IDs stored on opportunities and activities. Filtering by the retained person includes members of the merged group and activities associated with their opportunities. New relationships cannot target an archived contact or merged source. Hard deletion of contacts with sales data is blocked; archiving remains available. Opportunity outcomes and activity statuses do not change suppression, campaign pauses or CRM status.
 
-API `/api/crm/sales/*` wymaga sesji. Nie jest dołączone do publicznej usługi rezygnacji. Uprawnienia modułu wynikają z ról i zespołów opisanych w ACCESS.md.
+`/api/crm/sales/*` requires authentication and is not exposed by the public unsubscribe service. Module permissions come from roles and teams described in [ACCESS.md](ACCESS.md).
 
 ## Validation and updates
 

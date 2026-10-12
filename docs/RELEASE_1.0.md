@@ -56,6 +56,6 @@ are useful evidence for those configurations, not for every deployment scenario.
 
 After the `v1.0.0` tag is published, follow [INSTALLATION.md](INSTALLATION.md).
 Keep private administration behind your trusted access gateway. New installations
-default to private mode; [public endpoint configuration](PUBLIC_ENDPOINT_OPERATIONS_PL.md)
+default to private mode; [public endpoint configuration](PUBLIC_ENDPOINT_OPERATIONS.md)
 is optional and explicit. Preserve `.env`, installation state and database volumes
 when replacing the source repository.

@@ -1,46 +1,46 @@
-# Baza danych i operacje
+# Database and operations
 
-Dokumentacja funkcji Sekaro 1.0.
+Documentation for Sekaro 1.0.
 
-## Wspierana aktualizacja
+## Supported upgrades
 
-| Źródło | Cel | Sposób | Weryfikacja aktualizacji |
+| Source | Target | Method | Upgrade verification |
 |---|---|---|---|
-| Istniejące demo PostgreSQL 15, `docker-compose.demo.yml` | PostgreSQL 17, nowy wolumen | `python3 scripts/upgrade-demo-postgres.py` | Odtworzenie dumpu, zgodne liczby i sygnatury danych wszystkich tabel `public`, zdrowy kontener aplikacji |
-| Bieżąca aplikacja na PG15 | Ten sam PG15 z bieżącą aplikacją | Zbudowanie i odtworzenie kontenera app | Testy backendu; nadal można pozostać na PG15 |
-| Produkcyjny PG15 | PG17 | Kontrolowane dump/restore w oknie serwisowym, według tej samej zasady | Oddzielna próba na kopii danych operatora; skrypt demo nie dotyka produkcji |
-| Inne silniki/major, `pg_upgrade` in-place, klaster HA | — | Poza potwierdzoną macierzą | Nie wykonuj przez skrypt demo |
+| Existing PostgreSQL 15 demo, `docker-compose.demo.yml` | PostgreSQL 17, new volume | `python3 scripts/upgrade-demo-postgres.py` | Successful dump restore, matching row counts and data signatures for all `public` tables, healthy application container |
+| Current application on PG15 | Same PG15 with the current application | Build and recreate the app container | Backend tests; staying on PG15 is supported |
+| Production PG15 | PG17 | Controlled dump/restore during a maintenance window, following the same principle | Separate rehearsal using a copy of the operator's data; the demo script does not touch production |
+| Other engines/major versions, in-place `pg_upgrade`, HA clusters | — | Outside the verified matrix | Do not use the demo script |
 
-Aplikacja zawiera jawnie klienta PostgreSQL 17 (`python:3.12-slim-trixie`, `postgresql-client-17`). Nie zmieniamy automatycznie obrazu bazy nad starym katalogiem danych. Format danych PG15 nie jest otwierany serwerem PG17.
+The application image explicitly includes the PostgreSQL 17 client (`python:3.12-slim-trixie`, `postgresql-client-17`). The database image is not automatically switched over an existing data directory. Never start a PG17 server against a PG15 data directory.
 
-### Aktualizacja istniejącego demo
+### Upgrading an existing demo
 
-Po pobraniu dokładnego commita wydania i zbudowaniu `sekaro:local` uruchom:
+After checking out the exact release commit and building `sekaro:local`, run:
 
 ```bash
 python3 scripts/upgrade-demo-postgres.py
 ```
 
-Skrypt najpierw pobiera obraz docelowy, potem zatrzymuje **tylko demo-app**. Zapisuje dump z prawami 0600 w `.sekaro-demo`, uruchamia tymczasowy serwer PG17 bez sieci i bez portów, odtwarza bazę w jednej transakcji i porównuje wszystkie tabele. Sygnatura tabeli zawiera liczbę rekordów oraz dwie sumy połówek MD5 pełnych wierszy JSONB (kontrola spójności, nie podpis kryptograficzny backupu). Dopiero zgodny wynik pozwala przełączyć istniejącą usługę `demo-db` na nowy wolumen i uruchomić aplikację. To nie tworzy drugiej aplikacji ani drugiego demo.
+The script pulls the target image, then stops **only demo-app**. It saves a dump with mode 0600 in `.sekaro-demo`, starts a temporary PG17 server without networking or published ports, restores the database in one transaction, and compares all tables. Each table signature includes its row count and two sums of MD5 halves calculated from complete JSONB rows. This is a consistency check, not a cryptographic backup signature. Only matching results allow the existing `demo-db` service to switch to the new volume and the application to restart. No second application or demo is created.
 
-Pliki pozostające po operacji:
+The following remain after the upgrade:
 
-- `.sekaro-demo/pg17.compose.json`: trwały override obrazu i wolumenu. **Należy go używać przy każdym późniejszym uruchomieniu Compose**.
-- `.sekaro-demo/sekaro-pg17-check-*.dump`: kopia przed zmianą.
-- `.sekaro-demo/sekaro-pg17-check-*.json`: raport sygnatur.
-- Oryginalny wolumen PG15: pozostaje nienaruszony; skrypt nigdy nie usuwa wolumenów.
+- `.sekaro-demo/pg17.compose.json`: permanent image and volume override. **Include it in every subsequent Compose invocation.**
+- `.sekaro-demo/sekaro-pg17-check-*.dump`: backup taken before the upgrade.
+- `.sekaro-demo/sekaro-pg17-check-*.json`: signature report.
+- Original PG15 volume: left intact; the script never deletes volumes.
 
-`scripts/sekaro-demo.sh` automatycznie dołącza override. Ręczne wywołanie samego bazowego Compose po aktualizacji wskazałoby ponownie starą bazę — nie używaj wcześniejszych skróconych poleceń wdrożenia. Dotychczasowe `reset/remove` nie usuwają nowego zewnętrznego wolumenu PG17; jego trwałe usunięcie jest osobną, świadomą operacją operatora.
+`scripts/sekaro-demo.sh` includes the override automatically. Running the base Compose file alone after upgrading would select the old database again; do not reuse earlier shortened deployment commands. The existing `reset/remove` commands do not delete the new external PG17 volume. Permanently deleting it is a separate operator action.
 
-Jeżeli odtworzenie albo porównanie się nie powiedzie, stara baza pozostaje aktywna i skrypt uruchamia aplikację na niej. Jeżeli błąd wystąpi po przełączeniu, skrypt odkłada niedziałający override, wraca do PG15 i uruchamia aplikację. Błąd samego przywracania usług wymaga interwencji administratora — nie deklarujemy gwarantowanego automatycznego rollbacku przy awarii Dockera/hosta.
+If restore or comparison fails, the old database remains selected and the script restarts the application against it. If an error occurs after switching, the script sets aside the failed override, returns to PG15, and restarts the application. Failure to restore the services themselves requires administrator intervention; automatic rollback is not guaranteed during a Docker or host failure.
 
-### Powrót po zakończonej aktualizacji
+### Rolling back a completed upgrade
 
-Przed użyciem tej ścieżki upewnij się, że chcesz wrócić do danych z chwili aktualizacji: późniejsze zapisy do PG17 nie trafią do starego PG15. Zachowaj oba wolumeny i wykonaj kopię aktualnego PG17.
+This returns to the data as it existed at upgrade time: later writes to PG17 will not be present in the old PG15 database. Keep both volumes and back up the current PG17 database first.
 
 ```bash
 cd /opt/sekaro
-# Zatrzymaj app wskazując aktualną bazę.
+# Stop the app using the current database configuration.
 docker compose --env-file .sekaro-demo/env -p sekaro-demo \
   -f docker-compose.demo.yml -f .sekaro-demo/pg17.compose.json stop demo-app
 mv .sekaro-demo/pg17.compose.json .sekaro-demo/pg17.compose.rollback.json
@@ -50,62 +50,60 @@ docker compose --env-file .sekaro-demo/env -p sekaro-demo \
   -f docker-compose.demo.yml up -d --no-deps --force-recreate --wait demo-app
 ```
 
-Nie wykonuj `down -v` ani `docker volume prune` w ramach aktualizacji/rollbacku.
+Do not run `down -v` or `docker volume prune` during an upgrade or rollback.
 
-## Backup i restore
+## Backup and restore
 
-- `pg_dump` i `pg_restore` dostają dane logowania przez środowisko procesu, bez hasła w argv. Surowy stderr nie trafia do odpowiedzi API ani zwykłego logu — może zawierać SQL i prywatne dane.
-- Każdy niezerowy kod `pg_restore`, także **1**, jest błędem. `--single-transaction --exit-on-error` zapobiega zaakceptowaniu częściowego odtworzenia. `--no-owner --no-acl` pozwala odtworzyć bazę bez odtwarzania obcych właścicieli i grantów.
-- Pliki lokalnej kopii mają prawa 0600 i unikalną nazwę z mikrosekundami. Nadal dostępny jest istniejący szyfrowany pakiet `.qbk` i jego podgląd; surowy dump używany podczas upgrade'u nie jest szyfrowanym `.qbk`.
-- Tokeny tymczasowego restore mają ścisły format, cel (`admin`/`setup`), TTL i jednorazowe zużycie. Ścieżka odczytu musi być dokładnie plikiem danego tokenu w chronionym katalogu; odrzucamy wyjście poza katalog i dowiązania.
-- Restore przez API wymaga **restartu** aplikacji z `SEKARO_MAINTENANCE=1`. W tym trybie nie startuje scheduler, synchronizacja, zadania startup ani MCP; zwykłe trasy aplikacji są blokowane. Dostępne pozostają logowanie, backup/restore i zasoby potrzebne do otwarcia formularza.
-- Przed restore zatrzymaj też publiczny moduł rezygnacji i wszystkie dodatkowe procesy korzystające z tej bazy. Flaga aplikacji nie zatrzymuje innych kontenerów ani klientów SQL.
-- Po restore aplikacja wykonuje migracje i odczyt konfiguracji, ale w trybie maintenance nie przelicza automatycznie kolejki. Sprawdź dane i blokady, ponownie nadaj uprawnienia modułu publicznego, następnie świadomie usuń flagę maintenance i zrestartuj app. Dopiero zwykły start przywraca harmonogram.
+- `pg_dump` and `pg_restore` receive credentials through the process environment, without passwords in command-line arguments. Raw stderr is excluded from API responses and regular logs because it may contain SQL and private data.
+- Every nonzero `pg_restore` exit code, including **1**, is a failure. `--single-transaction --exit-on-error` prevents accepting a partial restore. `--no-owner --no-acl` restores data without recreating foreign ownership and grants.
+- Local backup files use mode 0600 and unique filenames with microseconds. The encrypted `.qbk` package and its preview remain available; the raw upgrade dump is not an encrypted `.qbk` package.
+- Temporary restore tokens have a strict format, purpose (`admin`/`setup`), TTL, and single-use consumption. The read path must match that token's file in the protected directory; path traversal and symlinks are rejected.
+- API restore requires **restarting** the application with `SEKARO_MAINTENANCE=1`. In this mode, the scheduler, synchronization, startup jobs, and MCP do not start, and normal application routes are blocked. Login, backup/restore, and assets needed to display the form remain available.
+- Before restoring, also stop the public unsubscribe service and every other process using the database. The application flag does not stop other containers or SQL clients.
+- After restore, the application runs migrations and reloads configuration, but does not automatically recalculate the queue in maintenance mode. Check data and suppression records, reprovision public-service permissions, then remove the maintenance flag and restart the app. Normal startup resumes scheduling.
 
-Kopia samej bazy nie zastępuje zabezpieczenia klucza szyfrowania skrzynek, sekretu podpisu, `.env`/`.sekaro-demo/env` i ewentualnych plików poza DB. Przechowuj je osobno w chronionym backupie. Test odtworzenia jest częścią odbioru, nie tylko sprawdzenie, że plik istnieje. Dumpy odtwarzaj wyłącznie z zaufanego źródła — dump PostgreSQL może zawierać wykonywalny SQL.
+A database backup does not replace a separate protected backup of the mailbox encryption key, signing secret, `.env`/`.sekaro-demo/env`, and any files stored outside the database. Acceptance must include a restore test, not just checking that a file exists. Restore only trusted dumps: PostgreSQL dumps can contain executable SQL.
 
-## Starszy moduł publicznej rezygnacji — zgodność istniejących instalacji
+## Legacy public unsubscribe service — existing installation compatibility
 
-Poniższa sekcja dotyczy wcześniejszego procesu `public_unsubscribe` z ograniczoną
-rolą bazy danych. Dla nowych instalacji i odseparowanego endpointu bez dostępu
-do bazy aplikacji użyj [aktualnej instrukcji](PUBLIC_ENDPOINT_OPERATIONS_PL.md).
+This section covers the earlier `public_unsubscribe` process with a restricted database role. For new installations and the isolated endpoint without access to the application database, use the [current endpoint guide](PUBLIC_ENDPOINT_OPERATIONS.md).
 
-| Powierzchnia | Dostęp docelowy |
+| Surface | Intended access |
 |---|---|
-| Panel, logowanie, `/api/*`, dokumentacja API, MCP | Wyłącznie prywatna sieć/Zero Trust; app bind `127.0.0.1:5050` |
-| `/o/*`, `/c/*`, Beacon, OAuth, narzędzia Caddy | Nie są wystawiane przez nowy moduł publiczny. Nie dodajemy wyjątków na publicznym proxy. |
-| `GET /u/{token}` i `POST /u/{token}` | Jedyna funkcja publicznego procesu, na osobnej domenie HTTPS |
-| Inne trasy na domenie publicznej | 404; brak SPA, panelu, dokumentacji i logowania |
-| PostgreSQL | Brak portu hosta; dwie sieci Docker, publiczny proces nie współdzieli sieci z aplikacją |
+| Panel, login, `/api/*`, API documentation, MCP | Private network/Zero Trust only; app bind `127.0.0.1:5050` |
+| `/o/*`, `/c/*`, Beacon, OAuth, Caddy tools | Not exposed by this legacy public service; do not add public proxy exceptions |
+| `GET /u/{token}` and `POST /u/{token}` | The public process's only function, on a separate HTTPS domain |
+| Other routes on the public domain | 404; no SPA, panel, documentation, or login |
+| PostgreSQL | No host port; two Docker networks, with the public process outside the application's network |
 
-`public_unsubscribe` ma własny minimalny obraz i zależności. Nie importuje prywatnej aplikacji, nie ma haseł skrzynek, klucza szyfrowania ani JWT. Dostaje tylko login DB `sekaro_unsubscribe`, który może wykonać jedną funkcję zwracającą boolean. Nie może czytać tabel kontaktów, użytkowników i skrzynek. Funkcja `SECURITY DEFINER` ma stały `search_path` i kwalifikowane nazwy tabel; token jest parametrem, nie fragmentem SQL.
+`public_unsubscribe` has its own minimal image and dependencies. It does not import the private application or receive mailbox passwords, the encryption key, or JWT secrets. It receives only the `sekaro_unsubscribe` database login, which can execute one boolean-returning function. It cannot read contact, user, or mailbox tables. The `SECURITY DEFINER` function uses a fixed `search_path` and qualified table names; the token is a parameter, not an SQL fragment.
 
-Rezygnacja jest idempotentna, zapisuje globalną suppression, wstrzymuje wszystkie przypisania adresu i usuwa niewykonane sloty. Sloty z niepewną próbą `SendAttempt` pozostają wraz z audytem. Blokada wierszy kontaktu współpracuje z ostatnią kontrolą przed wysyłką; wiadomości już przekazanej transportowi nie można cofnąć. Publiczny proces nie wykonuje webhooków ani wysyłki.
+Unsubscribing is idempotent: it records global suppression, pauses all enrollments for the address, and removes unexecuted slots. Slots with an uncertain `SendAttempt` remain with their audit trail. Contact row locks coordinate with the final pre-send check; a message already handed to the transport cannot be recalled. The public process does not send messages or execute webhooks.
 
-Nie zapisujemy tokenów w access logu publicznego procesu/proxy. Odpowiedzi mają `no-store`, `no-referrer`, CSP i zakaz osadzania. Nie zmieniamy zewnętrznej konfiguracji Cloudflare ani nie wystawiamy nowej domeny w ramach tego pakietu.
+Tokens must not appear in public process/proxy access logs. Responses use `no-store`, `no-referrer`, CSP, and frame protection. This package does not change external Cloudflare configuration or publish a new domain.
 
-### Uruchomienie publicznej rezygnacji — produkcja
+### Enabling public unsubscribe in production
 
-1. W prywatnym `.env` ustaw `SEKARO_UNSUBSCRIBE_BASE_URL=https://<osobna-domena>` i losowe `SEKARO_UNSUBSCRIBE_PASSWORD` (32–128 znaków URL-safe). Zachowaj istniejące klucze szyfrowania aplikacji. Domeny/proxy wymagają osobnego przygotowania operatora.
-2. Zbuduj prywatną aplikację i uruchom jej migracje. Nadaj uprawnienia z prywatnego kontenera:
+1. In the private `.env`, set `SEKARO_UNSUBSCRIBE_BASE_URL=https://<separate-domain>` and a random `SEKARO_UNSUBSCRIBE_PASSWORD` (32–128 URL-safe characters). Preserve the existing application encryption keys. The operator must separately prepare the domain and proxy.
+2. Build the private application and run its migrations. Provision permissions from the private container:
 
    ```bash
    docker compose -f docker-compose.sekaro.yml exec -T app python -m app.provision_unsubscribe
    ```
 
-3. Dopiero po sukcesie provisioning uruchom publiczną usługę:
+3. Start the public service only after provisioning succeeds:
 
    ```bash
    docker compose -f docker-compose.sekaro.yml --profile public-unsubscribe up -d --build unsubscribe
    ```
 
-4. Podepnij dedykowany host HTTPS do loopback 5051, zgodnie z `deploy/public-unsubscribe.nginx.conf`. Nie kieruj go do 5050. Ustaw limity żądań na hostowym proxy. Sprawdź z zewnątrz: nieprawidłowy token 404, `/api/auth/login`, `/docs`, `/o/*`, `/c/*` i `/` również 404. Użyj jednego fikcyjnego kontaktu/tokena do potwierdzenia rezygnacji w DB.
+4. Route a dedicated HTTPS host to loopback port 5051, following `deploy/public-unsubscribe.nginx.conf`. Do not route it to 5050. Configure request limits on the host proxy. Verify externally that an invalid token, `/api/auth/login`, `/docs`, `/o/*`, `/c/*`, and `/` all return 404. Use a fictional contact/token to confirm that unsubscribing updates the database.
 
-Profil jest opcjonalny przy aktualizacji istniejącej instalacji, aby brak nowej domeny/hasła nie uruchamiał częściowo skonfigurowanej usługi. Docelowe wdrożenie z tym profilem ma trzy usługi: app, db, unsubscribe. Demo pozostaje jednym demo bez publicznego transportu.
+The profile is optional when upgrading an existing installation, so a missing domain or password cannot start a partially configured service. A deployment using this profile has three services: app, db, and unsubscribe. The demo remains a single demo without public transport.
 
-Po restore ponów provisioning, zanim uruchomisz usługę publiczną: restore celowo nie odtwarza grantów. Zmiana hasła wymaga odtworzenia kontenera unsubscribe. Provisioning odmawia użycia roli uprzywilejowanej, należącej do innych ról, posiadającej relacje lub nadal czytającej tabele przez granty PUBLIC.
+After restore, repeat provisioning before starting the public service: restore intentionally excludes grants. Changing the password requires recreating the unsubscribe container. Provisioning rejects privileged roles, roles with memberships, roles that own relations, or roles that can still read tables through PUBLIC grants.
 
-Wysyłka używa oddzielnego originu rezygnacji w obu ścieżkach kolejki. Ani HTML href, ani tekstowy link rezygnacji nie zostaje opakowany w tracking prywatnej aplikacji. Dotychczasowe linki pozostają takie, jakie wysłano wcześniej; przed produkcyjną migracją istniejącej domeny zaplanuj zachowanie ich routingu.
+Both queue paths use a separate unsubscribe origin. Neither the HTML href nor the plain-text unsubscribe link is wrapped in private application tracking. Previously sent links remain unchanged; plan to preserve their routing before migrating an existing production domain.
 
 ## Validation and updates
 

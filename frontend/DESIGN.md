@@ -1,10 +1,9 @@
 # Sekaro frontend design guide
 
-This document describes the current Sekaro UI after the 0.5.x redesign consolidation. New screens and edits should extend this system rather than recreating the legacy Quickly/Tailwind presentation.
+This document describes the Sekaro 1.0 UI. New screens and edits should extend this system rather than recreating the legacy Quickly/Tailwind presentation.
 
 ## Source of truth
 
-- Visual references are indexed in `design/ui-mockups/INDEX.md`.
 - Global theme and shell tokens live in `src/redesign/design.css`.
 - Shared spacing, radius, responsive and per-surface bridge rules live in `src/redesign/tokens.css`.
 - Shared redesign primitives live in `src/redesign/ui.jsx`.

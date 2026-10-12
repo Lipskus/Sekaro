@@ -54,7 +54,7 @@ The application binds to `127.0.0.1:5050`. Access it through a trusted tunnel or
 New installations default to private mode without public tracking or unsubscribe links.
 Use the explicit endpoint modes and roles to enable them; existing installations
 retain their previous behavior until paired.
-[Public endpoint setup, migration and recovery (Polish) →](docs/PUBLIC_ENDPOINT_OPERATIONS_PL.md)
+[Public endpoint setup, migration and recovery →](docs/PUBLIC_ENDPOINT_OPERATIONS.md)
 
 ## Update an existing demo or production installation
 

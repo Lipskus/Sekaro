@@ -1,31 +1,31 @@
-# Kontakty, firmy i CRM
+# Contacts, companies and CRM
 
-Dokumentacja funkcji Sekaro 1.0.
+Feature documentation for Sekaro 1.0.
 
-## Model i migracja
+## Model and migration
 
-- Osobą pozostaje istniejący `Lead`. Nie przenosimy ID kampanii, wiadomości, odpowiedzi ani tokenów rezygnacji.
-- Profil CRM określa rodzaj: nieokreślony, osoba, skrzynka ogólna. Stare rekordy pozostają nieokreślone; operator klasyfikuje je świadomie. Adres typu `info@` nie jest automatycznie utożsamiany z osobą.
-- `Lead.email` pozostaje adresem wysyłki i jest prezentowany w CRM wraz z dodatkowymi adresami z `contact_address`. Dodatkowe adresy służą do ewidencji i wyszukiwania; nie przełączają istniejących kampanii na innego odbiorcę.
-- Firmy mają własną tożsamość, opis, domenę, archiwizację i historię autora/czasu. Relacja firma–kontakt jest wiele-do-wielu i ma rolę/stanowisko. Firma nie musi mieć osób; kontakt nie musi mieć firmy. Archiwizacja firmy nie zmienia stanu wysyłki osób.
-- Jednorazowa migracja przenosi jawne wartości pól `company`, `firma`, `Company`, `Firma` do firm i relacji. Każdy rekord źródłowy tworzy osobny rekord firmy do przeglądu: identyczna nazwa ani domena nie stanowią dowodu tej samej firmy. Stare pola pozostają dostępne szablonom. Aby uporządkować duplikaty firm, powiąż osoby z wybraną firmą, usuń zbędne relacje i zarchiwizuj pozostałe firmy.
-- Migracja ma własny znacznik i blokadę transakcyjną PostgreSQL. Kolejny start nie odtwarza usuniętych relacji ani nie nadpisuje edytowanych firm. Późniejszy import korzysta z dotychczasowego importera i FieldManager; nowe relacje operator przypisuje w CRM, bez automatycznego dopasowania firm po nazwie.
-- Notatki są dopisywane z autorem i czasem, bez podmiany autorstwa z żądania klienta. Są trwałymi wpisami, a nie edytowalnym polem historii.
+- A person remains an existing `Lead`. Campaign, message, reply and unsubscribe-token IDs are not reassigned.
+- CRM profiles distinguish unspecified contacts, people and shared mailboxes. Existing records remain unspecified until the operator classifies them. An address such as `info@` is not automatically treated as a person.
+- `Lead.email` remains the sending address and appears in CRM alongside additional addresses from `contact_address`. Additional addresses support record keeping and search; they do not redirect existing campaigns to another recipient.
+- Companies have their own identity, description, domain, archive state and actor/timestamp history. Company–contact relationships are many-to-many and include a role/job title. Companies can exist without people, and contacts without companies. Archiving a company does not change its contacts' sending state.
+- A one-time migration copies explicit values from `company`, `firma`, `Company` and `Firma` fields into companies and relationships. Each source record creates a separate company for review: an identical name or domain is not proof of identity. Old fields remain available to templates. To consolidate duplicate companies, link contacts to the chosen company, remove redundant relationships and archive the remaining companies.
+- The migration has its own marker and PostgreSQL transaction lock. Subsequent starts do not recreate deleted relationships or overwrite edited companies. Later imports use the existing importer and FieldManager; operators assign new relationships in CRM without automatic company-name matching.
+- Notes are appended with the session actor and timestamp; the client cannot replace their attribution. They are persistent entries rather than an editable history field.
 
-## Scalanie i ochrona wysyłki
+## Merging and sending safeguards
 
-1. W obu rekordach ustaw rodzaj „Osoba”. W profilu zachowywanego kontaktu otwórz CRM, znajdź drugi rekord i wybierz „Porównaj”.
-2. Dla konfliktujących nazw i własnych pól wybierz źródło wartości. Puste pola są uzupełniane. Podgląd zawiera ID i adresy obu stron.
-3. Potwierdź scalenie. Serwer ponownie odczytuje i blokuje rekordy, porównuje fingerprint podglądu i odrzuca nieaktualne decyzje.
-4. Źródło zostaje zarchiwizowane i wskazuje zachowany kontakt. Nie usuwamy źródła ani nie przenosimy jego korespondencji. CRM zachowanego kontaktu pokazuje wspólne adresy, firmy, notatki, operacje i odnośniki do historii oryginalnych rekordów. Kampanie i wiadomości pozostają pod źródłowymi ID.
-5. Kampanie obu rekordów są wstrzymane. Niewykonane sloty są usuwane, a niepewne próby wysyłki i ich sloty pozostają. Przywrócenie źródła lub usunięcie któregokolwiek rekordu scalenia jest blokowane. Import nie nadpisuje dołączonego rekordu.
-6. Blokady nie znikają: rezygnacja/suppression przy scaleniu obejmuje znane adresy osoby. Również późniejsza rezygnacja na starym rekordzie blokuje wysyłkę do zachowanej osoby przez wspólną kontrolę przed transportem. Metadane istniejących suppression i niepewne próby nie są nadpisywane.
+1. Set both records to the Person type. In the retained contact's profile, open CRM, find the other record and select Compare.
+2. Choose the source value for conflicting names and custom fields. Empty fields are filled. The preview includes both records' IDs and addresses.
+3. Confirm the merge. The server rereads and locks the records, compares the preview fingerprint and rejects stale decisions.
+4. The source is archived and points to the retained contact. The source and its correspondence remain in place. The retained contact's CRM shows combined addresses, companies, notes, operations and links to the original records' history. Campaigns and messages keep their source IDs.
+5. Both records' campaign enrollments are paused. Unexecuted slots are removed; uncertain send attempts and their slots remain. Restoring the source or deleting either merged record is blocked. Imports do not overwrite the merged source.
+6. Blocks remain effective: unsubscribe/suppression during merging covers the person's known addresses. A later unsubscribe on the old record also blocks sending to the retained person through the shared pre-transport check. Existing suppression metadata and uncertain attempts are not overwritten.
 
-Scalenie jest trwałe; panel nie udostępnia rozdzielenia rekordów. Źródłem kolejnego scalenia może być pojedyncza osoba, a celem również istniejąca grupa. Nie dopuszczamy łańcuchów aliasów. Wpis audytu zawiera wybrane wartości oraz poprzednie dane obu kontaktów.
+Merging is permanent; the interface cannot split records again. A single person can be the source of another merge, and an existing merged group can be its target. Alias chains are not allowed. The audit entry includes selected values and both contacts' previous data.
 
-## Prywatny interfejs
+## Private interface
 
-Nowa pozycja „Firmy” i zakładka „CRM” w istniejącym profilu kontaktu. Wspólne Shell, Modal, potwierdzenia, pola i obsługa błędów; etykiety PL/EN/DE/RU. API `/api/crm/*` wymaga istniejącego logowania. W demo dozwolone są tylko lokalne operacje CRM; blokady transportu pozostają aktywne. Publiczna usługa rezygnacji nie otrzymuje nowych tras ani dostępu do tabel CRM.
+Companies appear in navigation, with a CRM tab in the existing contact profile. Screens use the shared Shell, Modal, confirmations, fields and error handling, with PL/EN/DE/RU labels. `/api/crm/*` requires authentication. Demo permits local CRM operations while retaining transport blocks. The public unsubscribe service receives no additional routes or access to CRM tables.
 
 ## Validation and updates
 
