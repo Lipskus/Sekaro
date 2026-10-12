@@ -1,0 +1,117 @@
+import {PermissionPage} from './context/Permissions';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import Layout from './components/Layout';
+import Campaigns from './pages/Campaigns';
+import AddCampaign from './pages/AddCampaign';
+import Inboxes from './pages/Inboxes';
+import Schedule from './pages/Schedule';
+import Settings from './pages/Settings';
+import Analytics from './pages/Analytics';
+import DeliverabilityTips from './pages/DeliverabilityTips';
+import SystemHealth from './pages/SystemHealth';
+import Leads from './pages/Leads';
+import LeadDetail from './pages/LeadDetail';
+import Companies from './pages/Companies';
+import Sales from './pages/Sales';
+import Automations from './pages/Automations';
+import CrmReports from './pages/CrmReports';
+import ContactGroups from './redesign/ContactGroups';
+import Templates from './pages/Templates';
+import Notifications from './pages/Notifications';
+import Login from './pages/Login';
+import Dashboard from './redesign/pages/Dashboard';
+import ContactsView from './redesign/pages/Contacts';
+import CampaignWorkspace from './redesign/pages/CampaignWorkspace';
+import InboxView from './redesign/pages/Inbox';
+import Domains from './redesign/pages/Domains';
+import { api } from './api';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import SplashScreen from './components/SplashScreen';
+import { DarkModeProvider } from './context/DarkModeContext';
+import { SystemHealthProvider } from './context/SystemHealthContext';
+import { NotificationsProvider } from './context/NotificationsContext';
+import { LanguageProvider } from './context/LanguageContext';
+
+function ProtectedRoute({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return <SplashScreen />;
+  }
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+}
+
+function AppRoutes() {
+  const { user, loading } = useAuth();
+
+  // Register this browser's IP as a known IP (auto-expires after 1 week)
+  useEffect(() => {
+    if (user) {
+      api.post('/settings/known-ips/heartbeat', {}).catch(() => {});
+    }
+  }, [user]);
+
+  if (loading) {
+    return <SplashScreen />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/login" element={
+        user ? <Navigate to="/" replace /> : <Login />
+      } />
+      <Route path="/*" element={
+        <ProtectedRoute>
+          <Layout>
+            <PermissionPage><Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/campaigns/add" element={<AddCampaign />} />
+              <Route path="/campaigns/:id" element={<CampaignWorkspace />} />
+              <Route path="/crm" element={<Navigate to="/leads" replace />} />
+              <Route path="/crm/automations" element={<Automations />} />
+              <Route path="/crm/reports" element={<CrmReports />} />
+              <Route path="/crm/groups" element={<ContactGroups />} />
+              <Route path="/leads" element={<ContactsView />} />
+              <Route path="/contacts-tools" element={<Leads />} />
+              <Route path="/leads/:id" element={<LeadDetail />} />
+              <Route path="/sales" element={<Sales />} />
+              <Route path="/companies" element={<Companies />} />
+              <Route path="/companies/:id" element={<Companies />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/inboxes" element={<Inboxes />} />
+              <Route path="/unibox" element={<InboxView />} />
+              <Route path="/domains" element={<Domains />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/deliverability-tips" element={<DeliverabilityTips />} />
+              <Route path="/system-health" element={<SystemHealth />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="*" element={<Navigate to="/" />} />
+            </Routes></PermissionPage>
+          </Layout>
+        </ProtectedRoute>
+      } />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <DarkModeProvider>
+        <AuthProvider>
+          <SystemHealthProvider>
+            <NotificationsProvider>
+              <AppRoutes />
+            </NotificationsProvider>
+          </SystemHealthProvider>
+        </AuthProvider>
+      </DarkModeProvider>
+    </LanguageProvider>
+  );
+}

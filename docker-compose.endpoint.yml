@@ -1,0 +1,36 @@
+name: sekaro-endpoint
+services:
+  endpoint:
+    image: sekaro-endpoint:local
+    build:
+      context: .
+      dockerfile: Dockerfile.endpoint
+    init: true
+    restart: unless-stopped
+    environment:
+      ENDPOINT_DATABASE: /data/endpoint.sqlite3
+      ENDPOINT_KEYS_FILE: /run/endpoint.keys
+    ports:
+      - "${ENDPOINT_PUBLIC_BIND:-127.0.0.1}:${ENDPOINT_PUBLIC_PORT:-5051}:8080"
+      - "${ENDPOINT_SYNC_BIND:-127.0.0.1}:${ENDPOINT_SYNC_PORT:-5052}:8081"
+    volumes:
+      - endpoint_data:/data
+      - ./.sekaro-endpoint/server.keys:/run/endpoint.keys:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: [/tmp:size=8m,mode=1777]
+    pids_limit: 64
+    mem_limit: 192m
+    cpus: 0.50
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    networks: [endpoint-only]
+networks:
+  endpoint-only:
+    internal: true
+volumes:
+  endpoint_data:

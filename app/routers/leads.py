@@ -1,0 +1,1541 @@
+"""Leads API routes."""
+import asyncio
+import csv
+import io
+import json
+import logging
+from typing import Literal
+from datetime import datetime
+
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile
+from fastapi.responses import StreamingResponse
+from sqlalchemy import delete, exists, func, or_, select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload, with_expression
+
+from app.campaign_lead_status import LEAD_INTERESTS, normalize_enrollment_status, normalize_interest
+from app.auth import get_current_user
+from app.contact_lifecycle import record_operation, set_archived
+from app.database import get_db
+from app.lead_inbox_resolution import from_inbox_email_by_lead_campaign
+from app.models import (
+    Campaign,
+    CampaignLead,
+    ContactFieldDefinition,
+    ContactList,
+    ContactListMember,
+    EmailLog,
+    GmailMessage,
+    Lead,
+    LeadReply,
+    Office365Message,
+    SuppressionEntry,
+)
+from app.schemas import (
+    LeadArchiveRequest,
+    LeadBulkDeleteRequest,
+    LeadBulkRecoverItem,
+    LeadBulkRecoverRequest,
+    LeadBulkStatusRequest,
+    LeadCreate,
+    LeadRecoverRequest,
+    LeadResponse,
+    LeadUpdate,
+    LeadCampaignInfo,
+    MarkReplied,
+    ContactListCreate,
+    ContactListMembers,
+    ContactListResponse,
+    SuppressionCreate,
+    SuppressionResponse,
+)
+
+log = logging.getLogger("quickly.routes")
+
+router = APIRouter(prefix="/api/leads", tags=["leads"])
+
+
+async def _engagement_pair_sets(
+    db: AsyncSession, lead_ids: list[int]
+) -> tuple[set[tuple[int, int]], set[tuple[int, int]], set[tuple[int, int]]]:
+    """(lead_id, campaign_id) sets for opened, clicked, replied."""
+    if not lead_ids:
+        return set(), set(), set()
+    o_res = await db.execute(
+        select(EmailLog.lead_id, EmailLog.campaign_id)
+        .where(EmailLog.lead_id.in_(lead_ids), EmailLog.opened == True)  # noqa: E712
+        .distinct()
+    )
+    opened = {(r[0], r[1]) for r in o_res.all()}
+    c_res = await db.execute(
+        select(EmailLog.lead_id, EmailLog.campaign_id)
+        .where(EmailLog.lead_id.in_(lead_ids), EmailLog.clicked == True)  # noqa: E712
+        .distinct()
+    )
+    clicked = {(r[0], r[1]) for r in c_res.all()}
+    r_res = await db.execute(
+        select(LeadReply.lead_id, LeadReply.campaign_id)
+        .where(LeadReply.lead_id.in_(lead_ids))
+        .distinct()
+    )
+    replied = {(r[0], r[1]) for r in r_res.all()}
+    return opened, clicked, replied
+
+
+def _lead_to_response(
+    lead: Lead,
+    opened: set[tuple[int, int]],
+    clicked: set[tuple[int, int]],
+    replied: set[tuple[int, int]],
+    *,
+    interactions: list[dict] | None = None,
+    inbox_by_pair: dict[tuple[int, int], str] | None = None,
+) -> LeadResponse:
+    camps = []
+    ib = inbox_by_pair or {}
+    for cl in lead.campaign_leads:
+        c = cl.campaign
+        pair = (lead.id, cl.campaign_id)
+        camps.append(
+            LeadCampaignInfo(
+                campaign_id=cl.campaign_id,
+                campaign_public_id=c.public_id if c else "",
+                campaign_name=c.name if c else "",
+                enrolled_at=cl.enrolled_at,
+                status=getattr(cl, "enrollment_status", None) or "active",
+                interest=cl.interest_status,
+                opened=pair in opened,
+                clicked=pair in clicked,
+                replied=pair in replied,
+                sending_paused=cl.sending_paused or cl.archive_sending_paused,
+                from_inbox_email=ib.get(pair),
+            )
+        )
+    return LeadResponse(
+        archived_at=lead.archived_at,
+        lead_status=lead.status or "active",
+        suppressed=bool(lead.suppressed),
+        operations=[{
+            "id": op.id, "kind": "operation", "action": op.action,
+            "at": op.occurred_at, "actor_id": op.actor_id,
+            "actor_name": op.actor_name, "details": op.details,
+        } for op in lead.operations],
+        id=lead.id,
+        email=lead.email,
+        name=lead.name or "",
+        custom_data=lead.custom_data if isinstance(lead.custom_data, dict) else {},
+        provider=lead.provider,
+        email_verification_status=lead.email_verification_status,
+        created_at=lead.created_at,
+        campaigns=camps,
+        interactions=interactions or [],
+    )
+
+
+def _lead_query_with_campaigns():
+    return select(Lead).options(
+        selectinload(Lead.campaign_leads).selectinload(CampaignLead.campaign),
+        selectinload(Lead.operations),
+        with_expression(Lead.suppressed, exists(select(1).where(
+            func.lower(SuppressionEntry.email) == func.lower(Lead.email)
+        ))),
+    )
+
+
+# Parsed interest query: None = no filter; "__unset__" = interest_status IS NULL; else a value in LEAD_INTERESTS.
+_INTEREST_FILTER_UNSET = "__unset__"
+
+
+def _parse_interest_filter_param(raw: str | None) -> str | None:
+    if raw is None:
+        return None
+    s = raw.strip().lower()
+    if not s or s in ("none", "null", "unset", "clear", "empty"):
+        return _INTEREST_FILTER_UNSET
+    if s in LEAD_INTERESTS:
+        return s
+    raise HTTPException(
+        status_code=400,
+        detail=f"Invalid interest filter {raw!r}; use one of: unset, {', '.join(sorted(LEAD_INTERESTS))}",
+    )
+
+
+def _campaign_lead_interest_predicate(parsed: str):
+    if parsed == _INTEREST_FILTER_UNSET:
+        return CampaignLead.interest_status.is_(None)
+    return CampaignLead.interest_status == parsed
+
+
+def _optional_interest_for_stmt(interest: str | None) -> str | None:
+    """None = no interest filter. Empty string after strip = no filter."""
+    if interest is None:
+        return None
+    s = interest.strip()
+    if not s:
+        return None
+    return _parse_interest_filter_param(s)
+
+
+def _build_leads_stmt(
+    *,
+    q: str | None,
+    status: str | None,
+    bad_only: bool,
+    interest: str | None,
+    scope: str = "current",
+):
+    stmt = _lead_query_with_campaigns().order_by(Lead.id.desc())
+    if scope != "all":
+        stmt = stmt.where(Lead.archived_at.is_not(None) if scope == "archived" else Lead.archived_at.is_(None))
+    if bad_only:
+        bounced_enrollment = exists(
+            select(1).select_from(CampaignLead).where(
+                CampaignLead.lead_id == Lead.id,
+                CampaignLead.enrollment_status == "bounced",
+            )
+        )
+        stmt = stmt.where(
+            or_(
+                Lead.email_verification_status.in_(("invalid", "risky")),
+                Lead.status.in_(("invalid", "bounced")),
+                bounced_enrollment,
+            )
+        )
+
+    st = (status or "").strip().lower() or None
+    intr = interest
+
+    merged_enrollment_interest = False
+    if st and st not in ("invalid", "replied") and intr is not None:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(CampaignLead).where(
+                    CampaignLead.lead_id == Lead.id,
+                    CampaignLead.enrollment_status == st,
+                    _campaign_lead_interest_predicate(intr),
+                )
+            )
+        )
+        merged_enrollment_interest = True
+    elif st == "invalid":
+        stmt = stmt.where(
+            or_(
+                Lead.email_verification_status == "invalid",
+                Lead.status == "invalid",
+            )
+        )
+    elif st == "replied":
+        stmt = stmt.where(
+            exists(select(1).select_from(LeadReply).where(LeadReply.lead_id == Lead.id))
+        )
+    elif st:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(CampaignLead).where(
+                    CampaignLead.lead_id == Lead.id,
+                    CampaignLead.enrollment_status == st,
+                )
+            )
+        )
+
+    if intr is not None and not merged_enrollment_interest:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(CampaignLead).where(
+                    CampaignLead.lead_id == Lead.id,
+                    _campaign_lead_interest_predicate(intr),
+                )
+            )
+        )
+
+    if q and q.strip():
+        pat = f"%{q.strip()}%"
+        from app.crm_models import ContactAddress
+        stmt = stmt.where(or_(Lead.email.ilike(pat), Lead.name.ilike(pat), exists(select(1).where(ContactAddress.lead_id == Lead.id, ContactAddress.email.ilike(pat)))))
+    return stmt
+
+
+async def _reset_all_enrollments_for_lead(db: AsyncSession, lead_id: int) -> None:
+    res = await db.execute(select(CampaignLead).where(CampaignLead.lead_id == lead_id))
+    for cl in res.scalars().all():
+        cl.enrollment_status = "active"
+        cl.interest_status = None
+        cl.sending_paused = False
+        cl.archive_sending_paused = False
+
+
+async def _fetch_lead_interactions(db: AsyncSession, lead_id: int) -> list[dict]:
+    """Merge outbound EmailLog rows with inbound mirrored messages (Gmail / O365)."""
+    res = await db.execute(select(Lead).where(Lead.id == lead_id))
+    lead = res.scalar_one_or_none()
+    if not lead:
+        return []
+
+    events: list[dict] = []
+
+    log_rows = await db.execute(
+        select(EmailLog, Campaign.name, Campaign.public_id)
+        .join(Campaign, EmailLog.campaign_id == Campaign.id)
+        .where(EmailLog.lead_id == lead_id)
+        .order_by(EmailLog.sent_at.asc())
+    )
+    for el, cname, pub in log_rows.all():
+        events.append(
+            {
+                "direction": "outbound",
+                "kind": "sent",
+                "at": el.sent_at.isoformat(),
+                "campaign_id": el.campaign_id,
+                "campaign_name": cname,
+                "campaign_public_id": pub,
+                "subject": el.subject or "",
+                "sequence_index": el.sequence_index,
+            }
+        )
+
+    th_rows = await db.execute(
+        select(EmailLog.thread_id)
+        .where(
+            EmailLog.lead_id == lead_id,
+            EmailLog.thread_id.isnot(None),
+            EmailLog.thread_id != "",
+        )
+        .distinct()
+    )
+    thread_ids = [r[0] for r in th_rows.all()]
+    lead_em = (lead.email or "").strip().lower()
+
+    if thread_ids and lead_em:
+        from app.unibox import _extract_email_only, _header_value
+
+        gm_res = await db.execute(
+            select(GmailMessage).where(GmailMessage.thread_id.in_(thread_ids))
+        )
+        for msg in gm_res.scalars().all():
+            try:
+                from_a = _extract_email_only(_header_value(msg.headers_json or "[]", "From"))
+            except Exception:
+                from_a = ""
+            if (from_a or "").strip().lower() != lead_em:
+                continue
+            subj = _header_value(msg.headers_json or "[]", "Subject") or ""
+            ts = None
+            if msg.internal_date is not None:
+                ts = datetime.utcfromtimestamp(int(msg.internal_date) / 1000.0).isoformat() + "Z"
+            events.append(
+                {
+                    "direction": "inbound",
+                    "kind": "received",
+                    "channel": "gmail",
+                    "at": ts or (msg.updated_at.isoformat() if msg.updated_at else None),
+                    "thread_id": msg.thread_id,
+                    "subject": subj,
+                    "snippet": (msg.snippet or "")[:500],
+                }
+            )
+
+        o365_res = await db.execute(
+            select(Office365Message).where(Office365Message.conversation_id.in_(thread_ids))
+        )
+        for msg in o365_res.scalars().all():
+            if (msg.from_address or "").strip().lower() != lead_em:
+                continue
+            events.append(
+                {
+                    "direction": "inbound",
+                    "kind": "received",
+                    "channel": "office365",
+                    "at": msg.received_at.isoformat() if msg.received_at else None,
+                    "thread_id": msg.conversation_id,
+                    "subject": msg.subject or "",
+                    "snippet": (msg.body_plain or msg.body_html or "")[:500],
+                }
+            )
+
+    lr_rows = await db.execute(
+        select(LeadReply, Campaign.name, Campaign.public_id)
+        .join(Campaign, LeadReply.campaign_id == Campaign.id)
+        .where(LeadReply.lead_id == lead_id)
+        .order_by(LeadReply.replied_at.asc())
+    )
+    for lr, cname, pub in lr_rows.all():
+        events.append(
+            {
+                "direction": "inbound",
+                "kind": "reply_marker",
+                "at": lr.replied_at.isoformat(),
+                "campaign_id": lr.campaign_id,
+                "campaign_name": cname,
+                "campaign_public_id": pub,
+            }
+        )
+
+    events.sort(key=lambda e: (e.get("at") or "", e.get("direction", "")))
+    return events
+
+
+async def _fetch_lead_interactions_batch(
+    db: AsyncSession, lead_ids: list[int]
+) -> dict[int, list[dict]]:
+    """Batch equivalent of _fetch_lead_interactions; returns dict[lead_id, events]."""
+    if not lead_ids:
+        return {}
+
+    res = await db.execute(select(Lead).where(Lead.id.in_(lead_ids)))
+    leads = {l.id: l for l in res.scalars().all()}
+    email_map = {lid: (lead.email or "").strip().lower() for lid, lead in leads.items()}
+
+    events_map: dict[int, list[dict]] = {lid: [] for lid in lead_ids}
+
+    log_rows = await db.execute(
+        select(EmailLog, Campaign.name, Campaign.public_id)
+        .join(Campaign, EmailLog.campaign_id == Campaign.id)
+        .where(EmailLog.lead_id.in_(lead_ids))
+        .order_by(EmailLog.sent_at.asc())
+    )
+    for el, cname, pub in log_rows.all():
+        events_map[el.lead_id].append(
+            {
+                "direction": "outbound",
+                "kind": "sent",
+                "at": el.sent_at.isoformat(),
+                "campaign_id": el.campaign_id,
+                "campaign_name": cname,
+                "campaign_public_id": pub,
+                "subject": el.subject or "",
+                "sequence_index": el.sequence_index,
+            }
+        )
+
+    th_res = await db.execute(
+        select(EmailLog.lead_id, EmailLog.thread_id)
+        .where(
+            EmailLog.lead_id.in_(lead_ids),
+            EmailLog.thread_id.isnot(None),
+            EmailLog.thread_id != "",
+        )
+        .distinct()
+    )
+    tid_to_leads: dict[str, list[int]] = {}
+    for lid, tid in th_res.all():
+        tid_to_leads.setdefault(tid, []).append(lid)
+    all_thread_ids = list(tid_to_leads.keys())
+
+    if all_thread_ids:
+        from app.unibox import _extract_email_only, _header_value
+
+        gm_res = await db.execute(
+            select(GmailMessage).where(GmailMessage.thread_id.in_(all_thread_ids))
+        )
+        for msg in gm_res.scalars().all():
+            try:
+                from_a = _extract_email_only(_header_value(msg.headers_json or "[]", "From"))
+            except Exception:
+                from_a = ""
+            from_a = (from_a or "").strip().lower()
+            for lid in tid_to_leads.get(msg.thread_id, []):
+                if from_a == email_map.get(lid, ""):
+                    subj = _header_value(msg.headers_json or "[]", "Subject") or ""
+                    ts = None
+                    if msg.internal_date is not None:
+                        ts = datetime.utcfromtimestamp(int(msg.internal_date) / 1000.0).isoformat() + "Z"
+                    events_map[lid].append(
+                        {
+                            "direction": "inbound",
+                            "kind": "received",
+                            "channel": "gmail",
+                            "at": ts or (msg.updated_at.isoformat() if msg.updated_at else None),
+                            "thread_id": msg.thread_id,
+                            "subject": subj,
+                            "snippet": (msg.snippet or "")[:500],
+                        }
+                    )
+                    break
+
+        o365_res = await db.execute(
+            select(Office365Message).where(Office365Message.conversation_id.in_(all_thread_ids))
+        )
+        for msg in o365_res.scalars().all():
+            for lid in tid_to_leads.get(msg.conversation_id, []):
+                if (msg.from_address or "").strip().lower() == email_map.get(lid, ""):
+                    events_map[lid].append(
+                        {
+                            "direction": "inbound",
+                            "kind": "received",
+                            "channel": "office365",
+                            "at": msg.received_at.isoformat() if msg.received_at else None,
+                            "thread_id": msg.conversation_id,
+                            "subject": msg.subject or "",
+                            "snippet": (msg.body_plain or msg.body_html or "")[:500],
+                        }
+                    )
+                    break
+
+    lr_rows = await db.execute(
+        select(LeadReply, Campaign.name, Campaign.public_id)
+        .join(Campaign, LeadReply.campaign_id == Campaign.id)
+        .where(LeadReply.lead_id.in_(lead_ids))
+        .order_by(LeadReply.replied_at.asc())
+    )
+    for lr, cname, pub in lr_rows.all():
+        events_map[lr.lead_id].append(
+            {
+                "direction": "inbound",
+                "kind": "reply_marker",
+                "at": lr.replied_at.isoformat(),
+                "campaign_id": lr.campaign_id,
+                "campaign_name": cname,
+                "campaign_public_id": pub,
+            }
+        )
+
+    for lid in lead_ids:
+        events_map[lid].sort(key=lambda e: (e.get("at") or "", e.get("direction", "")))
+
+    return events_map
+
+
+def _enrolled_earliest_iso(lead: Lead) -> str:
+    if not lead.campaign_leads:
+        return ""
+    dates = [cl.enrolled_at for cl in lead.campaign_leads if cl.enrolled_at]
+    if not dates:
+        return ""
+    earliest = min(dates)
+    if isinstance(earliest, datetime):
+        return earliest.date().isoformat()
+    return str(earliest)
+
+
+async def _mutate_lead_recover(lead: Lead, norm: str, verify: bool) -> None:
+    if lead.archived_at is not None:
+        raise HTTPException(409, "Restore the archived contact before recovery")
+    from app.email_verification import PENDING
+
+    lead.email = norm
+    lead.status = "active"
+    lead.provider = None
+    if verify:
+        lead.email_verification_status = PENDING
+    else:
+        lead.email_verification_status = None
+
+
+async def _after_lead_recovered(db: AsyncSession, lead_id: int) -> None:
+    await _reset_all_enrollments_for_lead(db, lead_id)
+
+
+async def _finalize_lead_recovery(
+    db: AsyncSession,
+    lead_ids: list[int],
+    verify: bool,
+    background_tasks: BackgroundTasks,
+) -> None:
+    if not lead_ids:
+        return
+    if verify:
+        from app.routers.campaigns import _run_background_verification
+
+        asyncio.create_task(_run_background_verification(lead_ids))
+    else:
+        await db.commit()
+        from app.routers.schedule import enqueue_global_recalculate
+
+        enqueue_global_recalculate(background_tasks)
+
+
+@router.get("", response_model=list[LeadResponse])
+async def list_leads(
+    scope: Literal["current", "archived", "all"] = Query("current"),
+    list_id: int | None = Query(None, ge=1),
+    status: str | None = Query(None),
+    bad_only: bool = Query(
+        False,
+        description="If true, narrow to bounced/invalid-style leads; stacks with status and interest when those are set.",
+    ),
+    interest: str | None = Query(
+        None,
+        description="Filter by per-enrollment interest: interested, not_interested, out_of_office, auto_reply, or unset (cleared / null). Stacks with status and bad_only.",
+    ),
+    q: str | None = Query(None, description="Search email or name (substring)"),
+    db: AsyncSession = Depends(get_db),
+):
+    intr = _optional_interest_for_stmt(interest)
+    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr, scope=scope)
+    if list_id is not None:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(ContactListMember).where(
+                    ContactListMember.lead_id == Lead.id,
+                    ContactListMember.list_id == list_id,
+                )
+            )
+        )
+    result = await db.execute(stmt)
+    leads = result.scalars().all()
+    ids = [x.id for x in leads]
+    opened, clicked, replied = await _engagement_pair_sets(db, ids)
+    pairs: set[tuple[int, int]] = set()
+    for x in leads:
+        for cl in x.campaign_leads:
+            pairs.add((x.id, cl.campaign_id))
+    inbox_by_pair = await from_inbox_email_by_lead_campaign(db, pairs)
+    interactions_map = await _fetch_lead_interactions_batch(db, ids) if ids else {}
+    return [
+        _lead_to_response(
+            x, opened, clicked, replied,
+            interactions=interactions_map.get(x.id, []),
+            inbox_by_pair=inbox_by_pair,
+        )
+        for x in leads
+    ]
+
+
+@router.get("/export")
+async def export_leads_csv(
+    scope: Literal["current", "archived", "all"] = Query("current"),
+    list_id: int | None = Query(None, ge=1),
+    status: str | None = Query(None),
+    bad_only: bool = Query(False),
+    interest: str | None = Query(
+        None,
+        description="Same as GET /api/leads: per-enrollment interest filter; stacks with other query params.",
+    ),
+    q: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """CSV export aligned with the Leads UI: core columns plus all custom_data keys."""
+    intr = _optional_interest_for_stmt(interest)
+    stmt = _build_leads_stmt(q=q, status=status, bad_only=bad_only, interest=intr, scope=scope)
+    if list_id is not None:
+        stmt = stmt.where(
+            exists(
+                select(1).select_from(ContactListMember).where(
+                    ContactListMember.lead_id == Lead.id,
+                    ContactListMember.list_id == list_id,
+                )
+            )
+        )
+    result = await db.execute(stmt)
+    leads = list(result.scalars().all())
+    ids = [x.id for x in leads]
+    opened, clicked, replied = await _engagement_pair_sets(db, ids)
+
+    custom_keys: set[str] = set()
+    for lead in leads:
+        cd = lead.custom_data
+        if isinstance(cd, dict):
+            custom_keys.update(cd.keys())
+    sorted_custom = sorted(custom_keys)
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    header = [
+        "id",
+        "email",
+        "name",
+        "email_verification_status",
+        "campaigns",
+        "enrollments_json",
+        "enrolled_earliest",
+        *sorted_custom,
+    ]
+    writer.writerow(header)
+
+    for lead in leads:
+        camps = "; ".join(cl.campaign.name for cl in lead.campaign_leads if cl.campaign)
+        enc_payload = []
+        for cl in lead.campaign_leads:
+            c = cl.campaign
+            pair = (lead.id, cl.campaign_id)
+            enc_payload.append(
+                {
+                    "campaign_id": cl.campaign_id,
+                    "campaign_public_id": c.public_id if c else "",
+                    "campaign_name": c.name if c else "",
+                    "status": getattr(cl, "enrollment_status", None) or "active",
+                    "interest": cl.interest_status,
+                    "opened": pair in opened,
+                    "clicked": pair in clicked,
+                    "replied": pair in replied,
+                    "sending_paused": cl.sending_paused or cl.archive_sending_paused,
+                }
+            )
+        row = [
+            lead.id,
+            lead.email or "",
+            lead.name or "",
+            lead.email_verification_status or "",
+            camps,
+            json.dumps(enc_payload, ensure_ascii=False),
+            _enrolled_earliest_iso(lead),
+        ]
+        cd = lead.custom_data if isinstance(lead.custom_data, dict) else {}
+        for k in sorted_custom:
+            val = cd.get(k, "")
+            if val is None:
+                row.append("")
+            elif isinstance(val, (dict, list)):
+                row.append(json.dumps(val, ensure_ascii=False))
+            else:
+                row.append(str(val))
+        writer.writerow(row)
+
+    output.seek(0)
+    suffix = "bounced_invalid" if bad_only else "export"
+    return StreamingResponse(
+        iter([output.getvalue()]),
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": f'attachment; filename="leads_{suffix}.csv"'},
+    )
+
+
+@router.post("/archive")
+async def archive_contacts(
+    body: LeadArchiveRequest,
+    db: AsyncSession = Depends(get_db),
+    actor=Depends(get_current_user),
+):
+    changed = await set_archived(db, body.lead_ids, body.archived, actor)
+    await db.commit()
+    return {"ok": True, "updated": changed}
+
+
+@router.post("/bulk-delete")
+async def bulk_delete_leads(
+    body: LeadBulkDeleteRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    if not body.lead_ids:
+        return {"ok": True, "deleted": 0}
+    from app.crm import protect_delete
+    await protect_delete(db, body.lead_ids)
+    all_campaign_ids: set[int] = set()
+    deleted = 0
+    for lead_id in body.lead_ids:
+        res = await db.execute(select(Lead).where(Lead.id == lead_id))
+        lead = res.scalar_one_or_none()
+        if not lead:
+            continue
+        cl_res = await db.execute(
+            select(CampaignLead.campaign_id).where(CampaignLead.lead_id == lead_id),
+        )
+        for (cid,) in cl_res.all():
+            all_campaign_ids.add(cid)
+        await db.execute(delete(EmailLog).where(EmailLog.lead_id == lead_id))
+        await db.execute(delete(LeadReply).where(LeadReply.lead_id == lead_id))
+        await db.delete(lead)
+        deleted += 1
+
+    if all_campaign_ids:
+        log.info(
+            "bulk_delete_leads: deleted %d lead(s); recalc (campaigns touched)",
+            deleted,
+        )
+        await db.commit()
+        from app.routers.schedule import enqueue_global_recalculate
+
+        enqueue_global_recalculate(background_tasks)
+    return {"ok": True, "deleted": deleted}
+
+
+@router.post("/bulk-status")
+async def bulk_update_lead_status(
+    body: LeadBulkStatusRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    if not body.lead_ids:
+        return {"ok": True, "updated": 0}
+    target = normalize_enrollment_status(body.enrollment_status)
+    changed = False
+    updated = 0
+    for lead_id in body.lead_ids:
+        res = await db.execute(select(CampaignLead).where(CampaignLead.lead_id == lead_id))
+        for cl in res.scalars().all():
+            if cl.enrollment_status != target:
+                cl.enrollment_status = target
+                changed = True
+                updated += 1
+    await db.flush()
+    if changed:
+        await db.commit()
+        from app.routers.schedule import enqueue_global_recalculate
+
+        enqueue_global_recalculate(background_tasks)
+    return {"ok": True, "updated": updated}
+
+
+@router.post("/bulk-recover")
+async def bulk_recover_leads(
+    body: LeadBulkRecoverRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    """Recover many leads: one verification batch or one queue recalculation."""
+    if not body.items:
+        return {"recovered": 0, "errors": [], "recovered_ids": []}
+
+    from app.app_settings import EMAIL_VERIFICATION_ENABLED, get_setting
+
+    enabled = (await get_setting(db, EMAIL_VERIFICATION_ENABLED) or "false").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+    verify = body.verify_email and enabled
+
+    errors: list[dict] = []
+    recovered_ids: list[int] = []
+
+    for item in body.items:
+        lead_id = item.lead_id
+        res = await db.execute(
+            _lead_query_with_campaigns().where(Lead.id == lead_id),
+        )
+        lead = res.scalar_one_or_none()
+        if not lead:
+            errors.append({"lead_id": lead_id, "detail": "not_found"})
+            continue
+        norm = item.email.strip().lower()
+        if not norm:
+            errors.append({"lead_id": lead_id, "detail": "empty_email"})
+            continue
+        dup = await db.execute(
+            select(Lead.id).where(Lead.email == norm, Lead.id != lead_id),
+        )
+        if dup.scalar_one_or_none():
+            errors.append({"lead_id": lead_id, "detail": "duplicate_email"})
+            continue
+        await _mutate_lead_recover(lead, norm, verify)
+        await _after_lead_recovered(db, lead_id)
+        recovered_ids.append(lead_id)
+
+    await db.flush()
+    await _finalize_lead_recovery(db, recovered_ids, verify, background_tasks)
+    return {"recovered": len(recovered_ids), "errors": errors, "recovered_ids": recovered_ids}
+
+
+@router.post("/recover-import")
+async def import_recover_csv(
+    background_tasks: BackgroundTasks,
+    file: UploadFile = File(...),
+    verify_emails: bool = Query(True),
+    db: AsyncSession = Depends(get_db),
+):
+    """CSV with id + email columns (and optional extra columns). Uses same recovery rules as bulk-recover."""
+    raw = await file.read()
+    text = raw.decode("utf-8-sig")
+    reader = csv.reader(io.StringIO(text))
+    rows = list(reader)
+    if not rows:
+        raise HTTPException(400, "Empty CSV")
+
+    header = [h.strip().lower() for h in rows[0]]
+    id_idx = None
+    email_idx = None
+    if "id" in header or "lead_id" in header:
+        try:
+            id_idx = header.index("id") if "id" in header else header.index("lead_id")
+        except ValueError:
+            id_idx = None
+        try:
+            email_idx = header.index("email")
+        except ValueError:
+            email_idx = None
+        data_rows = rows[1:]
+    else:
+        id_idx, email_idx = 0, 1
+        data_rows = rows
+
+    if id_idx is None or email_idx is None:
+        raise HTTPException(400, "CSV must include id and email columns (header row or first two columns)")
+
+    items: list[LeadBulkRecoverItem] = []
+    for parts in data_rows:
+        if len(parts) <= max(id_idx, email_idx):
+            continue
+        try:
+            lid = int(str(parts[id_idx]).strip())
+        except ValueError:
+            continue
+        em = str(parts[email_idx]).strip().strip('"')
+        if lid and em:
+            items.append(LeadBulkRecoverItem(lead_id=lid, email=em))
+
+    if not items:
+        raise HTTPException(400, "No valid id,email rows found")
+
+    bulk_body = LeadBulkRecoverRequest(items=items, verify_email=verify_emails)
+    return await bulk_recover_leads(bulk_body, background_tasks, db)
+
+
+@router.post("", response_model=LeadResponse)
+async def create_lead(data: LeadCreate, db: AsyncSession = Depends(get_db)):
+    raise HTTPException(
+        405,
+        "Creating leads without a campaign is not allowed; use POST /api/campaigns/{campaign_id}/leads",
+    )
+
+
+@router.post("/mark-replied")
+async def mark_lead_replied(
+    body: MarkReplied,
+    db: AsyncSession = Depends(get_db),
+):
+    lead_id = body.lead_id
+    campaign_id = body.campaign_id
+    existing = await db.execute(
+        select(LeadReply).where(
+            LeadReply.lead_id == lead_id,
+            LeadReply.campaign_id == campaign_id,
+        )
+    )
+    if existing.scalar_one_or_none():
+        return {"ok": True}
+    db.add(LeadReply(lead_id=lead_id, campaign_id=campaign_id))
+    return {"ok": True}
+
+
+# ---------------------------------------------------------------------------
+# Global contact import + suppression (Sekaro 0.3)
+# ---------------------------------------------------------------------------
+
+def _batch(values: list[str], size: int = 1000):
+    for i in range(0, len(values), size):
+        yield values[i:i + size]
+
+
+async def _existing_contact_map(
+    db: AsyncSession,
+    emails: list[str],
+) -> dict[str, Lead]:
+    result: dict[str, Lead] = {}
+    for chunk in _batch(emails):
+        rows = await db.execute(
+            select(Lead).where(func.lower(Lead.email).in_(chunk)).order_by(Lead.id.asc()).with_for_update()
+        )
+        for lead in rows.scalars().all():
+            key = (lead.email or "").strip().lower()
+            result.setdefault(key, lead)
+    return result
+
+
+async def _suppressed_email_set(
+    db: AsyncSession,
+    emails: list[str],
+) -> set[str]:
+    found: set[str] = set()
+    for chunk in _batch(emails):
+        rows = await db.execute(
+            select(SuppressionEntry.email).where(SuppressionEntry.email.in_(chunk))
+        )
+        found.update((row[0] or "").strip().lower() for row in rows.all())
+    return found
+
+
+def _normalise_import_email(raw: str) -> str | None:
+    from email_validator import EmailNotValidError, validate_email
+
+    value = (raw or "").strip().lower()
+    if not value:
+        return None
+    try:
+        checked = validate_email(value, check_deliverability=False)
+        return checked.normalized.strip().lower()
+    except EmailNotValidError:
+        return None
+
+
+@router.post("/import/preview")
+async def preview_contacts_import(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+):
+    """Parse CSV/XLSX and return mapping suggestions + duplicate/suppression stats."""
+    from app.contact_import import PREVIEW_ROWS, apply_mapping, parse_contact_file, suggest_mapping
+
+    contents = await file.read()
+    try:
+        table = parse_contact_file(file.filename or "contacts.csv", contents)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+    mapping = suggest_mapping(table.headers)
+    email_source = next((s for s, target in mapping.items() if target == "email"), None)
+
+    valid: list[str] = []
+    invalid_rows: list[int] = []
+    duplicates_in_file = 0
+    seen: set[str] = set()
+
+    if email_source:
+        for row_num, row in enumerate(table.rows, start=2):
+            email, _, _ = apply_mapping(row, mapping)
+            norm = _normalise_import_email(email)
+            if not norm:
+                invalid_rows.append(row_num)
+                continue
+            if norm in seen:
+                duplicates_in_file += 1
+                continue
+            seen.add(norm)
+            valid.append(norm)
+
+    existing = await _existing_contact_map(db, valid) if valid else {}
+    suppressed = await _suppressed_email_set(db, valid) if valid else set()
+
+    return {
+        "preview": True,
+        "filename": table.filename,
+        "sheet_name": table.sheet_name,
+        "default_list_name": (table.filename.rsplit(".", 1)[0] or "Import").strip()[:255],
+        "headers": table.headers,
+        "suggested_mapping": mapping,
+        "sample_rows": table.rows[:PREVIEW_ROWS],
+        "total_rows": len(table.rows),
+        "valid_unique_emails": len(valid),
+        "invalid_rows": invalid_rows[:50],
+        "invalid_count": len(invalid_rows),
+        "duplicates_in_file": duplicates_in_file,
+        "existing_contacts": len(existing),
+        "suppressed_contacts": len(suppressed),
+        "mapping_required": email_source is None,
+    }
+
+
+@router.post("/import")
+async def import_contacts_file(
+    file: UploadFile = File(...),
+    mapping_json: str = Form(...),
+    duplicate_mode: str = Form("merge"),
+    list_name: str = Form(""),
+    db: AsyncSession = Depends(get_db),
+):
+    """Import global contacts from CSV/XLSX using explicit column mapping.
+
+    duplicate_mode:
+      - merge: update non-empty name/custom fields on an existing contact
+      - skip: keep an existing contact unchanged
+    Suppressed addresses are always skipped.
+    """
+    from app.contact_import import apply_mapping, parse_contact_file, validate_mapping
+
+    mode = (duplicate_mode or "merge").strip().lower()
+    if mode not in {"merge", "skip"}:
+        raise HTTPException(400, "duplicate_mode must be 'merge' or 'skip'")
+
+    try:
+        mapping = json.loads(mapping_json)
+    except json.JSONDecodeError as exc:
+        raise HTTPException(400, "mapping_json must be valid JSON") from exc
+    if not isinstance(mapping, dict):
+        raise HTTPException(400, "mapping_json must be an object")
+
+    contents = await file.read()
+    try:
+        table = parse_contact_file(file.filename or "contacts.csv", contents)
+        validate_mapping(table.headers, mapping)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+
+    parsed_rows: list[tuple[int, str, str, dict[str, str]]] = []
+    invalid_rows: list[dict] = []
+    duplicate_rows: list[dict] = []
+    seen: set[str] = set()
+
+    for row_num, row in enumerate(table.rows, start=2):
+        raw_email, name, custom = apply_mapping(row, mapping)
+        email = _normalise_import_email(raw_email)
+        if not email:
+            invalid_rows.append({"row": row_num, "email": raw_email})
+            continue
+        if email in seen:
+            duplicate_rows.append({"row": row_num, "email": email})
+            continue
+        seen.add(email)
+        parsed_rows.append((row_num, email, name.strip(), custom))
+
+    emails = [row[1] for row in parsed_rows]
+    existing = await _existing_contact_map(db, emails) if emails else {}
+    suppressed = await _suppressed_email_set(db, emails) if emails else set()
+
+    contact_list = None
+    list_member_ids: set[int] = set()
+    clean_list_name = (list_name or "").strip()[:255]
+    if clean_list_name:
+        list_res = await db.execute(
+            select(ContactList).where(func.lower(ContactList.name) == clean_list_name.lower())
+        )
+        contact_list = list_res.scalar_one_or_none()
+        if contact_list is None:
+            contact_list = ContactList(name=clean_list_name)
+            db.add(contact_list)
+            await db.flush()
+        member_res = await db.execute(
+            select(ContactListMember.lead_id).where(
+                ContactListMember.list_id == contact_list.id
+            )
+        )
+        list_member_ids = {row[0] for row in member_res.all()}
+
+    added = 0
+    updated = 0
+    skipped_existing = 0
+    skipped_suppressed = 0
+    list_members_added = 0
+    custom_fields: set[str] = set()
+
+    for _row_num, email, name, custom in parsed_rows:
+        if email in suppressed:
+            skipped_suppressed += 1
+            continue
+
+        lead = existing.get(email)
+        if lead is not None:
+            from app.crm_models import CrmProfile
+            crm_profile = await db.get(CrmProfile, lead.id)
+            if crm_profile and crm_profile.merged_into:
+                skipped_existing += 1
+                continue
+            if contact_list is not None and lead.id not in list_member_ids:
+                db.add(ContactListMember(list_id=contact_list.id, lead_id=lead.id))
+                list_member_ids.add(lead.id)
+                list_members_added += 1
+            if mode == "skip":
+                skipped_existing += 1
+                continue
+
+            changed = False
+            if name and name != (lead.name or ""):
+                lead.name = name
+                changed = True
+            if custom:
+                merged = {**(lead.custom_data or {})}
+                for key, value in custom.items():
+                    if value:
+                        merged[key] = value
+                        custom_fields.add(key)
+                if merged != (lead.custom_data or {}):
+                    lead.custom_data = merged
+                    changed = True
+            if changed:
+                updated += 1
+            else:
+                skipped_existing += 1
+            continue
+
+        custom_fields.update(custom.keys())
+        lead = Lead(
+            email=email,
+            name=name,
+            custom_data=custom,
+            status="active",
+        )
+        db.add(lead)
+        await db.flush()
+        existing[email] = lead
+        if contact_list is not None and lead.id not in list_member_ids:
+            db.add(ContactListMember(list_id=contact_list.id, lead_id=lead.id))
+            list_member_ids.add(lead.id)
+            list_members_added += 1
+        added += 1
+
+    if custom_fields:
+        existing_defs_res = await db.execute(
+            select(ContactFieldDefinition.key).where(
+                ContactFieldDefinition.key.in_(sorted(custom_fields))
+            )
+        )
+        existing_defs = {row[0] for row in existing_defs_res.all()}
+        for key in sorted(custom_fields - existing_defs):
+            db.add(ContactFieldDefinition(key=key, label=key))
+
+    await db.commit()
+
+    return {
+        "ok": True,
+        "filename": table.filename,
+        "sheet_name": table.sheet_name,
+        "total_rows": len(table.rows),
+        "added": added,
+        "updated": updated,
+        "skipped_existing": skipped_existing,
+        "skipped_suppressed": skipped_suppressed,
+        "invalid_count": len(invalid_rows),
+        "duplicates_in_file": len(duplicate_rows),
+        "invalid_rows": invalid_rows[:50],
+        "duplicate_rows": duplicate_rows[:50],
+        "custom_fields": sorted(custom_fields),
+        "list": (
+            {"id": contact_list.id, "name": contact_list.name}
+            if contact_list is not None
+            else None
+        ),
+        "list_members_added": list_members_added,
+    }
+
+
+@router.get("/lists", response_model=list[ContactListResponse])
+async def list_contact_lists(
+    db: AsyncSession = Depends(get_db),
+):
+    rows = await db.execute(
+        select(
+            ContactList.id,
+            ContactList.name,
+            ContactList.created_at,
+            func.count(ContactListMember.id).label("member_count"),
+        )
+        .outerjoin(ContactListMember, ContactListMember.list_id == ContactList.id)
+        .group_by(ContactList.id, ContactList.name, ContactList.created_at)
+        .order_by(ContactList.name.asc())
+    )
+    return [
+        ContactListResponse(
+            id=row.id,
+            name=row.name,
+            created_at=row.created_at,
+            member_count=int(row.member_count or 0),
+        )
+        for row in rows.all()
+    ]
+
+
+@router.post("/lists", response_model=ContactListResponse)
+async def create_contact_list(
+    data: ContactListCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    name = data.name.strip()
+    if not name:
+        raise HTTPException(422, "Contact list name cannot be blank")
+    ids = set(data.lead_ids)
+    if ids:
+        found = set((await db.scalars(select(Lead.id).where(Lead.id.in_(ids)).order_by(Lead.id).with_for_update())).all())
+        if found != ids:
+            raise HTTPException(404, "Contact not found")
+    existing = await db.execute(
+        select(ContactList).where(func.lower(ContactList.name) == name.lower())
+    )
+    if existing.scalar_one_or_none() is not None:
+        raise HTTPException(409, "A contact list with this name already exists")
+    row = ContactList(name=name)
+    db.add(row)
+    await db.flush()
+    db.add_all([ContactListMember(list_id=row.id, lead_id=i) for i in sorted(ids)])
+    await db.commit()
+    await db.refresh(row)
+    return ContactListResponse(
+        id=row.id,
+        name=row.name,
+        created_at=row.created_at,
+        member_count=len(ids),
+    )
+
+
+@router.post("/lists/{list_id}/members")
+async def add_contact_list_members(list_id: int, data: ContactListMembers, db: AsyncSession = Depends(get_db)):
+    ids = set(data.lead_ids)
+    # Lock contacts before the list: consistent with contact merge/import order.
+    found = set((await db.scalars(select(Lead.id).where(Lead.id.in_(ids)).order_by(Lead.id).with_for_update())).all())
+    if found != ids:
+        raise HTTPException(404, "Contact not found")
+    row = await db.scalar(select(ContactList).where(ContactList.id == list_id).with_for_update())
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    existing = set((await db.scalars(select(ContactListMember.lead_id).where(ContactListMember.list_id == list_id))).all())
+    added = ids - existing
+    db.add_all([ContactListMember(list_id=list_id, lead_id=i) for i in sorted(added)])
+    await db.commit()
+    return {"added": len(added), "already_members": len(ids & existing)}
+
+
+@router.post("/lists/{list_id}/members/remove")
+async def remove_contact_list_members(list_id: int, data: ContactListMembers, db: AsyncSession = Depends(get_db)):
+    row = await db.scalar(select(ContactList).where(ContactList.id == list_id).with_for_update())
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    result = await db.execute(delete(ContactListMember).where(ContactListMember.list_id == list_id, ContactListMember.lead_id.in_(data.lead_ids)))
+    await db.commit()
+    return {"removed": result.rowcount}
+
+
+@router.delete("/lists/{list_id}")
+async def delete_contact_list(
+    list_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    row = await db.get(ContactList, list_id)
+    if row is None:
+        raise HTTPException(404, "Contact list not found")
+    await db.delete(row)
+    await db.commit()
+    return {"ok": True, "id": list_id}
+
+
+@router.get("/suppression", response_model=list[SuppressionResponse])
+async def list_suppression_entries(
+    q: str | None = Query(None),
+    limit: int = Query(500, ge=1, le=5000),
+    db: AsyncSession = Depends(get_db),
+):
+    stmt = select(SuppressionEntry).order_by(SuppressionEntry.created_at.desc()).limit(limit)
+    if q and q.strip():
+        stmt = stmt.where(SuppressionEntry.email.ilike(f"%{q.strip()}%"))
+    rows = await db.execute(stmt)
+    return rows.scalars().all()
+
+
+@router.post("/suppression", response_model=SuppressionResponse)
+async def create_suppression_entry(
+    data: SuppressionCreate,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.suppression import suppress_email
+
+    try:
+        entry = await suppress_email(
+            db,
+            str(data.email),
+            reason=data.reason,
+            source=data.source,
+            note=data.note,
+            stop_active_sends=True,
+        )
+    except ValueError as exc:
+        raise HTTPException(400, str(exc)) from exc
+    await db.commit()
+    await db.refresh(entry)
+    return entry
+
+
+@router.delete("/suppression/{entry_id}")
+async def delete_suppression_entry(
+    entry_id: int,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.suppression import remove_suppression
+
+    if not await remove_suppression(db, entry_id):
+        raise HTTPException(404, "Suppression entry not found")
+    await db.commit()
+    return {"ok": True, "id": entry_id}
+
+
+@router.get("/{lead_id}", response_model=LeadResponse)
+async def get_lead(lead_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        _lead_query_with_campaigns().where(Lead.id == lead_id),
+    )
+    lead = result.scalar_one_or_none()
+    if not lead:
+        raise HTTPException(404, "Lead not found")
+    opened, clicked, replied = await _engagement_pair_sets(db, [lead_id])
+    interactions = await _fetch_lead_interactions(db, lead_id)
+    pairs = {(lead.id, cl.campaign_id) for cl in lead.campaign_leads}
+    inbox_by_pair = await from_inbox_email_by_lead_campaign(db, pairs)
+    return _lead_to_response(
+        lead,
+        opened,
+        clicked,
+        replied,
+        interactions=interactions,
+        inbox_by_pair=inbox_by_pair,
+    )
+
+
+@router.patch("/{lead_id}", response_model=LeadResponse)
+async def update_lead(
+    lead_id: int,
+    data: LeadUpdate,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    actor=Depends(get_current_user),
+):
+    result = await db.execute(select(Lead).where(Lead.id == lead_id).with_for_update())
+    lead = result.scalar_one_or_none()
+    if not lead:
+        raise HTTPException(404, "Lead not found")
+    from app.crm import writable
+    await writable(db, lead_id)
+    before = {"name": lead.name, "custom_data": lead.custom_data}
+    if data.name is not None:
+        lead.name = data.name
+    if data.custom_data is not None:
+        lead.custom_data = data.custom_data
+    enrollment_changed = False
+    if data.enrollment_status is not None:
+        target = normalize_enrollment_status(data.enrollment_status)
+        cl_res = await db.execute(select(CampaignLead).where(CampaignLead.lead_id == lead_id))
+        for cl in cl_res.scalars().all():
+            if cl.enrollment_status != target:
+                cl.enrollment_status = target
+                enrollment_changed = True
+    after = {"name": lead.name, "custom_data": lead.custom_data}
+    if before != after or enrollment_changed:
+        record_operation(db, lead.id, "update", actor, {
+            "before": before, "after": after,
+            "enrollment_status": data.enrollment_status,
+        })
+    await db.flush()
+
+    if enrollment_changed:
+        log.info(
+            "Lead %s enrollment_status bulk-updated; triggering full recalculation",
+            lead_id,
+        )
+        await db.commit()
+        from app.routers.schedule import enqueue_global_recalculate
+
+        enqueue_global_recalculate(background_tasks)
+
+    result2 = await db.execute(
+        _lead_query_with_campaigns().where(Lead.id == lead_id).execution_options(populate_existing=True),
+    )
+    lead_loaded = result2.scalar_one()
+    opened, clicked, replied = await _engagement_pair_sets(db, [lead_id])
+    # End read transaction so a queued global recalc (separate session on
+    # SQLite StaticPool) is not blocked waiting for this connection.
+    await db.commit()
+    interactions = await _fetch_lead_interactions(db, lead_id)
+    pairs = {(lead_loaded.id, cl.campaign_id) for cl in lead_loaded.campaign_leads}
+    inbox_by_pair = await from_inbox_email_by_lead_campaign(db, pairs)
+    return _lead_to_response(
+        lead_loaded,
+        opened,
+        clicked,
+        replied,
+        interactions=interactions,
+        inbox_by_pair=inbox_by_pair,
+    )
+
+
+@router.post("/{lead_id}/recover", response_model=LeadResponse)
+async def recover_lead(
+    lead_id: int,
+    body: LeadRecoverRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    result = await db.execute(
+        _lead_query_with_campaigns().where(Lead.id == lead_id),
+    )
+    lead = result.scalar_one_or_none()
+    if not lead:
+        raise HTTPException(404, "Lead not found")
+
+    norm = body.email.strip().lower()
+    if not norm:
+        raise HTTPException(400, "Email is required")
+
+    dup = await db.execute(
+        select(Lead.id).where(Lead.email == norm, Lead.id != lead_id),
+    )
+    if dup.scalar_one_or_none():
+        raise HTTPException(409, "Another lead already uses this email address")
+
+    from app.app_settings import EMAIL_VERIFICATION_ENABLED, get_setting
+
+    enabled = (await get_setting(db, EMAIL_VERIFICATION_ENABLED) or "false").lower() in (
+        "true",
+        "1",
+        "yes",
+    )
+    verify = body.verify_email and enabled
+
+    await _mutate_lead_recover(lead, norm, verify)
+    await _after_lead_recovered(db, lead_id)
+    await db.flush()
+    await _finalize_lead_recovery(db, [lead_id], verify, background_tasks)
+
+    result3 = await db.execute(
+        _lead_query_with_campaigns().where(Lead.id == lead_id),
+    )
+    lead_out = result3.scalar_one()
+    opened, clicked, replied = await _engagement_pair_sets(db, [lead_id])
+    interactions = await _fetch_lead_interactions(db, lead_id)
+    await db.commit()
+    pairs = {(lead_out.id, cl.campaign_id) for cl in lead_out.campaign_leads}
+    inbox_by_pair = await from_inbox_email_by_lead_campaign(db, pairs)
+    return _lead_to_response(
+        lead_out, opened, clicked, replied,
+        interactions=interactions,
+        inbox_by_pair=inbox_by_pair,
+    )
+
+
+@router.delete("/{lead_id}")
+async def delete_lead(
+    lead_id: int,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+):
+    from app.crm import protect_delete
+    await protect_delete(db, [lead_id])
+    result = await db.execute(select(Lead).where(Lead.id == lead_id))
+    lead = result.scalar_one_or_none()
+    if not lead:
+        raise HTTPException(404, "Lead not found")
+    cl_res = await db.execute(
+        select(CampaignLead.campaign_id).where(CampaignLead.lead_id == lead_id),
+    )
+    campaign_ids = [r[0] for r in cl_res.all()]
+    await db.execute(delete(EmailLog).where(EmailLog.lead_id == lead_id))
+    await db.execute(delete(LeadReply).where(LeadReply.lead_id == lead_id))
+    await db.delete(lead)
+
+    if campaign_ids:
+        log.info(
+            "Lead %s deleted (campaigns=%s); triggering full recalculation",
+            lead_id,
+            campaign_ids,
+        )
+        await db.commit()
+        from app.routers.schedule import enqueue_global_recalculate
+
+        enqueue_global_recalculate(background_tasks)
+    return {"ok": True}
+
+
+@router.get("/{lead_id}/history")
+async def get_lead_history(lead_id: int, db: AsyncSession = Depends(get_db)):
+    result = await db.execute(
+        select(EmailLog, Campaign.name)
+        .join(Campaign, EmailLog.campaign_id == Campaign.id)
+        .where(EmailLog.lead_id == lead_id)
+        .order_by(EmailLog.sent_at.desc()),
+    )
+    rows = result.all()
+    return [
+        {
+            "campaign_id": log.campaign_id,
+            "campaign_name": name,
+            "sequence_index": log.sequence_index,
+            "sent_at": log.sent_at.isoformat(),
+            "subject": log.subject,
+        }
+        for log, name in rows
+    ]
+
+
+@router.get("/{lead_id}/replies")
+async def get_lead_replies(lead_id: int, db: AsyncSession = Depends(get_db)):
+    exists = await db.execute(select(Lead.id).where(Lead.id == lead_id))
+    if not exists.scalar_one_or_none():
+        raise HTTPException(404, "Lead not found")
+    result = await db.execute(
+        select(LeadReply, Campaign.name)
+        .join(Campaign, LeadReply.campaign_id == Campaign.id)
+        .where(LeadReply.lead_id == lead_id)
+        .order_by(LeadReply.replied_at.desc()),
+    )
+    return [
+        {
+            "campaign_id": lr.campaign_id,
+            "campaign_name": name,
+            "replied_at": lr.replied_at.isoformat(),
+        }
+        for lr, name in result.all()
+    ]

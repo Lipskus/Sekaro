@@ -1,0 +1,596 @@
+"""Pydantic schemas for API and validation."""
+from pydantic import AliasChoices, BaseModel, EmailStr, Field
+from typing import Literal, Optional, Dict, Any, List
+from datetime import datetime, time
+from app.models import WEBHOOK_EVENT_TYPES
+
+# Known inbox providers. "resend" is a legacy value still present on old rows
+# (gmail_oauth reverts disconnected Gmail inboxes to it), so it stays allowed.
+INBOX_PROVIDERS = Literal["gmail", "office365", "smtp", "resend"]
+
+
+class LeadCampaignInfo(BaseModel):
+    """Campaign enrollment slice on a lead (status & interest are per campaign)."""
+    campaign_id: int
+    campaign_public_id: str
+    campaign_name: str
+    enrolled_at: datetime
+    # Per-campaign enrollment pipeline
+    status: str = "active"
+    # Reply / intent classification for this campaign (null = none)
+    interest: Optional[str] = None
+    opened: bool = False
+    clicked: bool = False
+    replied: bool = False
+    sending_paused: bool = False
+    # Inbox that last sent in this campaign, or the next scheduled sender if none yet
+    from_inbox_email: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class LeadCreate(BaseModel):
+    email: str
+    name: str = ""
+    custom_data: Dict[str, Any] = {}
+
+
+class LeadUpdate(BaseModel):
+    name: Optional[str] = None
+    custom_data: Optional[Dict[str, Any]] = None
+    # Applied to every CampaignLead row for this lead (queue may recalculate)
+    enrollment_status: Optional[str] = None
+
+
+class LeadRecoverRequest(BaseModel):
+    """Fix a lead's email, set status to active, and re-enter the send flow.
+
+    When email verification is enabled and *verify_email* is True, the new
+    address is queued for verification; scheduling runs when verification
+    completes (same as adding leads to a campaign). Otherwise the global
+    queue is recalculated immediately.
+    """
+
+    email: str
+    verify_email: bool = True
+
+
+class LeadResponse(BaseModel):
+    archived_at: Optional[datetime] = None
+    lead_status: str = "active"
+    suppressed: bool = False
+    operations: List[Dict[str, Any]] = Field(default_factory=list)
+    id: int
+    email: str
+    name: str
+    custom_data: Dict[str, Any]
+    provider: Optional[str] = None
+    # valid | invalid | pending | null (other provider values may still appear in DB)
+    email_verification_status: Optional[str] = None
+    created_at: datetime
+    campaigns: List["LeadCampaignInfo"] = []
+    # Populated on GET /api/leads/{id} only: merged outbound sends + inbound mirror/reply markers
+    interactions: List[Dict[str, Any]] = Field(default_factory=list)
+
+    class Config:
+        from_attributes = True
+
+
+class ContactListMembers(BaseModel):
+    lead_ids: list[int] = Field(..., min_length=1, max_length=5000)
+
+
+class ContactListCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    lead_ids: list[int] = Field(default_factory=list, max_length=5000)
+
+
+class ContactListResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    member_count: int = 0
+
+
+class SuppressionCreate(BaseModel):
+    email: EmailStr
+    reason: str = "manual"
+    source: str = "manual"
+    note: str = ""
+
+
+class SuppressionResponse(BaseModel):
+    id: int
+    email: str
+    reason: str
+    source: str
+    note: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LeadBulkDeleteRequest(BaseModel):
+    lead_ids: List[int]
+
+
+class LeadArchiveRequest(BaseModel):
+    lead_ids: List[int] = Field(min_length=1, max_length=1000)
+    archived: bool
+
+
+class LeadBulkStatusRequest(BaseModel):
+    lead_ids: List[int]
+    # Per-campaign enrollment status applied to every enrollment of each lead
+    enrollment_status: str
+
+
+class LeadBulkRecoverItem(BaseModel):
+    lead_id: int
+    email: str
+
+
+class LeadBulkRecoverRequest(BaseModel):
+    items: List[LeadBulkRecoverItem]
+    verify_email: bool = True
+
+
+class ContactFieldCreate(BaseModel):
+    key: str = Field(..., min_length=1, max_length=64)
+    label: str = Field(default="", max_length=255)
+
+
+class ContactFieldUpdate(BaseModel):
+    label: str = Field(default="", max_length=255)
+
+
+class ContactFieldResponse(BaseModel):
+    id: Optional[int] = None
+    key: str
+    label: str
+    system: bool = False
+    defined: bool = True
+    created_at: Optional[datetime] = None
+
+
+class MessageTemplateCreate(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+
+
+class MessageTemplateRename(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+
+
+class MessageTemplateVersionCreate(BaseModel):
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+
+
+class MessageTemplateVersionResponse(BaseModel):
+    id: int
+    template_id: int
+    version: int
+    subject: str
+    body: str
+    is_html: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class MessageTemplateResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    latest_version: Optional[MessageTemplateVersionResponse] = None
+    versions: List[MessageTemplateVersionResponse] = []
+
+
+class TemplatePreviewRequest(BaseModel):
+    subject: str = Field(default="", max_length=512)
+    body: str = ""
+    is_html: bool = False
+    lead_id: Optional[int] = None
+
+
+class TemplateTestSendRequest(TemplatePreviewRequest):
+    inbox_id: int = Field(..., ge=1)
+    to_email: EmailStr
+
+
+class InboxCreate(BaseModel):
+    email: str
+    display_name: str = ""
+    reply_to: Optional[EmailStr | Literal[""]] = None
+    max_emails_per_day: int = Field(default=50, ge=1, le=10000)
+    max_emails_per_hour: int = Field(default=0, ge=0, le=10000)
+    wait_minutes_between: int = Field(default=5, ge=1, le=1440)
+    max_jitter_seconds: int = 180
+    provider: INBOX_PROVIDERS = "smtp"  # Sekaro core; legacy provider values remain readable
+    tracking_domain: Optional[str] = None  # custom hostname for tracking links
+    ramp_up_enabled: bool = False
+    ramp_up_period_days: int = 42
+    ramp_up_start: int = 1
+    ramp_up_step_size: int = 1
+
+
+class InboxUpdate(BaseModel):
+    display_name: Optional[str] = None
+    reply_to: Optional[EmailStr | Literal[""]] = None
+    max_emails_per_day: Optional[int] = Field(default=None, ge=1, le=10000)
+    max_emails_per_hour: Optional[int] = Field(default=None, ge=0, le=10000)
+    wait_minutes_between: Optional[int] = Field(default=None, ge=1, le=1440)
+    max_jitter_seconds: Optional[int] = None
+    provider: Optional[INBOX_PROVIDERS] = None
+    tracking_domain: Optional[str] = None  # set to "" to clear
+    ramp_up_enabled: Optional[bool] = None
+    ramp_up_period_days: Optional[int] = None
+    ramp_up_start: Optional[int] = None
+    ramp_up_step_size: Optional[int] = None
+    paused: Optional[bool] = None
+
+
+class BeaconConnectRequest(BaseModel):
+    """Full setup URL from Beacon, e.g. https://track.example.com/?token=...."""
+
+    setup_url: str = Field(..., min_length=12)
+
+
+class BeaconConnectFromInboxRequest(BaseModel):
+    """Reuse another inbox’s Beacon base URL and setup token (one-click)."""
+
+    source_inbox_id: int = Field(..., ge=1)
+
+
+class BeaconPendingRegistrationCountResponse(BaseModel):
+    """How many open/click/unsub rows would be POSTed to Beacon (dev diagnostics)."""
+
+    count: int
+
+
+class InboxResponse(BaseModel):
+    id: int
+    email: str
+    display_name: str
+    reply_to: Optional[str] = None
+    max_emails_per_day: int
+    max_emails_per_hour: int = 0
+    wait_minutes_between: int
+    max_jitter_seconds: int = 180
+    provider: str
+    tracking_domain: Optional[str] = None
+    beacon_connected: bool = False
+    beacon_base_url: Optional[str] = None
+    created_at: datetime
+    ramp_up_enabled: bool = False
+    ramp_up_period_days: int = 42
+    ramp_up_start: int = 1
+    ramp_up_step_size: int = 1
+    ramp_up_started_at: Optional[datetime] = None
+    paused: bool = False
+    ramp_up_paused_at: Optional[datetime] = None
+    effective_max_per_day: int = 0  # computed; 0 means use max_emails_per_day directly
+    # how many emails have been sent from this inbox **today** (UTC)
+    sent_today: int = 0
+    # rolling 60-minute count, useful when max_emails_per_hour is enabled
+    sent_last_hour: int = 0
+    # how many future queue slots are pending on this inbox right now
+    pending_leads: int = 0
+
+    class Config:
+        from_attributes = True
+
+
+class PauseInboxRequest(BaseModel):
+    action: str  # "pause_leads" or "reassign"
+    target_inbox_id: Optional[int] = None
+
+
+class ConnectUrlRequest(BaseModel):
+    """Parameters for generating a one-time OAuth connect URL for a new inbox."""
+    provider: str = "gmail"  # gmail | office365 (smtp inboxes need no OAuth)
+    display_name: str = ""
+    max_per_day: int = 50
+    wait_minutes_between: int = 5
+    max_jitter_seconds: int = 180
+    tracking_domain: Optional[str] = None
+    ramp_up_enabled: bool = False
+    ramp_up_start: int = 1
+    ramp_up_step_size: int = 1
+
+
+class ConnectUrlResponse(BaseModel):
+    url: str
+
+
+class SequenceVariantCreate(BaseModel):
+    label: str = ""
+    subject: Optional[str] = None  # None = use sequence subject
+    body: str
+    is_html: Optional[bool] = None  # None = use sequence is_html
+    preview_text: Optional[str] = None
+    enabled: bool = True
+
+
+class SequenceVariantUpdate(BaseModel):
+    label: Optional[str] = None
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    is_html: Optional[bool] = None
+    preview_text: Optional[str] = None
+    enabled: Optional[bool] = None
+
+
+class SequenceVariantResponse(BaseModel):
+    id: int
+    sequence_id: int
+    label: str
+    subject: Optional[str]
+    body: str
+    is_html: Optional[bool] = None
+    preview_text: Optional[str] = None
+    enabled: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SequenceCreate(BaseModel):
+    position: int
+    subject: Optional[str] = None
+    body: str
+    wait_days_after_previous: int = 0
+    is_html: Optional[bool] = None  # None = auto-detect (legacy), True = HTML, False = plain
+    preview_text: Optional[str] = None
+    sequence_type: str = "standard"  # standard | personalized
+    fallback_subject: Optional[str] = None
+    fallback_body: Optional[str] = None
+
+
+class SequenceUpdate(BaseModel):
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    wait_days_after_previous: Optional[int] = None
+    is_html: Optional[bool] = None
+    preview_text: Optional[str] = None
+    sequence_type: Optional[str] = None
+    fallback_subject: Optional[str] = None
+    fallback_body: Optional[str] = None
+
+
+class SequenceResponse(BaseModel):
+    id: int
+    campaign_id: int
+    position: int
+    subject: Optional[str]
+    body: str
+    wait_days_after_previous: int
+    is_html: Optional[bool] = None
+    preview_text: Optional[str] = None
+    sequence_type: str = "standard"
+    fallback_subject: Optional[str] = None
+    fallback_body: Optional[str] = None
+    variants: List["SequenceVariantResponse"] = []
+
+
+class CustomEmailWrite(BaseModel):
+    subject: Optional[str] = None
+    body: Optional[str] = None
+    is_html: Optional[bool] = None
+
+    class Config:
+        from_attributes = True
+
+
+class CampaignCreate(BaseModel):
+    name: str
+    inbox_ids: List[int]  # at least one; order = priority for slot assignment
+    sending_days: List[int] = [0, 1, 2, 3, 4]  # Mon=0 .. Sun=6
+    sending_hours_start: str = "09:00"
+    sending_hours_end: str = "17:00"
+    stop_on_reply: bool = True
+    paused: bool = True
+    priority: int = 0  # Lower value = processed first in priority scheduling
+    # Tracking (off by default for better deliverability)
+    track_opens: bool = False
+    track_clicks: bool = False
+    # Unsubscribe header
+    add_unsubscribe_header: bool = True
+    # Plain-text options
+    send_first_as_text: bool = False
+    send_all_as_text: bool = False
+    # Timezone (IANA name e.g. "America/New_York"); None = user's local timezone
+    timezone: Optional[str] = None
+    # Legacy provider matching is disabled for Sekaro's SMTP/IMAP-first flow.
+    match_lead_provider: bool = False
+    # wait_for_all (default) = don't send until all personalized emails are written
+    # asap = start sending each personalized email as soon as it's written
+    custom_sequence_mode: str = "wait_for_all"
+
+
+class CampaignUpdate(BaseModel):
+    archived: Optional[bool] = None
+    name: Optional[str] = None
+    inbox_ids: Optional[List[int]] = None
+    sending_days: Optional[List[int]] = None
+    sending_hours_start: Optional[str] = None
+    sending_hours_end: Optional[str] = None
+    stop_on_reply: Optional[bool] = None
+    paused: Optional[bool] = None
+    priority: Optional[int] = None  # Lower value = processed first in priority scheduling
+    track_opens: Optional[bool] = None
+    track_clicks: Optional[bool] = None
+    add_unsubscribe_header: Optional[bool] = None
+    send_first_as_text: Optional[bool] = None
+    send_all_as_text: Optional[bool] = None
+    timezone: Optional[str] = None
+    match_lead_provider: Optional[bool] = None
+    custom_sequence_mode: Optional[str] = None
+
+
+class CampaignStats(BaseModel):
+    """Aggregated metrics that help the frontend display progress/analytics.
+
+    The fields here are intentionally very basic today (lead count, emails
+    sent, replies, number of sequences) but they give a single place to grow
+    later when we want open rates, positive replies, click rate, etc.  They
+    default to zero when no data exists.  ``open_rate`` and ``click_rate``
+    are expressed as floats between 0.0 and 1.0 and currently always zero.
+
+    ``scheduled`` is the number of outstanding queue slots for the campaign.
+    When a lead replies we delete its remaining slots; including this value
+    allows the frontend to compute progress based on the sum of sent +
+    scheduled emails rather than assuming every enrolled lead will receive
+    every sequence.  Without it the progress bar would still show "incomplete"
+    after a reply even though no further messages will be sent.
+
+    ``needs_custom_email`` counts leads in the ``needs_custom_email``
+    enrollment status — enrolled but waiting for custom content on
+    personalized sequences.
+    """
+    total_leads: int = 0
+    emails_sent: int = 0
+    replies: int = 0
+    sequences: int = 0
+    # ``scheduled`` counts pending QueueSlot rows for this campaign.  The
+    # frontend uses it along with ``emails_sent`` to calculate completion
+    # percent, which ensures replied leads (whose slots are deleted) no
+    # longer drag down the progress bar.
+    scheduled: int = 0
+    open_rate: float = 0.0
+    click_rate: float = 0.0
+    needs_custom_email: int = 0
+
+    class Config:
+        from_attributes = True
+
+
+class CampaignResponse(BaseModel):
+    archived: bool = False
+    id: int
+    public_id: str
+    name: str
+    inbox_ids: List[int]
+    sending_days: List[int]
+    sending_hours_start: str
+    sending_hours_end: str
+    stop_on_reply: bool
+    paused: bool
+    priority: int
+    track_opens: bool = False
+    track_clicks: bool = False
+    add_unsubscribe_header: bool = True
+    send_first_as_text: bool = False
+    send_all_as_text: bool = False
+    timezone: Optional[str] = None
+    match_lead_provider: bool = False
+    custom_sequence_mode: str = "wait_for_all"
+    created_at: datetime
+
+    # new stats object; the frontend can always rely on ``stats`` being
+    # present and it initially contains zeros.
+    stats: CampaignStats = CampaignStats()
+
+    class Config:
+        from_attributes = True
+
+
+class AddLeadToCampaign(BaseModel):
+    lead_id: int
+
+
+class CampaignLeadAdd(BaseModel):
+    """Used for adding (and optionally creating) leads directly from a campaign."""
+    email: str
+    name: str = ""
+    custom_data: Dict[str, Any] = {}
+    # Optional enrollment + interest (CSV / API). Invalid values are ignored (default enrollment).
+    status: Optional[str] = None
+    interest: Optional[str] = None
+    # Optional verification override when creating/updating the lead row (valid|invalid|pending or empty)
+    email_verification_status: Optional[str] = None
+
+
+class QueueSlotResponse(BaseModel):
+    id: int
+    campaign_lead_id: int
+    sequence_index: int
+    scheduled_date: datetime
+    position_in_day: int
+
+    class Config:
+        from_attributes = True
+
+
+class EmailLogResponse(BaseModel):
+    id: int
+    lead_id: int
+    campaign_id: int
+    sequence_index: int
+    sent_at: datetime
+    subject: str
+
+    class Config:
+        from_attributes = True
+
+
+class MarkReplied(BaseModel):
+    lead_id: int
+    campaign_id: int
+
+
+class CampaignLeadEnrollmentPatch(BaseModel):
+    """PATCH body for /api/campaigns/{id}/leads/{lead_id}."""
+
+    status: Optional[str] = None
+    interest: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("interest", "interest_status"),
+    )
+    sending_paused: Optional[bool] = None
+
+
+# ---------------------------------------------------------------------------
+# Webhook schemas
+# ---------------------------------------------------------------------------
+
+class WebhookCreate(BaseModel):
+    """Create a new outbound webhook endpoint."""
+    url: str
+    secret: str = ""
+    events: List[str] = list(WEBHOOK_EVENT_TYPES)  # subscribe to all by default
+    active: bool = True
+    description: str = ""
+
+
+class WebhookUpdate(BaseModel):
+    """Partial update for an existing webhook."""
+    url: Optional[str] = None
+    secret: Optional[str] = None
+    events: Optional[List[str]] = None
+    active: Optional[bool] = None
+    description: Optional[str] = None
+
+
+class WebhookResponse(BaseModel):
+    id: int
+    url: str
+    secret: str
+    events: List[str]
+    active: bool
+    description: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

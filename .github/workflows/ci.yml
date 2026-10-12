@@ -1,0 +1,82 @@
+name: Sekaro CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  demo-network:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Docker network migration, data preservation and host access
+        run: bash scripts/check-demo-network.sh
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      demo-db:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: sekaro_demo
+          POSTGRES_DB: sekaro_demo
+          POSTGRES_PASSWORD: ci-only-demo-database
+        ports: [5432:5432]
+        options: >-
+          --health-cmd "pg_isready -U sekaro_demo -d sekaro_demo"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio aiosmtpd
+
+      - name: Validate Python syntax
+        run: python -m compileall -q app
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Run backend regression suite
+        run: pytest -q
+
+      - name: Verify frontend loading, error and detail states
+        working-directory: frontend
+        run: npm test
+
+      - name: Verify demo startup, login, populated APIs and restart on PostgreSQL
+        env:
+          DATABASE_URL: postgresql+asyncpg://sekaro_demo:ci-only-demo-database@demo-db:5432/sekaro_demo
+          SEKARO_DEMO_MODE: '1'
+          DEMO_ADMIN_PASSWORD: CI-Demo-Password-Not-A-Secret-123
+          QUICKLY_SECRET_KEY: ci-only-demo-signing-key-long-enough
+          QUICKLY_ENCRYPTION_KEY: ci-only-demo-encryption-key-long-enough
+          QUICKLY_MODE: production
+        run: |
+          echo '127.0.0.1 demo-db' | sudo tee -a /etc/hosts
+          python scripts/check-demo.py
+
+      - name: Verify archive upgrade and PostgreSQL backup roundtrip
+        env:
+          ARCHIVE_PG_TEST_URL: postgresql+asyncpg://sekaro_demo:ci-only-demo-database@127.0.0.1:5432/sekaro_demo
+        run: python scripts/check-mail-archive-pg.py

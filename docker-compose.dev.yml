@@ -1,0 +1,39 @@
+# Isolated local development only. Production uses scripts/sekaro-install.py.
+name: sekaro-dev
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: sekaro
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: sekaro
+    ports: ["127.0.0.1:5434:5432"]
+    volumes: ["sekaro_dev_pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U sekaro -d sekaro"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  backend:
+    build: .
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir app
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://sekaro:${POSTGRES_PASSWORD}@db:5432/sekaro
+      QUICKLY_MODE: development
+      QUICKLY_PREBUILT_IMAGE: "0"
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: ["./app:/app/app", "./backups:/app/backups"]
+    depends_on:
+      db:
+        condition: service_healthy
+  frontend:
+    build: ./frontend
+    command: npm run dev -- --host 0.0.0.0
+    environment:
+      VITE_API_URL: http://backend:8000
+    ports: ["127.0.0.1:5173:5173"]
+    volumes: ["./frontend:/app", "/app/node_modules"]
+    depends_on: [backend]
+volumes:
+  sekaro_dev_pgdata:

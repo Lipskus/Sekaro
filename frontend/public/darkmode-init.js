@@ -1,0 +1,2 @@
+// Native theme, set synchronously before first paint; no third-party request.
+(function(){var p='system';try{p=localStorage.getItem('sekaro.theme')||localStorage.getItem('darkreader')||'system';}catch(e){}var d=p==='dark'||p==='on'||(!['off','light'].includes(p)&&p!=='dark'&&window.matchMedia('(prefers-color-scheme: dark)').matches);var root=document.documentElement;root.classList.add('sekaro-ui');root.classList.toggle('dark',d);root.dataset.theme=d?'dark':'light';root.style.colorScheme=d?'dark':'light';})();

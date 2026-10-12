@@ -1,0 +1,6 @@
+FROM python:3.12-slim
+RUN pip install --no-cache-dir 'fastapi>=0.109,<1' 'uvicorn>=0.27,<1' && useradd -u 10001 -m endpoint && mkdir /data && chown endpoint /data
+WORKDIR /srv
+COPY public_endpoint /srv/public_endpoint
+USER 10001
+CMD ["python", "-m", "public_endpoint.run"]

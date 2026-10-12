@@ -1,0 +1,37 @@
+.sk-deliverability-intro{display:flex;align-items:center;gap:20px;padding:22px;border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:var(--sk-radius-lg);margin-bottom:20px}
+.sk-deliverability-intro h2{font-size:19px;margin:0 0 8px}
+.sk-deliverability-intro p{color:var(--sk-muted);font-size:13px;line-height:1.65;margin:0;max-width:850px}
+.sk-deliverability-intro-icon{display:grid;place-items:center;flex-shrink:0;width:60px;height:60px;border-radius:15px;color:var(--sk-green-text);background:var(--sk-green-soft)}
+.sk-deliverability-layout{display:grid;grid-template-columns:minmax(0,2.8fr) minmax(250px,1fr);gap:20px;align-items:start}
+.sk-deliverability-main,.sk-deliverability-aside{display:grid;gap:20px;min-width:0}
+.sk-deliverability-workspace .sk-panel{padding:18px;min-width:0}
+.sk-deliverability-workspace .sk-panel-heading{padding:0 0 12px}
+.sk-deliverability-description{font-size:13px;color:var(--sk-muted);line-height:1.65;margin:0 0 16px}
+.sk-deliverability-categories{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0 22px}
+.sk-deliverability-categories button{display:flex;justify-content:flex-start;gap:10px;min-width:0;min-height:54px;padding:12px;border:1px solid var(--sk-line);border-radius:9px;background:var(--sk-surface-alt);color:var(--sk-text);font-size:12px;text-align:left;white-space:normal}
+.sk-deliverability-categories button[aria-pressed=true]{background:var(--sk-green-soft);border-color:var(--sk-accent);color:var(--sk-green-text)}
+.sk-deliverability-categories button svg{flex-shrink:0}
+.sk-deliverability-categories button small{margin-left:auto;flex-shrink:0;color:var(--sk-muted)}
+.sk-deliverability-section-title{font-size:14px;font-weight:650;margin:0 0 12px}
+.sk-deliverability-workspace .sk-deliverability-rules{gap:10px;margin:0}
+.sk-deliverability-rule{border:1px solid var(--sk-line);border-radius:9px;overflow:hidden;background:var(--sk-surface)}
+.sk-deliverability-rule h3{margin:0;font-size:13px;font-weight:600}
+.sk-deliverability-workspace .sk-deliverability-toggle{display:flex;gap:12px;padding:15px 14px;border-radius:0;white-space:normal;min-height:56px;background:transparent}
+.sk-deliverability-toggle:hover{background:var(--sk-surface-alt)!important}
+.sk-deliverability-number{color:var(--sk-muted);font-size:11px;flex-shrink:0}
+.sk-deliverability-rule-copy{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:1;min-width:0;line-height:1.5}
+.sk-deliverability-toggle>svg{flex-shrink:0;transition:transform .15s;color:var(--sk-muted)}
+.sk-deliverability-toggle>svg.is-open{transform:rotate(180deg)}
+.sk-deliverability-body{border-top:1px solid var(--sk-line);padding:14px 18px 16px 40px;background:var(--sk-surface-alt)}
+.sk-deliverability-body p{margin:0;font-size:13px;line-height:1.7;color:var(--sk-text)}
+.sk-deliverability-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--sk-line);font-size:12px;color:var(--sk-muted)}
+.sk-deliverability-table-scroll{max-width:100%;overflow:auto}
+.sk-deliverability-reference .sk-table{min-width:500px}
+.sk-deliverability-reference td{white-space:normal}
+.sk-deliverability-aside .sk-deliverability-tool{display:flex;align-items:flex-start;justify-content:flex-start;width:100%;padding:13px 10px;margin:0 0 10px;text-align:left;white-space:normal;background:var(--sk-surface-alt)}
+.sk-deliverability-tool>svg{flex-shrink:0;margin-top:3px}
+.sk-deliverability-tool>span{display:block;min-width:0}
+.sk-deliverability-tool strong{display:block;font-size:13px;line-height:1.5}
+.sk-deliverability-tool small{display:block;margin-top:5px;font-size:11px;line-height:1.6;color:var(--sk-muted);font-weight:400}
+@media(max-width:1050px){.sk-deliverability-layout{grid-template-columns:minmax(0,1fr)}.sk-deliverability-aside{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.sk-deliverability-intro{padding:16px;align-items:flex-start;gap:12px}.sk-deliverability-intro-icon{width:42px;height:42px}.sk-deliverability-intro h2{font-size:17px}.sk-deliverability-workspace .sk-panel{padding:12px}.sk-deliverability-categories,.sk-deliverability-aside{grid-template-columns:minmax(0,1fr)}.sk-deliverability-body{padding:14px}.sk-deliverability-workspace .sk-deliverability-toggle{padding:12px;gap:9px}}

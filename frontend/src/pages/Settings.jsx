@@ -1,0 +1,1891 @@
+import RemoteBackups from '../components/RemoteBackups';
+import AccessManagement from './AccessManagement';
+import {useOperationsLanguage} from '../context/operationsLanguage';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import { api, apiCache, postJsonForDownload } from '../api';
+import { useDarkMode } from '../context/DarkModeContext';
+import { useConfirm } from '../context/ConfirmContext';
+import { useNotify } from '../context/NotificationContext';
+import { useAppMode } from '../context/AppModeContext';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { Button } from '../components/ui/Button';
+import { FileUploadArea } from '../components/ui/FileUploadArea';
+import { Card } from '../components/ui/Card';
+import EmailVerificationSettings from '../components/EmailVerificationSettings';
+import { Icon, SettingsCard, Field, PageFrame, StatePanel, ErrorNotice } from '../redesign/ui';
+import Modal from '../redesign/Modal';
+import { settingsGroupsFor, resolveSettingsSection } from '../redesign/systemSettings';
+import '../redesign/system-settings.css';
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+export default function Settings() {
+  const {ct}=useOperationsLanguage();
+  const notify = useNotify();
+  const { themePreference, setThemePreference } = useDarkMode();
+  const confirm = useConfirm();
+  const { isProduction } = useAppMode();
+  const { user, logout } = useAuth();
+  const { language, setLanguage, languages, t } = useLanguage();
+
+  /* ── state ── */
+  const [strategy, setStrategy] = useState('priority');
+  const [savedStrategy, setSavedStrategy] = useState('priority');
+  const [draftTheme, setDraftTheme] = useState(themePreference);
+  const [draftLanguage, setDraftLanguage] = useState(language);
+  const [generalSaving, setGeneralSaving] = useState(false);
+  const [generalError, setGeneralError] = useState(null);
+  const [generalSaved, setGeneralSaved] = useState(false);
+  const generalSaveLock = useRef(false);
+  useEffect(() => { setDraftTheme(themePreference); }, [themePreference]);
+  useEffect(() => { setDraftLanguage(language); }, [language]);
+  const [testMode, setTestMode] = useState(false);
+  const [settingsLoading, setSettingsLoading] = useState(true);
+  const [settingsError, setSettingsError] = useState(null);
+
+  // Account & Security
+  // API Keys
+  const [apiKeys, setApiKeys] = useState([]);
+  const [newKeyName, setNewKeyName] = useState('');
+  const [newKeyExpiry, setNewKeyExpiry] = useState('');
+  const [createdKey, setCreatedKey] = useState(null); // shown once after creation
+
+  // MCP (Cursor / AI agents)
+  const [mcpSetup, setMcpSetup] = useState(null);
+
+  // Notifications (config managed in the dedicated Notifications page)
+  const [notifConfig, setNotifConfig] = useState({ enabled: false, notification_email: '', events: [], rate_limit_per_hour: 10 });
+
+  // Webhooks (new CRUD system)
+  const [webhooks, setWebhooks] = useState(() => apiCache.get('/settings/webhooks') || []);
+  const [eventTypes, setEventTypes] = useState([]);
+  const [newWh, setNewWh] = useState({ url: '', secret: '', description: '', events: [], active: true });
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({});
+
+  // AI settings — keyed by feature id
+  const [aiFeatures, setAiFeatures] = useState({});
+  const [aiExpanded, setAiExpanded] = useState({});           // { featureId: bool } — collapsed by default
+  const savedAiFeaturesRef = useRef({});                      // snapshot of last-saved AI features
+  const [aiProviders, setAiProviders] = useState(() => apiCache.get('/settings/ai/providers')?.providers || []);
+  const [aiModels, setAiModels] = useState({});
+  const [aiProviderSearch, setAiProviderSearch] = useState({});
+  const [aiModelSearch, setAiModelSearch] = useState({});
+  const [aiVerifying, setAiVerifying] = useState({});
+  const [aiVerifyResult, setAiVerifyResult] = useState({});
+
+  // Webhook test-event state
+  const [testEventWh, setTestEventWh] = useState(null); // webhook id currently testing
+  const [testEventType, setTestEventType] = useState('');
+  const [testEventResult, setTestEventResult] = useState(null);
+
+  // Kopia i przywracanie (admin — PostgreSQL)
+  const [backupCfg, setBackupCfg] = useState({
+    schedule_enabled: false,
+    cron_expression: '0 3 * * *',
+    save_local: false,
+    local_relative_path: 'backups',
+    send_webhook: false,
+    webhook_url: '',
+    webhook_auth_header: '',
+    encrypt_backups: false,
+    backup_encryption_password: '',
+    backup_encryption_hint: '',
+  });
+  const [backupMeta, setBackupMeta] = useState({
+    webhook_auth_configured: false,
+    webhook_auth_header_masked: '',
+    local_disk_available: false,
+    local_backup_resolved: null,
+    backup_encryption_configured: false,
+  });
+  const [backupSaving, setBackupSaving] = useState(false);
+  const [backupRunning, setBackupRunning] = useState(false);
+  const [backupDownloadBusy, setBackupDownloadBusy] = useState(false);
+  const [restoreFile, setRestoreFile] = useState(null);
+  const [restoreFileKey, setRestoreFileKey] = useState(0);
+  const [restorePassword, setRestorePassword] = useState('');
+  const [restoreMeta, setRestoreMeta] = useState(null);
+  const [restoreMetaBusy, setRestoreMetaBusy] = useState(false);
+  const [restorePreview, setRestorePreview] = useState(null);
+  const [restorePreviewBusy, setRestorePreviewBusy] = useState(false);
+  const [restoreExecuteBusy, setRestoreExecuteBusy] = useState(false);
+
+  const BACKUP_MIN_PASSWORD_LEN = 8;
+
+  useEffect(() => {
+    if (!restoreFile) {
+      return undefined;
+    }
+    let cancelled = false;
+    setRestoreMetaBusy(true);
+    setRestoreMeta(null);
+    setRestorePreview(null);
+    (async () => {
+      try {
+        const data = await api.uploadMultipart('/settings/backup/restore/metadata', restoreFile, {});
+        if (!cancelled) {
+          setRestoreMeta(data);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          notify({ type: 'error', message: e.message });
+        }
+      } finally {
+        if (!cancelled) {
+          setRestoreMetaBusy(false);
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [restoreFile]);
+
+  const clearRestoreWizard = () => {
+    setRestoreFile(null);
+    setRestoreFileKey(k => k + 1);
+    setRestorePassword('');
+    setRestoreMeta(null);
+    setRestorePreview(null);
+  };
+
+  const saveBackupSettings = useCallback(async () => {
+    if (backupCfg.encrypt_backups) {
+      const pw = (backupCfg.backup_encryption_password || '').trim();
+      if (!backupMeta.backup_encryption_configured && pw.length < BACKUP_MIN_PASSWORD_LEN) {
+        notify({
+          type: 'error',
+          message: ct('Wpisz hasło kopii zapasowej (co najmniej {count} znaków) albo wyłącz szyfrowanie.',{count:BACKUP_MIN_PASSWORD_LEN}),
+        });
+        return;
+      }
+      if (pw.length > 0 && pw.length < BACKUP_MIN_PASSWORD_LEN) {
+        notify({
+          type: 'error',
+          message: ct('Hasło kopii zapasowej musi mieć co najmniej {count} znaków.',{count:BACKUP_MIN_PASSWORD_LEN}),
+        });
+        return;
+      }
+    }
+    setBackupSaving(true);
+    try {
+      const encR = await api.put('/settings/backup/encryption', {
+        encrypt_backups: backupCfg.encrypt_backups,
+        backup_encryption_password: (backupCfg.backup_encryption_password || '').trim(),
+        backup_encryption_hint: (backupCfg.backup_encryption_hint || '').trim(),
+      });
+      setBackupMeta(prev => ({
+        ...prev,
+        backup_encryption_configured: !!encR.backup_encryption_configured,
+      }));
+      setBackupCfg(prev => ({
+        ...prev,
+        backup_encryption_password: '',
+        backup_encryption_hint: encR.backup_encryption_hint ?? prev.backup_encryption_hint,
+        encrypt_backups: !!encR.encrypt_backups,
+      }));
+      const r = await api.put('/settings/backup/config', {
+        schedule_enabled: backupCfg.schedule_enabled,
+        cron_expression: backupCfg.cron_expression,
+        save_local: backupCfg.save_local,
+        local_relative_path: backupCfg.local_relative_path,
+        send_webhook: backupCfg.send_webhook,
+        webhook_url: backupCfg.webhook_url,
+        webhook_auth_header: backupCfg.webhook_auth_header,
+      });
+      setBackupMeta({
+        webhook_auth_configured: !!r.webhook_auth_configured,
+        webhook_auth_header_masked: r.webhook_auth_header_masked || '',
+        local_disk_available: !!r.local_disk_available,
+        local_backup_resolved: r.local_backup_resolved || null,
+        backup_encryption_configured: !!r.backup_encryption_configured,
+      });
+      setBackupCfg(prev => ({
+        ...prev,
+        webhook_auth_header: '',
+        encrypt_backups: !!r.encrypt_backups,
+        backup_encryption_hint: r.backup_encryption_hint ?? prev.backup_encryption_hint,
+      }));
+      notify({ type: 'success', message: ct("Ustawienia kopii zapisane") });
+    } catch (e) {
+      notify({ type: 'error', message: e.message });
+    } finally {
+      setBackupSaving(false);
+    }
+  }, [backupCfg, backupMeta, notify, ct]);
+
+  // Known IPs
+  const [knownIps, setKnownIps] = useState(() => apiCache.get('/settings/known-ips')?.known_ips || []);
+  const [knownIpsOpen, setKnownIpsOpen] = useState(false);
+  const [currentIp, setCurrentIp] = useState('');
+  const [newIpAddress, setNewIpAddress] = useState('');
+
+  const [activeTab, setActiveTab] = useState('general');
+  const tabContentRef = useRef(null);
+  const [settingsSearch, setSettingsSearch] = useState('');
+
+  /* ── load data ── */
+  const loadAll = useCallback(async () => {
+    setSettingsLoading(true);
+    setSettingsError(null);
+    try {
+      const [stratData, tmData, whList, evtData, aiData, provData, ipData, keysData, notifData, mcpData] = await Promise.all([
+        api.get('/settings/scheduling-strategy'),
+        api.get('/settings/test-mode'),
+        api.get('/settings/webhooks'),
+        api.get('/settings/webhooks/events'),
+        api.get('/settings/ai'),
+        api.get('/settings/ai/providers'),
+        api.get('/settings/known-ips'),
+        api.get('/auth/api-keys'),
+        api.get('/notifications/config').catch(() => null),
+        api.get('/settings/mcp-setup').catch(() => null),
+      ]);
+      setStrategy(stratData.scheduling_strategy || 'priority');
+      setSavedStrategy(stratData.scheduling_strategy || 'priority');
+      setTestMode(tmData.test_mode || false);
+      setWebhooks(whList || []);
+      setEventTypes(evtData.events || []);
+      // default new webhook events = all
+      setNewWh(prev => ({ ...prev, events: evtData.events || [] }));
+      // Build per-feature map, clearing any unsaved api_key
+      const featMap = {};
+      for (const f of (aiData.features || [])) {
+        featMap[f.id] = { ...f, api_key: '' };
+      }
+      setAiFeatures(featMap);
+      savedAiFeaturesRef.current = featMap;
+      setAiProviders(provData.providers || []);
+      setKnownIps(ipData.known_ips || []);
+      setCurrentIp(ipData.current_ip || '');
+      setApiKeys(keysData || []);
+      if (notifData) {
+        setNotifConfig(notifData);
+      }
+      if (user?.role === 'admin') {
+        try {
+          const b = await api.get('/settings/backup/config');
+          const diskOn = !!b.local_disk_available;
+          setBackupCfg({
+            schedule_enabled: !!b.schedule_enabled,
+            cron_expression: b.cron_expression || '0 3 * * *',
+            save_local: diskOn && !!b.save_local,
+            local_relative_path: b.local_relative_path || 'backups',
+            send_webhook: !!b.send_webhook,
+            webhook_url: b.webhook_url || '',
+            webhook_auth_header: '',
+            encrypt_backups: !!b.encrypt_backups,
+            backup_encryption_password: '',
+            backup_encryption_hint: b.backup_encryption_hint || '',
+          });
+          setBackupMeta({
+            webhook_auth_configured: !!b.webhook_auth_configured,
+            webhook_auth_header_masked: b.webhook_auth_header_masked || '',
+            local_disk_available: diskOn,
+            local_backup_resolved: b.local_backup_resolved || null,
+            backup_encryption_configured: !!b.backup_encryption_configured,
+          });
+        } catch {
+          /* non-admin or unavailable */
+        }
+      }
+      setMcpSetup(mcpData || null);
+    } catch (e) {
+      setSettingsError(e);
+    } finally {
+      setSettingsLoading(false);
+    }
+  }, [user]);
+
+  useEffect(() => { loadAll(); }, [loadAll]);
+
+  const allGroups = useMemo(() => settingsGroupsFor({ isProduction, isAdmin: user?.role === 'admin' }), [isProduction, user?.role]);
+  const allSections = useMemo(() => allGroups.flatMap(group => group.items), [allGroups]);
+  const navigationGroups = settingsGroupsFor({ isProduction, isAdmin: user?.role === 'admin', search: settingsSearch, translate: ct });
+  const currentSection = allSections.find(item => item.id === activeTab) || allSections[0];
+  const generalDirty = strategy !== savedStrategy || draftTheme !== themePreference || draftLanguage !== language;
+
+  useEffect(() => {
+    const sync = () => {
+      const id = resolveSettingsSection(window.location.hash, allSections);
+      setActiveTab(id);
+      if (window.location.hash !== '#' + id) window.history.replaceState(null, '', '#' + id);
+    };
+    sync();
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, [allSections]);
+  useEffect(() => { tabContentRef.current?.scrollTo?.(0, 0); }, [activeTab]);
+  useEffect(() => {
+    if (!generalDirty) return;
+    const warn = event => { event.preventDefault(); event.returnValue = ''; };
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [generalDirty]);
+  const selectSection = id => {
+    if (!allSections.some(item => item.id === id)) return;
+    setActiveTab(id);
+    window.location.hash = id;
+  };
+  const cancelGeneral = () => {
+    setStrategy(savedStrategy); setDraftTheme(themePreference); setDraftLanguage(language);
+    setGeneralError(null); setGeneralSaved(false);
+  };
+  const saveGeneral = async () => {
+    if (generalSaveLock.current || !generalDirty) return;
+    generalSaveLock.current = true; setGeneralSaving(true); setGeneralError(null); setGeneralSaved(false);
+    try {
+      if (strategy !== savedStrategy) {
+        const { has_leads } = await api.get('/campaigns/has-leads');
+        if (has_leads && !await confirm(ct('Zmiana strategii planowania spowoduje przeliczenie wszystkich kampanii. Kontynuować?'))) return;
+        await api.post('/settings/scheduling-strategy', { scheduling_strategy: strategy });
+        setSavedStrategy(strategy);
+      }
+      setThemePreference(draftTheme);
+      setLanguage(draftLanguage);
+      setGeneralSaved(true);
+      notify({ type: 'success', message: t('appearance.saved') });
+    } catch (error) { setGeneralError(error); }
+    finally { generalSaveLock.current = false; setGeneralSaving(false); }
+  };
+
+  /* ── test mode ── */
+  const submitTestMode = async val => {
+    try {
+      await api.post('/settings/test-mode', { test_mode: val });
+      setTestMode(val);
+      notify({ type: 'success', message: ct("Tryb testowy zapisany") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  /* ── webhook CRUD helpers ── */
+  const createWebhook = async () => {
+    if (!newWh.url.trim()) return notify({ type: 'error', message: ct("Adres URL jest wymagany") });
+    try {
+      const wh = await api.post('/settings/webhooks', newWh);
+      setWebhooks(prev => [wh, ...prev]);
+      setNewWh({ url: '', secret: '', description: '', events: eventTypes, active: true });
+      notify({ type: 'success', message: ct("Webhook utworzony") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const startEdit = wh => {
+    setEditingId(wh.id);
+    setEditForm({ url: wh.url, secret: wh.secret, description: wh.description, events: wh.events, active: wh.active });
+  };
+  const cancelEdit = () => { setEditingId(null); setEditForm({}); };
+
+  const saveEdit = async id => {
+    try {
+      const updated = await api.patch(`/settings/webhooks/${id}`, editForm);
+      setWebhooks(prev => prev.map(w => (w.id === id ? updated : w)));
+      setEditingId(null);
+      notify({ type: 'success', message: ct("Webhook zaktualizowany") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const deleteWebhook = async id => {
+    const ok = await confirm(ct('Usunąć ten webhook?'));
+    if (!ok) return;
+    try {
+      await api.del(`/settings/webhooks/${id}`);
+      setWebhooks(prev => prev.filter(w => w.id !== id));
+      notify({ type: 'success', message: ct("Webhook usunięty") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const testWebhook = async id => {
+    try {
+      await api.post(`/settings/webhooks/${id}/test`);
+      notify({ type: 'success', message: ct("Wysłano zdarzenie testowe") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const testWebhookEvent = async (id, event) => {
+    if (!event) return notify({ type: 'error', message: ct("Wybierz typ zdarzenia") });
+    try {
+      const res = await api.post(`/settings/webhooks/${id}/test-event`, { event });
+      setTestEventResult(res.payload_preview);
+      notify({ type: 'success', message: ct('Wysłano symulowane zdarzenie {event}',{event}) });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const toggleActive = async (id, current) => {
+    try {
+      const updated = await api.patch(`/settings/webhooks/${id}`, { active: !current });
+      setWebhooks(prev => prev.map(w => (w.id === id ? updated : w)));
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  /* ── API Keys ── */
+  const createApiKey = async () => {
+    try {
+      const res = await api.post('/auth/api-keys', {
+        name: newKeyName,
+        ...(newKeyExpiry ? { expires_in_days: parseInt(newKeyExpiry, 10) } : {}),
+      });
+      setCreatedKey(res.key);
+      setNewKeyName(''); setNewKeyExpiry('');
+      const keysData = await api.get('/auth/api-keys');
+      setApiKeys(keysData || []);
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const revokeApiKey = async id => {
+    const yes = await confirm(ct('Revoke this API key? This cannot be undone.'));
+    if (!yes) return;
+    try {
+      await api.del(`/auth/api-keys/${id}`);
+      setApiKeys(prev => prev.filter(k => k.id !== id));
+      notify({ type: 'success', message: ct("Klucz API unieważniony.") });
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  /* ── AI settings — per-feature helpers ── */
+
+  const loadModelsForFeature = useCallback(async (featureId, provider, apiKey) => {
+    if (!provider || (!apiKey && !apiKey?.trim())) return;
+    setAiModels(prev => ({ ...prev, [featureId]: { models: [], loading: true, error: '' } }));
+    try {
+      const params = apiKey ? `?api_key=${encodeURIComponent(apiKey)}` : '';
+      const res = await api.get(`/settings/ai/providers/${provider}/models${params}`);
+      if (res.error) {
+        setAiModels(prev => ({ ...prev, [featureId]: { models: [], loading: false, error: res.error } }));
+      } else {
+        setAiModels(prev => ({ ...prev, [featureId]: { models: res.models || [], loading: false, error: '' } }));
+      }
+    } catch (e) {
+      setAiModels(prev => ({ ...prev, [featureId]: { models: [], loading: false, error: e.message } }));
+    }
+  }, []);
+
+  const saveAiFeature = async (featureId, overrides = {}) => {
+    const f = { ...(aiFeatures[featureId] || {}), ...overrides };
+    try {
+      await api.post(`/settings/ai/${featureId}`, {
+        enabled: f.enabled,
+        provider: f.provider,
+        model: f.model,
+        api_key: f.api_key,
+      });
+      notify({ type: 'success', message: ct("Ustawienia AI zapisane") });
+      loadAll();
+    } catch (e) { notify({ type: 'error', message: e.message }); }
+  };
+
+  const verifyAiFeature = async (featureId) => {
+    const f = aiFeatures[featureId] || {};
+    const hasProvider = f.provider;
+    const hasModel = f.model;
+    const hasKey = f.api_key || f.api_key_set;
+    const missing = [];
+    if (!hasProvider) missing.push('dostawcę');
+    if (!hasModel) missing.push('model');
+    if (!hasKey) missing.push('API key');
+    if (missing.length) {
+      return notify({ type: 'error', message: ct('Uzupełnij: {fields}',{fields:missing.map(value=>ct(value)).join(', ')}) });
+    }
+    setAiVerifying(prev => ({ ...prev, [featureId]: true }));
+    setAiVerifyResult(prev => ({ ...prev, [featureId]: null }));
+    try {
+      const res = await api.post(`/settings/ai/${featureId}/verify`, {
+        provider: f.provider,
+        model: f.model,
+        api_key: f.api_key,
+      });
+      setAiVerifyResult(prev => ({ ...prev, [featureId]: res }));
+      if (res.ok) {
+        // Mark as tested locally so the UI reflects the new state immediately
+        setAiFeatures(prev => ({
+          ...prev,
+          [featureId]: { ...prev[featureId], connection_tested: true, last_error: '' },
+        }));
+        notify({ type: 'success', message: ct("Dane dostępowe zweryfikowane ✓") });
+      } else {
+        notify({ type: 'error', message: ct('Weryfikacja nie powiodła się: {error}',{error:res.error}) });
+      }
+    } catch (e) {
+      setAiVerifyResult(prev => ({ ...prev, [featureId]: { ok: false, error: e.message } }));
+      notify({ type: 'error', message: e.message });
+    } finally {
+      setAiVerifying(prev => ({ ...prev, [featureId]: false }));
+    }
+  };
+
+  // Auto-fetch models whenever provider or api_key changes for any feature
+  const prevAiFeaturesRef = useRef({});
+  useEffect(() => {
+    const prev = prevAiFeaturesRef.current;
+    for (const [fid, f] of Object.entries(aiFeatures)) {
+      const p = prev[fid] || {};
+      const providerChanged = f.provider !== p.provider;
+      const keyChanged = f.api_key !== p.api_key;
+      if ((providerChanged || keyChanged) && f.provider && (f.api_key || f.api_key_set)) {
+        loadModelsForFeature(fid, f.provider, f.api_key || '');
+      }
+    }
+    prevAiFeaturesRef.current = aiFeatures;
+  }, [aiFeatures, loadModelsForFeature]);
+
+  /* ── event checkbox toggler ────────────────────────────────────────────── */
+  const toggleEvent = (events, setEvents, evt) => {
+    setEvents(events.includes(evt) ? events.filter(e => e !== evt) : [...events, evt]);
+  };
+
+  /* ── event sections for grouped display ─────────────────────────────── */
+  const EVENT_SECTIONS = [
+    { label: 'Zdarzenia e-mail', events: eventTypes.filter(e => e.startsWith('email.')) },
+    { label: 'Zdarzenia kontaktów',  events: eventTypes.filter(e => e.startsWith('lead.')) },
+    { label: 'Zdarzenia systemowe', events: eventTypes.filter(e => !e.startsWith('email.') && !e.startsWith('lead.')) },
+  ].filter(s => s.events.length > 0);
+
+  const EVENT_LABELS = {
+    'email.sent': 'Wiadomość wysłana',
+    'email.opened': 'Wiadomość otwarta',
+    'email.clicked': 'Kliknięto link',
+    'email.bounced': 'Wiadomość odbita',
+    'lead.replied': 'Kontakt odpowiedział',
+    'lead.unsubscribed': 'Kontakt wypisany',
+    'lead.status_changed': 'Zmiana statusu',
+    'lead.interested': 'Kontakt zainteresowany (AI)',
+    'lead.not_interested': 'Kontakt niezainteresowany (AI)',
+    'daily_limit': 'Osiągnięto limit dzienny',
+    'rate_limit': 'Limit szybkości',
+    'token_expired': 'Token wygasł',
+  };
+
+  const isAllEvents = (events) => eventTypes.length > 0 && events.length === eventTypes.length;
+  const whEventMode = (events) => isAllEvents(events) ? 'all' : 'specific';
+
+  const toggleSectionEvents = (sectionEvents, currentEvents, setEvents) => {
+    const allSelected = sectionEvents.every(e => currentEvents.includes(e));
+    if (allSelected) {
+      setEvents(currentEvents.filter(e => !sectionEvents.includes(e)));
+    } else {
+      setEvents([...new Set([...currentEvents, ...sectionEvents])]);
+    }
+  };
+
+  /* ── Reusable webhook event selector component ─────────────────────── */
+  const EventSelector = ({ events, onChange }) => {
+    const mode = whEventMode(events);
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <span className="text-xs font-medium text-gray-600">{ct("Zdarzenia:")}</span>
+          <select
+            className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300"
+            value={mode}
+            onChange={e => {
+              if (e.target.value === 'all') onChange([...eventTypes]);
+              else onChange([]);
+            }}
+          >
+            <option value="all">{ct("Wszystkie zdarzenia")}</option>
+            <option value="specific">{ct("Wybrane zdarzenia")}</option>
+          </select>
+        </div>
+        {mode === 'specific' && (
+          <div className="border rounded-lg p-3 bg-gray-50 space-y-3">
+            {EVENT_SECTIONS.map(section => {
+              const allInSection = section.events.every(e => events.includes(e));
+              const someInSection = section.events.some(e => events.includes(e));
+              return (
+                <div key={section.label}>
+                  <label className="flex items-center gap-2 cursor-pointer mb-1.5">
+                    <input
+                      type="checkbox"
+                      checked={allInSection}
+                      ref={el => { if (el) el.indeterminate = someInSection && !allInSection; }}
+                      onChange={() => toggleSectionEvents(section.events, events, onChange)}
+                      className="rounded"
+                    />
+                    <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">{ct(section.label)}</span>
+                  </label>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 pl-6">
+                    {section.events.map(evt => (
+                      <label key={evt} className="flex items-center gap-2 cursor-pointer py-0.5">
+                        <input
+                          type="checkbox"
+                          checked={events.includes(evt)}
+                          onChange={() => toggleEvent(events, onChange, evt)}
+                          className="rounded"
+                        />
+                        <span className="text-sm text-gray-700">{ct(EVENT_LABELS[evt] || evt)}</span>
+                        <span className="text-[10px] text-gray-400 font-mono">{evt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {events.length === 0 && (
+              <p className="text-xs text-amber-600">{ct("Wybierz co najmniej jedno zdarzenie albo przełącz na „Wszystkie zdarzenia”.")}</p>
+            )}
+          </div>
+        )}
+        {mode === 'all' && (
+          <p className="text-xs text-gray-400 pl-1">{ct("Ten webhook będzie odbierał wszystkie typy zdarzeń.")}</p>
+        )}
+      </div>
+    );
+  };
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+  if (settingsLoading || settingsError) return (
+    <PageFrame title={ct("Ustawienia systemu")} description={ct("Konfiguracja aplikacji, bezpieczeństwa i integracji.")}>
+      {settingsLoading ? <StatePanel icon="refresh" title={ct("Ładowanie ustawień")} description={ct("Pobieramy zapisaną konfigurację.")} /> : <ErrorNotice error={settingsError} onRetry={loadAll} />}
+    </PageFrame>
+  );
+
+  return (
+    <div className="sk-settings-page sk-system-settings">
+      <header className="sk-system-head">
+        <div><div className="sk-system-breadcrumb"><Icon name="home" size={15}/> {ct("System")} <span>/</span> {ct("Ustawienia")}</div>
+          <h1>{ct("Ustawienia systemu")}</h1><p>{ct("Konfiguracja aplikacji, bezpieczeństwa i integracji.")}</p></div>
+        <label className="sk-system-search"><Icon name="search"/><input type="search" aria-label={ct("Szukaj ustawienia")} placeholder={ct("Szukaj ustawienia…")} value={settingsSearch} onChange={e => setSettingsSearch(e.target.value)}/></label>
+      </header>
+      <div className="sk-system-layout">
+        <aside className="sk-system-sidebar" aria-label={ct("Kategorie ustawień")}>
+          <nav aria-label={ct("Sekcje ustawień")}>{navigationGroups.map(group => <div className="sk-system-nav-group" key={group.label}>
+            <h2>{ct(group.label)}</h2>{group.items.map(item => <button type="button" key={item.id} className={activeTab === item.id ? 'is-active' : ''} aria-current={activeTab === item.id ? 'page' : undefined} onClick={() => selectSection(item.id)}><Icon name={item.icon} size={19}/><span>{ct(item.label)}</span></button>)}
+          </div>)}</nav>
+          {!navigationGroups.length && <div role="status" className="sk-system-search-empty">{ct("Brak pasujących ustawień.")}<button type="button" onClick={() => setSettingsSearch('')}>{ct("Wyczyść wyszukiwanie")}</button></div>}
+        </aside>
+        <div className="sk-system-workspace">
+        <div ref={tabContentRef} className="sk-system-content" data-section={activeTab}>
+          <header className="sk-system-section-heading"><h2>{ct(currentSection.label)}</h2><p>{ct(currentSection.description)}</p></header>
+          <ErrorNotice error={generalError}/>
+        {true && (
+          <div className="sk-settings-grid sk-system-general-grid" hidden={!["general","appearance","account","known-ips"].includes(activeTab)} aria-label={ct("Ustawienia ogólne")}>
+            <SettingsCard
+              id="settings-scheduling" hidden={activeTab !== 'general' && activeTab !== 'scheduling'} className="sk-system-scheduling"
+              span={6}
+              icon="calendar"
+              title={ct("Planowanie wysyłki")}
+              description={ct("Określa sposób rozdzielania wiadomości pomiędzy aktywne kampanie.")}
+            >
+              <label className="sk-settings-choice">
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="priority"
+                  checked={strategy === 'priority'}
+                  disabled={generalSaving} onChange={() => { setStrategy('priority'); setGeneralSaved(false); }}
+                />
+                <span>
+                  <strong>{ct("Priorytet kampanii")}</strong>
+                  <small> {ct("Kampanie są przetwarzane według kolejności priorytetów.")}{' '}
+                    <a href="/campaigns">{ct("Zmień kolejność kampanii")}</a>
+                  </small>
+                </span>
+              </label>
+              <label className="sk-settings-choice">
+                <input
+                  type="radio"
+                  name="strategy"
+                  value="round_robin"
+                  checked={strategy === 'round_robin'}
+                  disabled={generalSaving} onChange={() => { setStrategy('round_robin'); setGeneralSaved(false); }}
+                />
+                <span>
+                  <strong>{ct("Równomierny podział")}</strong>
+                  <small> {ct("Dostępny limit skrzynek jest dzielony równomiernie pomiędzy aktywne kampanie.")} </small>
+                </span>
+              </label>
+              <div className="sk-settings-note"> {ct("Limity skrzynek, dni i godziny wysyłki ustawisz w skrzynkach i kampaniach.")} </div>
+            </SettingsCard>
+
+            <SettingsCard
+              id="settings-appearance" hidden={activeTab !== 'general' && activeTab !== 'appearance'}
+              span={6}
+              icon="system"
+              title={t('appearance.title')}
+              description={t('appearance.description')}
+            >
+              <Field
+                label={t('appearance.language')}
+                help={t('appearance.savedLocally')}
+              >
+                <select value={draftLanguage} disabled={generalSaving} onChange={e => { setDraftLanguage(e.target.value); setGeneralSaved(false); }}>
+                  {(languages.length ? languages : [{code: language, label: language === 'pl' ? 'Polski' : language}]).map(item => (
+                    <option key={item.code} value={item.code}>{ct(item.label)}</option>
+                  ))}
+                </select>
+              </Field>
+              <div className="sk-theme-options" role="radiogroup" aria-label={ct("Motyw aplikacji")}>
+                {[
+                  ['light', t('appearance.light'), 'sun'],
+                  ['dark', t('appearance.dark'), 'moon'],
+                  ['system', t('appearance.system'), 'system'],
+                ].map(([value, label]) => (
+                  <label
+                    key={value}
+                    className={`sk-theme-option ${draftTheme === value ? 'is-selected' : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="appearance"
+                      value={value}
+                      checked={draftTheme === value}
+                      disabled={generalSaving} onChange={() => { setDraftTheme(value); setGeneralSaved(false); }}
+                    />
+                    <span className={'sk-system-theme-preview theme-' + value} aria-hidden="true"><i/><span><b/><b/><b/></span></span>
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+              <div className="sk-settings-note">
+                {t('appearance.systemFollows')}
+              </div>
+            </SettingsCard>
+
+            <SettingsCard
+              id="settings-account" hidden={activeTab !== 'general' && activeTab !== 'account'}
+              span={7}
+              icon="shield"
+              title={ct("Konto i bezpieczeństwo")}
+              description={ct("Informacje o bieżącej sesji użytkownika.")}
+              action={user ? <span className="sk-coming-soon">{user.role || 'admin'}</span> : null}
+            >
+              {user ? (
+                <>
+                  <div className="sk-account-summary">
+                    <div>
+                      <span className="sk-account-label">{ct("Użytkownik")}</span>
+                      <strong>{user.username || user.email || ct("Administrator")}</strong>
+                    </div>
+                    <div>
+                      <span className="sk-account-label">{ct("Adres e-mail")}</span>
+                      <strong>{user.email || '—'}</strong>
+                    </div>
+                    <div>
+                      <span className="sk-account-label">{ct("Rola")}</span>
+                      <strong>{user.role || ct("Administrator")}</strong>
+                    </div>
+                  </div>
+                  <div className="sk-actions-end">
+                    <Button size="sm" variant="outline" onClick={logout}>{ct("Wyloguj")}</Button>
+                  </div>
+                </>
+              ) : (
+                <p className="sk-muted sk-small">{ct("Brak danych bieżącej sesji.")}</p>
+              )}
+            </SettingsCard>
+
+            <SettingsCard
+              id="settings-known-ips" hidden={activeTab !== 'known-ips'}
+              span={5}
+              icon="globe"
+              title={ct("Znane adresy IP")}
+              description={ct("Adresy używane do filtrowania własnych otwarć i kliknięć.")}
+              action={<Button size="sm" variant="outline" onClick={() => setKnownIpsOpen(true)}>{ct("Zarządzaj")}</Button>}
+            >
+              <div className="sk-account-summary sk-account-summary-compact">
+                <div>
+                  <span className="sk-account-label">{ct("Bieżący adres")}</span>
+                  <strong>{currentIp || '—'}</strong>
+                </div>
+                <div>
+                  <span className="sk-account-label">{ct("Zapisane adresy")}</span>
+                  <strong>{knownIps.length}</strong>
+                </div>
+              </div>
+              <div className="sk-settings-note"> {ct("Otwarcia i kliknięcia z zapisanych adresów IP są ignorowane w statystykach aktywności.")} </div>
+            </SettingsCard>
+            <SettingsCard span={12} icon="history" title={ct("Kopia i przywracanie")} hidden={activeTab !== 'general' || user?.role !== 'admin'} description={ct("Chroń konfigurację oraz dane swojej instalacji.")} action={<Button size="sm" variant="outline" onClick={() => selectSection('backup-restore')}>{ct("Przejdź do kopii")}</Button>}/>
+          </div>
+        )}
+
+        {true && (
+          <>
+        {user?.role === 'admin' && activeTab === 'users' && <AccessManagement/>}
+        {user?.role === 'admin' && (
+        <section id="settings-backup-restore" hidden={activeTab !== 'backup-restore'} className="mb-10 scroll-mt-6">
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2 dark:border-gray-700">{ct("Kopia i przywracanie")}</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4"> {ct("Twórz kopie bazy Sekaro i przywracaj kontakty, kampanie, konfigurację oraz historię.")} </p>
+
+          <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/80 dark:bg-amber-950/20 px-3 py-2 text-xs text-amber-900 dark:text-amber-200 mb-4">
+            <strong>{ct("Utrata hasła:")}</strong> {ct("jeśli zaszyfrujesz kopię i utracisz hasło, pliku nie będzie można odszyfrować, a danych z tej kopii nie da się odzyskać. Opcjonalna podpowiedź jest zapisywana w pliku jako zwykły tekst i nie jest tajna.")} </div>
+
+          <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-gray-100">{ct("Ustawienia kopii")}</h3>
+          <div className="space-y-4 text-sm mb-8 rounded-lg border border-gray-200 dark:border-gray-700 p-4 bg-gray-50/50 dark:bg-gray-900/30">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={backupCfg.encrypt_backups}
+                onChange={e => {
+                  const on = e.target.checked;
+                  setBackupCfg(prev => ({
+                    ...prev,
+                    encrypt_backups: on,
+                    ...(on ? {} : { backup_encryption_password: '' }),
+                  }));
+                }}
+              />
+              <span>{ct("Szyfruj kopie hasłem (zalecane)")}</span>
+            </label>
+            {!backupCfg.encrypt_backups && (
+              <p className="text-xs text-amber-700 dark:text-amber-400"> {ct("Niezaszyfrowaną kopię może odczytać każda osoba mająca dostęp do pliku. Pobieranie, ręczne uruchamianie kopii i kopie zaplanowane nie będą korzystać z szyfrowania.")} </p>
+            )}
+            {backupCfg.encrypt_backups && (
+              <div className="space-y-2 max-w-md">
+                {backupMeta.backup_encryption_configured && (
+                  <p className="text-xs text-gray-600 dark:text-gray-400"> {ct("Hasło jest już zapisane. Pozostaw pola puste, aby je zachować, albo wpisz nowe hasło, aby je zastąpić.")} </p>
+                )}
+                <div>
+                  <label htmlFor="Settings-field-1" className="block text-xs text-gray-500 dark:text-gray-400 mb-1"> {ct("Hasło kopii zapasowej (min.")} {BACKUP_MIN_PASSWORD_LEN} {ct("znaków)")} </label>
+                  <input id="Settings-field-1"
+                    type="password"
+                    className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
+                    value={backupCfg.backup_encryption_password}
+                    onChange={e => setBackupCfg(prev => ({ ...prev, backup_encryption_password: e.target.value }))}
+                    autoComplete="new-password"
+                    placeholder={backupMeta.backup_encryption_configured ? ct("Pozostaw puste, aby zachować obecne hasło") : ''}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="Settings-field-2" className="block text-xs text-gray-500 dark:text-gray-400 mb-1"> {ct("Podpowiedź hasła (opcjonalna, zapisywana jawnie w każdym pliku .qbk)")} </label>
+                  <input id="Settings-field-2"
+                    type="text"
+                    className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
+                    value={backupCfg.backup_encryption_hint}
+                    onChange={e => setBackupCfg(prev => ({ ...prev, backup_encryption_hint: e.target.value }))}
+                    maxLength={200}
+                  />
+                </div>
+                <p className="text-xs text-gray-500 dark:text-gray-400"> {ct("Dotyczy pobierania, ręcznego uruchamiania kopii i zaplanowanych kopii, gdy szyfrowanie jest włączone.")} </p>
+              </div>
+            )}
+
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 space-y-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={backupCfg.schedule_enabled}
+                  onChange={e => setBackupCfg(prev => ({ ...prev, schedule_enabled: e.target.checked }))}
+                />
+                <span>{ct("Włącz automatyczne kopie")}</span>
+              </label>
+              {backupCfg.schedule_enabled && (
+                <div className="space-y-3 sm:border-l-2 border-gray-200 dark:border-gray-600 sm:pl-3">
+                  <div>
+                    <label htmlFor="Settings-field-3" className="block text-xs text-gray-500 dark:text-gray-400 mb-1"> {ct("Cron (minuta godzina dzień miesiąc dzień-tygodnia, UTC)")} </label>
+                    <input id="Settings-field-3"
+                      className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
+                      value={backupCfg.cron_expression}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, cron_expression: e.target.value }))}
+                      placeholder="0 3 * * *"
+                    />
+                  </div>
+                  {!backupMeta.local_disk_available && (
+                    <p className="text-xs text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2"> {ct("Zapisywanie kopii na serwerze wymaga ustawienia w środowisku wdrożeniowym")}{' '}
+                      <code className="text-[11px]">SEKARO/QUICKLY_LOCAL_DISK_BACKUPS</code> {ct("oraz trwałego")}{' '} {ct("folderu")} <code className="text-[11px]">backups</code> {ct("(Docker Compose z tego repozytorium go zapewnia). Na hostach bez trwałego dysku użyj")}{' '} {ct("poniższej opcji")} <strong>{ct("POST do webhooka")}</strong>.
+                    </p>
+                  )}
+                  <label className={`flex items-center gap-2 ${backupMeta.local_disk_available ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'}`}>
+                    <input
+                      type="checkbox"
+                      disabled={!backupMeta.local_disk_available}
+                      checked={backupCfg.save_local}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, save_local: e.target.checked }))}
+                    />
+                    <span>{ct("Zapisuj na dysku serwera (10 najnowszych plików; starsze są usuwane)")}</span>
+                  </label>
+                  <div>
+                    <label htmlFor="Settings-field-4" className="block text-xs text-gray-500 dark:text-gray-400 mb-1"> {ct("Folder (w katalogu aplikacji, domyślnie")} <code className="text-[11px]">backups</code>)
+                    </label>
+                    <input id="Settings-field-4"
+                      className="w-full max-w-md border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600 disabled:opacity-50"
+                      disabled={!backupMeta.local_disk_available}
+                      value={backupCfg.local_relative_path}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, local_relative_path: e.target.value }))}
+                      placeholder="backups"
+                    />
+                    {backupMeta.local_disk_available && backupMeta.local_backup_resolved && (
+                      <p className="text-xs text-gray-400 mt-1 break-all"> {ct("Ścieżka docelowa:")} {backupMeta.local_backup_resolved}
+                      </p>
+                    )}
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={backupCfg.send_webhook}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, send_webhook: e.target.checked }))}
+                    />
+                    <span>{ct("Wyślij plik kopii metodą POST na adres webhooka")}</span>
+                  </label>
+                  <div>
+                    <label htmlFor="Settings-field-5" className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{ct("Adres webhooka")}</label>
+                    <input id="Settings-field-5"
+                      type="url"
+                      className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
+                      value={backupCfg.webhook_url}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, webhook_url: e.target.value }))}
+                      placeholder="https://example.com/hooks/backup"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="Settings-field-6" className="block text-xs text-gray-500 dark:text-gray-400 mb-1">{ct("Nagłówek Authorization (opcjonalny)")}</label>
+                    <input id="Settings-field-6"
+                      type="text"
+                      name="backup_webhook_authorization"
+                      autoComplete="off"
+                      spellCheck={false}
+                      data-1p-ignore
+                      data-lpignore="true"
+                      className="w-full border rounded-lg px-3 py-2 text-sm font-mono dark:bg-gray-900 dark:border-gray-600"
+                      value={backupCfg.webhook_auth_header}
+                      onChange={e => setBackupCfg(prev => ({ ...prev, webhook_auth_header: e.target.value }))}
+                      placeholder={backupMeta.webhook_auth_configured ? ct('Pozostaw puste, aby zachować obecne hasło') : 'Bearer …'}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Button size="sm" disabled={backupSaving} onClick={saveBackupSettings}>
+              {backupSaving ? ct("Zapisywanie…") : ct("Zapisz ustawienia")}
+            </Button>
+          </div>
+
+          <h3
+            id="settings-backup-manual"
+            className="text-sm font-semibold mb-2 scroll-mt-6 text-gray-900 dark:text-gray-100"
+          > {ct("Pobierz, uruchom lub przywróć")} </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-3"> {ct("Pobieranie korzysta z opcji szyfrowania i harmonogramu z sekcji")} <strong>{ct("Ustawienia kopii")}</strong> {ct("powyżej. Jeśli je zmieniono, zapisz ustawienia przed pobraniem.")} </p>
+          <div className="space-y-4 mb-6">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={
+                  backupDownloadBusy ||
+                  (backupCfg.encrypt_backups &&
+                    !backupMeta.backup_encryption_configured &&
+                    (backupCfg.backup_encryption_password || '').trim().length < BACKUP_MIN_PASSWORD_LEN)
+                }
+                onClick={async () => {
+                  setBackupDownloadBusy(true);
+                  try {
+                    const wantEnc = backupCfg.encrypt_backups;
+                    const draftPw = (backupCfg.backup_encryption_password || '').trim();
+                    let payload;
+                    if (!wantEnc) {
+                      payload = {
+                        use_saved_encryption: false,
+                        encrypt: false,
+                        password: '',
+                        password_hint: '',
+                      };
+                    } else if (draftPw.length >= BACKUP_MIN_PASSWORD_LEN) {
+                      payload = {
+                        use_saved_encryption: false,
+                        encrypt: true,
+                        password: draftPw,
+                        password_hint: (backupCfg.backup_encryption_hint || '').trim(),
+                      };
+                    } else if (backupMeta.backup_encryption_configured) {
+                      payload = {
+                        use_saved_encryption: true,
+                        encrypt: true,
+                        password: '',
+                        password_hint: '',
+                      };
+                    } else {
+                      payload = {
+                        use_saved_encryption: false,
+                        encrypt: false,
+                        password: '',
+                        password_hint: '',
+                      };
+                    }
+                    const res = await postJsonForDownload('/settings/backup/download', payload);
+                    const blob = await res.blob();
+                    const dispo = res.headers.get('Content-Disposition');
+                    const m = dispo && dispo.match(/filename="([^"]+)"/);
+                    const name = m ? m[1] : 'sekaro-backup.qbk';
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = name;
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    notify({ type: 'success', message: ct("Kopia zapasowa pobrana") });
+                  } catch (e) {
+                    notify({ type: 'error', message: e.message || ct("Pobieranie nie powiodło się.") });
+                  } finally {
+                    setBackupDownloadBusy(false);
+                  }
+                }}
+              >
+                {backupDownloadBusy ? ct("Przygotowywanie…") : ct("Pobierz kopię")}
+              </Button>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={backupRunning}
+                onClick={async () => {
+                  setBackupRunning(true);
+                  try {
+                    const r = await api.post('/settings/backup/run', {});
+                    const parts = [];
+                    if (r.local_path) parts.push(ct('Zapisano {path}',{path:r.local_path}));
+                    if (r.webhook_ok) parts.push(ct('Webhook wysłany'));
+                    if (r.webhook_error) parts.push(ct('Błąd webhooka: {error}',{error:r.webhook_error}));
+                    if (r.local_skipped) parts.push(r.local_skipped);
+                    if (r.remote_error) parts.push(r.remote_error);
+                    if (r.destination_error) parts.push(r.destination_error);
+                    notify({ type: r.ok === false ? 'error' : 'success', message: parts.join(' · ') || ct("Kopia zakończona") });
+                  } catch (e) {
+                    notify({ type: 'error', message: e.message });
+                  } finally {
+                    setBackupRunning(false);
+                  }
+                }}
+              >
+                {backupRunning ? ct("Uruchamianie…") : ct("Uruchom kopię teraz")}
+              </Button>
+            </div>
+
+            <RemoteBackups onRestoreFile={file => {setRestoreFile(file); setRestorePreview(null);}} />
+            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+              <p className="text-sm font-medium mb-2">{ct("Przywróć z pliku")}</p>
+              <p className="text-xs text-amber-700 dark:text-amber-400 mb-2"> {ct("Przywracanie zastępuje całą bazę danych. Po wybraniu pliku pokażemy zawartość kopii przed podaniem hasła, jeśli plik jest zaszyfrowany.")} </p>
+              <div className="flex items-stretch gap-2 mb-2">
+                <FileUploadArea
+                  key={restoreFileKey}
+                  size="full"
+                  className="flex-1 min-w-0"
+                  accept=".qbk,application/octet-stream"
+                  disabled={restoreMetaBusy || restorePreviewBusy || restoreExecuteBusy}
+                  onChange={e => {
+                    setRestoreFile(e.target.files?.[0] || null);
+                    setRestorePreview(null);
+                  }}
+                >
+                  {restoreFile ? (
+                    <span className="truncate text-gray-900 dark:text-gray-100">{restoreFile.name}</span>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400">{ct("Wybierz plik kopii (.qbk)")}</span>
+                  )}
+                </FileUploadArea>
+                {restoreFile ? (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 px-3"
+                    title={ct("Usuń plik")}
+                    disabled={restoreMetaBusy || restorePreviewBusy || restoreExecuteBusy}
+                    onClick={clearRestoreWizard}
+                  >
+                    ×
+                  </Button>
+                ) : null}
+              </div>
+
+              {restoreMetaBusy && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">{ct("Odczytywanie kopii…")}</p>
+              )}
+
+              {restoreMeta && !restoreMetaBusy && !restorePreview && (
+                <div className="rounded-lg border border-gray-200 dark:border-gray-600 p-3 text-sm space-y-3 mb-3 bg-gray-50 dark:bg-gray-900/40">
+                  {restoreMeta.password_hint ? (
+                    <p className="text-xs text-gray-600 dark:text-gray-400"> {ct("Podpowiedź:")} <span className="font-mono">{restoreMeta.password_hint}</span>
+                    </p>
+                  ) : null}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{ct("Ta kopia")}</p>
+                      <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
+                        <li>{ct("Data kopii:")} {restoreMeta.backup_preview?.backed_up_at ? new Date(restoreMeta.backup_preview.backed_up_at).toLocaleString(language) : '—'}</li>
+                        <li>{ct("Kontakty:")} {restoreMeta.backup_preview?.lead_count ?? '—'}</li>
+                        <li>{ct("Skrzynki:")} {restoreMeta.backup_preview?.inbox_count ?? '—'}</li>
+                        <li>{ct("Kampanie:")} {restoreMeta.backup_preview?.campaign_count ?? '—'}</li>
+                        <li>{ct("Użytkownicy:")} {restoreMeta.backup_preview?.user_count ?? '—'}</li>
+                        <li>{ct("Administratorzy:")} {(restoreMeta.backup_preview?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>{ct("Szyfrowana:")} {restoreMeta.encrypted ? ct("tak") : ct("nie")}</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{ct("Bieżąca baza danych (zostanie zastąpiona)")}</p>
+                      <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
+                        <li>{ct("Kontakty:")} {restoreMeta.current_database?.lead_count ?? '—'}</li>
+                        <li>{ct("Skrzynki:")} {restoreMeta.current_database?.inbox_count ?? '—'}</li>
+                        <li>{ct("Kampanie:")} {restoreMeta.current_database?.campaign_count ?? '—'}</li>
+                        <li>{ct("Użytkownicy:")} {restoreMeta.current_database?.user_count ?? '—'}</li>
+                        <li>{ct("Administratorzy:")} {(restoreMeta.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  <p className="text-xs text-amber-800 dark:text-amber-200"> {ct("W zaszyfrowanych kopiach adresy e-mail administratorów pozostają ukryte do czasu weryfikacji hasła.")} </p>
+                </div>
+              )}
+
+              {restoreMeta && !restorePreview && restoreMeta.encrypted && (
+                <div className="max-w-md mb-2">
+                  <label htmlFor="Settings-field-7" className="block text-xs text-gray-500 dark:text-gray-400 mb-1"> {ct("Hasło kopii zapasowej")} </label>
+                  <input id="Settings-field-7"
+                    type="password"
+                    className="w-full border rounded-lg px-3 py-2 text-sm dark:bg-gray-900 dark:border-gray-600"
+                    placeholder={ct('Co najmniej {count} znaków',{count:BACKUP_MIN_PASSWORD_LEN})}
+                    value={restorePassword}
+                    onChange={e => setRestorePassword(e.target.value)}
+                    disabled={restorePreviewBusy || restoreExecuteBusy}
+                    autoComplete="off"
+                  />
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-2 mb-3">
+                {restoreMeta && !restorePreview && !restoreMeta.encrypted && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={!restoreFile || restorePreviewBusy || restoreMetaBusy}
+                    onClick={async () => {
+                      setRestorePreviewBusy(true);
+                      setRestorePreview(null);
+                      try {
+                        const data = await api.uploadMultipart('/settings/backup/restore/preview', restoreFile, {});
+                        setRestorePreview(data);
+                      } catch (e) {
+                        notify({ type: 'error', message: e.message });
+                      } finally {
+                        setRestorePreviewBusy(false);
+                      }
+                    }}
+                  >
+                    {restorePreviewBusy ? ct("Sprawdzanie…") : ct("Sprawdź kopię")}
+                  </Button>
+                )}
+                {restoreMeta && !restorePreview && restoreMeta.encrypted && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={
+                      !restoreFile ||
+                      restorePreviewBusy ||
+                      restoreMetaBusy ||
+                      restorePassword.length < BACKUP_MIN_PASSWORD_LEN
+                    }
+                    onClick={async () => {
+                      setRestorePreviewBusy(true);
+                      setRestorePreview(null);
+                      try {
+                        const data = await api.uploadMultipart('/settings/backup/restore/preview', restoreFile, {
+                          password: restorePassword,
+                        });
+                        setRestorePreview(data);
+                      } catch (e) {
+                        notify({ type: 'error', message: e.message });
+                      } finally {
+                        setRestorePreviewBusy(false);
+                      }
+                    }}
+                  >
+                    {restorePreviewBusy ? ct("Sprawdzanie…") : ct("Sprawdź hasło")}
+                  </Button>
+                )}
+              </div>
+
+              {restorePreview && (
+                <div className="rounded-lg border border-gray-200 dark:border-gray-600 p-3 text-sm space-y-3 mb-3 bg-gray-50 dark:bg-gray-900/40">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">{ct("Zweryfikowano — potwierdź przywracanie")}</p>
+                  {restorePreview.password_hint ? (
+                    <p className="text-xs text-gray-600 dark:text-gray-400"> {ct("Podpowiedź:")} <span className="font-mono">{restorePreview.password_hint}</span>
+                    </p>
+                  ) : null}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{ct("Zawartość kopii")}</p>
+                      <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
+                        <li>{ct("Data kopii:")} {restorePreview.backup?.backed_up_at ? new Date(restorePreview.backup.backed_up_at).toLocaleString(language) : '—'}</li>
+                        <li>{ct("Kontakty:")} {restorePreview.backup?.lead_count ?? '—'}</li>
+                        <li>{ct("Skrzynki:")} {restorePreview.backup?.inbox_count ?? '—'}</li>
+                        <li>{ct("Kampanie:")} {restorePreview.backup?.campaign_count ?? '—'}</li>
+                        <li>{ct("Użytkownicy:")} {restorePreview.backup?.user_count ?? '—'}</li>
+                        <li>{ct("Administratorzy:")} {(restorePreview.backup?.admin_emails || []).join(', ') || '—'}</li>
+                        <li>{ct("Szyfrowana:")} {restorePreview.backup?.encrypted ? ct("tak") : ct("nie")}</li>
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-gray-700 dark:text-gray-300 mb-1">{ct("Bieżąca baza danych (zostanie zastąpiona)")}</p>
+                      <ul className="space-y-0.5 text-gray-600 dark:text-gray-400">
+                        <li>{ct("Kontakty:")} {restorePreview.current_database?.lead_count ?? '—'}</li>
+                        <li>{ct("Skrzynki:")} {restorePreview.current_database?.inbox_count ?? '—'}</li>
+                        <li>{ct("Kampanie:")} {restorePreview.current_database?.campaign_count ?? '—'}</li>
+                        <li>{ct("Użytkownicy:")} {restorePreview.current_database?.user_count ?? '—'}</li>
+                        <li>{ct("Administratorzy:")} {(restorePreview.current_database?.admin_emails || []).join(', ') || '—'}</li>
+                      </ul>
+                    </div>
+                  </div>
+                  {(restorePreview.current_database?.lead_count > 0 ||
+                    restorePreview.current_database?.user_count > 0) && (
+                    <div className="text-xs text-amber-800 dark:text-amber-200 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded px-2 py-2"> {ct("Za chwilę nadpiszesz istniejące dane. Jeśli chcesz zachować bieżący stan, najpierw pobierz jego kopię.")} <Button
+                        size="sm"
+                        variant="outline"
+                        className="mt-2"
+                        onClick={() => document.getElementById('settings-backup-manual')?.scrollIntoView({ behavior: 'smooth' })}
+                      > {ct("Przejdź do pobierania")} </Button>
+                    </div>
+                  )}
+                  <p className="text-xs text-red-700 dark:text-red-400"> {ct("Tej operacji nie można cofnąć. Zaszyfrowana kopia jest bezużyteczna bez hasła.")} </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={restoreExecuteBusy}
+                    onClick={async () => {
+                      const ok = await confirm(
+                        {message:ct('Zastąpić bieżącą bazę danych tą kopią? Obecne dane w bazie zostaną trwale usunięte.'),danger:true},
+                      );
+                      if (!ok) return;
+                      setRestoreExecuteBusy(true);
+                      try {
+                        await api.post('/settings/backup/restore/execute', {
+                          restore_token: restorePreview.restore_token,
+                        });
+                        notify({ type: 'success', message: ct("Przywracanie zakończone. Ponowne ładowanie…") });
+                      } catch (e) {
+                        notify({ type: 'error', message: e.message });
+                      } finally {
+                        setRestoreExecuteBusy(false);
+                      }
+                    }}
+                  >
+                    {restoreExecuteBusy ? ct("Przywracanie…") : ct("Potwierdź i przywróć")}
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+        )}
+          </>
+        )}
+
+        {true && (
+          <>
+        <section id="settings-ai" hidden={activeTab !== 'ai'} className="mb-10 scroll-mt-6">
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">{ct("Funkcje AI")}</h2>
+          <p className="text-xs text-gray-500 mb-4"> {ct("Każda funkcja AI może korzystać z innego dostawcy i modelu. Najpierw skonfiguruj dostawcę i klucz API — dostępne modele zostaną automatycznie wczytane w tle.")} </p>
+
+          {Object.values(aiFeatures).map(feature => {
+            const fid = feature.id;
+            const isOpen = !!aiExpanded[fid];
+            const fm = aiModels[fid] || { models: [], loading: false, error: '' };
+            const provSearch = aiProviderSearch[fid] ?? null; // null = not focused
+            const modSearch = aiModelSearch[fid] || '';
+            const verifying = aiVerifying[fid] || false;
+            const verifyResult = aiVerifyResult[fid] || null;
+
+            const setFeature = (updater) => {
+              setAiFeatures(prev => ({ ...prev, [fid]: typeof updater === 'function' ? updater(prev[fid]) : { ...prev[fid], ...updater } }));
+            };
+            const setProvSearch = (v) => setAiProviderSearch(prev => ({ ...prev, [fid]: v }));
+            const setModSearch = (v) => setAiModelSearch(prev => ({ ...prev, [fid]: v }));
+
+            const selectedProviderLabel = feature.provider
+              ? (aiProviders.find(p => p.value === feature.provider)?.label || feature.provider)
+              : '';
+
+            const filteredProviders = (provSearch || '').length > 0
+              ? aiProviders.filter(p => p.label.toLowerCase().includes(provSearch.toLowerCase()) || p.value.toLowerCase().includes(provSearch.toLowerCase()))
+              : aiProviders;
+            const filteredModels = modSearch
+              ? fm.models.filter(m => m.id.toLowerCase().includes(modSearch.toLowerCase()) || (m.name && m.name.toLowerCase().includes(modSearch.toLowerCase())))
+              : fm.models;
+
+            return (
+              <Card key={fid} className="mb-4 overflow-visible">
+                {/* ── Collapsed header (always visible) ── */}
+                <div
+                  className="sk-system-ai-heading flex items-center justify-between cursor-pointer select-none"
+                  role="button" tabIndex={0} aria-expanded={isOpen} aria-label={ct('Konfiguracja: {name}',{name:ct(feature.label)})}
+                  onKeyDown={event => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] })); } }}
+                  onClick={() => setAiExpanded(prev => ({ ...prev, [fid]: !prev[fid] }))}
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className={`text-gray-400 transition-transform text-xs ${isOpen ? 'rotate-90' : ''}`}>▶</span>
+                    <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{ct(feature.label)}</h3>
+                    {feature.enabled
+                      ? <span className="text-[10px] bg-green-100 text-green-700 border border-green-200 rounded-full px-2 py-0.5 font-medium shrink-0">{ct("Włączony")}</span>
+                      : <span className="text-[10px] bg-gray-100 text-gray-500 border rounded-full px-2 py-0.5 font-medium shrink-0">{ct("Wyłączone")}</span>
+                    }
+                  </div>
+                  {/* Enable toggle — click doesn't propagate to collapse toggle */}
+                  <label
+                    className="flex items-center gap-1.5 cursor-pointer shrink-0 ml-4"
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={feature.enabled}
+                      className="rounded"
+                      onChange={e => {
+                        const next = e.target.checked;
+                        if (next && !feature.connection_tested) {
+                          notify({ type: 'error', message: ct("Przed włączeniem tej funkcji wykonaj poprawny test połączenia.") });
+                          return;
+                        }
+                        // update state without marking dirty — enabled auto-saves immediately
+                        setAiFeatures(prev => ({ ...prev, [fid]: { ...prev[fid], enabled: next } }));
+                        saveAiFeature(fid, { enabled: next });
+                      }}
+                    />
+                    <span className="text-xs font-medium text-gray-600 whitespace-nowrap"> {ct("Włącz")} </span>
+                  </label>
+                </div>
+
+                {/* ── Expanded body ── */}
+                <div className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                  <div className={`min-h-0 ${isOpen ? 'overflow-visible' : 'overflow-hidden'}`}>
+                    <div className="mt-4 space-y-4 border-t pt-4">
+                    <p className="text-xs text-gray-500">{ct(feature.description)}</p>
+
+                    {/* Step 1 — Provider */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        <span className="text-gray-400 mr-1">1.</span> {ct("Dostawca")} </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={ct("Szukaj dostawców…")}
+                          className="border rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 w-full focus:outline-none focus:ring-2 focus:ring-teal-300"
+                          value={provSearch !== null ? provSearch : selectedProviderLabel}
+                          onChange={e => setProvSearch(e.target.value)}
+                          onFocus={() => setProvSearch('')}
+                          onBlur={() => setTimeout(() => setProvSearch(null), 200)}
+                        />
+                        {provSearch !== null && filteredProviders.length > 0 && (
+                          <div className="border rounded-lg mt-1 max-h-48 overflow-y-auto bg-white dark:bg-gray-900 shadow-lg z-20 absolute w-full top-full">
+                            {filteredProviders.map(p => (
+                              <button
+                                key={p.value}
+                                type="button"
+                                className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-teal-50 dark:hover:bg-gray-800 ${p.value === feature.provider ? 'bg-teal-50 dark:bg-gray-800 font-medium' : ''}`}
+                                onMouseDown={e => {
+                                  e.preventDefault();
+                                  setFeature({ provider: p.value, model: '', connection_tested: false });
+                                  setProvSearch(null);
+                                  setModSearch('');
+                                }}
+                              >
+                                {p.label}
+                                <span className="text-[10px] text-gray-400 ml-2">{p.value}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Step 2 — API Key */}
+                    <div>
+                      <label htmlFor="Settings-field-8" className="block text-xs font-medium text-gray-600 mb-1">
+                        <span className="text-gray-400 mr-1">2.</span> API Key
+                      </label>
+                      <input id="Settings-field-8"
+                        type="password"
+                        placeholder={feature.api_key_set ? `${ct('Zapisany klucz:')} ${feature.api_key_masked}` : ct("Wpisz klucz API")}
+                        className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                        value={feature.api_key || ''}
+                        onChange={e => setFeature({ api_key: e.target.value, connection_tested: false })}
+                      />
+                      {feature.provider && (feature.api_key || feature.api_key_set) && (
+                        <p className="text-[10px] mt-1 text-teal-600">
+                          {fm.loading
+                            ? ct("⏳ Wczytywanie dostępnych modeli…")
+                            : fm.error
+                              ? ct('Nie udało się pobrać modeli: {error}',{error:fm.error})
+                              : fm.models.length > 0
+                                ? ct('Dostępne modele: {count} — wybierz poniżej albo wpisz nazwę',{count:fm.models.length})
+                                : ''}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Step 3 — Model */}
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">
+                        <span className="text-gray-400 mr-1">3.</span> {ct("Model")} </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder={fm.loading ? ct("Wczytywanie modeli…") : ct("Wyszukaj lub wpisz nazwę modelu…")}
+                          className="block w-full border rounded-lg p-2 text-sm bg-white dark:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-teal-300"
+                          value={modSearch !== '' ? modSearch : (feature.model || '')}
+                          onChange={e => {
+                            setModSearch(e.target.value);
+                            setFeature({ model: e.target.value, connection_tested: false });
+                          }}
+                          onFocus={() => setModSearch(feature.model || '')}
+                          onBlur={() => setTimeout(() => setModSearch(''), 200)}
+                        />
+                        {modSearch !== '' && filteredModels.length > 0 && (
+                          <div className="border rounded-lg mt-1 max-h-48 overflow-y-auto bg-white dark:bg-gray-900 shadow-lg z-20 absolute w-full top-full">
+                            {filteredModels.slice(0, 50).map(m => (
+                              <button
+                                key={m.id}
+                                type="button"
+                                className={`block w-full text-left px-3 py-1.5 text-sm hover:bg-teal-50 dark:hover:bg-gray-800 ${m.id === feature.model ? 'bg-teal-50 dark:bg-gray-800 font-medium' : ''}`}
+                                onMouseDown={e => {
+                                  e.preventDefault();
+                                  setFeature({ model: m.id, connection_tested: false });
+                                  setModSearch('');
+                                }}
+                              >
+                                {m.id}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {!fm.loading && fm.models.length === 0 && (
+                        <p className="text-[10px] text-gray-400 mt-1"> {ct("Wpisz nazwę modelu rozpoznawaną przez dostawcę (np. gpt-4o, claude-sonnet-4-20250514)")} </p>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    {(() => {
+                      const saved = savedAiFeaturesRef.current[fid];
+                      const aiFeatDirty = saved != null && (
+                        feature.provider !== saved.provider ||
+                        feature.model !== saved.model ||
+                        !!feature.api_key
+                      );
+                      return aiFeatDirty ? (
+                        <p className="text-xs text-amber-600 font-medium">{ct("⚠ Niezapisane zmiany — kliknij Zapisz, aby zastosować")}</p>
+                      ) : null;
+                    })()}
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant={feature.connection_tested ? 'success' : 'outline'}
+                        className={feature.connection_tested ? 'bg-green-600 text-white border-green-600 hover:bg-green-700' : ''}
+                        onClick={() => verifyAiFeature(fid)}
+                        disabled={verifying}
+                      >
+                        {verifying ? ct("Testowanie…") : feature.connection_tested ? ct("✓ Połączenie sprawdzone") : ct("Testuj połączenie")}
+                      </Button>
+                      <Button size="sm" onClick={() => saveAiFeature(fid)}>{ct("Zapisz")}</Button>
+                      {verifyResult && !verifyResult.ok && (
+                        <span className="text-sm font-medium text-red-500">
+                          ✗ {verifyResult.error}
+                        </span>
+                      )}
+                      {!feature.connection_tested && (
+                        <span className="text-xs text-amber-600">{ct("Przetestuj połączenie przed włączeniem")}</span>
+                      )}
+                    </div>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+
+          {Object.keys(aiFeatures).length === 0 && (
+            <p className="text-sm text-gray-400 italic">{ct("Brak dostępnych funkcji AI.")}</p>
+          )}
+
+        </section>
+
+        <section id="settings-other" hidden={activeTab !== 'other'} className="mb-10 scroll-mt-6">
+          <h2 className="mb-1 border-b border-gray-200 pb-2 text-lg font-semibold dark:border-gray-700">{ct("Inne")}</h2>
+          <p className="mb-6 text-xs text-gray-500 dark:text-gray-400"> {ct("Powiadomienia e-mail i weryfikacja kontaktów — opcjonalne elementy procesu.")} </p>
+
+          <div className="mb-8">
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">{ct("Powiadomienia")}</h3>
+            <p className="mb-3 text-xs text-gray-500 dark:text-gray-400"> {ct("Przeglądaj historię powiadomień w aplikacji i zarządzaj preferencjami dostarczania e-mail.")} </p>
+            <Card className="flex items-center justify-between">
+              <div>
+                <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-100">{ct("Centrum powiadomień")}</h4>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  {notifConfig.enabled
+                    ? ct("Powiadomienia e-mail są włączone. Kliknij, aby zobaczyć historię i preferencje.")
+                    : ct("Powiadomienia e-mail są wyłączone. Kliknij, aby zobaczyć historię i preferencje.")}
+                </p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => window.location.href = '/notifications'}> {ct("Otwórz powiadomienia")} </Button>
+            </Card>
+          </div>
+
+
+        </section>
+        <section id="settings-verification" hidden={activeTab !== 'verification'} className="sk-system-verification">          <div>
+            <h3 className="mb-2 text-base font-semibold text-gray-800 dark:text-gray-100">{ct("Weryfikacja e-mail")}</h3>
+            <p className="mb-3 text-xs text-gray-500 dark:text-gray-400"> {ct("Automatycznie weryfikuj nowe kontakty po dodaniu ich do kampanii.")} </p>
+            <EmailVerificationSettings initialExpanded />
+          </div></section>
+          </>
+        )}
+
+        {true && (
+          <>
+        {/* ──────────────── API Keys ──────────────── */}
+        <section id="settings-api-keys" hidden={activeTab !== 'api-keys'} className="mb-10 scroll-mt-6">
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">{ct("Klucze API")}</h2>
+          <p className="text-xs text-gray-500 mb-4"> {ct("Twórz klucze do programistycznego dostępu do API. Pełny klucz jest wyświetlany tylko raz — skopiuj go od razu.")} </p>
+
+          {/* One-time key display */}
+          {createdKey && (
+            <Card className="mb-4 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20">
+              <h3 className="text-sm font-semibold mb-1 text-green-700 dark:text-green-400">{ct("Utworzono nowy klucz API")}</h3>
+              <p className="text-xs text-gray-500 mb-2">{ct("Skopiuj ten klucz teraz — później nie będzie można wyświetlić go ponownie.")}</p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 text-xs bg-white dark:bg-gray-800 border rounded p-2 break-all select-all">{createdKey}</code>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(createdKey); notify({ type: 'success', message: ct("Skopiowano!") }); }}> {ct("Kopiuj")} </Button>
+              </div>
+              <Button size="sm" variant="ghost" className="mt-2 text-xs" onClick={() => setCreatedKey(null)}>{ct("Ukryj")}</Button>
+            </Card>
+          )}
+
+          {/* Create key form */}
+          <Card className="mb-4">
+            <h3 className="text-sm font-semibold mb-3">{ct("Utwórz klucz API")}</h3>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label htmlFor="Settings-field-9" className="text-xs text-gray-500">{ct("Nazwa")}</label>
+                <input id="Settings-field-9"
+                  type="text"
+                  placeholder={ct("np. Pipeline CI/CD")}
+                  className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  value={newKeyName}
+                  onChange={e => setNewKeyName(e.target.value)}
+                />
+              </div>
+              <div className="w-32">
+                <label htmlFor="Settings-field-10" className="text-xs text-gray-500">{ct("Wygasa po (dni)")}</label>
+                <input id="Settings-field-10"
+                  type="number"
+                  placeholder={ct("Nigdy")}
+                  min="1"
+                  className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  value={newKeyExpiry}
+                  onChange={e => setNewKeyExpiry(e.target.value)}
+                />
+              </div>
+              <Button size="sm" onClick={createApiKey} disabled={!newKeyName.trim()}>{ct("Utwórz")}</Button>
+            </div>
+          </Card>
+
+          {/* Existing keys */}
+          {apiKeys.length === 0 && (
+            <p className="text-sm text-gray-400 italic">{ct("Brak kluczy API.")}</p>
+          )}
+          {apiKeys.length > 0 && (
+            <div className="space-y-2">
+              {apiKeys.map(k => (
+                <Card key={k.id} className="flex items-center justify-between">
+                  <div>
+                    <span className="text-sm font-medium">{k.name}</span>
+                    <span className="ml-2 text-xs text-gray-400">{k.prefix}•••</span>
+                    <span className="ml-2 text-xs text-gray-400"> {ct("Utworzono")} {new Date(k.created_at).toLocaleDateString(language)}
+                      {k.expires_at && <> {ct("· wygasa")} {new Date(k.expires_at).toLocaleDateString(language)}</>}
+                    </span>
+                  </div>
+                  <Button size="sm" variant="danger" onClick={() => revokeApiKey(k.id)}>{ct("Unieważnij")}</Button>
+                </Card>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* ──────────────── Webhooks ──────────────── */}
+        <section id="settings-webhooks" hidden={activeTab !== 'webhooks'} className="mb-10 scroll-mt-6">
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">{ct("Webhooki")}</h2>
+          <p className="text-xs text-gray-500 mb-4"> {ct("Zarejestruj jeden lub więcej wychodzących adresów webhook. Każdy webhook może subskrybować wybrane typy zdarzeń. Gdy zdarzenie wystąpi, każdy pasujący aktywny webhook otrzyma żądanie POST.")} </p>
+
+          {/* New webhook form */}
+          <Card className="mb-4">
+            <h3 className="text-sm font-semibold mb-3">{ct("Dodaj webhook")}</h3>
+            <div className="space-y-3">
+              <input
+                type="text"
+                placeholder="https://twoj-endpoint.example.com/hook"
+                className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                value={newWh.url}
+                onChange={e => setNewWh(p => ({ ...p, url: e.target.value }))}
+              />
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder={ct("Sekret Bearer (opcjonalny)")}
+                  className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  value={newWh.secret}
+                  onChange={e => setNewWh(p => ({ ...p, secret: e.target.value }))}
+                />
+                <input
+                  type="text"
+                  placeholder={ct("Opis (opcjonalny)")}
+                  className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                  value={newWh.description}
+                  onChange={e => setNewWh(p => ({ ...p, description: e.target.value }))}
+                />
+              </div>
+              <EventSelector
+                events={newWh.events}
+                onChange={evts => setNewWh(p => ({ ...p, events: evts }))}
+              />
+              <Button size="sm" onClick={createWebhook}>{ct("Dodaj webhook")}</Button>
+            </div>
+          </Card>
+
+          {/* Existing webhooks */}
+          {webhooks.length === 0 && (
+            <p className="text-sm text-gray-400 italic">{ct("Nie skonfigurowano jeszcze webhooków.")}</p>
+          )}
+          {webhooks.map(wh => (
+            <Card key={wh.id} className="mb-3">
+              {editingId === wh.id ? (
+                /* editing mode */
+                <div className="space-y-3">
+                  <input
+                    type="text"
+                    className="block w-full border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    value={editForm.url}
+                    onChange={e => setEditForm(p => ({ ...p, url: e.target.value }))}
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder={ct("Sekret Bearer")}
+                      className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                      value={editForm.secret}
+                      onChange={e => setEditForm(p => ({ ...p, secret: e.target.value }))}
+                    />
+                    <input
+                      type="text"
+                      placeholder={ct("Opis")}
+                      className="flex-1 border rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                      value={editForm.description}
+                      onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
+                    />
+                  </div>
+                  <EventSelector
+                    events={editForm.events || []}
+                    onChange={evts => setEditForm(p => ({ ...p, events: evts }))}
+                  />
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={() => saveEdit(wh.id)}>{ct("Zapisz")}</Button>
+                    <Button size="sm" variant="outline" onClick={cancelEdit}>{ct("Anuluj")}</Button>
+                  </div>
+                </div>
+              ) : (
+                /* display mode */
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`inline-block w-2 h-2 rounded-full ${wh.active ? 'bg-green-500' : 'bg-gray-300'}`}
+                        title={wh.active ? ct("Aktywny") : ct("Nieaktywny")}
+                      />
+                      <span className="text-sm font-medium truncate max-w-xs" title={wh.url}>{wh.url}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" onClick={() => toggleActive(wh.id, wh.active)}>
+                        {wh.active ? ct("Wyłącz") : ct("Włącz")}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => startEdit(wh)}>{ct("Edytuj")}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => testWebhook(wh.id)}>{ct("Testuj")}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setTestEventWh(testEventWh === wh.id ? null : wh.id); setTestEventType(''); setTestEventResult(null); }}> {ct("Symuluj zdarzenie")} </Button>
+                      <Button size="sm" variant="ghost" className="text-red-500" onClick={() => deleteWebhook(wh.id)}>{ct("Usuń")}</Button>
+                    </div>
+                  </div>
+                  {wh.description && <p className="text-xs text-gray-500 mb-1">{wh.description}</p>}
+                  <div className="flex flex-wrap gap-1">
+                    {isAllEvents(wh.events || []) ? (
+                      <span className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded-full px-2 py-0.5 font-medium">{ct("Wszystkie zdarzenia")}</span>
+                    ) : (
+                      (wh.events || []).map(evt => (
+                        <span key={evt} className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border rounded px-1.5 py-0.5">{ct(EVENT_LABELS[evt] || evt)}</span>
+                      ))
+                    )}
+                  </div>
+                  {/* Simulate event panel */}
+                  {testEventWh === wh.id && (
+                    <div className="mt-3 p-3 bg-gray-50 dark:bg-gray-800 border rounded-lg space-y-2">
+                      <p className="text-xs font-semibold text-gray-600">{ct("Zasymuluj konkretne zdarzenie, aby zobaczyć dokładną treść żądania:")}</p>
+                      <div className="flex items-center gap-2">
+                        <select
+                          className="border rounded-lg px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-300 flex-1"
+                          value={testEventType}
+                          onChange={e => { setTestEventType(e.target.value); setTestEventResult(null); }}
+                        >
+                          <option value="">{ct("— Wybierz typ zdarzenia —")}</option>
+                          {eventTypes.map(evt => (
+                            <option key={evt} value={evt}>{ct(EVENT_LABELS[evt] || evt)}</option>
+                          ))}
+                        </select>
+                        <Button size="sm" onClick={() => testWebhookEvent(wh.id, testEventType)}> {ct("Wyślij")} </Button>
+                      </div>
+                      {testEventResult && (
+                        <div className="mt-2">
+                          <p className="text-xs font-medium text-gray-500 mb-1">{ct("Wysłana treść żądania:")}</p>
+                          <pre className="text-xs bg-white dark:bg-gray-900 border rounded p-2 overflow-auto max-h-48 font-mono">
+                            {JSON.stringify(testEventResult, null, 2)}
+                          </pre>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+          ))}
+        </section>
+
+        {/* ──────────────── MCP (AI agents) ──────────────── */}
+        <section id="settings-mcp" hidden={activeTab !== 'mcp'} className="mb-10 scroll-mt-6">
+          <h2 className="text-lg font-semibold mb-1 border-b pb-2">{ct("MCP (agenci AI)")}</h2>
+          <p className="text-xs text-gray-500 mb-4"> {ct("Sekaro udostępnia zdalny punkt końcowy MCP przez HTTPS. Utwórz klucz API w sekcji Klucze API, a następnie skonfiguruj Cursor poleceniem")} <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">npx mcp-remote</code> {ct("(Node 18+). Instalacja Pythona na lokalnym komputerze nie jest wymagana.")} </p>
+          <Card className="mb-4 space-y-3">
+            <h3 className="text-sm font-semibold">{ct("1. Endpoint")}</h3>
+            <p className="text-xs text-gray-500"> {ct("Adres MCP Streamable HTTP (to samo uwierzytelnianie co REST API):")} </p>
+            {mcpSetup?.mcp_http_url ? (
+              <code className="block text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-2 break-all font-mono">{mcpSetup.mcp_http_url}</code>
+            ) : (
+              <p className="text-xs text-amber-600">{ct("Nie udało się wczytać — użyj")} <code className="font-mono">{typeof window !== 'undefined' ? `${window.location.origin}/api/mcp` : '/api/mcp'}</code></p>
+            )}
+            <p className="text-xs text-gray-500"> {ct("Dla zwykłego HTTP (tylko lokalny development) dodaj")} <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--allow-http</code> {ct("do argumentów")} <code className="text-[10px] font-mono">mcp-remote</code> {ct("po adresie URL.")} </p>
+            <h3 className="text-sm font-semibold pt-2">{ct("2. Narzędzia udostępniane agentowi")}</h3>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 list-disc pl-5 space-y-1">
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">list_leads</code> {ct("— wyszukiwanie / filtrowanie (q, status, bad_only, interest; stack)")}</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">get_lead</code> {ct("— jeden kontakt po ID")}</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">update_lead</code> {ct("— aktualizacja name, status, custom_data")}</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">delete_lead</code> {ct("— usunięcie kontaktu")}</li>
+              <li><code className="text-xs bg-gray-100 dark:bg-gray-800 px-1 rounded">add_campaign_leads</code> {ct("— zbiorcze dodanie do kampanii")}</li>
+            </ul>
+            <h3 className="text-sm font-semibold pt-2">{ct("3. Konfiguracja MCP w Cursorze")}</h3>
+            <p className="text-xs text-gray-500"> {ct("Połącz ten JSON z ustawieniami MCP. Zastąp")} <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">QUICKLY_MCP_API_KEY</code> {ct("kluczem z sekcji Klucze API. Aby użyć JWT, użyj")} <code className="mx-1 text-[10px] bg-gray-100 dark:bg-gray-800 px-1 rounded">--header</code>
+              <code className="text-[10px] font-mono">{'Authorization:${QUICKLY_MCP_AUTH}'}</code>
+              {' '}{ct("i ustaw wartość zmiennej środowiskowej na")} <code className="text-[10px] font-mono">Bearer …</code> {ct("(tak jak w REST). Bazowy URL aplikacji:")} {mcpSetup?.api_base_url ? (
+                <span className="ml-1 font-mono text-[11px]">{mcpSetup.api_base_url}</span>
+              ) : (
+                <span className="ml-1 text-amber-600">{ct("(nie udało się wczytać)")}</span>
+              )}
+            </p>
+            {mcpSetup?.cursor_mcp_fragment && (
+              <div className="space-y-2">
+                <pre className="text-xs bg-gray-50 dark:bg-gray-800 border rounded-lg p-3 overflow-x-auto font-mono max-h-64">
+                  {JSON.stringify(mcpSetup.cursor_mcp_fragment, null, 2)}
+                </pre>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(JSON.stringify(mcpSetup.cursor_mcp_fragment, null, 2));
+                    notify({ type: 'success', message: ct("Fragment MCP skopiowany — połącz go z plikiem mcp.json") });
+                  }}
+                > {ct("Kopiuj fragment MCP")} </Button>
+              </div>
+            )}
+          </Card>
+        </section>
+          </>
+        )}
+
+        {!isProduction && (
+          <section id="settings-test-mode" hidden={activeTab !== 'test-mode'} className="mb-10 scroll-mt-6">
+            <h2 className="text-lg font-semibold mb-3 border-b border-gray-200 dark:border-gray-700 pb-2">{ct("Tryb testowy")}</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2"> {ct("Po włączeniu wiadomości są symulowane — żadne realne wiadomości nie są wysyłane.")} </p>
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={testMode} onChange={e => submitTestMode(e.target.checked)} />
+              <span className="text-sm">{ct("Włączone")}</span>
+            </label>
+          </section>
+        )}
+        </div>
+        {(["general","appearance"].includes(activeTab) || generalDirty) && <footer className="sk-system-savebar">
+          <span role="status"><Icon name={generalDirty ? 'clock' : 'check'} size={17}/>{generalSaving ? t('appearance.saving') : generalDirty ? t('appearance.unsaved') : generalSaved ? t('appearance.saved') : t('appearance.unchanged')}</span>
+          <div><Button variant="outline" onClick={cancelGeneral} disabled={!generalDirty || generalSaving}>{t('appearance.cancel')}</Button><Button onClick={saveGeneral} disabled={!generalDirty || generalSaving}>{generalSaving ? t('appearance.saving') : t('appearance.save')}</Button></div>
+        </footer>}
+        </div>
+      </div>
+
+      {/* ──────────────── Known IPs Dialog ──────────────── */}
+      {knownIpsOpen && (
+        <Modal title={ct("Znane adresy IP")} onClose={() => setKnownIpsOpen(false)}>
+          <p className="text-xs text-gray-500 mb-4"> {ct("Otwarcia i kliknięcia z tych adresów IP są ignorowane przy filtrowaniu własnej aktywności. Adresy z sesji przeglądarki są dodawane automatycznie i wygasają po tygodniu; możesz też dodać stały adres ręcznie.")} </p>
+
+          <div className="flex gap-2 mb-4">
+            <input
+              type="text"
+              placeholder="203.0.113.5"
+              value={newIpAddress}
+              onChange={e => setNewIpAddress(e.target.value)}
+              className="flex-1 border rounded px-2 py-1 text-sm"
+            />
+            <Button size="sm" onClick={async () => {
+              const ip = newIpAddress.trim();
+              if (!ip) return;
+              try {
+                await api.post('/settings/known-ips', { ip_address: ip, permanent: true });
+                setNewIpAddress('');
+                const d = await api.get('/settings/known-ips');
+                setKnownIps(d.known_ips || []);
+                notify({ type: 'success', message: ct("Adres IP dodany.") });
+              } catch (e) { notify({ type: 'error', message: e.message }); }
+            }}>{ct("Dodaj na stałe")}</Button>
+          </div>
+
+          <div className="overflow-y-auto max-h-[52vh]">
+            {knownIps.length === 0 ? (
+              <p className="text-sm text-gray-400 italic">{ct("Brak znanych adresów IP. Adres bieżącej przeglądarki zostanie zarejestrowany automatycznie.")}</p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-xs text-gray-500 border-b">
+                    <th className="pb-1">{ct("Adres IP")}</th>
+                    <th className="pb-1">{ct("Typ")}</th>
+                    <th className="pb-1">{ct("Ostatnio widziany")}</th>
+                    <th className="pb-1">{ct("Wygasa")}</th>
+                    <th className="pb-1"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {knownIps.map(ip => (
+                    <tr key={ip.id} className={`border-b ${ip.is_current ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
+                      <td className="py-1.5">
+                        {ip.ip_address}
+                        {ip.is_current && <span className="ml-2 text-xs text-blue-600 dark:text-blue-400 font-medium">{ct("(bieżący)")}</span>}
+                      </td>
+                      <td className="py-1.5">
+                        {ip.permanent
+                          ? <span className="text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1.5 py-0.5 rounded">{ct("stały")}</span>
+                          : <span className="text-xs bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400 px-1.5 py-0.5 rounded">{ct("auto")}</span>
+                        }
+                      </td>
+                      <td className="py-1.5 text-gray-500">{ip.last_seen_at ? new Date(ip.last_seen_at).toLocaleDateString(language) : '—'}</td>
+                      <td className="py-1.5 text-gray-500">{ip.expires_at ? new Date(ip.expires_at).toLocaleDateString(language) : '—'}</td>
+                      <td className="py-1.5 text-right">
+                        <button
+                          className="text-xs text-red-500 hover:underline"
+                          onClick={async () => {
+                            try {
+                              await api.del(`/settings/known-ips/${ip.id}`);
+                              const d = await api.get('/settings/known-ips');
+                              setKnownIps(d.known_ips || []);
+                              notify({ type: 'success', message: ct("Adres IP usunięty.") });
+                            } catch (e) { notify({ type: 'error', message: e.message }); }
+                          }}
+                        >{ct("Usuń")}</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
