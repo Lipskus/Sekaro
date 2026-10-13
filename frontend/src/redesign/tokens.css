@@ -2298,3 +2298,43 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 
 .sk-mailbox-advanced {grid-column:1/-1;min-width:0;}
 .sk-mailbox-add-fields>div:has(#inbox-add-9){grid-column:1/-1;}
+
+/* Approved mailbox mockup: compact sections and persistent actions. */
+.sk-modal.sk-mailbox-add-dialog{width:min(1120px,calc(100vw - 32px));max-width:1120px;max-height:calc(100dvh - 32px);display:flex;flex-direction:column;overflow:hidden}
+.sk-mailbox-add-dialog .sk-modal-header{flex-shrink:0;padding:14px 24px}
+.sk-mailbox-add-dialog .sk-modal-header h2{font-size:24px;margin:0}
+.sk-mailbox-add-dialog .sk-modal-subtitle{font-size:13px;color:var(--sk-muted);margin:5px 0 0}
+.sk-mailbox-add-dialog .sk-modal-body{min-height:0;overflow-y:auto;padding:16px 24px;overscroll-behavior:contain}
+.sk-mailbox-add-dialog .sk-modal-footer{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 24px;border-top:1px solid var(--sk-line);background:var(--sk-surface)}
+.sk-mailbox-add-dialog .sk-modal-footer p{font-size:12px;color:var(--sk-muted);margin:0}
+.sk-mailbox-footer-actions{display:flex;gap:10px;flex-shrink:0}
+.sk-mailbox-setup-fields,.sk-mailbox-protocol-fields{border:0;min-width:0;padding:0;margin:0;display:grid;gap:8px}
+.sk-mailbox-setup .sk-mailbox-card{min-width:0;border:1px solid var(--sk-line);border-radius:10px;background:var(--sk-surface-alt);padding:12px}
+.sk-mailbox-setup h3{font-size:16px;line-height:1.4;font-weight:650;margin:0;color:var(--sk-text)}
+.sk-mailbox-setup p{font-size:12px;line-height:1.5;color:var(--sk-muted);margin:3px 0 0;overflow-wrap:anywhere}
+.sk-mailbox-sender-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:8px}
+.sk-mailbox-reply-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:end;gap:16px;margin-top:8px}
+.sk-mailbox-reply-row>p{padding-bottom:10px}
+.sk-mailbox-field{min-width:0;display:grid;gap:3px;align-content:start}
+.sk-mailbox-setup .sk-mailbox-field>label{font-size:13px;line-height:1.4;font-weight:500;color:var(--sk-text);overflow-wrap:anywhere}
+.sk-mailbox-setup .sk-mailbox-field input,.sk-mailbox-setup .sk-mailbox-field select{width:100%;min-width:0;max-width:100%;height:36px;min-height:36px;margin:0;padding:8px 12px;font-size:14px;line-height:1.4;border:1px solid var(--sk-line);border-radius:7px;background:var(--sk-surface);color:var(--sk-text);box-sizing:border-box}
+.sk-mailbox-protocols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.sk-mailbox-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+.sk-mailbox-card-heading>div{min-width:0}
+.sk-mailbox-host-row{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:12px}
+.sk-mailbox-setup .sk-mailbox-check{display:flex;align-items:center;gap:8px;font-size:12px;line-height:1.5;cursor:pointer;min-width:0}
+.sk-mailbox-check input{width:16px;height:16px;flex-shrink:0;accent-color:var(--sk-accent)}
+.sk-mailbox-password{position:relative;min-width:0}
+.sk-mailbox-setup .sk-mailbox-password input{padding-right:40px}
+.sk-mailbox-password button{position:absolute;right:0;top:0;width:40px;height:36px;border:0;background:none;color:var(--sk-muted);cursor:pointer;font-size:22px}
+.sk-mailbox-test-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.sk-mailbox-test-results p{background:var(--sk-surface);padding:10px 12px;border:1px solid var(--sk-line);border-radius:7px;margin:0;overflow-wrap:anywhere}
+.sk-mailbox-test-results strong{display:block;color:var(--sk-text);margin-bottom:3px}
+.sk-mailbox-options summary{cursor:pointer;font-size:14px;font-weight:600;line-height:1.5;overflow-wrap:anywhere}
+.sk-mailbox-options summary span{font-size:12px;font-weight:400;color:var(--sk-muted);margin-left:14px}
+.sk-mailbox-options-content{display:grid;gap:16px;margin-top:16px}
+.sk-mailbox-setup input:disabled{opacity:.65}
+@media(max-width:700px){.sk-mailbox-sender-grid,.sk-mailbox-reply-row,.sk-mailbox-protocols,.sk-mailbox-test-results{grid-template-columns:minmax(0,1fr)}.sk-mailbox-reply-row{gap:3px}.sk-mailbox-reply-row>p{padding:0}.sk-mailbox-add-dialog .sk-modal-header,.sk-mailbox-add-dialog .sk-modal-body{padding:14px}.sk-mailbox-add-dialog .sk-modal-footer{padding:12px 14px;flex-wrap:wrap}.sk-mailbox-footer-actions{margin-left:auto}.sk-mailbox-options summary span{display:block;margin:4px 0 0}.sk-mailbox-card-heading{flex-wrap:wrap}.sk-mailbox-add-dialog .sk-modal-footer>p{display:none}}
+
+.sk-mailbox-setup.sk-inbox-modal-surface{border:0;box-shadow:none;background:transparent!important}
+.sk-mailbox-protocol-title{display:flex;gap:12px;align-items:center}.sk-mailbox-protocol-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--sk-green-soft);color:var(--sk-green-text);flex-shrink:0}.sk-mailbox-password button{display:flex;align-items:center;justify-content:center}

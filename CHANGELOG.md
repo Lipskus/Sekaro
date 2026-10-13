@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.1 — 2026-10-13
+
+- Rebuild mailbox setup from the approved mockup: sender details, adjacent SMTP/IMAP cards and separate test results.
+- Keep Add and Cancel visible outside the scrolling form, including smaller screens.
+- Consolidate limits, warm-up and tracking into one advanced section.
+- Add shared SMTP/IMAP credentials, password visibility and explicit security selectors.
+- Check responsive light/dark layouts and fixed-footer accessibility in Polish and English.
+
 ## 1.1.0 — 2026-10-13
 
 - Test SMTP and IMAP before saving a mailbox, and retest existing mailboxes with separate persisted results.

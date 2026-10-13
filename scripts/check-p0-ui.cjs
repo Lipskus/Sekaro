@@ -125,7 +125,7 @@ function fixture(p,flow){
  const results=[];
  const states=(process.env.P0_UI_STATES || 'fixture').split(',');
  const cases=workflowMode?workflowCases.filter(([flow])=>!process.env.P0_UI_FLOWS||process.env.P0_UI_FLOWS.split(',').includes(flow)):routes.map(route=>['page',route]);
- for(const [width,height] of [[1600,900],[768,1024],[390,844]])for(const theme of ['dark','light'])for(const language of languages)for(const state of states)for(const [flow,routePath] of cases){
+ for(const [width,height] of (process.env.P0_UI_VIEWPORTS?JSON.parse(process.env.P0_UI_VIEWPORTS):[[1600,900],[768,1024],[390,844]]))for(const theme of ['dark','light'])for(const language of languages)for(const state of states)for(const [flow,routePath] of cases){
   const context=await browser.newContext({viewport:{width,height},colorScheme:theme,reducedMotion:'reduce'});
   await context.addInitScript(({theme,language})=>{localStorage.setItem('sekaro.theme',theme);localStorage.setItem('sekaro.language',language);localStorage.setItem('onboardingCompleted','true')},{theme,language});
   const page=await context.newPage(), errors=[], mutations=[];
@@ -233,6 +233,8 @@ function fixture(p,flow){
   }
   await page.evaluate(()=>document.fonts.ready);
   const measurements=await page.evaluate(()=>({
+   mailboxFooterHidden:[...document.querySelectorAll('.sk-mailbox-add-dialog .sk-modal-footer')].some(el=>{const r=el.getBoundingClientRect();return r.bottom>innerHeight||r.top<0||el.scrollWidth>el.clientWidth+1}),
+   mailboxFieldOverflow:[...document.querySelectorAll('.sk-mailbox-setup label,.sk-mailbox-setup p,.sk-mailbox-setup input,.sk-mailbox-setup select')].some(el=>el.clientWidth>0&&el.scrollWidth>el.clientWidth+1&&el.tagName!=='INPUT'),
    viewport:innerWidth,documentWidth:document.documentElement.scrollWidth,
    overflowCandidates:document.documentElement.scrollWidth>innerWidth?[...document.querySelectorAll(".sk-page-header,.sk-page-header *, .sk-page-actions, .sk-page-actions *, .sk-contact-tools-page > *")].map(el=>({tag:el.tagName,cls:el.className,right:el.getBoundingClientRect().right,width:el.getBoundingClientRect().width,text:el.textContent.slice(0,90)})).filter(el=>el.right>innerWidth+1).slice(0,20):[],
    sidebarContentOverflow:[...document.querySelectorAll('.sk-system-card,.sk-selfhost')].some(el=>{const sidebar=el.closest('.sk-sidebar')?.getBoundingClientRect(),r=el.getBoundingClientRect();return sidebar?.right>0&&(r.right>sidebar.right+1||el.scrollWidth>el.clientWidth+1);}),
@@ -255,7 +257,7 @@ function fixture(p,flow){
  await browser.close();
  await new Promise(r=>server.close(r));
  fs.writeFileSync(path.join(out,'ui-matrix.json'),JSON.stringify(results,null,2)+'\n');
- const failures=results.filter(r=>r.documentWidth>r.viewport || r.campaignActionsOverflow || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.pageTitleCramped || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
+ const failures=results.filter(r=>r.mailboxFooterHidden || r.mailboxFieldOverflow || r.documentWidth>r.viewport || r.campaignActionsOverflow || r.sidebarContentOverflow || r.errors.length || r.bodyLength<100 || !r.figtreeLoaded || r.previewOverflow || r.personalizedButtonOverflow || r.pageTitleCramped || r.dialogs.some(d=>d.left<0||d.right>r.width||d.top<0||d.bottom>r.height||d.scrollWidth>d.clientWidth+1||!d.focusInside)||r.dialogs.length&&!r.backgroundLocked);
  console.log(JSON.stringify({captures:results.length,failures},null,2));
  process.exitCode=failures.length?1:0;
 })().catch(e=>{console.error(e);process.exit(1)});

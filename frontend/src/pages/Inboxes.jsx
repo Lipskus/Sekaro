@@ -1,3 +1,4 @@
+import MailboxConnectionFields from '../redesign/MailboxConnectionFields';
 import ConnectionResult from '../redesign/ConnectionResult';
 import EndpointCapability,{useEndpointCapability} from '../redesign/EndpointCapability';
 import {useMessageText} from '../redesign/MessageLanguage';
@@ -1548,100 +1549,20 @@ export default function Inboxes() {
         </div>
       )}
 
-      {/* Add mailbox: shared accessible dialog with a two-column form. */}
       {showAdd && (
-        <Modal title={ct("Dodaj skrzynkę")} busy={adding||draftTesting} onClose={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
-          <div className="sk-inbox-modal-surface sk-inbox-add-content">
-            {message && <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{ct(message.text,message.params)}</div>}
-            <label htmlFor="mailbox-provider">{ct("Typ skrzynki")}</label>
-            <select id="mailbox-provider" value={addProvider} disabled={adding||draftTesting} onChange={e=>setAddProvider(e.target.value)}>
-              <option value="smtp">SMTP / IMAP</option>{user?.role==='admin'&&<><option value="gmail">Gmail / Google Workspace</option><option value="office365">Microsoft 365 / Outlook</option></>}
-            </select>
-            {addProvider==='gmail'&&<GmailConnection />}
-            {addProvider==='office365'&&<Office365Connection />}
-            {addProvider==='smtp'&&<form onSubmit={submit} className="sk-inbox-add-form"><fieldset disabled={adding||draftTesting} className="sk-mailbox-add-fields"><h3>{text110("1. Dane nadawcy","1. Sender identity")}</h3>
-              <div>
-                <label htmlFor="inbox-add-2" className="block text-sm font-medium text-gray-700">{ct("Adres e-mail")}</label>
-                <input id="inbox-add-2" type="email" name="email" value={form.email} onChange={handleChange} placeholder="ty@twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md" />
-                <p className="mt-1 text-xs text-gray-400">{ct("Adres nadawcy. Powinien odpowiadać kontu używanemu do SMTP.")}</p>
-              </div>
-
-              <div>
-                <label htmlFor="inbox-add-3" className="block text-sm font-medium text-gray-700">{ct("Nazwa nadawcy")}</label>
-                <input id="inbox-add-3" type="text" name="display_name" value={form.display_name} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" />
-              </div>
-              <div>
-                <label htmlFor="inbox-add-4" className="block text-sm font-medium text-gray-700">Reply-To</label>
-                <input id="inbox-add-4"
-                  type="email"
-                  name="reply_to"
-                  value={form.reply_to}
-                  onChange={handleChange}
-                  placeholder={form.email || 'odpowiedzi@twojadomena.pl'}
-                  className="mt-1 block w-full border-gray-300 rounded-md"
-                />
-                <p className="mt-1 text-xs text-gray-400">{ct("Opcjonalne. Jeśli puste, odpowiedzi trafią na adres nadawcy.")}</p>
-              </div>
-              {form.provider === 'smtp' && (
-                <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{text110("2. Połączenie — SMTP (wysyłka)","2. Connection — SMTP (sending)")}</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="col-span-2">
-                      <label htmlFor="inbox-add-9" className="block text-xs font-medium text-gray-700">Host</label>
-                      <input id="inbox-add-9" type="text" value={smtpForm.smtp_host} onChange={e => setSmtpForm(f => ({ ...f, smtp_host: e.target.value }))} placeholder="mail.twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                    </div>
-                    <div>
-                      <label htmlFor="inbox-add-10" className="block text-xs font-medium text-gray-700">{ct("Port")}</label>
-                      <input id="inbox-add-10" type="number" value={smtpForm.smtp_port} onChange={e => setSmtpForm(f => ({ ...f, smtp_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                    </div>
-                  </div>
-                  <div>
-                    <label htmlFor="inbox-add-11" className="block text-xs font-medium text-gray-700">{ct("Login")}</label>
-                    <input id="inbox-add-11" type="text" value={smtpForm.smtp_username} onChange={e => setSmtpForm(f => ({ ...f, smtp_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                  </div>
-                  <div>
-                    <label htmlFor="inbox-add-12" className="block text-xs font-medium text-gray-700">{ct("Hasło")}</label>
-                    <input id="inbox-add-12" type="password" value={smtpForm.smtp_password} onChange={e => setSmtpForm(f => ({ ...f, smtp_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                  </div>
-                  <div className="flex gap-4 text-sm text-gray-700">
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" checked={!!smtpForm.smtp_use_tls} onChange={e => setSmtpForm(f => ({ ...f, smtp_use_tls: e.target.checked, smtp_use_ssl: e.target.checked ? false : f.smtp_use_ssl }))} />
-                      STARTTLS (587)
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer">
-                      <input type="checkbox" checked={!!smtpForm.smtp_use_ssl} onChange={e => setSmtpForm(f => ({ ...f, smtp_use_ssl: e.target.checked, smtp_use_tls: e.target.checked ? false : f.smtp_use_tls }))} />
-                      SSL (465)
-                    </label>
-                  </div>
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide pt-1">{ct("IMAP (odbiór odpowiedzi — opcjonalnie)")}</p>
-                  <div>
-                    <label htmlFor="inbox-add-13" className="block text-xs font-medium text-gray-700">Host</label>
-                    <input id="inbox-add-13" type="text" value={smtpForm.imap_host} onChange={e => setSmtpForm(f => ({ ...f, imap_host: e.target.value }))} placeholder={ct("Pozostaw puste tylko dla skrzynki wysyłkowej")} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                  </div>
-                  {smtpForm.imap_host.trim() !== '' && (
-                    <>
-                      <div className="grid grid-cols-3 gap-2">
-                        <div>
-                          <label htmlFor="inbox-add-14" className="block text-xs font-medium text-gray-700">{ct("Port")}</label>
-                          <input id="inbox-add-14" type="number" value={smtpForm.imap_port} onChange={e => setSmtpForm(f => ({ ...f, imap_port: +e.target.value }))} min={1} max={65535} className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                        </div>
-                        <div className="col-span-2">
-                          <label htmlFor="inbox-add-15" className="block text-xs font-medium text-gray-700">{ct("Login")}</label>
-                          <input id="inbox-add-15" type="text" value={smtpForm.imap_username} onChange={e => setSmtpForm(f => ({ ...f, imap_username: e.target.value }))} autoComplete="off" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                        </div>
-                      </div>
-                      <div>
-                        <label htmlFor="inbox-add-16" className="block text-xs font-medium text-gray-700">{ct("Hasło")}</label>
-                        <input id="inbox-add-16" type="password" value={smtpForm.imap_password} onChange={e => setSmtpForm(f => ({ ...f, imap_password: e.target.value }))} autoComplete="new-password" className="mt-1 block w-full border-gray-300 rounded-md text-sm" />
-                      </div>
-                      <label className="flex items-center gap-1.5 cursor-pointer text-sm text-gray-700">
-                        <input type="checkbox" checked={!!smtpForm.imap_use_ssl} onChange={e => setSmtpForm(f => ({ ...f, imap_use_ssl: e.target.checked }))} /> {ct("SSL/TLS (zwykle 993); odznaczone = STARTTLS")} </label>
-                    </>
-                  )}
-                  <p className="text-xs text-gray-400">{text110("Test nie wysyła wiadomości. Możesz sprawdzić połączenie przed zapisaniem.","Testing does not send a message. Check the connection before saving.")}</p>
-                </div>
-              )}
-              <details className="sk-mailbox-advanced"><summary>{text110("Zaawansowane limity wysyłki","Advanced sending limits")}</summary><div className="sk-mailbox-add-fields">              <div>
+        <Modal title={ct("Dodaj skrzynkę")} className="sk-mailbox-add-dialog" subtitle={text110("Połącz pocztę i sprawdź ustawienia przed zapisaniem.","Connect your mailbox and check settings before saving.")} busy={adding||draftTesting} onClose={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }} footer={addProvider==='smtp'&&<><p>{text110("Dane zostaną zapisane po dodaniu skrzynki.","Settings will be saved when you add the mailbox.")}</p><div className="sk-mailbox-footer-actions"><Button type="button" variant="outline" disabled={adding||draftTesting} onClick={()=>{setShowAdd(false);setMessage(null);setAddTrackingMode('app');}}>{ct("Anuluj")}</Button><Button type="submit" form="mailbox-add-form" disabled={adding||draftTesting||!canSubmit()}>{ct("Dodaj skrzynkę")}</Button></div></>}>
+          <div className="sk-inbox-modal-surface sk-mailbox-setup">
+            {message&&<div role="alert" className={message.type==='error'?'text-red-600':'text-green-600'}>{ct(message.text,message.params)}</div>}
+            <form id="mailbox-add-form" onSubmit={submit}>
+             <fieldset disabled={adding||draftTesting} className="sk-mailbox-setup-fields">
+              <section className="sk-mailbox-card sk-mailbox-sender"><h3>{text110("Dane nadawcy","Sender identity")}</h3><div className="sk-mailbox-sender-grid">
+               <div className="sk-mailbox-field"><label htmlFor="mailbox-provider">{ct("Typ skrzynki")}</label><select id="mailbox-provider" value={addProvider} onChange={e=>setAddProvider(e.target.value)}><option value="smtp">SMTP / IMAP</option>{user?.role==='admin'&&<><option value="gmail">Gmail / Google Workspace</option><option value="office365">Microsoft 365 / Outlook</option></>}</select></div>
+               {addProvider==='smtp'&&<><div className="sk-mailbox-field"><label htmlFor="inbox-add-2">{ct("Adres e-mail")}</label><input id="inbox-add-2" type="email" name="email" value={form.email} onChange={handleChange} placeholder="hello@example.com" required/></div><div className="sk-mailbox-field"><label htmlFor="inbox-add-3">{ct("Nazwa nadawcy")}</label><input id="inbox-add-3" name="display_name" value={form.display_name} onChange={handleChange}/></div></>}
+              </div>{addProvider==='smtp'&&<div className="sk-mailbox-reply-row"><div className="sk-mailbox-field"><label htmlFor="inbox-add-4">{text110("Adres odpowiedzi (Reply-To)","Reply address (Reply-To)")}</label><input id="inbox-add-4" type="email" name="reply_to" value={form.reply_to} onChange={handleChange} placeholder={text110("Opcjonalnie — inny adres do odpowiedzi","Optional — a different reply address")}/></div><p>{text110("Puste pole oznacza odpowiedź na adres nadawcy.","Leave blank to receive replies at the sender address.")}</p></div>}</section>
+              {addProvider==='smtp'&&<>
+               <MailboxConnectionFields value={smtpForm} onChange={setSmtpForm}/>
+               <section className="sk-mailbox-card sk-mailbox-test"><div className="sk-mailbox-card-heading"><div><h3>{ct("Test połączenia")}</h3><p>{text110("Test nie wysyła wiadomości.","The test does not send a message.")}</p></div><Button type="button" variant="outline" disabled={draftTesting||adding||!canSubmit()} onClick={testDraft}>{draftTesting?text110("Testowanie…","Testing…"):ct("Testuj połączenie")}</Button></div><ConnectionResult result={draftTest} cards/></section>
+               <details className="sk-mailbox-card sk-mailbox-options"><summary>{text110("Ustawienia zaawansowane","Advanced settings")}<span>{text110("Limity wysyłki, rozgrzewanie i śledzenie","Sending limits, warm-up and tracking")}</span></summary><div className="sk-mailbox-options-content"><div className="sk-mailbox-add-fields">              <div>
                 <label htmlFor="inbox-add-5" className="block text-sm font-medium text-gray-700">{ct("Maks. wiadomości dziennie")}</label>
                 <input id="inbox-add-5" type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
               </div>
@@ -1667,29 +1588,7 @@ export default function Inboxes() {
                 />
                 <p className="mt-1 text-xs text-gray-400">{ct("Losowe opóźnienie 0–N minut dla każdej wysyłki (domyślnie 3 min). Ustaw 0, aby wyłączyć.")}</p>
               </div>
-</div></details>
-              <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden"><h3>{text110("3. Test połączenia","3. Connection test")}</h3><Button type="button" disabled={draftTesting||adding||!canSubmit()} onClick={testDraft}>{draftTesting?text110("Testowanie…","Testing…"):ct("Testuj połączenie")}</Button><ConnectionResult result={draftTest}/><details><summary>{text110("Ustawienia zaawansowane","Advanced settings")}</summary><EndpointCapability cap={endpointCap}/>
-                <EndpointCapability cap={endpointCap}/>{endpointCap?.mode==='legacy'&&<InboxTrackingOptions
-                  variant="add"
-                  wrapClassName="space-y-4"
-                  radioName="inbox-tracking-add"
-                  cnameUiEnabled={customTrackingCnameUiEnabled}
-                  cnameTarget={cnameTarget}
-                  uiMode={addTrackingMode}
-                  onUiModeChange={applyAddTrackingMode}
-                  trackingDomain={form.tracking_domain}
-                  onTrackingDomainChange={(val) => { setForm(f => ({ ...f, tracking_domain: val })); setAddDomainVerified(false); }}
-                  onDnsVerifyChange={setAddDomainVerified}
-                  beaconConnected={false}
-                  beaconBaseUrl=""
-                  beaconSetupUrl=""
-                  onBeaconSetupUrlChange={() => {}}
-                  onConnectBeacon={() => {}}
-                  onDisconnectBeacon={() => {}}
-                  beaconConnecting={false}
-                />}</details>
-              </div>
-              <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
+</div>              <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{ct("Rozgrzewanie")}</p>
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 cursor-pointer text-sm font-medium text-gray-700">
@@ -1728,16 +1627,33 @@ export default function Inboxes() {
                   )}
                 </div>
               </div>
-              <div className="flex gap-2">
-                <Button type="submit" disabled={adding || !canSubmit()} variant="default"> {ct("Dodaj skrzynkę")} </Button>
-                <Button type="button" variant="outline" disabled={adding||draftTesting} onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}> {ct("Anuluj")} </Button>
-              </div>
-            </fieldset></form>}
+<EndpointCapability cap={endpointCap}/>{endpointCap?.mode==='legacy'&&<InboxTrackingOptions
+                  variant="add"
+                  wrapClassName="space-y-4"
+                  radioName="inbox-tracking-add"
+                  cnameUiEnabled={customTrackingCnameUiEnabled}
+                  cnameTarget={cnameTarget}
+                  uiMode={addTrackingMode}
+                  onUiModeChange={applyAddTrackingMode}
+                  trackingDomain={form.tracking_domain}
+                  onTrackingDomainChange={(val) => { setForm(f => ({ ...f, tracking_domain: val })); setAddDomainVerified(false); }}
+                  onDnsVerifyChange={setAddDomainVerified}
+                  beaconConnected={false}
+                  beaconBaseUrl=""
+                  beaconSetupUrl=""
+                  onBeaconSetupUrlChange={() => {}}
+                  onConnectBeacon={() => {}}
+                  onDisconnectBeacon={() => {}}
+                  beaconConnecting={false}
+                />}</div></details>
+              </>}
+             </fieldset>
+            </form>
+            {addProvider==='gmail'&&<GmailConnection/>}
+            {addProvider==='office365'&&<Office365Connection/>}
           </div>
         </Modal>
       )}
-
-
 
       {/* Unsaved changes warning for inbox edit */}
       {showEditWarning && <Modal title={ct("Odrzucić zmiany skrzynki?")} onClose={() => setShowEditWarning(false)}>

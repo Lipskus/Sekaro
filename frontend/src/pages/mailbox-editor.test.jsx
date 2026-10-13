@@ -126,3 +126,21 @@ it('hides legacy tracking options in a private installation',async()=>{
  expect(await screen.findByText(/Śledzenie wyłączone: instalacja prywatna/)).toBeTruthy();
  expect(screen.queryByRole('radio',{name:'Konfiguracja DNS'})).toBeNull();
 });
+
+it('copies live SMTP credentials for IMAP, switches security and keeps save in the fixed footer',async()=>{
+ api.post.mockResolvedValue({ok:true,smtp:{ok:true},imap:{ok:true}});
+ render(<MemoryRouter><Inboxes/></MemoryRouter>);
+ fireEvent.click((await screen.findAllByRole('button',{name:'Dodaj skrzynkę',exact:true}))[0]);
+ for(const [id,value] of [['2','new@example.test'],['9','smtp.example.test'],['11','new-login'],['12','secret'],['13','imap.example.test']])fireEvent.change(document.getElementById('inbox-add-'+id),{target:{value}});
+ await waitFor(()=>expect(document.getElementById('inbox-add-15').value).toBe('new-login'));
+ expect(document.getElementById('inbox-add-15').disabled).toBe(true);
+ fireEvent.change(document.getElementById('mailbox-smtp-security'),{target:{value:'ssl'}});
+ expect(document.getElementById('inbox-add-10').value).toBe('465');
+ fireEvent.click(screen.getByRole('button',{name:'Testuj połączenie'}));
+ await waitFor(()=>expect(api.post).toHaveBeenCalledWith('/smtp/test',expect.objectContaining({smtp_use_ssl:true,smtp_use_tls:false,imap_username:'new-login',imap_password:'secret'})));
+ expect(document.querySelector('.sk-modal-footer button[type=submit]').getAttribute('form')).toBe('mailbox-add-form');
+ fireEvent.click(screen.getByRole('checkbox',{name:'Włącz IMAP'}));
+ expect(document.getElementById('inbox-add-13').value).toBe('');
+ fireEvent.click(screen.getByRole('checkbox',{name:'Włącz IMAP'}));
+ expect(document.getElementById('inbox-add-13').value).toBe('imap.example.test');
+});

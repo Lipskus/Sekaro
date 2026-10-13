@@ -308,8 +308,8 @@ describe('calendar, bulk actions and mailbox form regressions', () => {
     expect(screen.getByRole('dialog', { name: 'Dodaj skrzynkę' })).toBeTruthy();
     fireEvent.change(screen.getByLabelText('Adres e-mail'), { target: { value: 'qa@example.test' } });
     fireEvent.change(screen.getAllByLabelText('Host')[0], { target: { value: 'smtp.example.test' } });
-    fireEvent.change(screen.getByLabelText('Login'), { target: { value: 'qa' } });
-    fireEvent.change(screen.getByLabelText('Hasło'), { target: { value: 'test-only' } });
+    fireEvent.change(within(screen.getByRole('region',{name:'SMTP',exact:true})).getByLabelText('Login'), { target: { value: 'qa' } });
+    fireEvent.change(within(screen.getByRole('region',{name:'SMTP',exact:true})).getByLabelText('Hasło'), { target: { value: 'test-only' } });
     fireEvent.submit(screen.getByLabelText('Adres e-mail').closest('form'));
     expect(screen.getByRole('button', { name: 'Zamknij okno' }).disabled).toBe(true);
     await act(async () => pending.resolve({ id: 9 }));

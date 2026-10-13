@@ -9,7 +9,7 @@
 
 Sekaro brings contacts, sales workflows and email into one application on your own server. Keep a contact's history from the first message through opportunities, tasks and meetings. SMTP/IMAP works independently of Google and Microsoft; their OAuth adapters are optional.
 
-> **Version 1.1.0.** Mailbox connection diagnostics and multilingual outreach. See [release notes](docs/RELEASE_1.1.md) and [baseline scope](docs/RELEASE_1.0.md).
+> **Version 1.1.1.** Mailbox connection diagnostics and multilingual outreach. See [release notes](docs/RELEASE_1.1.md) and [baseline scope](docs/RELEASE_1.0.md).
 
 ## What you can do
 
@@ -42,7 +42,7 @@ Requirements: Git, Python 3.10+, Docker Engine with Compose v2, and access to th
 git clone https://github.com/Lipskus/Sekaro.git
 cd Sekaro
 # Select the published release tag.
-git switch --detach v1.1.0
+git switch --detach v1.1.1
 python3 scripts/sekaro-install.py check
 python3 scripts/sekaro-install.py install
 ```
