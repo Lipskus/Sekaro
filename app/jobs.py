@@ -1,3 +1,4 @@
+from app.languages import localized_sequence
 from app.mail_identity import load_identity
 """Background job: send due emails from the queue."""
 # // BEACON SYNC: This file handles tracking logic that Beacon mirrors.
@@ -443,6 +444,11 @@ async def run_send_job():
                 prev_sent_at = None
 
                 # ── A/B variant selection ─────────────────────────────────────
+                try:
+                    sequence, selected_language = localized_sequence(sequence, campaign, lead)
+                except ValueError as exc:
+                    log.warning("Language blocked slot %s: %s", slot.id, exc)
+                    continue
                 chosen_variant_id = None
                 seq_subject      = sequence.subject
                 seq_body         = sequence.body
@@ -604,6 +610,9 @@ async def run_send_job():
                                     if _prev_var.is_html is not None:
                                         _prev_is_html_raw = _prev_var.is_html
                             _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead), html_escape_values=bool(_prev_is_html_raw))
+                            if _prev_log.rendered_body is not None:
+                                _rendered_prev = _prev_log.rendered_body
+                                _prev_is_html_raw = bool(_prev_log.rendered_is_html)
                             if _prev_is_html_raw:
                                 prev_email_body_html = _rendered_prev
                             else:
@@ -742,7 +751,7 @@ async def run_send_job():
                 from_name = inbox.display_name or ""
 
                 # ── phase 1: pre-create EmailLog to get an ID for tracking ──
-                email_log_entry = EmailLog(
+                email_log_entry = EmailLog(message_language=selected_language, rendered_body=body, rendered_is_html=is_html,
                     lead_id=lead.id,
                     campaign_id=campaign.id,
                     inbox_id=inbox.id,
@@ -842,7 +851,7 @@ async def run_send_job():
                     )
                 else:
                     result = send_email(
-                    mail_identity=await load_identity(session, inbox.id),
+                    mail_identity=await load_identity(session, inbox.id, selected_language),
                         to_email=lead.email,
                         subject=subject,
                         body=send_body,
@@ -1307,6 +1316,11 @@ async def send_slot_job(slot_id: int) -> None:
                     return
 
         # ── A/B variant selection ────────────────────────────────────────
+        try:
+            sequence, selected_language = localized_sequence(sequence, campaign, lead)
+        except ValueError as exc:
+            log.warning("Language blocked slot %s: %s", slot.id, exc)
+            return
         chosen_variant_id = None
         seq_subject      = sequence.subject
         seq_body         = sequence.body
@@ -1453,6 +1467,9 @@ async def send_slot_job(slot_id: int) -> None:
                             if _prev_var.is_html is not None:
                                 _prev_is_html_raw = _prev_var.is_html
                     _rendered_prev = render_body(_prev_body_raw, get_lead_data(lead), html_escape_values=bool(_prev_is_html_raw))
+                    if _prev_log.rendered_body is not None:
+                        _rendered_prev = _prev_log.rendered_body
+                        _prev_is_html_raw = bool(_prev_log.rendered_is_html)
                     if _prev_is_html_raw:
                         prev_email_body_html = _rendered_prev
                     else:
@@ -1560,7 +1577,7 @@ async def send_slot_job(slot_id: int) -> None:
         from_name = inbox.display_name or ""
 
         # ── Pre-create EmailLog to get an ID for tracking ─────────────────
-        email_log_entry = EmailLog(
+        email_log_entry = EmailLog(message_language=selected_language, rendered_body=body, rendered_is_html=is_html,
             lead_id=lead.id,
             campaign_id=campaign.id,
             inbox_id=inbox.id,
@@ -1660,7 +1677,7 @@ async def send_slot_job(slot_id: int) -> None:
                 )
             else:
                 result = send_email(
-                    mail_identity=await load_identity(session, inbox.id),
+                    mail_identity=await load_identity(session, inbox.id, selected_language),
                     to_email=lead.email,
                     subject=subject,
                     body=send_body,

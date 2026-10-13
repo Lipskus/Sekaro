@@ -165,6 +165,33 @@ async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
             validate_content(campaign, *(getattr(item, key, None) for key in ('subject','body','preview_text','fallback_subject','fallback_body')))
     except ValueError as exc:
         add('error', 'public_endpoint_mode', str(exc))
+    # Contacts eligible for sending.
+    cl_rows = await db.execute(
+        select(CampaignLead, Lead)
+        .join(Lead, CampaignLead.lead_id == Lead.id)
+        .where(CampaignLead.campaign_id == campaign_id)
+    )
+    pairs = list(cl_rows.all())
+    eligible = [(cl, lead) for cl, lead in pairs if campaign_lead_may_receive_sends(cl, lead)]
+
+    from app.languages import localized_sequence, message_language
+    wanted = {message_language(campaign, lead) for _cl, lead in eligible} or {campaign.default_language}
+    for step in sequences:
+        await db.refresh(step, ['variants'])
+        for lang in wanted:
+            try:
+                localized, effective = localized_sequence(step,campaign,language=lang)
+                validate_content(campaign,localized.subject,localized.body,localized.preview_text,localized.fallback_subject,localized.fallback_body)
+                for variant in getattr(localized,'variants',[]):
+                    if variant.enabled: validate_content(campaign,variant.subject,variant.body,variant.preview_text)
+                from app.mail_identity import MailIdentity
+                for mailbox in inboxes:
+                    identity = await db.get(MailIdentity,mailbox.id)
+                    if campaign.multilingual and effective != campaign.default_language and identity and identity.footer_enabled and effective not in (identity.footer_translations or {}):
+                        add('warning','signature_language_fallback',f'{mailbox.email}: {effective} uses the default mailbox signature',sequence_id=step.id)
+                if effective != lang: add('warning','language_fallback',f'Step {step.position+1}: {lang} uses {effective}',sequence_id=step.id)
+            except ValueError as exc:
+                add('error','translation_missing',f'Step {step.position+1}: {exc}',sequence_id=step.id)
     if not sequences:
         add("error", "no_sequences", "Kampania nie ma żadnej wiadomości w sekwencji.")
     else:
@@ -175,14 +202,6 @@ async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
             if (seq.sequence_type or "standard") == "standard" and not (seq.body or "").strip():
                 add("error", "empty_sequence_body", f"Krok {seq.position + 1} ma pustą treść.", sequence_id=seq.id)
 
-    # Contacts eligible for sending.
-    cl_rows = await db.execute(
-        select(CampaignLead, Lead)
-        .join(Lead, CampaignLead.lead_id == Lead.id)
-        .where(CampaignLead.campaign_id == campaign_id)
-    )
-    pairs = list(cl_rows.all())
-    eligible = [(cl, lead) for cl, lead in pairs if campaign_lead_may_receive_sends(cl, lead)]
     if not pairs:
         add("error", "no_contacts", "Kampania nie ma żadnych kontaktów.")
     elif not eligible:
@@ -206,9 +225,14 @@ async def _campaign_preflight(db: AsyncSession, campaign_id: int) -> dict:
             if (seq.sequence_type or "standard") != "standard":
                 continue
             variables = set(extract_variables(seq.subject, seq.body, seq.preview_text)) - allowed_runtime
-            if not variables:
-                continue
             for _cl, lead in eligible:
+                try:
+                    content,_ = localized_sequence(seq,campaign,lead)
+                except ValueError:
+                    continue
+                variables = set(extract_variables(content.subject,content.body,content.preview_text)) - allowed_runtime
+                for variant in getattr(content,'variants',[]):
+                    if variant.enabled:variables.update(set(extract_variables(variant.subject,variant.body,variant.preview_text))-allowed_runtime)
                 context = get_lead_data(lead)
                 for variable in variables:
                     if context.get(variable) in (None, ""):
@@ -280,7 +304,7 @@ def _campaign_to_response(
     # ``stats`` is a map with keys matching the fields of CampaignStats
     if stats is None:
         stats = {}
-    return CampaignResponse(
+    return CampaignResponse(default_language=campaign.default_language, multilingual=campaign.multilingual, missing_translation=campaign.missing_translation,
         id=campaign.id,
         archived=bool(campaign.archived),
         public_id=campaign.public_id or str(campaign.id),
@@ -484,7 +508,7 @@ async def campaigns_have_leads(db: AsyncSession = Depends(get_db)):
 async def create_campaign(data: CampaignCreate, db: AsyncSession = Depends(get_db)):
     # if not data.inbox_ids:
     #     raise HTTPException(400, "At least one inbox required")
-    campaign = Campaign(
+    campaign = Campaign(default_language=data.default_language, multilingual=data.multilingual, missing_translation=data.missing_translation,
         name=data.name,
         sending_days=data.sending_days,
         sending_hours_start=data.sending_hours_start,
@@ -810,6 +834,8 @@ async def update_campaign(
         # rebuild globally.
         needs_global_recalc = True
     # Tracking and delivery options (no queue recalculation needed)
+    for field in ("default_language", "multilingual", "missing_translation"):
+        if getattr(data, field) is not None: setattr(campaign, field, getattr(data, field))
     if data.track_opens is not None:
         campaign.track_opens = data.track_opens
     if data.track_clicks is not None:
@@ -889,7 +915,7 @@ async def duplicate_campaign(campaign_id: int, db: AsyncSession = Depends(get_db
     sequences = seq_result.scalars().all()
     
     # Create new campaign
-    new_campaign = Campaign(
+    new_campaign = Campaign(default_language=original.default_language, multilingual=original.multilingual, missing_translation=original.missing_translation,
         name=f"{original.name} (Copy)",
         sending_days=original.sending_days,
         sending_hours_start=original.sending_hours_start,
@@ -918,6 +944,7 @@ async def duplicate_campaign(campaign_id: int, db: AsyncSession = Depends(get_db
             campaign_id=new_campaign.id,
             position=seq.position,
             subject=seq.subject,
+            translations=seq.translations,
             body=seq.body,
             wait_days_after_previous=seq.wait_days_after_previous,
             is_html=seq.is_html,
@@ -958,7 +985,7 @@ async def create_sequence(
     result = await db.execute(select(Campaign).where(Campaign.id == campaign_id))
     if not result.scalar_one_or_none():
         raise HTTPException(404, "Campaign not found")
-    seq = Sequence(
+    seq = Sequence(translations=data.translations,
         campaign_id=campaign_id,
         position=data.position,
         subject=data.subject,
@@ -1009,6 +1036,8 @@ async def update_sequence(
     seq = result.scalar_one_or_none()
     if not seq:
         raise HTTPException(404, "Sequence not found")
+    if data.translations is not None:
+        seq.translations = data.translations
     if data.subject is not None:
         seq.subject = data.subject
     if data.body is not None:
@@ -1125,7 +1154,7 @@ async def create_variant(
     seq = await _get_sequence_or_404(campaign_id, sequence_id, db)
     if getattr(seq, "sequence_type", "standard") == "personalized":
         raise HTTPException(400, "A/B variants are not supported for personalized sequences")
-    variant = SequenceVariant(
+    variant = SequenceVariant(translations=data.translations,
         sequence_id=seq.id,
         label=data.label or "",
         subject=data.subject,
@@ -1165,6 +1194,8 @@ async def update_variant(
     variant = result.scalar_one_or_none()
     if not variant:
         raise HTTPException(404, "Variant not found")
+    if data.translations is not None:
+        variant.translations = data.translations
     if data.label is not None:
         variant.label = data.label
     if data.subject is not None:
@@ -1775,6 +1806,7 @@ async def write_custom_email(
 
 
 class PreviewRequest(BaseModel):
+    language: str | None = None
     sequence_id: int
     lead_id: int | None = None
     variant_id: int | None = None  # If set, preview this A/B variant's content
@@ -1810,6 +1842,14 @@ async def preview_email(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
 
+    from app.languages import localized_sequence, required_language
+    preview_lead = await db.get(Lead, data.lead_id) if data.lead_id else None
+    # Load all variants so fallback selection matches production sending.
+    await db.refresh(seq, ['variants'])
+    try:
+        seq, selected_language = localized_sequence(seq,campaign,preview_lead,required_language(data.language) if data.language else None)
+    except ValueError as exc:
+        raise HTTPException(422,str(exc)) from None
     # Resolve variant content when a variant_id is supplied.
     # If unsaved overrides are provided, use them instead of the DB values.
     preview_body = data.body_override if data.body_override is not None else (seq.body or "")
@@ -1827,6 +1867,14 @@ async def preview_email(
         variant = var_result.scalar_one_or_none()
         if not variant:
             raise HTTPException(404, "Variant not found")
+        from app.languages import translated
+        try:
+            try:
+                variant = translated(variant, selected_language, campaign.default_language)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from None
+        except ValueError as exc:
+            raise HTTPException(422, str(exc)) from None
         preview_body = variant.body or ""
         preview_subject = variant.subject or seq.subject or ""  # fallback to sequence subject
         preview_is_html = bool(variant.is_html) if variant.is_html is not None else bool(seq.is_html)
@@ -1869,7 +1917,7 @@ async def preview_email(
     preview_inbox = await db.scalar(select(Inbox).join(CampaignInbox, Inbox.id == CampaignInbox.inbox_id)
         .where(CampaignInbox.campaign_id == campaign_id).order_by(CampaignInbox.position, CampaignInbox.inbox_id).limit(1))
     if preview_inbox:
-        rendered_body = append_footer(rendered_body, preview_is_html, await load_identity(db, preview_inbox.id))
+        rendered_body = append_footer(rendered_body, preview_is_html, await load_identity(db, preview_inbox.id, selected_language))
 
     return {
         "subject": rendered_subject,
@@ -1878,11 +1926,13 @@ async def preview_email(
         "sequence_position": seq.position,
         "variant_label": variant_label,
         "tracking_note": tracking_urls_note,
+        "language": selected_language,
         "signature_inbox": preview_inbox.email if preview_inbox else None,
     }
 
 
 class TestEmailRequest(BaseModel):
+    language: str | None = None
     sequence_id: int
     lead_id: int | None = None
     to_email: str
@@ -1925,6 +1975,14 @@ async def send_test_email(
     if not inbox:
         raise HTTPException(400, "No inboxes configured for this campaign")
 
+    from app.languages import localized_sequence, required_language
+    preview_lead = await db.get(Lead, data.lead_id) if data.lead_id else None
+    # Load all variants so fallback selection matches production sending.
+    await db.refresh(seq, ['variants'])
+    try:
+        seq, selected_language = localized_sequence(seq,campaign,preview_lead,required_language(data.language) if data.language else None)
+    except ValueError as exc:
+        raise HTTPException(422,str(exc)) from None
     # Resolve variant content when a variant_id is supplied.
     send_body = seq.body or ""
     send_subject = seq.subject or "(no subject)"
@@ -1939,6 +1997,11 @@ async def send_test_email(
         )
         variant = var_result.scalar_one_or_none()
         if variant:
+            from app.languages import translated
+            try:
+                variant = translated(variant, selected_language, campaign.default_language)
+            except ValueError as exc:
+                raise HTTPException(422, str(exc)) from None
             send_body = variant.body or ""
             send_subject = variant.subject or seq.subject or "(no subject)"
             send_is_html = bool(variant.is_html) if variant.is_html is not None else bool(seq.is_html)
@@ -1981,7 +2044,7 @@ async def send_test_email(
     await require_outbound_allowed(db, data.to_email, inbox.id)
 
     from app.mail_identity import load_identity
-    identity = await load_identity(db, inbox.id)
+    identity = await load_identity(db, inbox.id, selected_language)
     from app.models import Office365Account
     office_account = await db.scalar(select(Office365Account).where(Office365Account.inbox_id == inbox.id)) if inbox.provider == "office365" else None
     result = await asyncio.get_event_loop().run_in_executor(
@@ -2370,6 +2433,7 @@ async def bulk_add_leads_to_campaign(
                 continue
             if not lead:
                 lead = Lead(
+                    preferred_language=entry.preferred_language,
                     email=email,
                     name=entry.name or "",
                     custom_data=entry.custom_data or {},

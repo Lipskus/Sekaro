@@ -1,0 +1,10 @@
+import {useState} from 'react';
+import {api} from '../api';
+import {Button,ErrorNotice} from './ui';
+import Modal from './Modal';
+import LanguageSelect,{useMessageText} from './MessageLanguage';
+export default function ContactLanguageBulk({ids,fields,onClose,onSaved}){
+ const text=useMessageText(),[language,setLanguage]=useState(''),[custom,setCustom]=useState(''),[mapping,setMapping]=useState({}),[report,setReport]=useState(null),[busy,setBusy]=useState(false),[error,setError]=useState(null);
+ async function run(preview){setBusy(true);setError(null);try{const r=await api.post('/leads/languages',{lead_ids:ids,language,custom_field:custom||null,value_mapping:mapping,preview});setReport(r);if(!preview)await onSaved();}catch(e){setError(e);}finally{setBusy(false);}}
+ return <Modal title={text('Język kontaktów','Contact language')} onClose={onClose} busy={busy}><ErrorNotice error={error}/><div className="sk-form sk-form-single"><label>{text('Źródło języka','Language source')}<select value={custom} onChange={e=>{setCustom(e.target.value);setReport(null);setMapping({});}}><option value="">{text('Przypisz język','Assign language')}</option>{fields.filter(f=>!f.system).map(f=><option key={f.key} value={f.key}>{f.label}</option>)}</select></label>{!custom&&<LanguageSelect value={language} onChange={setLanguage}/>}<p>{text('Zaznaczone kontakty: ','Selected contacts: ')}{ids.length}</p>{custom&&<><Button disabled={busy} onClick={()=>run(true)}>{text('Sprawdź wartości','Check values')}</Button>{report&&<p>{text('Rozpoznano: ','Recognized: ')}{report.matched}</p>}{[...new Set((report?.unrecognized||[]).map(r=>r.value))].map(v=><label key={v}>{v}<LanguageSelect value={mapping[v]||''} onChange={code=>setMapping(m=>({...m,[v]:code}))}/><Button disabled={busy} onClick={()=>setMapping(m=>({...m,[v]:''}))}>{text('Oznacz jako nieznany','Mark as unknown')}</Button></label>)}</>}<Button disabled={busy||!!custom&&!report} onClick={()=>run(false)}>{text('Zastosuj','Apply')}</Button></div></Modal>;
+}

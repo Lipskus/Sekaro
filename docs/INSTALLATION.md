@@ -1,6 +1,6 @@
 # Installing and maintaining Sekaro
 
-This guide covers Sekaro 1.0. Select the published release tag or an exact approved commit before deployment. The operator performs deployment on their own server.
+This guide covers Sekaro 1.1. Select the published release tag or an exact approved commit before deployment. The operator performs deployment on their own server.
 
 ## Requirements
 
@@ -17,7 +17,7 @@ The installer does not install system packages, Docker, a proxy or TLS certifica
 ```bash
 git clone https://github.com/Lipskus/Sekaro.git
 cd Sekaro
-git switch --detach v1.0.0
+git switch --detach v1.1.0
 python3 scripts/sekaro-install.py check
 python3 scripts/sekaro-install.py install
 ```
@@ -34,8 +34,8 @@ If the first build fails, the configuration remains on disk. Resolve the reporte
 
 ```bash
 cd /opt/sekaro
-git fetch origin <release-branch>
-git switch --detach <exact-commit>
+git fetch --depth 1 origin tag v1.1.0
+git switch --detach v1.1.0
 python3 scripts/sekaro-install.py update
 python3 scripts/sekaro-install.py status
 ```

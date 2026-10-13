@@ -63,7 +63,7 @@ def required_permissions(path,method):
         return set()
     if path.startswith('/api/crm/automations/contacts/') and path.endswith('/tags') and method in ('GET','HEAD'):return {'crm.read'}
     module=None
-    for prefix,m in [('/api/crm/automations','automation'),('/api/crm/reports','reports'),('/api/crm','crm'),('/api/leads','crm'),('/api/contact-fields','crm'),('/api/campaigns','outreach'),('/api/schedule','outreach'),('/api/inboxes','mail'),('/api/smtp','mail'),('/api/unibox','mail'),('/api/templates','templates'),('/api/analytics','reports'),('/api/ui/unibox','mail'),('/api/ui/reply','mail'),('/api/ui/contacts','crm')]:
+    for prefix,m in [('/api/crm/automations','automation'),('/api/crm/reports','reports'),('/api/crm','crm'),('/api/leads','crm'),('/api/contact-fields','crm'),('/api/campaigns','outreach'),('/api/schedule','outreach'),('/api/public-endpoint','mail'),('/api/inboxes','mail'),('/api/smtp','mail'),('/api/unibox','mail'),('/api/templates','templates'),('/api/analytics','reports'),('/api/ui/unibox','mail'),('/api/ui/reply','mail'),('/api/ui/contacts','crm')]:
         if path==prefix or path.startswith(prefix+'/'): module=m;break
     if module is None:return None
     required={module+'.read'}

@@ -1,3 +1,5 @@
+import LanguageSelect,{useMessageText} from './MessageLanguage';
+import EndpointCapability,{useEndpointCapability,trackingAllowed} from './EndpointCapability';
 import {useCampaignLanguage, campaignWeekdays} from '../context/campaignLanguage';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,14 +9,14 @@ import { Badge, Button, ErrorNotice, Field, Icon, Panel, Switch } from './ui';
 
 
 export function campaignSettingsForm(c) {
-  return { name: c.name || '', inbox_ids: c.inbox_ids || [], sending_days: c.sending_days || [],
+  return { default_language:c.default_language||'en',multilingual:!!c.multilingual,missing_translation:c.missing_translation||'block',name: c.name || '', inbox_ids: c.inbox_ids || [], sending_days: c.sending_days || [],
     sending_hours_start: c.sending_hours_start || '09:00', sending_hours_end: c.sending_hours_end || '17:00', timezone: c.timezone || 'UTC',
     stop_on_reply: c.stop_on_reply ?? true, track_opens: c.track_opens ?? false, track_clicks: c.track_clicks ?? false,
     add_unsubscribe_header: c.add_unsubscribe_header ?? true, send_first_as_text: c.send_first_as_text ?? false,
     send_all_as_text: c.send_all_as_text ?? false, custom_sequence_mode: c.custom_sequence_mode || 'wait_for_all' };
 }
 export default function CampaignSettings({ campaign, inboxes, onSaved }) {
- const {ct,language}=useCampaignLanguage();
+ const {ct,language}=useCampaignLanguage(); const text=useMessageText(),cap=useEndpointCapability();
   const days = campaignWeekdays(language);
   const [form, setForm] = useState(() => campaignSettingsForm(campaign));
   const [baseline, setBaseline] = useState(() => JSON.stringify(campaignSettingsForm(campaign)));
@@ -65,6 +67,12 @@ export default function CampaignSettings({ campaign, inboxes, onSaved }) {
           <Field label={ct("Nazwa kampanii")} help={ct("Nazwa widoczna na liście kampanii.")}><input aria-label={ct("Nazwa kampanii")} required maxLength={120} value={form.name} onChange={e => update('name', e.target.value)}/></Field>
           <Field label={ct("Sekwencja spersonalizowana")}><select value={form.custom_sequence_mode} onChange={e => update('custom_sequence_mode', e.target.value)}><option value="wait_for_all">{ct("Czekaj na wszystkie wiadomości")}</option><option value="asap">{ct("Wysyłaj po przygotowaniu wiadomości")}</option></select></Field>
         </div></Panel>
+        <Panel title={text('Język kampanii','Campaign language')} icon="mail"><div className="sk-settings-card-body">
+          <label>{text('Język domyślny','Default language')}<LanguageSelect unknown={false} value={form.default_language} onChange={v=>update('default_language',v)}/></label>
+          <Switch label={text('Kampania wielojęzyczna','Multilingual campaign')} checked={form.multilingual} onChange={v=>update('multilingual',v)}/>
+          <label>{text('Brak tłumaczenia','Missing translation')}<select value={form.missing_translation} onChange={e=>update('missing_translation',e.target.value)}><option value="block">{text('Zablokuj wysyłkę','Block sending')}</option><option value="default">{text('Użyj języka domyślnego','Use default language')}</option></select></label>
+          <p>{text('Język kontaktu wybiera wariant treści i stopki. Nieznany język używa wersji domyślnej. Tłumaczenia przygotuj w sekcji Sekwencja.','Contact language selects message and signature. Unknown language uses the default. Prepare translations in Sequence.')}</p>
+        </div></Panel>
         <Panel title={ct("Skrzynki nadawcze")} icon="mail" action={<Button to="/inboxes" className="compact">{ct("Zarządzaj skrzynkami")}</Button>}><div className="sk-settings-card-body">
           {inboxes.length ? inboxes.map(i => <label key={i.id} className="sk-settings-mailbox"><input type="checkbox" checked={form.inbox_ids.includes(i.id)} onChange={e => update('inbox_ids', e.target.checked ? [...form.inbox_ids, i.id] : form.inbox_ids.filter(id => id !== i.id))}/><span><strong>{i.email}</strong><small>{i.display_name || 'SMTP / IMAP'}</small></span><Badge tone={i.paused ? 'amber' : 'green'}>{i.paused ? ct("Wstrzymana") : ct("Aktywna")}</Badge></label>) : <p className="sk-muted">{ct("Brak skonfigurowanych skrzynek.")}</p>}
         </div></Panel>
@@ -89,7 +97,8 @@ export default function CampaignSettings({ campaign, inboxes, onSaved }) {
           <Switch label={ct("Nagłówek List-Unsubscribe")} checked={form.add_unsubscribe_header} onChange={v => update('add_unsubscribe_header',v)} disabled={busy}/>
         </div></Panel>
         <Panel title={ct("Śledzenie i dane")} icon="chart"><div className="sk-settings-card-body">
-          <Switch label={ct("Śledź otwarcia")} checked={form.track_opens} onChange={v => update('track_opens',v)} disabled={busy}/><Switch label={ct("Śledź kliknięcia")} checked={form.track_clicks} onChange={v => update('track_clicks',v)} disabled={busy}/>
+          <EndpointCapability cap={cap}/>{cap?.tracking&&!trackingAllowed(cap,form.inbox_ids)&&<p>{text("Przypisz endpoint do wybranych skrzynek.","Assign an endpoint to the selected mailboxes.")}</p>}
+          <Switch label={ct("Śledź otwarcia")} checked={form.track_opens} onChange={v => update('track_opens',v)} disabled={busy || (!form.track_opens && !trackingAllowed(cap,form.inbox_ids))}/><Switch label={ct("Śledź kliknięcia")} checked={form.track_clicks} onChange={v => update('track_clicks',v)} disabled={busy || (!form.track_clicks && !trackingAllowed(cap,form.inbox_ids))}/>
           <p className="sk-muted sk-small">{ct("Śledzenie wymaga HTML. Wymuszenie czystego tekstu wyłącza je dla danej wiadomości.")}</p>
         </div></Panel>
         <Panel title={ct("Format wiadomości")} icon="template"><div className="sk-settings-card-body">

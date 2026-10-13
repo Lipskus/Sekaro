@@ -9,13 +9,14 @@ from cryptography.x509.oid import NameOID, ExtendedKeyUsageOID
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.hazmat.primitives.serialization import pkcs12, pkcs7
-from sqlalchemy import Column, Integer, Boolean, Text, ForeignKey
+from sqlalchemy import Column, Integer, Boolean, Text, ForeignKey, JSON
 from app.database import Base
 from app.security import EncryptedText, encryption_enabled
 
 class MailIdentity(Base):
     __tablename__ = 'mail_identity'
     inbox_id = Column(Integer, ForeignKey('inbox.id', ondelete='CASCADE'), primary_key=True)
+    footer_translations = Column(JSON, nullable=False, default=dict, server_default="{}")
     footer_enabled = Column(Boolean, default=False, nullable=False)
     footer_html = Column(Text, default='', nullable=False)
     footer_text = Column(Text, default='', nullable=False)
@@ -29,11 +30,13 @@ identity_context = ContextVar('mail_identity', default=None)
 class SigningError(ValueError):
     pass
 
-async def load_identity(db, inbox_id):
+async def load_identity(db, inbox_id, language=None):
     row = await db.get(MailIdentity, inbox_id, populate_existing=True)
     if row is None:
         return None
-    return {name: getattr(row, name) for name in ('footer_enabled','footer_html','footer_text','smime_enabled','certificate','password')}
+    result = {name: getattr(row, name) for name in ('footer_enabled','footer_html','footer_text','smime_enabled','certificate','password')}
+    result.update((row.footer_translations or {}).get(language, {}))
+    return result
 
 def certificate_data(identity, email):
     if not encryption_enabled():

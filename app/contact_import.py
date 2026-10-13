@@ -180,6 +180,8 @@ def suggest_mapping(headers: list[str]) -> dict[str, str]:
         if not email_taken and normalized in _EMAIL_ALIASES:
             result[header] = "email"
             email_taken = True
+        elif normalized in {'language','preferred_language','język','jezyk','sprache'} and 'preferred_language' not in result.values():
+            result[header] = 'preferred_language'
         elif not name_taken and normalized in _NAME_ALIASES:
             result[header] = "name"
             name_taken = True
@@ -204,6 +206,8 @@ def apply_mapping(
             email = value.lower()
         elif target == "name":
             name = value
+        elif target == 'preferred_language':
+            custom['__preferred_language'] = value
         elif target.startswith("custom:"):
             key = target.split(":", 1)[1].strip()
             if key and value:
@@ -225,12 +229,15 @@ def validate_mapping(headers: list[str], mapping: dict[str, str]) -> None:
     if len(name_sources) > 1:
         raise ValueError("At most one source column can be mapped to name")
 
+    if list(mapping.values()).count("preferred_language")>1: raise ValueError("Map only one language column")
     custom_keys: list[str] = []
     for target in mapping.values():
         if target.startswith("custom:"):
             key = target.split(":", 1)[1].strip()
             if not key:
                 raise ValueError("Custom field key cannot be empty")
+            if key == "__preferred_language":
+                raise ValueError("Reserved custom field key")
             custom_keys.append(key.lower())
     if len(custom_keys) != len(set(custom_keys)):
         raise ValueError("Custom field keys must be unique")

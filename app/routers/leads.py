@@ -111,7 +111,7 @@ def _lead_to_response(
                 from_inbox_email=ib.get(pair),
             )
         )
-    return LeadResponse(
+    return LeadResponse(preferred_language=lead.preferred_language,
         archived_at=lead.archived_at,
         lead_status=lead.status or "active",
         suppressed=bool(lead.suppressed),
@@ -634,6 +634,7 @@ async def export_leads_csv(
         "id",
         "email",
         "name",
+        "preferred_language",
         "email_verification_status",
         "campaigns",
         "enrollments_json",
@@ -665,6 +666,7 @@ async def export_leads_csv(
             lead.id,
             lead.email or "",
             lead.name or "",
+            lead.preferred_language or "",
             lead.email_verification_status or "",
             camps,
             json.dumps(enc_payload, ensure_ascii=False),
@@ -1047,6 +1049,12 @@ async def import_contacts_file(
 
     for row_num, row in enumerate(table.rows, start=2):
         raw_email, name, custom = apply_mapping(row, mapping)
+        if '__preferred_language' in custom:
+            from app.languages import normalize_language
+            try: custom['__preferred_language'] = normalize_language(custom['__preferred_language'])
+            except ValueError:
+                invalid_rows.append({'row':row_num,'email':raw_email,'error':'Unsupported language'})
+                continue
         email = _normalise_import_email(raw_email)
         if not email:
             invalid_rows.append({"row": row_num, "email": raw_email})
@@ -1088,6 +1096,7 @@ async def import_contacts_file(
     custom_fields: set[str] = set()
 
     for _row_num, email, name, custom in parsed_rows:
+        preferred_language = custom.pop('__preferred_language', None)
         if email in suppressed:
             skipped_suppressed += 1
             continue
@@ -1108,6 +1117,9 @@ async def import_contacts_file(
                 continue
 
             changed = False
+            if preferred_language is not None and preferred_language != lead.preferred_language:
+                lead.preferred_language = preferred_language
+                changed = True
             if name and name != (lead.name or ""):
                 lead.name = name
                 changed = True
@@ -1127,7 +1139,7 @@ async def import_contacts_file(
             continue
 
         custom_fields.update(custom.keys())
-        lead = Lead(
+        lead = Lead(preferred_language=preferred_language or "",
             email=email,
             name=name,
             custom_data=custom,
@@ -1360,7 +1372,9 @@ async def update_lead(
         raise HTTPException(404, "Lead not found")
     from app.crm import writable
     await writable(db, lead_id)
-    before = {"name": lead.name, "custom_data": lead.custom_data}
+    before = {"name": lead.name, "preferred_language": lead.preferred_language, "custom_data": lead.custom_data}
+    if data.preferred_language is not None:
+        lead.preferred_language = data.preferred_language
     if data.name is not None:
         lead.name = data.name
     if data.custom_data is not None:
@@ -1373,7 +1387,7 @@ async def update_lead(
             if cl.enrollment_status != target:
                 cl.enrollment_status = target
                 enrollment_changed = True
-    after = {"name": lead.name, "custom_data": lead.custom_data}
+    after = {"name": lead.name, "preferred_language": lead.preferred_language, "custom_data": lead.custom_data}
     if before != after or enrollment_changed:
         record_operation(db, lead.id, "update", actor, {
             "before": before, "after": after,

@@ -2284,3 +2284,17 @@ html[data-theme=dark] .sk-settings-page section[id^="settings-"] [class*="dark:b
 .sk-contact-tools-page .sk-modal table tbody tr:nth-child(even){background:var(--sk-surface-alt)!important}
 .sk-contact-tools-page .sk-modal table :is(th,td){border-color:var(--sk-line)}
 .sk-contact-tools-dialog-table{min-width:600px}
+
+/* Mailbox setup and language editors share the existing form tokens. */
+.sk-mailbox-add-fields { border:0; padding:0; margin:0; min-width:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--sk-space-4,16px); grid-column:1/-1; }
+.sk-mailbox-add-fields>h3,.sk-mailbox-add-fields>div:has(.sk-language-variants),.sk-mailbox-add-fields>div:has(details),.sk-mailbox-add-fields>div:has(button[type=submit]) {grid-column:1/-1;}
+.sk-language-variants,.sk-language-fields {display:grid;gap:12px;min-width:0;border:0;padding:12px 0;}
+.sk-language-variants label,.sk-language-fields>label {display:grid;gap:6px;}
+.sk-language-variants input,.sk-language-variants textarea,.sk-language-variants select {max-width:100%;min-width:0;}
+.sk-language-variants input[type=checkbox] {width:auto;}
+.sk-translation-step {padding:12px 0;border-bottom:1px solid var(--sk-line);}
+.sk-translation-step summary {cursor:pointer;font-weight:600;}
+@media(max-width:760px){.sk-mailbox-add-fields{grid-template-columns:minmax(0,1fr);}}
+
+.sk-mailbox-advanced {grid-column:1/-1;min-width:0;}
+.sk-mailbox-add-fields>div:has(#inbox-add-9){grid-column:1/-1;}

@@ -1,3 +1,6 @@
+import ConnectionResult from '../redesign/ConnectionResult';
+import EndpointCapability,{useEndpointCapability} from '../redesign/EndpointCapability';
+import {useMessageText} from '../redesign/MessageLanguage';
 import {useOptionalAuth} from '../context/AuthContext';
 import {useOperationsLanguage} from '../context/operationsLanguage';
 import { useState, useEffect, useRef, useMemo } from 'react';
@@ -641,6 +644,11 @@ export default function Inboxes() {
     setForm(f => ({ ...f, [name]: type === 'number' ? +value : value }));
   };
 
+  const text110=useMessageText(),endpointCap=useEndpointCapability();
+  const [draftTest,setDraftTest]=useState(null),[draftTesting,setDraftTesting]=useState(false),[connectionRows,setConnectionRows]=useState([]);
+  useEffect(()=>{setDraftTest(null);},[smtpForm]);
+  useEffect(()=>{api.get('/smtp/accounts').then(r=>setConnectionRows(Array.isArray(r)?r:[])).catch(()=>setConnectionRows([]));},[inboxes]);
+  async function testDraft(){setDraftTesting(true);setDraftTest(null);try{setDraftTest(await api.post('/smtp/test',smtpForm));}catch(e){setMessage({type:'error',text:e.message});}finally{setDraftTesting(false);}}
   const canSubmit = () =>
     form.email.trim() !== '' &&
     smtpForm.smtp_host.trim() !== '' &&
@@ -681,7 +689,7 @@ export default function Inboxes() {
 
   const submit = async (e) => {
     e.preventDefault();
-    if (adding) return;
+    if (adding||draftTesting) return;
     setMessage(null);
     if (form.provider === 'smtp') {
       if (!form.email.trim()) {
@@ -894,7 +902,8 @@ export default function Inboxes() {
         const details = [res.smtp?.error, res.imap?.error].filter(Boolean).join(' ');
         setSmtpTestMsg({ type: 'error', text:'Test połączenia nie powiódł się: {error}',params:{error:details||ct('Nieznany błąd')} });
       }
-      setEditingSmtp(prev => ({...prev,_meta:{...prev._meta,last_test_ok:res.ok,last_tested_at:new Date().toISOString(),last_test_error:[res.smtp?.error,res.imap?.error].filter(Boolean).join(' ')}}));
+      setConnectionRows(rows=>rows.map(r=>r.inbox_id===editing.id?{...r,last_test_results:{smtp:res.smtp,imap:res.imap},last_tested_at:res.last_tested_at}:r));
+      setEditingSmtp(prev => ({...prev,_meta:{...prev._meta,last_test_results:{smtp:res.smtp,imap:res.imap},last_test_ok:res.ok,last_tested_at:res.last_tested_at,last_test_error:[res.smtp?.error,res.imap?.error].filter(Boolean).join(' ')}}));
     } catch (err) {
       setSmtpTestMsg({ type: 'error', text: err.message });
     } finally {
@@ -1127,8 +1136,8 @@ export default function Inboxes() {
                 const limit = inbox.effective_max_per_day || inbox.max_emails_per_day;
                 return <tr key={inbox.id} className={isSelected ? 'is-selected' : ''}>
                   <td><button type="button" className="sk-mailbox-open" aria-expanded={isSelected} disabled={!!editing && editing.id !== inbox.id} onClick={() => isSelected ? tryCloseSidebar() : setSelectedInbox(inbox)}><strong>{inbox.email || ct("(połączone konto)")}</strong><small>{inbox.display_name}</small></button></td>
-                  <td>{inbox.provider === 'smtp' ? 'SMTP' : inbox.provider}</td>
-                  <td><Badge dot tone={inbox.paused ? 'amber' : 'green'}>{inbox.paused ? ct("Wstrzymana") : ct("Aktywna")}</Badge></td>
+                  <td>{inbox.provider === 'smtp' ? <><strong>SMTP / IMAP</strong><ConnectionResult result={connectionRows.find(r=>r.inbox_id===inbox.id)}/></> : inbox.provider}</td>
+                  <td><Badge dot tone={inbox.paused ? 'amber' : 'blue'}>{inbox.paused ? ct("Wstrzymana") : ct("Aktywna")}</Badge></td>
                   <td>{inbox.sent_today || 0} <span className="sk-muted">/ {limit}</span></td>
                   <td>{inbox.pending_leads ?? '—'}</td>
                   <td>{inbox.ramp_up_enabled ? <Badge tone="amber">{ct("Etap")} {limit}/{inbox.max_emails_per_day}</Badge> : <span className="sk-muted">{ct("Wyłączone")}</span>}</td>
@@ -1196,7 +1205,7 @@ export default function Inboxes() {
                       <p className="sk-muted">{ct("Konfiguracja połączenia ma osobny przycisk zapisu. Test sprawdza zapisane ustawienia.")}</p>
                       {editing.provider === 'smtp' && (
                         <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP / IMAP</p>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">SMTP / IMAP</p><ConnectionResult result={editingSmtp?._meta}/>
                           {smtpTestMsg && <div role={smtpTestMsg.type === 'error' ? 'alert' : 'status'} className={`text-sm ${smtpTestMsg.type === 'error' ? 'text-red-600' : 'text-green-600'}`}>{ct(smtpTestMsg.text,smtpTestMsg.params)}</div>}
                           {smtpLoadError ? <ErrorNotice error={ct(smtpLoadError)} onRetry={() => loadEditingSmtp(editing)}/> : !editingSmtp ? (
                             <p className="text-xs text-gray-400">{ct("Wczytywanie ustawień SMTP…")}</p>
@@ -1312,7 +1321,7 @@ export default function Inboxes() {
                             </span>
                           )}
                         </p>
-                        <InboxTrackingOptions
+                        <EndpointCapability cap={endpointCap}/>{endpointCap?.mode==='legacy'&&<InboxTrackingOptions
                           key={editing.id}
                           variant="edit"
                           wrapClassName="space-y-4"
@@ -1336,7 +1345,7 @@ export default function Inboxes() {
                           onBeaconConnectFromSibling={connectBeaconFromSibling}
                           onReuseDnsDomain={reuseDnsFromSibling}
                           dnsAutoVerifyTrigger={dnsAutoVerifyTrigger}
-                        />
+                        />}
                       </div>
                     </section>
                     <section data-edit-section="warmup" hidden={editSection!=='warmup'} className="sk-mailbox-edit-section" aria-label={ct("Rozgrzewanie skrzynki")}>
@@ -1511,20 +1520,8 @@ export default function Inboxes() {
 
                     <hr className="border-gray-100" />
 
-                    {/* Śledzenie domain / Beacon */}
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-gray-600">{ct("Śledzenie")}</span>
-                      <span className="font-mono text-xs text-right max-w-[180px] truncate">
-                        {selectedInbox.beacon_connected && selectedInbox.beacon_base_url
-                          ? <span className="text-indigo-700" title={selectedInbox.beacon_base_url}>Beacon</span>
-                          : selectedInbox.tracking_domain
-                            ? <span className="text-teal-700">{selectedInbox.tracking_domain}</span>
-                            : <span className="text-gray-400">{ct("Domyślne aplikacji")}</span>}
-                      </span>
-                    </div>
-                    {selectedInbox.beacon_connected && selectedInbox.beacon_base_url && (
-                      <p className="text-xs text-gray-500 break-all">{selectedInbox.beacon_base_url}</p>
-                    )}
+                    <EndpointCapability cap={endpointCap}/>
+                    {endpointCap?.mode==='legacy'&&<p>{selectedInbox.beacon_base_url||selectedInbox.tracking_domain||ct('Domyślne aplikacji')}</p>}
 
                     {/* Created */}
                     <div className="flex justify-between items-center text-sm">
@@ -1553,16 +1550,16 @@ export default function Inboxes() {
 
       {/* Add mailbox: shared accessible dialog with a two-column form. */}
       {showAdd && (
-        <Modal title={ct("Dodaj skrzynkę")} busy={adding} onClose={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
+        <Modal title={ct("Dodaj skrzynkę")} busy={adding||draftTesting} onClose={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}>
           <div className="sk-inbox-modal-surface sk-inbox-add-content">
             {message && <div className={message.type === 'error' ? 'text-red-600' : 'text-green-600'}>{ct(message.text,message.params)}</div>}
             <label htmlFor="mailbox-provider">{ct("Typ skrzynki")}</label>
-            <select id="mailbox-provider" value={addProvider} disabled={adding} onChange={e=>setAddProvider(e.target.value)}>
+            <select id="mailbox-provider" value={addProvider} disabled={adding||draftTesting} onChange={e=>setAddProvider(e.target.value)}>
               <option value="smtp">SMTP / IMAP</option>{user?.role==='admin'&&<><option value="gmail">Gmail / Google Workspace</option><option value="office365">Microsoft 365 / Outlook</option></>}
             </select>
             {addProvider==='gmail'&&<GmailConnection />}
             {addProvider==='office365'&&<Office365Connection />}
-            {addProvider==='smtp'&&<form onSubmit={submit} className="sk-inbox-add-form">
+            {addProvider==='smtp'&&<form onSubmit={submit} className="sk-inbox-add-form"><fieldset disabled={adding||draftTesting} className="sk-mailbox-add-fields"><h3>{text110("1. Dane nadawcy","1. Sender identity")}</h3>
               <div>
                 <label htmlFor="inbox-add-2" className="block text-sm font-medium text-gray-700">{ct("Adres e-mail")}</label>
                 <input id="inbox-add-2" type="email" name="email" value={form.email} onChange={handleChange} placeholder="ty@twojadomena.pl" className="mt-1 block w-full border-gray-300 rounded-md" />
@@ -1585,35 +1582,9 @@ export default function Inboxes() {
                 />
                 <p className="mt-1 text-xs text-gray-400">{ct("Opcjonalne. Jeśli puste, odpowiedzi trafią na adres nadawcy.")}</p>
               </div>
-              <div>
-                <label htmlFor="inbox-add-5" className="block text-sm font-medium text-gray-700">{ct("Maks. wiadomości dziennie")}</label>
-                <input id="inbox-add-5" type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
-              </div>
-              <div>
-                <label htmlFor="inbox-add-6" className="block text-sm font-medium text-gray-700">{ct("Maks. wiadomości na godzinę")}</label>
-                <input id="inbox-add-6" type="number" name="max_emails_per_hour" value={form.max_emails_per_hour} onChange={handleChange} min={0} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
-                <p className="mt-1 text-xs text-gray-400">{ct("0 = brak osobnego limitu godzinowego.")}</p>
-              </div>
-              <div>
-                <label htmlFor="inbox-add-7" className="block text-sm font-medium text-gray-700">{ct("Odstęp między wiadomościami (minuty)")}</label>
-                <input id="inbox-add-7" type="number" name="wait_minutes_between" value={form.wait_minutes_between} onChange={handleChange} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md" />
-              </div>
-              <div>
-                <label htmlFor="inbox-add-8" className="block text-sm font-medium text-gray-700">{ct("Losowy odstęp wysyłki (minuty)")}</label>
-                <input id="inbox-add-8"
-                  type="number"
-                  value={jitterInputMinutesFromSeconds(form.max_jitter_seconds)}
-                  onChange={e => setForm(f => ({ ...f, max_jitter_seconds: jitterSecondsFromInputMinutes(e.target.value) }))}
-                  min={0}
-                  max={JITTER_MAX_MINUTES}
-                  step={0.5}
-                  className="mt-1 block w-full border-gray-300 rounded-md"
-                />
-                <p className="mt-1 text-xs text-gray-400">{ct("Losowe opóźnienie 0–N minut dla każdej wysyłki (domyślnie 3 min). Ustaw 0, aby wyłączyć.")}</p>
-              </div>
               {form.provider === 'smtp' && (
                 <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
-                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{ct("SMTP (wysyłka)")}</p>
+                  <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{text110("2. Połączenie — SMTP (wysyłka)","2. Connection — SMTP (sending)")}</p>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="col-span-2">
                       <label htmlFor="inbox-add-9" className="block text-xs font-medium text-gray-700">Host</label>
@@ -1667,12 +1638,38 @@ export default function Inboxes() {
                         <input type="checkbox" checked={!!smtpForm.imap_use_ssl} onChange={e => setSmtpForm(f => ({ ...f, imap_use_ssl: e.target.checked }))} /> {ct("SSL/TLS (zwykle 993); odznaczone = STARTTLS")} </label>
                     </>
                   )}
-                  <p className="text-xs text-gray-400">{ct("Połączenie zostanie automatycznie przetestowane po dodaniu skrzynki.")}</p>
+                  <p className="text-xs text-gray-400">{text110("Test nie wysyła wiadomości. Możesz sprawdzić połączenie przed zapisaniem.","Testing does not send a message. Check the connection before saving.")}</p>
                 </div>
               )}
-              <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{ct("Śledzenie")}</p>
-                <InboxTrackingOptions
+              <details className="sk-mailbox-advanced"><summary>{text110("Zaawansowane limity wysyłki","Advanced sending limits")}</summary><div className="sk-mailbox-add-fields">              <div>
+                <label htmlFor="inbox-add-5" className="block text-sm font-medium text-gray-700">{ct("Maks. wiadomości dziennie")}</label>
+                <input id="inbox-add-5" type="number" name="max_emails_per_day" value={form.max_emails_per_day} onChange={handleChange} min={1} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label htmlFor="inbox-add-6" className="block text-sm font-medium text-gray-700">{ct("Maks. wiadomości na godzinę")}</label>
+                <input id="inbox-add-6" type="number" name="max_emails_per_hour" value={form.max_emails_per_hour} onChange={handleChange} min={0} max={1000} className="mt-1 block w-full border-gray-300 rounded-md" />
+                <p className="mt-1 text-xs text-gray-400">{ct("0 = brak osobnego limitu godzinowego.")}</p>
+              </div>
+              <div>
+                <label htmlFor="inbox-add-7" className="block text-sm font-medium text-gray-700">{ct("Odstęp między wiadomościami (minuty)")}</label>
+                <input id="inbox-add-7" type="number" name="wait_minutes_between" value={form.wait_minutes_between} onChange={handleChange} min={1} max={120} className="mt-1 block w-full border-gray-300 rounded-md" />
+              </div>
+              <div>
+                <label htmlFor="inbox-add-8" className="block text-sm font-medium text-gray-700">{ct("Losowy odstęp wysyłki (minuty)")}</label>
+                <input id="inbox-add-8"
+                  type="number"
+                  value={jitterInputMinutesFromSeconds(form.max_jitter_seconds)}
+                  onChange={e => setForm(f => ({ ...f, max_jitter_seconds: jitterSecondsFromInputMinutes(e.target.value) }))}
+                  min={0}
+                  max={JITTER_MAX_MINUTES}
+                  step={0.5}
+                  className="mt-1 block w-full border-gray-300 rounded-md"
+                />
+                <p className="mt-1 text-xs text-gray-400">{ct("Losowe opóźnienie 0–N minut dla każdej wysyłki (domyślnie 3 min). Ustaw 0, aby wyłączyć.")}</p>
+              </div>
+</div></details>
+              <div className="border rounded p-3 space-y-4 bg-gray-50 min-w-0 max-w-full overflow-hidden"><h3>{text110("3. Test połączenia","3. Connection test")}</h3><Button type="button" disabled={draftTesting||adding||!canSubmit()} onClick={testDraft}>{draftTesting?text110("Testowanie…","Testing…"):ct("Testuj połączenie")}</Button><ConnectionResult result={draftTest}/><details><summary>{text110("Ustawienia zaawansowane","Advanced settings")}</summary><EndpointCapability cap={endpointCap}/>
+                <EndpointCapability cap={endpointCap}/>{endpointCap?.mode==='legacy'&&<InboxTrackingOptions
                   variant="add"
                   wrapClassName="space-y-4"
                   radioName="inbox-tracking-add"
@@ -1690,7 +1687,7 @@ export default function Inboxes() {
                   onConnectBeacon={() => {}}
                   onDisconnectBeacon={() => {}}
                   beaconConnecting={false}
-                />
+                />}</details>
               </div>
               <div className="border rounded p-3 space-y-3 bg-gray-50 min-w-0 max-w-full overflow-hidden">
                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{ct("Rozgrzewanie")}</p>
@@ -1733,9 +1730,9 @@ export default function Inboxes() {
               </div>
               <div className="flex gap-2">
                 <Button type="submit" disabled={adding || !canSubmit()} variant="default"> {ct("Dodaj skrzynkę")} </Button>
-                <Button type="button" variant="outline" disabled={adding} onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}> {ct("Anuluj")} </Button>
+                <Button type="button" variant="outline" disabled={adding||draftTesting} onClick={() => { setShowAdd(false); setMessage(null); setAddTrackingMode('app'); }}> {ct("Anuluj")} </Button>
               </div>
-            </form>}
+            </fieldset></form>}
           </div>
         </Modal>
       )}

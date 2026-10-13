@@ -1,3 +1,4 @@
+import CampaignTranslations from '../redesign/CampaignTranslations';
 import {CampaignGroupPicker} from '../redesign/ContactGroups';
 import {useCampaignLanguage} from '../context/campaignLanguage';
 import { useParams, Link } from 'react-router-dom';
@@ -300,6 +301,7 @@ export default function CampaignDetail({ embedded = false, onQueueContact }) {
         />
       )}
 
+      {activeTab==='sequences'&&<CampaignTranslations campaign={campaign} sequences={sequences} refresh={loadAll}/>}
       {/* Leads tab */}
       {activeTab === 'leads' && (
         <LeadsTab

@@ -56,6 +56,7 @@ class SmtpAccountResponse(BaseModel):
     imap_use_ssl: bool
     has_smtp_password: bool = False
     has_imap_password: bool = False
+    last_test_results: dict = Field(default_factory=dict)
     last_tested_at: str | None = None
     last_test_ok: bool = False
     last_test_error: str = ""
@@ -79,6 +80,7 @@ def _to_response(acct: SmtpAccount) -> dict:
         "imap_use_ssl": bool(acct.imap_use_ssl),
         "has_smtp_password": bool(acct.smtp_password),
         "has_imap_password": bool(acct.imap_password),
+        "last_test_results": acct.last_test_results or {},
         "last_tested_at": acct.last_tested_at.isoformat() if acct.last_tested_at else None,
         "last_test_ok": bool(acct.last_test_ok),
         "last_test_error": acct.last_test_error or "",
@@ -94,6 +96,19 @@ async def _get_smtp_inbox(db: AsyncSession, inbox_id: int) -> Inbox:
         raise HTTPException(400, "Inbox is not an SMTP inbox (provider must be 'smtp')")
     return inbox
 
+
+def connection_results(smtp, imap):
+    return {name:{'ok':bool(result.ok),'error':sanitize_connection_error(result.error) if result.error else '', 'detail':result.detail} for name,result in [('smtp',smtp),('imap',imap)]}
+
+@router.post('/test')
+async def test_draft(data:SmtpAccountUpsert, _user=Depends(get_current_user)):
+    """Validate submitted credentials without creating a mailbox or retaining secrets."""
+    from types import SimpleNamespace
+    payload=data.model_dump()
+    err=validate_smtp_account_payload(payload,require_password=True)
+    if err:raise HTTPException(400,err)
+    smtp,imap=await asyncio.to_thread(test_account_connections,SimpleNamespace(**payload))
+    return {'ok':bool(smtp.ok and imap.ok),**connection_results(smtp,imap),'last_tested_at':utcnow().isoformat()}
 
 @router.get("/accounts")
 async def list_smtp_accounts(
@@ -191,6 +206,7 @@ async def upsert_smtp_account(
         acct.imap_password = ""
     acct.imap_use_ssl = bool(payload.get("imap_use_ssl", True))
     if previous_connection != tuple(getattr(acct, key) for key in connection_fields):
+        acct.last_test_results = {}
         acct.last_tested_at = None
         acct.last_test_ok = False
         acct.last_test_error = ""
@@ -225,6 +241,7 @@ async def test_smtp_account(
     err_parts = [p for p in (smtp_res.error, imap_res.error) if p]
     acct.last_tested_at = utcnow()
     acct.last_test_ok = ok
+    acct.last_test_results = connection_results(smtp_res, imap_res)
     # Persist a sanitised category message — raw exception text can leak
     # internal hostnames/ports and act as a network-probing oracle. Full
     # detail goes to the application log only.

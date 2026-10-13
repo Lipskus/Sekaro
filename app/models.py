@@ -140,6 +140,7 @@ class Lead(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), nullable=False, index=True)
     name = Column(String(255), default="")
+    preferred_language = Column(String(12), nullable=False, default="", server_default="")
     custom_data = Column(JSON, default=dict)  # e.g. {"company": "...", "title": "..."}
     status = Column(String(32), default="active")  # active, unsubscribed, bounced, replied, invalid
     archived_at = Column(DateTime, nullable=True, default=None, index=True)
@@ -224,6 +225,9 @@ class MessageTemplateVersion(Base):
 
 
 class Campaign(Base):
+    default_language = Column(String(12), nullable=False, default="en", server_default="en")
+    multilingual = Column(Boolean, nullable=False, default=False, server_default="false")
+    missing_translation = Column(String(16), nullable=False, default="block", server_default="block")
     __tablename__ = "campaign"
     id = Column(Integer, primary_key=True, index=True)
     public_id = Column(String(16), unique=True, nullable=False, index=True, default=_make_public_id)
@@ -284,6 +288,7 @@ class CampaignInbox(Base):
 
 
 class Sequence(Base):
+    translations = Column(JSON, nullable=False, default=dict, server_default="{}")
     __tablename__ = "sequence"
     id = Column(Integer, primary_key=True, index=True)
     campaign_id = Column(Integer, ForeignKey("campaign.id"), nullable=False)
@@ -308,6 +313,7 @@ class Sequence(Base):
 
 
 class SequenceVariant(Base):
+    translations = Column(JSON, nullable=False, default=dict, server_default="{}")
     """A/B test variant for a sequence step.
 
     When a step has one or more enabled variants, the sender picks one at
@@ -434,6 +440,9 @@ class SendAttempt(Base):
 
 
 class EmailLog(Base):
+    message_language = Column(String(12), nullable=False, default="", server_default="")
+    rendered_body = Column(Text, nullable=True)
+    rendered_is_html = Column(Boolean, nullable=True)
     __tablename__ = "email_log"
     __table_args__ = (
         Index("ix_email_log_sent_at", "sent_at"),
@@ -818,6 +827,7 @@ class Office365GraphSubscription(Base):
 # ---------------------------------------------------------------------------
 
 class SmtpAccount(Base):
+    last_test_results = Column(JSON, nullable=False, default=dict, server_default="{}")
     """Stores per-inbox SMTP (outbound) + IMAP (inbound reply sync) credentials.
 
     Passwords use :class:`app.security.EncryptedText` so they are encrypted

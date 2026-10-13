@@ -35,7 +35,7 @@ it.each(['de','ru'])('preserves settings drafts, API codes and stop rules in %s'
  expect(screen.getByRole('textbox',{name:t(lang,'Nazwa kampanii')}).value).toBe('Nowa nazwa klienta');
  expect(screen.getByRole('combobox',{name:t(lang,'Sekwencja spersonalizowana')}).value).toBe('asap');
  expect(screen.getByRole('checkbox',{name:campaignWeekdays(lang)[2]}).checked).toBe(true);
- expect(api.get).not.toHaveBeenCalled();expect(api.patch).not.toHaveBeenCalled();
+ expect(api.get.mock.calls.every(([p])=>p==='/public-endpoint/capabilities')).toBe(true);expect(api.patch).not.toHaveBeenCalled();
  fireEvent.click(screen.getByRole('button',{name:t(lang,'Zapisz zmiany')}));
  await waitFor(()=>expect(api.patch).toHaveBeenCalledWith('/campaigns/1',expect.objectContaining({name:'Nowa nazwa klienta',custom_sequence_mode:'asap',sending_days:[0,2,4],inbox_ids:[2],stop_on_reply:true,add_unsubscribe_header:true})));
  expect(api.post).not.toHaveBeenCalled();

@@ -24,6 +24,8 @@ const inbox={id:1,email:'sender@example.test',display_name:'Nadawca QA',provider
 const campaign={id:1,name:'QA — kampania testowa',paused:true,created_at:'2026-09-29T10:00:00Z',sending_days:[0,1,2,3,4],sending_hours_start:'09:00',sending_hours_end:'17:00',timezone:'Europe/Warsaw',inbox_ids:[1],stats:{total_leads:1,emails_sent:0,replies:0,scheduled:0},stop_on_reply:true};
 const lead={id:1,name:'QA — Aleksandra Żółkiewska',email:'qa@example.com',created_at:'2026-09-29T10:00:00Z',custom_data:{company:'Przykładowa firma testowa'},campaigns:[],interactions:[]};
 function fixture(p,flow){
+ if(p==='/api/public-endpoint/capabilities')return {mode:'private',tracking:false,profiles:[]};
+ if(p==='/api/smtp/accounts')return [{inbox_id:1,last_tested_at:'2026-10-13T12:00:00Z',last_test_results:{smtp:{ok:true},imap:{ok:false,error:'Authentication failed'}}}];
  if(p==='/api/public-endpoint/status')return {mode:'unsubscribe',endpoints:[{id:'public-primary',public_url:'https://links.example.test',ready:true,pending:0,retired:false}]};
  if(p==='/api/settings/backup/remote')return {revision:0,config:{kind:'s3',enabled:false,prefix:'sekaro',retention:14},secrets:{},encryption_available:true,demo:true};
  if(p==='/api/settings/backup/remote/history')return {items:[]};

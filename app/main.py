@@ -220,7 +220,11 @@ app.include_router(access_router.router)
 from app.routers import gmail_private
 app.include_router(gmail_private.router)
 from app.routers import mail_identity
+from app.routers.contact_languages import router as contact_languages_router
+app.include_router(contact_languages_router)
 app.include_router(mail_identity.router)
+from app.routers.public_endpoint import capability_router
+app.include_router(capability_router)
 app.include_router(mail_identity.preview_router)
 from app.routers import office365_private
 app.include_router(office365_private.router)

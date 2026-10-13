@@ -1,3 +1,4 @@
+import LanguageSelect,{useMessageText} from '../redesign/MessageLanguage';
 import {ContactAutomationTags} from './Automations';
 import {useUiLanguage} from '../context/LanguageContext';
 import {useEffect, useState, useCallback, useRef, useMemo} from 'react';
@@ -18,14 +19,14 @@ export function contactEvents(lead) {
     .sort((a,b) => timestamp(b.at) - timestamp(a.at));
 }
 function Timeline({events, compact=false}) {
-  const {t,language}=useUiLanguage();
+  const {t,language}=useUiLanguage(); const text110=useMessageText(); const [editLanguage,setEditLanguage]=useState('');
   return events.length ? <ol className={`sk-contact-timeline ${compact?'is-compact':''}`}>{events.map((row,i) => <li key={`${row.at}-${row.kind}-${row.campaign_id}-${i}`}>
     <div className="sk-contact-event-heading"><strong>{eventTitle(row,t)}</strong><time>{dateTime(row.at,{year:'numeric'},language)}</time></div>{row.actor_name&&<small>{t('contacts.operationActor',{actor:row.actor_name})}</small>}
     {!compact && <>{row.campaign_name && <Link to={`/campaigns/${row.campaign_id}`}>{row.campaign_name}</Link>}{row.subject && <p>{row.subject}</p>}{row.snippet && <p className="sk-contact-event-snippet">{row.snippet}</p>}</>}
   </li>)}</ol> : <StatePanel title={t('contacts.noActivity')} description={t('contacts.noActivityHelp')} icon="history"/>;
 }
 function Campaigns({items}) {
-  const {t,language}=useUiLanguage();
+  const {t,language}=useUiLanguage(); const text110=useMessageText(); const [editLanguage,setEditLanguage]=useState('');
   return items.length ? <ul className="sk-contact-campaign-list">{items.map(c => <li key={c.campaign_id}>
     <Link to={`/campaigns/${c.campaign_id}#leads`}>{c.campaign_name}</Link>
     <div className="sk-contact-badges"><Badge tone={c.status==='unsubscribed'||c.status==='bounced'?'red':c.replied?'blue':'neutral'}>{contactStatusLabel(c.status||'active',t)}</Badge>{c.sending_paused&&<Badge tone="amber">{t('contacts.sendingPaused')}</Badge>}{c.interest&&<Badge tone="blue">{contactStatusLabel(c.interest,t)}</Badge>}</div>
@@ -34,7 +35,7 @@ function Campaigns({items}) {
   </li>)}</ul> : <StatePanel title={t('contacts.noCampaigns')} description={t('contacts.noCampaignsHelp')} icon="campaign"/>;
 }
 export default function LeadDetail() {
-  const {t,language}=useUiLanguage();
+  const {t,language}=useUiLanguage(); const text110=useMessageText(); const [editLanguage,setEditLanguage]=useState('');
   const {id}=useParams(), notify=useNotify(), confirm=useConfirm(), navigate=useNavigate();
   const [tab,setTab]=useState('summary'),[lead,setLead]=useState(null),[fields,setFields]=useState([]);
   const [editName,setEditName]=useState(''),[editCustom,setEditCustom]=useState({});
@@ -42,10 +43,10 @@ export default function LeadDetail() {
   const [crmDirty,setCrmDirty]=useState(false);
   const [kind,setKind]=useState(''),[campaign,setCampaign]=useState('');
   const seq=useRef(0),saveLock=useRef(false),leaveLock=useRef(false);
-  const dirty=!!lead&&(editName!==(lead.name||'')||JSON.stringify(editCustom)!==JSON.stringify(lead.custom_data||{}));
+  const dirty=!!lead&&(editLanguage!==(lead.preferred_language||'')||editName!==(lead.name||'')||JSON.stringify(editCustom)!==JSON.stringify(lead.custom_data||{}));
   const load=useCallback(async()=>{
     const request=++seq.current;setLoading(true);setError(null);setLead(null);setSaveError(null);setTab('summary');setKind('');setCampaign('');
-    try{const [l,f]=await Promise.all([api.get(`/leads/${id}`),api.get('/contact-fields')]);if(request!==seq.current)return;setLead(l);setFields(Array.isArray(f)?f:[]);setEditName(l.name||'');setEditCustom({...l.custom_data});}
+    try{const [l,f]=await Promise.all([api.get(`/leads/${id}`),api.get('/contact-fields')]);if(request!==seq.current)return;setLead(l);setFields(Array.isArray(f)?f:[]);setEditLanguage(l.preferred_language||'');setEditName(l.name||'');setEditCustom({...l.custom_data});}
     catch(e){if(request===seq.current)setError(e);}
     finally{if(request===seq.current)setLoading(false);}
   },[id]);
@@ -59,7 +60,7 @@ export default function LeadDetail() {
   };document.addEventListener('click',leave,true);return()=>document.removeEventListener('click',leave,true);},[dirty,saving,confirm,navigate,t]);
   const save=async e=>{
     e.preventDefault();if(!lead||!dirty||saveLock.current)return;saveLock.current=true;setSaving(true);setSaveError(null);const request=seq.current;
-    try{const updated=await api.patch(`/leads/${lead.id}`,{name:editName,custom_data:editCustom});if(request!==seq.current)return;setLead(updated);setEditName(updated.name||'');setEditCustom({...updated.custom_data});notify({type:'success',message:t('contacts.saved')});}
+    try{const updated=await api.patch(`/leads/${lead.id}`,{...(editLanguage!==(lead.preferred_language||'')?{preferred_language:editLanguage}:{}),name:editName,custom_data:editCustom});if(request!==seq.current)return;setLead(updated);setEditLanguage(updated.preferred_language||'');setEditName(updated.name||'');setEditCustom({...updated.custom_data});notify({type:'success',message:t('contacts.saved')});}
     catch(e){if(request===seq.current)setSaveError(e);}
     finally{saveLock.current=false;setSaving(false);}
   };
@@ -84,17 +85,17 @@ export default function LeadDetail() {
     <div className="sk-contact-workspace-grid"><div className="sk-contact-workspace-main">
       {tab==='summary'&&<form onSubmit={save}>
         <Panel className="sk-contact-profile"><div className="sk-contact-identity"><Avatar name={lead.name||lead.email}/><div><h2>{lead.name||lead.email}</h2><p>{lead.email}</p><small>{t('contacts.profileMeta',{id:lead.id,date:dateTime(lead.created_at,{year:'numeric'},language)})}</small></div><ContactStatus lead={lead}/></div>
-          <fieldset disabled={saving} className="sk-contact-field-grid"><label>{t('contacts.email')}<input aria-label={t('contacts.email')} value={lead.email} readOnly/><code>{'{{email}}'}</code></label><label>{t('contacts.name')}<input aria-label={t('contacts.name')} maxLength={255} value={editName} onChange={e=>setEditName(e.target.value)}/><code>{'{{name}}'}</code></label></fieldset>
+          <fieldset disabled={saving} className="sk-contact-field-grid"><label>{text110("Preferowany język","Preferred language")}<LanguageSelect value={editLanguage} onChange={setEditLanguage}/></label><label>{t('contacts.email')}<input aria-label={t('contacts.email')} value={lead.email} readOnly/><code>{'{{email}}'}</code></label><label>{t('contacts.name')}<input aria-label={t('contacts.name')} maxLength={255} value={editName} onChange={e=>setEditName(e.target.value)}/><code>{'{{name}}'}</code></label></fieldset>
         </Panel>
         <Panel title={t('contacts.customFields')} action={<Button to="/leads?fields=1" icon="settings">{t('contacts.manageFields')}</Button>}>
           <p className="sk-muted sk-small">{t('contacts.customHelp')}</p>
           <fieldset disabled={saving} className="sk-contact-field-grid">{customFields.map(f=><label key={f.key}>{f.label||f.key}<FieldInput field={f} aria-label={f.label||f.key} value={editCustom[f.key]} onChange={v=>setEditCustom(p=>({...p,[f.key]:f.field_type==='number'&&v!==''?Number(v):v}))}/><code>{`{{${f.key}}}`}</code>{!f.defined&&<small className="sk-muted">{t('contacts.detected')}</small>}</label>)}</fieldset>
           {!customFields.length&&<p className="sk-muted">{t('contacts.noFields')}</p>}
-          <ErrorNotice error={saveError}/><div className="sk-contact-savebar"><span role="status">{saving?t('contacts.saving'):dirty?t('contacts.unsaved'):t('contacts.clean')}</span><Button disabled={saving||!dirty} onClick={async()=>{if(await confirm(t('contacts.discardWarning'))){setEditName(lead.name||'');setEditCustom({...lead.custom_data});setSaveError(null);}}}>{t('contacts.discard')}</Button><Button type="submit" variant="primary" disabled={saving||!dirty}>{t('contacts.save')}</Button></div>
+          <ErrorNotice error={saveError}/><div className="sk-contact-savebar"><span role="status">{saving?t('contacts.saving'):dirty?t('contacts.unsaved'):t('contacts.clean')}</span><Button disabled={saving||!dirty} onClick={async()=>{if(await confirm(t('contacts.discardWarning'))){setEditLanguage(lead.preferred_language||'');setEditName(lead.name||'');setEditCustom({...lead.custom_data});setSaveError(null);}}}>{t('contacts.discard')}</Button><Button type="submit" variant="primary" disabled={saving||!dirty}>{t('contacts.save')}</Button></div>
         </Panel>
         <Panel title={t('contacts.profileStatus')}><dl className="sk-contact-status-grid"><div><dt>{t('contacts.archived')}</dt><dd>{lead.archived_at?dateTime(lead.archived_at,{},language):t('contacts.no')}</dd></div><div><dt>{t('contacts.suppressed')}</dt><dd>{lead.suppressed?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.sendingPaused')}</dt><dd>{campaigns.some(c=>c.sending_paused)?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.verification')}</dt><dd>{lead.email_verification_status?contactStatusLabel(lead.email_verification_status,t):t('contacts.noResult')}</dd></div><div><dt>{t('contacts.campaignUnsubscribe')}</dt><dd>{campaigns.some(c=>c.status==='unsubscribed')?t('contacts.yes'):t('contacts.no')}</dd></div><div><dt>{t('contacts.campaignBounce')}</dt><dd>{campaigns.some(c=>c.status==='bounced')?t('contacts.yes'):t('contacts.no')}</dd></div></dl></Panel>
       </form>}
-      {tab==='crm'&&(dirty?<Panel title={t('contacts.unsaved')}><Button onClick={()=>setTab('summary')}>{t('contacts.summary')}</Button></Panel>:<><ContactAutomationTags id={id}/><CrmContact key={id} id={id} onDirtyChange={setCrmDirty} onChanged={()=>{api.get(`/leads/${id}`).then(l=>{setLead(l);setEditName(l.name||'');setEditCustom({...l.custom_data});}).catch(setSaveError);}}/></>)}
+      {tab==='crm'&&(dirty?<Panel title={t('contacts.unsaved')}><Button onClick={()=>setTab('summary')}>{t('contacts.summary')}</Button></Panel>:<><ContactAutomationTags id={id}/><CrmContact key={id} id={id} onDirtyChange={setCrmDirty} onChanged={()=>{api.get(`/leads/${id}`).then(l=>{setLead(l);setEditLanguage(l.preferred_language||'');setEditName(l.name||'');setEditCustom({...l.custom_data});}).catch(setSaveError);}}/></>)}
       {tab==='activity'&&<Panel title={t('contacts.timeline')}><p className="sk-muted sk-small">{t('contacts.timelineHelp')}</p><div className="sk-contact-activity-filters"><label>{t('contacts.activityType')}<select value={kind} onChange={e=>setKind(e.target.value)}><option value="">{t('contacts.allEvents')}</option><option value="messages">{t('contacts.messagesReplies')}</option><option value="operation">{t('contacts.operations')}</option><option value="enrolled">{t('contacts.assignments')}</option><option value="reply_marker">{t('contacts.confirmedReplies')}</option></select></label><label>{t('contacts.campaign')}<select value={campaign} onChange={e=>setCampaign(e.target.value)}><option value="">{t('contacts.allCampaigns')}</option>{campaigns.map(c=><option key={c.campaign_id} value={c.campaign_id}>{c.campaign_name}</option>)}</select></label></div><Timeline events={filtered}/></Panel>}
       {tab==='campaigns'&&<Panel title={t('contacts.contactCampaigns')}><Campaigns items={campaigns}/></Panel>}
       {tab==='messages'&&<Panel title={t('contacts.messages')}><p className="sk-muted sk-small">{t('contacts.messagesHelp')}</p><Timeline events={events.filter(e=>!!e.direction&&e.kind!=='reply_marker')}/><Button to="/unibox" icon="mail">{t('contacts.openInbox')}</Button></Panel>}

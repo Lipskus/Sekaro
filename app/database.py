@@ -81,6 +81,17 @@ async def _run_migrations(conn) -> None:
         return
 
     pg_alters = [
+        "ALTER TABLE email_log ADD COLUMN IF NOT EXISTS message_language VARCHAR(12) NOT NULL DEFAULT ''",
+        "ALTER TABLE email_log ADD COLUMN IF NOT EXISTS rendered_body TEXT NULL",
+        "ALTER TABLE email_log ADD COLUMN IF NOT EXISTS rendered_is_html BOOLEAN NULL",
+        "ALTER TABLE lead ADD COLUMN IF NOT EXISTS preferred_language VARCHAR(12) NOT NULL DEFAULT ''",
+        "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS default_language VARCHAR(12) NOT NULL DEFAULT 'en'",
+        "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS multilingual BOOLEAN NOT NULL DEFAULT FALSE",
+        "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS missing_translation VARCHAR(16) NOT NULL DEFAULT 'block'",
+        "ALTER TABLE sequence ADD COLUMN IF NOT EXISTS translations JSON NOT NULL DEFAULT '{}'",
+        "ALTER TABLE sequence_variant ADD COLUMN IF NOT EXISTS translations JSON NOT NULL DEFAULT '{}'",
+        "ALTER TABLE mail_identity ADD COLUMN IF NOT EXISTS footer_translations JSON NOT NULL DEFAULT '{}'",
+        "ALTER TABLE smtp_account ADD COLUMN IF NOT EXISTS last_test_results JSON NOT NULL DEFAULT '{}'",
         "ALTER TABLE campaign ADD COLUMN IF NOT EXISTS archived BOOLEAN NOT NULL DEFAULT FALSE",
         "ALTER TABLE campaign_lead ADD COLUMN IF NOT EXISTS archive_sending_paused BOOLEAN NOT NULL DEFAULT FALSE",
         "ALTER TABLE lead ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP NULL",

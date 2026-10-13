@@ -13,7 +13,8 @@ from sqlalchemy import text, select
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from sqlalchemy.engine import make_url
 from app.database import Base, _run_migrations
-from app.models import Inbox, SmtpAccount, SmtpArchive, SmtpSyncState
+from app.models import Inbox, SmtpAccount, SmtpArchive, SmtpSyncState, Lead, Campaign, Sequence
+from app.mail_identity import MailIdentity
 
 
 async def main():
@@ -35,13 +36,16 @@ async def main():
             db.add(inbox)
             await db.flush()
             db.add(SmtpAccount(inbox_id=inbox.id, smtp_host='smtp.example.test'))
+            db.add(Lead(email='language@example.test',custom_data={'language':'Polish'}))
+            db.add(Campaign(name='Preserved campaign'))
+            db.add(MailIdentity(inbox_id=inbox.id,footer_text='Original signature'))
             db.add(SmtpSyncState(inbox_id=inbox.id, uidvalidity=77, last_uid=99))
             await db.commit()
             inbox_id = inbox.id
         # Simulate a database from the preceding release, retaining its records.
         async with engine.begin() as conn:
             await conn.execute(text('DROP TABLE smtp_archive'))
-            for table, column in [('smtp_account', 'retention_mode'), ('smtp_account', 'retention_days'), ('smtp_sync_state', 'archive_last_uid'), ('smtp_sync_state', 'last_error')]:
+            for table, column in [('lead','preferred_language'),('campaign','default_language'),('campaign','multilingual'),('campaign','missing_translation'),('sequence','translations'),('sequence_variant','translations'),('mail_identity','footer_translations'),('smtp_account','last_test_results'),('email_log','message_language'),('email_log','rendered_body'),('email_log','rendered_is_html'),('smtp_account', 'retention_mode'), ('smtp_account', 'retention_days'), ('smtp_sync_state', 'archive_last_uid'), ('smtp_sync_state', 'last_error')]:
                 await conn.execute(text(f'ALTER TABLE {table} DROP COLUMN {column}'))
         for _ in range(2):  # Startup migrations must be repeatable.
             async with engine.begin() as conn:
@@ -50,6 +54,13 @@ async def main():
         async with Session() as db:
             acct = (await db.execute(select(SmtpAccount))).scalar_one()
             state = (await db.execute(select(SmtpSyncState))).scalar_one()
+            assert (await db.scalar(select(Lead))).preferred_language==''
+            assert (await db.scalar(select(Lead))).custom_data=={'language':'Polish'}
+            campaign=await db.scalar(select(Campaign))
+            assert campaign.default_language=='en' and not campaign.multilingual and campaign.missing_translation=='block'
+            identity=await db.get(MailIdentity,inbox_id)
+            assert identity.footer_text=='Original signature' and identity.footer_translations=={}
+            assert acct.last_test_results=={}
             assert acct.retention_mode == 'keep' and acct.retention_days == 30
             assert state.last_uid == 99 and state.archive_last_uid == 0
             db.add(SmtpArchive(inbox_id=inbox_id, source_key='qa', uidvalidity=77, uid=42,

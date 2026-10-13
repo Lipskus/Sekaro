@@ -112,11 +112,11 @@ async def create_contact(data: ContactCreate, db: AsyncSession=Depends(get_db)):
         raise HTTPException(409,"Kontakt o tym adresie już istnieje.")
     if await is_suppressed(db,email):
         raise HTTPException(409,"Adres znajduje się na liście wykluczeń. Nie został ponownie dodany.")
-    lead=Lead(email=email,name=data.name.strip(),custom_data=data.custom_data,status="active")
+    lead=Lead(preferred_language=data.preferred_language,email=email,name=data.name.strip(),custom_data=data.custom_data,status="active")
     db.add(lead)
     await db.commit()
     await db.refresh(lead)
-    return LeadResponse(id=lead.id,email=lead.email,name=lead.name,custom_data=lead.custom_data,
+    return LeadResponse(preferred_language=lead.preferred_language,id=lead.id,email=lead.email,name=lead.name,custom_data=lead.custom_data,
                         created_at=lead.created_at,provider=lead.provider,campaigns=[])
 
 from app.models import Inbox

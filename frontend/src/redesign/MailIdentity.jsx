@@ -1,3 +1,4 @@
+import LanguageVariants from './LanguageVariants';
 import {useEffect,useRef,useState} from 'react';
 import ReactQuill from 'react-quill';
 import {useOptionalAuth} from '../context/AuthContext';
@@ -24,7 +25,7 @@ function Editor({inboxId,onDirtyChange,onBusyChange}){
  }
  async function save(){
   if(lock.current||!dirty)return;lock.current=true;setBusy(true);onBusyChange?.(true);setError(null);
-  try{const result=await api.put(`/inboxes/${inboxId}/identity`,{revision:data.revision,footer_enabled:draft.footer_enabled,footer_html:draft.footer_html,footer_text:draft.footer_text,smime_enabled:draft.smime_enabled,...(draft.certificate!==undefined?{certificate:draft.certificate,password:draft.password||''}:{}),remove_certificate:!!draft.remove_certificate});setData(result);setDraft(result);if(fileRef.current)fileRef.current.value='';setSaved(true);}catch(e){setError(e.message);}finally{lock.current=false;setBusy(false);onBusyChange?.(false);}
+  try{const result=await api.put(`/inboxes/${inboxId}/identity`,{revision:data.revision,footer_translations:draft.footer_translations||{},footer_enabled:draft.footer_enabled,footer_html:draft.footer_html,footer_text:draft.footer_text,smime_enabled:draft.smime_enabled,...(draft.certificate!==undefined?{certificate:draft.certificate,password:draft.password||''}:{}),remove_certificate:!!draft.remove_certificate});setData(result);setDraft(result);if(fileRef.current)fileRef.current.value='';setSaved(true);}catch(e){setError(e.message);}finally{lock.current=false;setBusy(false);onBusyChange?.(false);}
  }
  return <div className="sk-mailbox-archive">
   <h3>{ct('Stopka i S/MIME')}</h3><p>{ct('Obie opcje są niezależne i domyślnie wyłączone.')}</p>
@@ -34,6 +35,7 @@ function Editor({inboxId,onDirtyChange,onBusyChange}){
    <label>{ct('Stopka tekstowa')}<textarea aria-label={ct('Stopka tekstowa')} value={draft.footer_text} onChange={e=>change('footer_text',e.target.value)} maxLength={10000}/></label>
    <p>{ct('Stopka z formatowaniem')}</p><ReactQuill theme="snow" value={draft.footer_html} onChange={value=>change('footer_html',value)} modules={{toolbar:[['bold','italic','underline'],[{list:'ordered'},{list:'bullet'}],['link','clean']]}}/>
    <details><summary>{ct('Podgląd stopki')}</summary><SafeEmail html={draft.footer_html}/><pre style={{whiteSpace:'pre-wrap'}}>{draft.footer_text}</pre></details>
+   <LanguageVariants footer value={draft.footer_translations||{}} onChange={v=>change('footer_translations',v)}/>
    <hr/><label><input type="checkbox" checked={draft.smime_enabled} disabled={!draft.encryption_ready} onChange={e=>change('smime_enabled',e.target.checked)}/>{ct('Podpisuj wiadomości certyfikatem S/MIME')}</label>
    <p>{ct('Włączone S/MIME blokuje wysyłkę, jeśli certyfikat jest nieprawidłowy. Nie gwarantuje ominięcia spamu.')}</p>
    {!draft.encryption_ready&&<p role="status">{ct('Import certyfikatu wymaga klucza szyfrowania na serwerze.')}</p>}

@@ -14,6 +14,7 @@ router = APIRouter(prefix='/api/inboxes',tags=['mail-identity'],dependencies=[De
 class IdentityBody(BaseModel):
     model_config = ConfigDict(extra='forbid')
     revision: int
+    footer_translations: dict = Field(default_factory=dict)
     footer_enabled: bool = False
     footer_html: str = Field(default='',max_length=20000)
     footer_text: str = Field(default='',max_length=10000)
@@ -28,7 +29,7 @@ async def mailbox(db,id):
     return inbox
 
 def public(row,email):
-    data = {'revision':row.revision if row else 0,'footer_enabled':bool(row and row.footer_enabled),
+    data = {'footer_translations':(row.footer_translations or {}) if row else {},'revision':row.revision if row else 0,'footer_enabled':bool(row and row.footer_enabled),
         'footer_html':row.footer_html if row else '', 'footer_text':row.footer_text if row else '',
         'smime_enabled':bool(row and row.smime_enabled),'has_certificate':bool(row and row.certificate),
         'encryption_ready':encryption_enabled(),'certificate_status':None,'certificate_expires':None}
@@ -58,10 +59,20 @@ async def save(inbox_id:int,body:IdentityBody,db=Depends(get_db),user=Depends(re
         except SigningError as e:raise HTTPException(422,str(e)) from None
     # Same server-side allowlist as other email HTML; no scripts/event handlers.
     from app.mail_identity import sanitize_email_html
+    from app.languages import required_language
+    translations={}
+    for language, value in body.footer_translations.items():
+        try: code=required_language(language)
+        except ValueError as exc: raise HTTPException(422,str(exc)) from None
+        if not isinstance(value,dict) or set(value)-{'footer_html','footer_text'}:raise HTTPException(422,'Invalid footer translation')
+        text=value.get('footer_text','');html=value.get('footer_html','')
+        if not isinstance(text,str) or not isinstance(html,str) or not text.strip() or len(text)>10000 or len(html)>20000:raise HTTPException(422,'Each footer language requires plain text (max. 10000 characters)')
+        translations[code]={'footer_text':text,'footer_html':sanitize_email_html(html)}
     clean_html=sanitize_email_html(body.footer_html)
     if body.footer_enabled and not body.footer_text.strip():raise HTTPException(422,'Provide a plain-text footer for text messages')
     if row is None:
         row=MailIdentity(inbox_id=inbox_id,revision=0);db.add(row)
+    row.footer_translations=translations
     row.footer_enabled=body.footer_enabled;row.footer_html=clean_html;row.footer_text=body.footer_text
     row.smime_enabled=body.smime_enabled;row.certificate=certificate;row.password=password;row.revision+=1
     audit(db,user,'mail.identity.update',{'inbox_id':inbox_id,'footer_enabled':row.footer_enabled,'smime_enabled':row.smime_enabled,'certificate_replaced':body.certificate is not None,'certificate_removed':body.remove_certificate})
@@ -72,6 +83,7 @@ async def save(inbox_id:int,body:IdentityBody,db=Depends(get_db),user=Depends(re
 from app.auth import get_current_user
 preview_router = APIRouter(prefix='/api/inboxes', dependencies=[Depends(get_current_user)])
 class PreviewBody(BaseModel):
+    language: str | None = None
     body: str = Field(default='', max_length=200000)
     is_html: bool = False
 
@@ -80,6 +92,6 @@ async def preview(inbox_id:int, body:PreviewBody, db=Depends(get_db)):
     inbox=await db.get(Inbox,inbox_id)
     if not inbox:raise HTTPException(404,'Mailbox not found')
     from app.mail_identity import load_identity, append_footer
-    identity=await load_identity(db,inbox_id)
+    identity=await load_identity(db,inbox_id,body.language)
     return {'body':append_footer(body.body,body.is_html,identity),'is_html':body.is_html,
             'smime_enabled':bool(identity and identity.get('smime_enabled'))}

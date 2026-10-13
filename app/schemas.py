@@ -30,13 +30,18 @@ class LeadCampaignInfo(BaseModel):
         from_attributes = True
 
 
+from app.languages import ContactLanguage, CampaignLanguage, Translations
+from typing import Literal
+
 class LeadCreate(BaseModel):
+    preferred_language: ContactLanguage = ""
     email: str
     name: str = ""
     custom_data: Dict[str, Any] = {}
 
 
 class LeadUpdate(BaseModel):
+    preferred_language: Optional[ContactLanguage] = None
     name: Optional[str] = None
     custom_data: Optional[Dict[str, Any]] = None
     # Applied to every CampaignLead row for this lead (queue may recalculate)
@@ -57,6 +62,7 @@ class LeadRecoverRequest(BaseModel):
 
 
 class LeadResponse(BaseModel):
+    preferred_language: str = ""
     archived_at: Optional[datetime] = None
     lead_status: str = "active"
     suppressed: bool = False
@@ -313,6 +319,7 @@ class ConnectUrlResponse(BaseModel):
 
 
 class SequenceVariantCreate(BaseModel):
+    translations: Translations = Field(default_factory=dict)
     label: str = ""
     subject: Optional[str] = None  # None = use sequence subject
     body: str
@@ -322,6 +329,7 @@ class SequenceVariantCreate(BaseModel):
 
 
 class SequenceVariantUpdate(BaseModel):
+    translations: Optional[Translations] = None
     label: Optional[str] = None
     subject: Optional[str] = None
     body: Optional[str] = None
@@ -331,6 +339,7 @@ class SequenceVariantUpdate(BaseModel):
 
 
 class SequenceVariantResponse(BaseModel):
+    translations: Translations = Field(default_factory=dict)
     id: int
     sequence_id: int
     label: str
@@ -346,6 +355,7 @@ class SequenceVariantResponse(BaseModel):
 
 
 class SequenceCreate(BaseModel):
+    translations: Translations = Field(default_factory=dict)
     position: int
     subject: Optional[str] = None
     body: str
@@ -358,6 +368,7 @@ class SequenceCreate(BaseModel):
 
 
 class SequenceUpdate(BaseModel):
+    translations: Optional[Translations] = None
     subject: Optional[str] = None
     body: Optional[str] = None
     wait_days_after_previous: Optional[int] = None
@@ -369,6 +380,7 @@ class SequenceUpdate(BaseModel):
 
 
 class SequenceResponse(BaseModel):
+    translations: Translations = Field(default_factory=dict)
     id: int
     campaign_id: int
     position: int
@@ -393,6 +405,9 @@ class CustomEmailWrite(BaseModel):
 
 
 class CampaignCreate(BaseModel):
+    default_language: CampaignLanguage = "en"
+    multilingual: bool = False
+    missing_translation: Literal["block", "default"] = "block"
     name: str
     inbox_ids: List[int]  # at least one; order = priority for slot assignment
     sending_days: List[int] = [0, 1, 2, 3, 4]  # Mon=0 .. Sun=6
@@ -419,6 +434,9 @@ class CampaignCreate(BaseModel):
 
 
 class CampaignUpdate(BaseModel):
+    default_language: Optional[CampaignLanguage] = None
+    multilingual: Optional[bool] = None
+    missing_translation: Optional[Literal["block", "default"]] = None
     archived: Optional[bool] = None
     name: Optional[str] = None
     inbox_ids: Optional[List[int]] = None
@@ -476,6 +494,9 @@ class CampaignStats(BaseModel):
 
 
 class CampaignResponse(BaseModel):
+    default_language: CampaignLanguage = "en"
+    multilingual: bool = False
+    missing_translation: Literal["block", "default"] = "block"
     archived: bool = False
     id: int
     public_id: str
@@ -510,6 +531,7 @@ class AddLeadToCampaign(BaseModel):
 
 
 class CampaignLeadAdd(BaseModel):
+    preferred_language: ContactLanguage = ""
     """Used for adding (and optionally creating) leads directly from a campaign."""
     email: str
     name: str = ""

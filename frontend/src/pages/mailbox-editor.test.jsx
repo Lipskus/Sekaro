@@ -14,7 +14,7 @@ const archive={mode:'keep',days:30,imap_configured:true,count:0,bytes:0,messages
 const smtp={smtp_host:'smtp.example.test',smtp_port:587,smtp_username:'sender',has_smtp_password:true,imap_host:'imap.example.test',imap_port:993};
 async function mount(){render(<MemoryRouter><Inboxes/></MemoryRouter>);fireEvent.click(await screen.findByRole('button',{name:'sender@example.test Nadawca'}));fireEvent.click(screen.getByRole('button',{name:'Edytuj',exact:true}));}
 async function connection(){fireEvent.click(screen.getByRole('button',{name:'SMTP / IMAP',exact:true}));return await screen.findByRole('textbox',{name:'Host SMTP',exact:true});}
-beforeEach(()=>{vi.clearAllMocks();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({json:async()=>({})}));api.get.mockImplementation(p=>Promise.resolve(p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.put.mockResolvedValue(smtp);});
+beforeEach(()=>{vi.clearAllMocks();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({json:async()=>({})}));api.get.mockImplementation(p=>Promise.resolve(p==='/public-endpoint/capabilities'?{mode:'legacy',tracking:true}:p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.put.mockResolvedValue(smtp);});
 afterEach(()=>{cleanup();vi.unstubAllGlobals();});
 it('preserves SMTP drafts across sections and cancellation, and saves only once',async()=>{
  await mount();const host=await connection();fireEvent.change(host,{target:{value:'new.example.test'}});
@@ -62,7 +62,7 @@ it.each(['de','ru'])('keeps the verified DNS domain when switching to %s',async 
  const {LanguageProvider,useLanguage}=await import('../context/LanguageContext');
  const {operationsText:t}=await import('../context/operationsLanguage');
  function Switch(){const {setLanguage}=useLanguage();return <button onClick={()=>setLanguage(language)}>language</button>;}
- localStorage.clear();api.get.mockImplementation(p=>Promise.resolve(p.includes('verify-tracking-domain')?{ok:true}:p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.post.mockResolvedValue({});
+ localStorage.clear();api.get.mockImplementation(p=>Promise.resolve(p.includes('verify-tracking-domain')?{ok:true}:p==='/public-endpoint/capabilities'?{mode:'legacy',tracking:true}:p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.post.mockResolvedValue({});
  render(<LanguageProvider><MemoryRouter><Switch/><Inboxes/></MemoryRouter></LanguageProvider>);
  fireEvent.click(await screen.findByRole('button',{name:'sender@example.test Nadawca'}));fireEvent.click(screen.getByRole('button',{name:'Edytuj',exact:true}));
  fireEvent.click(screen.getByRole('button',{name:'Śledzenie',exact:true}));
@@ -89,7 +89,7 @@ it.each(['de','ru'])('does not delete a mailbox when the %s confirmation is canc
 it('updates an in-flight DNS verification message without restarting the request',async()=>{
  const {LanguageProvider,useLanguage}=await import('../context/LanguageContext');const {operationsText:t}=await import('../context/operationsLanguage');
  function Switch(){const {setLanguage}=useLanguage();return <button onClick={()=>setLanguage('de')}>language</button>;}
- let resolve;localStorage.clear();api.get.mockImplementation(p=>p.includes('verify-tracking-domain')?new Promise(r=>{resolve=r}):Promise.resolve(p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.post.mockResolvedValue({});
+ let resolve;localStorage.clear();api.get.mockImplementation(p=>p.includes('verify-tracking-domain')?new Promise(r=>{resolve=r}):Promise.resolve(p==='/public-endpoint/capabilities'?{mode:'legacy',tracking:true}:p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));api.post.mockResolvedValue({});
  render(<LanguageProvider><MemoryRouter><Switch/><Inboxes/></MemoryRouter></LanguageProvider>);
  fireEvent.click(await screen.findByRole('button',{name:'sender@example.test Nadawca'}));fireEvent.click(screen.getByRole('button',{name:'Edytuj',exact:true}));fireEvent.click(screen.getByRole('button',{name:'Śledzenie',exact:true}));fireEvent.click(screen.getByRole('radio',{name:'Konfiguracja DNS',exact:true}));fireEvent.change(screen.getByPlaceholderText('mail.twojadomena.pl'),{target:{value:'track.example.test'}});fireEvent.click(screen.getByRole('button',{name:'Sprawdź',exact:true}));
  await screen.findByText('Wystawianie certyfikatu SSL…');api.get.mockClear();api.post.mockClear();fireEvent.click(screen.getByRole('button',{name:'language'}));expect(screen.getByText(t('de','Wystawianie certyfikatu SSL…'))).toBeTruthy();expect(api.get).not.toHaveBeenCalled();expect(api.post).not.toHaveBeenCalled();
@@ -103,4 +103,26 @@ it('does not retry blocked deletion using the unsupported reassign parameter',as
  fireEvent.click(screen.getByRole('button',{name:'Usuń skrzynkę',exact:true}));
  await waitFor(()=>expect(api.del).toHaveBeenCalledTimes(1));
  expect(api.del).toHaveBeenCalledWith('/inboxes/1');expect(confirmations.ask).toHaveBeenCalledTimes(1);
+});
+
+it('tests draft SMTP and IMAP without creating a mailbox and clears the result after editing',async()=>{
+ api.post.mockResolvedValue({ok:false,smtp:{ok:true},imap:{ok:false,error:'Authentication failed'},last_tested_at:'2026-10-13T12:00:00Z'});
+ render(<MemoryRouter><Inboxes/></MemoryRouter>);
+ fireEvent.click((await screen.findAllByRole('button',{name:'Dodaj skrzynkę',exact:true}))[0]);
+ fireEvent.change(document.getElementById('inbox-add-2'),{target:{value:'new@example.test'}});
+ fireEvent.change(document.getElementById('inbox-add-9'),{target:{value:'smtp.example.test'}});
+ fireEvent.change(document.getElementById('inbox-add-11'),{target:{value:'new'}});
+ fireEvent.change(document.getElementById('inbox-add-12'),{target:{value:'secret'}});
+ fireEvent.click(screen.getByRole('button',{name:'Testuj połączenie'}));
+ await screen.findByText(/Authentication failed/);
+ expect(api.post.mock.calls.map(([p])=>p)).toEqual(['/smtp/test']);
+ fireEvent.change(document.getElementById('inbox-add-9'),{target:{value:'other.example.test'}});
+ expect(screen.queryByText(/Authentication failed/)).toBeNull();
+});
+
+it('hides legacy tracking options in a private installation',async()=>{
+ api.get.mockImplementation(p=>Promise.resolve(p==='/public-endpoint/capabilities'?{mode:'private',tracking:false}:p==='/inboxes'?[inbox]:p.includes('/archive')?archive:smtp));
+ await mount();fireEvent.click(screen.getByRole('button',{name:'Śledzenie',exact:true}));
+ expect(await screen.findByText(/Śledzenie wyłączone: instalacja prywatna/)).toBeTruthy();
+ expect(screen.queryByRole('radio',{name:'Konfiguracja DNS'})).toBeNull();
 });

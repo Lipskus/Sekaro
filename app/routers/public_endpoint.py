@@ -29,3 +29,15 @@ async def status(db=Depends(get_db)):
         return {'mode':config['mode'],'endpoints':rows}
     except Exception:
         return {'mode':'invalid','endpoints':[]}
+
+
+from app.auth import get_current_user
+capability_router=APIRouter(prefix='/api/public-endpoint',dependencies=[Depends(get_current_user)])
+@capability_router.get('/capabilities')
+async def capabilities():
+    try:
+        cfg=configuration()
+        return {'mode':cfg['mode'],'tracking':cfg['mode'] in ('tracking','legacy'),
+                'unsubscribe':cfg['mode']!='private','profiles':[{'inbox_ids':p.get('inbox_ids',[])} for p in cfg['endpoints'] if not p.get('retired')]}
+    except Exception:
+        return {'mode':'invalid','tracking':False,'unsubscribe':False,'profiles':[]}
